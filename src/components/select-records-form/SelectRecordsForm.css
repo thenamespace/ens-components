@@ -1,14 +1,43 @@
 .ns-select-records-form {
     background-color: var(--ns-color-bg-accent);
-    width: 500px;
-    height: 100px;
+    width: 100%;
+    max-width: 450px;
+    padding: 15px;
+}
+
+.ns-select-records-form .ns-select-records-content {
+    background-color: var(--ns-color-bg);
+    padding: 15px;
+}
+
+.ns-select-records-nav {
+    /* display: flex;
+    align-items: center;
+    justify-content: space-between; */
+}
+
+.ns-select-records-nav .nav-cont {
+    background-color: var(--ns-color-bg);
+    padding: 10px;
+    width: 100%;
+    cursor: pointer;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    opacity: 0.5;
+}
+
+.ns-select-records-nav .nav-cont:hover {
+    opacity: 0.8;
+}
+
+.ns-select-records-nav .nav-cont.active {
+    background-color: var(--ns-color-bg);
+    opacity: 1;
+}
+
+
+.ns-select-records-form .ns-cover-cont {
     padding: 10px;
 }
 
-.ns-select-records-form .ns-cover-cont {
-
-}
-
-.ns-select-records-form .ns-avatar-cont {
-    
-}
+.ns-select-records-form .ns-avatar-cont {}

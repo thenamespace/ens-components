@@ -1,12 +1,18 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { ThemeProvider, Button, Input, Dropdown, SelectRecordsForm } from '../src';
+import "../src/styles/theme.css";
 
 function TestApp() {
   return (
     <div>Hello there
 
-      <SelectRecordsForm/>
+      <SelectRecordsForm records={{
+        addresses: [],
+        texts: []
+      }}
+        onRecordsUpdated={() => {}}
+      />
     </div>
   );
 }

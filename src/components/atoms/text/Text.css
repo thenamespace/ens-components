@@ -1,0 +1,57 @@
+.ns-text {
+  font-family: var(--ns-font-family);
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+}
+
+/* Size variants */
+.ns-text--sm {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.ns-text--md {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.ns-text--lg {
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+.ns-text--xl {
+  font-size: 1.25rem;
+  line-height: 1.6;
+}
+
+/* Weight variants */
+.ns-text--light {
+  font-weight: 300;
+}
+
+.ns-text--regular {
+  font-weight: 400;
+}
+
+.ns-text--medium {
+  font-weight: 500;
+}
+
+.ns-text--bold {
+  font-weight: 700;
+}
+
+/* Color variants */
+.ns-text--primary {
+  color: var(--ns-color-primary);
+}
+
+.ns-text--white {
+  color: #ffffff;
+}
+
+.ns-text--grey {
+  color: var(--ns-color-muted);
+} 
