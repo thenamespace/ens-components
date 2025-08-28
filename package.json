@@ -29,7 +29,8 @@
     "clean": "rimraf dist",
     "lint": "eslint .",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "test-app": "vite test-app --port 3000"
   },
   "keywords": [],
   "author": "",
@@ -53,5 +54,9 @@
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
     "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "viem": "^2.36.0",
+    "wagmi": "^2.16.8"
   }
 }

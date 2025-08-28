@@ -1,4 +1,4 @@
 export * from "./theme/ThemeProvider";
-export * from "./atoms";
-export * from "./molecules";
+export * from "./components/atoms";
+export * from "./components/molecules";
 export * from "./components"; 
