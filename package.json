@@ -57,6 +57,7 @@
     "vite": "^6.3.5"
   },
   "dependencies": {
+    "lucide-react": "^0.542.0",
     "viem": "^2.36.0",
     "wagmi": "^2.16.8"
   }

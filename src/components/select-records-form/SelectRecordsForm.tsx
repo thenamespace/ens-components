@@ -1,7 +1,7 @@
 
 import { useState } from "react"
 import { EnsRecords } from "../../types"
-import { Text } from "../atoms"
+import { Icon, Text } from "../atoms"
 import { TextRecords } from "./TextRecords"
 import { AddressRecords } from "./AddressRecords"
 import { ContenthashRecord } from "./ContenthashRecord"
@@ -56,6 +56,7 @@ export const SelectRecordsForm = ({
            { selectedItem === NAV_TEXTS && <TextRecords></TextRecords>}
            { selectedItem === NAV_ADDRS && <AddressRecords/>}
            { selectedItem === WEBSITE && <ContenthashRecord/>}
+           <Icon name="person"></Icon>
         </div>
     </div>
 }
