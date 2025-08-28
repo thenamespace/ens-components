@@ -37,7 +37,7 @@
 .ns-btn--outline {
   background-color: transparent;
   color: var(--ns-color-primary);
-  border-color: var(--ns-color-primary);
+  border-color: #2A2A2A;
 }
 .ns-btn--outline:hover:not(:disabled) {
   background-color: color-mix(in srgb, var(--ns-color-primary) 10%, transparent);
