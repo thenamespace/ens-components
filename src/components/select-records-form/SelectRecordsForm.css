@@ -33,5 +33,11 @@
   padding: 10px;
 }
 
-.ns-select-records-form .ns-avatar-cont {
+.ns-select-records-form .ns-close-icon {
+  cursor: pointer; 
+  transition: all 0.25s linear;
+}
+
+.ns-select-records-form .ns-close-icon:hover {
+  transform: scale(1.1);
 }

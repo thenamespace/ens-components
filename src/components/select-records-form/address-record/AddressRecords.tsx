@@ -36,7 +36,7 @@ export const AddressRecords = ({addresses, onAddressesChanged }: AddressRecordPr
        <div className="col-8 d-flex align-items-center ns-mb-2">
           <Input placeholder={`Your ${supportedAddress.label} address here...`}/>
           <div onClick={() => handleAddressRemoved(supportedAddress.coinType)}>
-            <Icon name="x" size={16} className="ns-ms-1"/>
+            <Icon name="x" size={16} className="ns-ms-1 ns-close-icon"/>
           </div>
        </div>
     </div>

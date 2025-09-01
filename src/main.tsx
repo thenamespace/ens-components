@@ -52,8 +52,8 @@ function TestApp() {
         Print
       </Button>
       <ContenthashIcon protocol={ContenthashProtocol.Ipfs} size={20}/>
-      <ContenthashIcon protocol={ContenthashProtocol.Airwave} size={20}/>
-      <ContenthashIcon protocol={ContenthashProtocol.Onions} size={20}/>
+      <ContenthashIcon protocol={ContenthashProtocol.Arweave} size={20}/>
+      <ContenthashIcon protocol={ContenthashProtocol.Onion} size={20}/>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 export interface EnsRecords {
   addresses: EnsAddressRecord[];
   texts: EnsTextRecord[];
-  contenthash?: ContenthashRecord;
+  contenthash?: EnsContenthashRecord;
 }
 
 export interface EnsTextRecord {
@@ -14,8 +14,8 @@ export interface EnsAddressRecord {
   value: string;
 }
 
-export interface ContenthashRecord {
-  protocol: string;
+export interface EnsContenthashRecord {
+  protocol: ContenthashProtocol;
   value: string;
 }
 

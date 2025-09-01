@@ -1,11 +1,16 @@
 import { useState } from "react";
-import { EnsAddressRecord, EnsRecords, EnsTextRecord } from "../../types";
+import {
+  EnsAddressRecord,
+  EnsContenthashRecord,
+  EnsRecords,
+  EnsTextRecord,
+} from "../../types";
 import { Button, Text } from "../atoms";
 import { TextRecords } from "./text-records/TextRecords";
 import { AddressRecords } from "./address-record/AddressRecords";
 import { ContenthashRecord } from "./contenthash-records/ContenthashRecord";
 import "./SelectRecordsForm.css";
-import { RecordsSelector } from "./records-selector/RecordsSelector";
+import { RecordsSelector, ScrollToRecordSegment } from "./records-selector/RecordsSelector";
 
 const NAV_TEXTS = "Text Records";
 const NAV_ADDRS = "Address Records";
@@ -38,22 +43,57 @@ export const SelectRecordsForm = ({
     textKeys.forEach(key => {
       texts.push({
         key: key,
-        value: ""
-      })
-    })
+        value: "",
+      });
+    });
     onRecordsUpdated({ ...records, texts: texts });
-  }
+  };
 
   const handleAddressesAdded = (coins: number[]) => {
     const addresses = [...records.addresses];
-    console.log("Handling coins addresses", coins)
+    console.log("Handling coins addresses", coins);
     coins.forEach(coin => {
       addresses.push({
         coinType: coin,
-        value: ""
-      })
-    })
-    onRecordsUpdated({ ...records, addresses: addresses })
+        value: "",
+      });
+    });
+    onRecordsUpdated({ ...records, addresses: addresses });
+  };
+
+  const handleContenthashAdded = (hash: EnsContenthashRecord) => {
+    let value = "";
+    if (records.contenthash && records.contenthash.protocol === hash.protocol) {
+      value = records.contenthash.value;
+    }
+    onRecordsUpdated({
+      ...records,
+      contenthash: {
+        protocol: hash.protocol,
+        value,
+      },
+    });
+  };
+
+  const handleContenthashUpdated = (contenthash: EnsContenthashRecord) => {
+    onRecordsUpdated({ ...records, contenthash });
+  };
+  
+  const handleContenthashRemoved = () => {
+    const _records = {...records};
+    delete _records.contenthash
+    onRecordsUpdated(_records)
+  }
+
+  // defines whether to scroll
+  // to certai record category 
+  // when records selector is opened
+  const getScrollToSegment = (): ScrollToRecordSegment | undefined => {
+    if (selectedItem === NAV_ADDRS) {
+      return "addresses"
+    } else if (selectedItem === WEBSITE) {
+      return "website"
+    }
   }
 
   return (
@@ -92,10 +132,21 @@ export const SelectRecordsForm = ({
                 onTextsChanged={handleTextsUpdated}
               ></TextRecords>
             )}
-            {selectedItem === NAV_ADDRS && <AddressRecords
-              addresses={records.addresses}
-              onAddressesChanged={(newAddresses) => handleAddressesUpdated(newAddresses)} />}
-            {selectedItem === WEBSITE && <ContenthashRecord />}
+            {selectedItem === NAV_ADDRS && (
+              <AddressRecords
+                addresses={records.addresses}
+                onAddressesChanged={newAddresses =>
+                  handleAddressesUpdated(newAddresses)
+                }
+              />
+            )}
+            {selectedItem === WEBSITE && (
+              <ContenthashRecord
+                contenthash={records.contenthash}
+                onContenthashChanged={hash => handleContenthashUpdated(hash)}
+                onContenthashRemoved={() => handleContenthashRemoved()}
+              />
+            )}
             <div className="mt-3">
               <Button
                 onClick={() => setSelectRecords(true)}
@@ -112,9 +163,12 @@ export const SelectRecordsForm = ({
         <RecordsSelector
           texts={records.texts}
           addresses={records.addresses}
+          contenthash={records.contenthash}
           onClose={() => setSelectRecords(false)}
-          onAddressesAdded={(coins) => handleAddressesAdded(coins)}
-          onTextsAdded={(keys) => handleTextsAdded(keys)}
+          onAddressesAdded={coins => handleAddressesAdded(coins)}
+          onTextsAdded={keys => handleTextsAdded(keys)}
+          onContenthashAdded={hash => handleContenthashAdded(hash)}
+          segment={getScrollToSegment()}
         />
       )}
     </div>

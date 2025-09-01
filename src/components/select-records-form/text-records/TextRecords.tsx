@@ -43,7 +43,7 @@ export const TextRecords = ({ texts, onTextsChanged }: TextRecordsProps) => {
         return (
           <div
             key={text.key}
-            className="row mb-2 ns-text-record-field d-flex align-items-center"
+            className="row ns-mb-1"
           >
             <div className="col-4 d-flex align-items-center">
               <div className="circle-icon d-flex align-items-center justify-content-center me-2">
@@ -57,7 +57,7 @@ export const TextRecords = ({ texts, onTextsChanged }: TextRecordsProps) => {
                 {supportedText ? supportedText.label : capitalize(text.key)}
               </Text>
             </div>
-            <div className="col-7 d-flex align-items-center">
+            <div className="col-8 d-flex align-items-center">
               <Input
                 value={text.value}
                 onChange={e => updateTextValue(text.key, e.target.value)}
