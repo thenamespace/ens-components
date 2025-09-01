@@ -1,8 +1,9 @@
 import { EnsAddressRecord, EnsTextRecord } from "@/types";
 import "./RecordsSelector.css";
-import { Icon, IconName, Input, Text } from "@/components/atoms";
-import { useState } from "react";
+import { Button, Icon, IconName, Input, Text } from "@/components/atoms";
+import { useMemo, useState } from "react";
 import { LucideIceCream } from "lucide-react";
+import { SupportedTextRecord, supportedTexts, TextRecordCategory } from "@/constants";
 
 interface RecordsSelectorProps {
     texts: EnsTextRecord[]
@@ -27,12 +28,25 @@ const navIcons: Record<SidebarNavItem, IconName> = {
 }
 
 export const RecordsSelector = ({
+
     onClose
 }: RecordsSelectorProps) => {
 
     const [selectedTexts, setSelectedTexts] = useState<EnsTextRecord[]>([])
     const [selectedAddresses, setSelectedAddresses] = useState<EnsAddressRecord[]>([])
     const [currentNav, setCurrentNav] = useState<SidebarNavItem>(SidebarNavItem.General)
+
+    const textRecordMap = useMemo<Record<"General" | "Social",SupportedTextRecord[]>>(() => {
+
+        const records: Record<"General" | "Social",SupportedTextRecord[]> = {
+            General: supportedTexts.filter(txt => txt.category === TextRecordCategory.General),
+            Social: supportedTexts.filter(txt => txt.category === TextRecordCategory.Social)
+        }
+    
+        return records;
+    },[])
+
+
 
     return <div className="ns-records-selector">
         <div onClick={onClose} className="ns-mb-3 text-center" style={{textAlign: "center"}}>
@@ -56,10 +70,28 @@ export const RecordsSelector = ({
                 </div>
                 })}
             </div>
-            <div className="col-8">
-                test
+            <div className="col-8 ns-records-content">
+                <div className="ns-records-selector-category">
+                    <Text className="ns-mb-1" weight="bold">General</Text>
+                     <>
+                      {textRecordMap.General.map(item => <div className="text-record" key={item.key}>
+                        <Text weight="medium" size="sm">{item.label}</Text>
+                      </div>)}
+                    </>
+                </div>
+                <div className="ns-records-selector-category">
+                    <Text className="ns-mb-1" weight="bold">Social</Text>
+                     <>
+                      {textRecordMap.Social.map(item => <div className="text-record" key={item.key}>
+                        <Text weight="medium" size="sm">{item.label}</Text>
+                      </div>)}
+                    </>
+                </div>
             </div>
         </div>
-        Records selector here
+        <div className="ns-mt-3">
+            <Button style={{width: "50%"}} size="lg" onClick={() => onClose()} className="pe-2" variant="outline">Cancel</Button>
+            <Button style={{width: "50%"}} size="lg">Add</Button>
+        </div>
     </div>
 }

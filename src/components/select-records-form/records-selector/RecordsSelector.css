@@ -1,6 +1,6 @@
 .ns-records-sidebar .sidebar-item {
     cursor: pointer;
-    padding: 5px;
+    padding: 8px;
     transition: all 0.2s linear;
 }
 
@@ -12,4 +12,18 @@
 .ns-records-sidebar .sidebar-item:hover {
     background-color: var(--ns-color-bg-darker);
     border-radius: 5px;
+}
+
+.ns-records-sidebar .ns-records-content {
+    height: 200px;
+    overflow-y: scroll;
+}
+
+.ns-records-selector-category .text-record {
+    background-color: var(--ns-color-bg);
+    padding: 8px;
+    border: 1px solid var(--ns-color-border);
+    border-radius: 10px;
+    padding-left: 15px;
+    margin-bottom: 5px;
 }
