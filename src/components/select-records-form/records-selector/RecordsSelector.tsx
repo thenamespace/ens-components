@@ -105,9 +105,9 @@ export const RecordsSelector = ({
       websiteCategoryRef.current
     ) {
       if (segment === "addresses") {
-        scrollToNav(SidebarNavItem.Addresses);
+        handleNavChanged(SidebarNavItem.Addresses)
       } else if (segment === "website") {
-        scrollToNav(SidebarNavItem.Website);
+         handleNavChanged(SidebarNavItem.Website)
       }
     }
   }, [segment, generalCategoryRef, addressesCategoryRef, websiteCategoryRef]);
@@ -126,6 +126,41 @@ export const RecordsSelector = ({
 
     return records;
   }, []);
+
+  const { socialTexts, generalTexts, addressSuggestions, contenthashes } =
+    useMemo(() => {
+      const filterApplied = filterValue.length > 0;
+      if (!filterApplied) {
+        return {
+          socialTexts: textRecordMap.Social,
+          generalTexts: textRecordMap.General,
+          addressSuggestions: supportedAddresses,
+          contenthashes: supportedContenthashRecords,
+        };
+      }
+
+      const searchLower = filterValue.toLocaleLowerCase();
+      return {
+        socialTexts: textRecordMap.Social.filter(
+          i =>
+            i.key.includes(searchLower) ||
+            i.label?.toLocaleLowerCase().includes(searchLower)
+        ),
+        generalTexts: textRecordMap.General.filter(
+          i =>
+            i.key.includes(searchLower) ||
+            i.label?.toLocaleLowerCase().includes(searchLower)
+        ),
+        addressSuggestions: supportedAddresses.filter(
+          i =>
+            i.chainName.toLocaleLowerCase().includes(searchLower) ||
+            i.label.toLocaleLowerCase().includes(searchLower)
+        ),
+        contenthashes: supportedContenthashRecords.filter(
+          i => i.label.includes(searchLower) || i.protocol.includes(searchLower)
+        ),
+      };
+    }, [filterValue, textRecordMap]);
 
   const recordsAddedCount = useMemo(() => {
     const addedTexts = Object.keys(selectedTextsMap).length;
@@ -228,6 +263,12 @@ export const RecordsSelector = ({
     return selectedAddressesMap[chainName];
   };
 
+  const noFilteredRecords =
+    socialTexts.length === 0 &&
+    generalTexts.length === 0 &&
+    addressSuggestions.length === 0 &&
+    contenthashes.length === 0;
+
   return (
     <div className="ns-records-selector">
       <div
@@ -244,9 +285,14 @@ export const RecordsSelector = ({
         </Text>
       </div>
       <div className="ns-mb-3">
-        <Input value={filterValue} onChange={(e) => {
-            setFilterValue(e.target.value)
-        }} prefix={<Icon size={18} name="search" />} placeholder="Search" />
+        <Input
+          value={filterValue}
+          onChange={e => {
+            setFilterValue(e.target.value);
+          }}
+          prefix={<Icon size={18} name="search" />}
+          placeholder="Search"
+        />
       </div>
       <div className="ns-records-sidebar row" ref={parentRef}>
         <div className="col-4">
@@ -269,169 +315,187 @@ export const RecordsSelector = ({
           })}
         </div>
         <div className="col-8 ns-records-content">
-          <div
-            ref={generalCategoryRef}
-            className="ns-records-selector-category ns-mb-2"
-          >
-            <Text className="ns-mb-1" weight="bold">
-              General
-            </Text>
-            <div className="row g-1">
-              {textRecordMap.General.map(item => {
-                const isActive = isTextSelected(item.key);
-                const isDisabled = addedTexts[item.key];
-                return (
-                  <div className="col-6" key={item.key}>
-                    <div
-                      onClick={() => {
-                        if (!isDisabled) {
-                          toggleSelectText(item.key);
-                        }
-                      }}
-                      className={`ns-text-record d-flex align-items-center ${isActive ? "active" : ""} ${isDisabled ? "disabled" : ""}`}
-                    >
-                      <div className="ns-icon-cont ns-me-1">
-                        <Icon
-                          color={isActive ? undefined : "white"}
-                          name={item.icon}
-                          size={12}
-                        />
+          {noFilteredRecords && (
+            <div className="d-flex flex-column justify-content-between align-items-center">
+              <Text weight="medium" className="ns-mb-2">
+                No records found
+              </Text>
+              <Button variant="outline" onClick={() => setFilterValue("")}>
+                Clear filter
+              </Button>
+            </div>
+          )}
+          {generalTexts.length > 0 && (
+            <div
+              ref={generalCategoryRef}
+              className="ns-records-selector-category ns-mb-2"
+            >
+              <Text className="ns-mb-1" weight="bold">
+                General
+              </Text>
+              <div className="row g-1">
+                {generalTexts.map(item => {
+                  const isActive = isTextSelected(item.key);
+                  const isDisabled = addedTexts[item.key];
+                  return (
+                    <div className="col-6" key={item.key}>
+                      <div
+                        onClick={() => {
+                          if (!isDisabled) {
+                            toggleSelectText(item.key);
+                          }
+                        }}
+                        className={`ns-text-record d-flex align-items-center ${isActive ? "active" : ""} ${isDisabled ? "disabled" : ""}`}
+                      >
+                        <div className="ns-icon-cont ns-me-1">
+                          <Icon
+                            color={isActive ? undefined : "white"}
+                            name={item.icon}
+                            size={12}
+                          />
+                        </div>
+                        <Text
+                          weight="medium"
+                          color={isActive ? "white" : "primary"}
+                          size="sm"
+                        >
+                          {item.label}
+                        </Text>
                       </div>
-                      <Text
-                        weight="medium"
-                        color={isActive ? "white" : "primary"}
-                        size="sm"
-                      >
-                        {item.label}
-                      </Text>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-          <div
-            ref={socialCategoryRef}
-            className="ns-records-selector-category ns-mb-2"
-          >
-            <Text className="ns-mb-1" weight="bold">
-              Social
-            </Text>
-            <div className="row g-1">
-              {textRecordMap.Social.map(item => {
-                const isActive = isTextSelected(item.key);
-                const isDisabled = addedTexts[item.key];
-                return (
-                  <div key={item.key} className="col-6">
-                    <div
-                      onClick={() => {
-                        if (!isDisabled) {
-                          toggleSelectText(item.key);
-                        }
-                      }}
-                      className={`ns-text-record d-flex align-items-center ${isActive ? "active" : ""} ${isDisabled ? "disabled" : ""}`}
-                      key={item.key}
-                    >
-                      <div className="ns-icon-cont ns-me-1">
-                        <Icon
-                          color={isActive ? undefined : "white"}
-                          name={item.icon}
-                          size={12}
-                        />
+          )}
+          {socialTexts.length > 0 && (
+            <div
+              ref={socialCategoryRef}
+              className="ns-records-selector-category ns-mb-2"
+            >
+              <Text className="ns-mb-1" weight="bold">
+                Social
+              </Text>
+              <div className="row g-1">
+                {socialTexts.map(item => {
+                  const isActive = isTextSelected(item.key);
+                  const isDisabled = addedTexts[item.key];
+                  return (
+                    <div key={item.key} className="col-6">
+                      <div
+                        onClick={() => {
+                          if (!isDisabled) {
+                            toggleSelectText(item.key);
+                          }
+                        }}
+                        className={`ns-text-record d-flex align-items-center ${isActive ? "active" : ""} ${isDisabled ? "disabled" : ""}`}
+                        key={item.key}
+                      >
+                        <div className="ns-icon-cont ns-me-1">
+                          <Icon
+                            color={isActive ? undefined : "white"}
+                            name={item.icon}
+                            size={12}
+                          />
+                        </div>
+                        <Text
+                          weight="medium"
+                          color={isActive ? "white" : "primary"}
+                          size="sm"
+                        >
+                          {item.label}
+                        </Text>
                       </div>
-                      <Text
-                        weight="medium"
-                        color={isActive ? "white" : "primary"}
-                        size="sm"
-                      >
-                        {item.label}
-                      </Text>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-          <div
-            ref={addressesCategoryRef}
-            className="ns-records-selector-category ns-mb-2"
-          >
-            <Text className="ns-mb-1" weight="bold">
-              Addresses
-            </Text>
-            <div className="row g-1">
-              {supportedAddresses.map(item => {
-                const isActive = isAddressSelected(item.chainName);
-                const isAlreadySelected = addedAddrs[item.coinType];
-                return (
-                  <div className="col-6" key={item.chainName}>
-                    <div
-                      onClick={() => {
-                        if (!isAlreadySelected) {
-                          toggleSelectAddress(item.chainName);
-                        }
-                      }}
-                      className={`ns-text-record d-flex align-items-center ${isActive ? "active" : ""} ${isAlreadySelected ? "disabled" : ""} `}
-                      key={item.chainName}
-                    >
-                      <ChainIcon
-                        className="me-1"
-                        chain={item.chainName}
-                        size={22}
-                      />
-                      <Text
-                        weight="medium"
-                        color={isActive ? "white" : "primary"}
-                        size="sm"
+          )}
+          {addressSuggestions.length > 0 && (
+            <div
+              ref={addressesCategoryRef}
+              className="ns-records-selector-category ns-mb-2"
+            >
+              <Text className="ns-mb-1" weight="bold">
+                Addresses
+              </Text>
+              <div className="row g-1">
+                {addressSuggestions.map(item => {
+                  const isActive = isAddressSelected(item.chainName);
+                  const isAlreadySelected = addedAddrs[item.coinType];
+                  return (
+                    <div className="col-6" key={item.chainName}>
+                      <div
+                        onClick={() => {
+                          if (!isAlreadySelected) {
+                            toggleSelectAddress(item.chainName);
+                          }
+                        }}
+                        className={`ns-text-record d-flex align-items-center ${isActive ? "active" : ""} ${isAlreadySelected ? "disabled" : ""} `}
+                        key={item.chainName}
                       >
-                        {item.label}
-                      </Text>
+                        <ChainIcon
+                          className="me-1"
+                          chain={item.chainName}
+                          size={22}
+                        />
+                        <Text
+                          weight="medium"
+                          color={isActive ? "white" : "primary"}
+                          size="sm"
+                        >
+                          {item.label}
+                        </Text>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-          <div
-            ref={websiteCategoryRef}
-            className="ns-records-selector-category"
-          >
-            <Text className="ns-mb-1" weight="bold">
-              Website
-            </Text>
-            <div className="row g-1">
-              {supportedContenthashRecords.map(chash => {
-                const isActive = chash.protocol === selectedContenthash;
-                const isAlreadySelected =
-                  contenthash && contenthash.protocol === chash.protocol;
-                return (
-                  <div className="col-6" key={chash.protocol}>
-                    <div
-                      onClick={() => {
-                        if (!isAlreadySelected) {
-                          toggleSelectContenthash(chash.protocol);
-                        }
-                      }}
-                      className={`ns-text-record d-flex align-items-center ${isActive ? "active" : ""} ${isAlreadySelected ? "disabled" : ""} `}
-                    >
-                      <ContenthashIcon
-                        className="me-1"
-                        protocol={chash.protocol}
-                        size={22}
-                      />
-                      <Text
-                        weight="medium"
-                        color={isActive ? "white" : "primary"}
-                        size="sm"
+          )}
+          {contenthashes.length > 0 && (
+            <div
+              ref={websiteCategoryRef}
+              className="ns-records-selector-category"
+            >
+              <Text className="ns-mb-1" weight="bold">
+                Website
+              </Text>
+              <div className="row g-1">
+                {contenthashes.map(chash => {
+                  const isActive = chash.protocol === selectedContenthash;
+                  const isAlreadySelected =
+                    contenthash && contenthash.protocol === chash.protocol;
+                  return (
+                    <div className="col-6" key={chash.protocol}>
+                      <div
+                        onClick={() => {
+                          if (!isAlreadySelected) {
+                            toggleSelectContenthash(chash.protocol);
+                          }
+                        }}
+                        className={`ns-text-record d-flex align-items-center ${isActive ? "active" : ""} ${isAlreadySelected ? "disabled" : ""} `}
                       >
-                        {chash.label}
-                      </Text>
+                        <ContenthashIcon
+                          className="me-1"
+                          protocol={chash.protocol}
+                          size={22}
+                        />
+                        <Text
+                          weight="medium"
+                          color={isActive ? "white" : "primary"}
+                          size="sm"
+                        >
+                          {chash.label}
+                        </Text>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
       <div className="ns-mt-3">

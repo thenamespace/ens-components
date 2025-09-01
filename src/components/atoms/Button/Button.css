@@ -50,7 +50,7 @@
 }
 
 .ns-btn--outline {
-  background-color: transparent;
+  background-color: var(--ns-color-bg);
   color: var(--ns-color-primary);
   border-color: var(--ns-color-border);
 }
