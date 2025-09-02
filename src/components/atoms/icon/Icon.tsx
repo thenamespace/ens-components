@@ -2,7 +2,7 @@ import React, { ReactElement } from "react";
 import * as LucideIcons from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import "./Icon.css";
-import { User, Search, SquareUser, Globe, Pin, Box, Book, X, Twitter } from "lucide-react";
+import { User, Search, SquareUser, Globe, Pin, Box, Book } from "lucide-react";
 import { DiscordIcon, GithubIcon, TelegramIcon, YoutubeIcon, XIcon } from "./custom";
 
 type CustomIcon = React.ComponentType<{ size?: number; color?: string; className?: string; 'data-test-id'?: string }>;
@@ -23,9 +23,6 @@ export type IconName =
   | "github"
   | "telegram"
   | "youtube"
-  | "twitter"
-  | "image"
-  | "circle-person"
 
 const icons: Record<IconName, IconComponent> = {
   person: User,
@@ -41,10 +38,7 @@ const icons: Record<IconName, IconComponent> = {
   discord: DiscordIcon,
   github: GithubIcon,
   telegram: TelegramIcon,
-  youtube: YoutubeIcon,
-  twitter: Twitter,
-  image: LucideIcons.Image,
-  'circle-person': LucideIcons.CircleUser
+  youtube: YoutubeIcon
 };
 
 export interface IconProps {

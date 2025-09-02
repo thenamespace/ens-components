@@ -1,0 +1,27 @@
+---
+name: Build and Push Docker Image
+
+on:
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    uses: ./.github/workflows/e2e.yaml
+    permissions:
+      contents: read
+      id-token: write
+    secrets: inherit
+  build-and-push:
+    needs: e2e
+    uses: thenamespace/.github-private/.github/workflows/gcp-oidc-docker-build-push.yaml@main
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      project_id: prod-9427
+      region: europe-west3
+      workload_identity_provider: projects/397196751430/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+  update-staging:
+    needs: build-and-push
+    uses: thenamespace/.github-private/.github/workflows/repository-dispatch.yaml@main
+    secrets: inherit

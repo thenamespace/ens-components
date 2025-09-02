@@ -92,7 +92,9 @@
 /* Placeholder styling */
 .ns-input::placeholder {
   color: var(--ns-color-muted);
-  opacity: 0.7;
+  opacity: 0.5;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 /* Number input spinner removal */
