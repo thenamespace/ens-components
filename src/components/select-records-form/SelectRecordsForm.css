@@ -2,7 +2,7 @@
   background-color: var(--ns-color-bg-accent);
   width: 100%;
   max-width: 450px;
-  padding: 15px;
+  padding: 20px;
 }
 
 .ns-select-records-form .ns-select-records-content {
@@ -27,10 +27,6 @@
 .ns-select-records-nav .nav-cont.active {
   background-color: var(--ns-color-bg);
   opacity: 1;
-}
-
-.ns-select-records-form .ns-cover-cont {
-  padding: 10px;
 }
 
 .ns-select-records-form .ns-close-icon {

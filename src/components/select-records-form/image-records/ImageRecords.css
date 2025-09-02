@@ -1,0 +1,24 @@
+.ns-image-records .ns-cover-record-cont {
+  height: 120px;
+  width: 100%;
+  background-color: var(--ns-color-border);
+  border-radius: 10px;
+  position: relative;
+}
+
+.ns-image-records .ns-avatar-record-cont {
+  width: 100px;
+  height: 100px;
+  border-radius: 10px;
+  background-color: var(--ns-color-border);
+  position: absolute;
+  outline: 5px solid var(--ns-color-bg-accent);
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -25px;
+  transition: all 0.25s linear;
+}
+
+.ns-image-records .ns-avatar-record-cont:hover {
+  background-color: var(--ns-color-fg);
+}

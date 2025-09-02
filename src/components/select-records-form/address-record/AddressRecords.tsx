@@ -33,10 +33,10 @@ export const AddressRecords = ({addresses, onAddressesChanged }: AddressRecordPr
         <ChainIcon chain={supportedAddress.chainName} size={25}/>
         <Text weight="medium" size="sm" className="ns-ms-1">{supportedAddress.label}</Text>
        </div>
-       <div className="col-8 d-flex align-items-center ns-mb-2">
+       <div className="col-8 d-flex align-items-center ns-mb-1">
           <Input placeholder={`Your ${supportedAddress.label} address here...`}/>
           <div onClick={() => handleAddressRemoved(supportedAddress.coinType)}>
-            <Icon name="x" size={16} className="ns-ms-1 ns-close-icon"/>
+            <Icon name="x" size={18} className="ns-ms-1 ns-close-icon"/>
           </div>
        </div>
     </div>

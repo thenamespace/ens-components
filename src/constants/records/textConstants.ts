@@ -14,13 +14,13 @@ export interface SupportedTextRecord {
 
 export const supportedTexts: SupportedTextRecord[] = [
   {
-    icon: "person",
+    icon: "circle-person",
     key: "avatar",
     category: TextRecordCategory.Image,
     label: "Avatar",
   },
   {
-    icon: "person",
+    icon: "image",
     key: "header",
     category: TextRecordCategory.Image,
     label: "Header",

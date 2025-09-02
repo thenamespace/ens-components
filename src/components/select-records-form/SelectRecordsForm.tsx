@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   EnsAddressRecord,
   EnsContenthashRecord,
@@ -10,7 +10,11 @@ import { TextRecords } from "./text-records/TextRecords";
 import { AddressRecords } from "./address-record/AddressRecords";
 import { ContenthashRecord } from "./contenthash-records/ContenthashRecord";
 import "./SelectRecordsForm.css";
-import { RecordsSelector, ScrollToRecordSegment } from "./records-selector/RecordsSelector";
+import {
+  RecordsSelector,
+  ScrollToRecordSegment,
+} from "./records-selector/RecordsSelector";
+import { ImageRecords } from "./image-records/ImageRecords";
 
 const NAV_TEXTS = "Text Records";
 const NAV_ADDRS = "Address Records";
@@ -51,7 +55,6 @@ export const SelectRecordsForm = ({
 
   const handleAddressesAdded = (coins: number[]) => {
     const addresses = [...records.addresses];
-    console.log("Handling coins addresses", coins);
     coins.forEach(coin => {
       addresses.push({
         coinType: coin,
@@ -75,34 +78,61 @@ export const SelectRecordsForm = ({
     });
   };
 
+  const { avatar, header } = useMemo(() => {
+    return {
+      avatar: records.texts.find(r => r.key === "avatar")?.value,
+      header: records.texts.find(r => r.key === "header")?.value,
+    };
+  }, [records.texts]);
+
   const handleContenthashUpdated = (contenthash: EnsContenthashRecord) => {
     onRecordsUpdated({ ...records, contenthash });
   };
-  
+
   const handleContenthashRemoved = () => {
-    const _records = {...records};
-    delete _records.contenthash
-    onRecordsUpdated(_records)
-  }
+    const _records = { ...records };
+    delete _records.contenthash;
+    onRecordsUpdated(_records);
+  };
 
   // defines whether to scroll
-  // to certai record category 
+  // to certai record category
   // when records selector is opened
   const getScrollToSegment = (): ScrollToRecordSegment | undefined => {
     if (selectedItem === NAV_ADDRS) {
-      return "addresses"
+      return "addresses";
     } else if (selectedItem === WEBSITE) {
-      return "website"
+      return "website";
     }
-  }
+  };
+
+  const handleImageRecordAdded = (
+    record: "avatar" | "header",
+    value: string
+  ) => {
+    const _texts = records.texts.filter(text => text.key !== record);
+    onRecordsUpdated({
+      ...records,
+      texts: [..._texts, { key: record, value }],
+    });
+  };
 
   return (
     <div className="ns-select-records-form">
       {!selectRecords && (
         <>
           {/* // cover and avatar */}
-          <div className="ns-cover-cont">
-            <div className="ns-avatar-cont"></div>
+          <div style={{ marginBottom: 50 }}>
+            <ImageRecords
+              avatar={avatar}
+              header={header}
+              onAvatarAdded={(value: string) =>
+                handleImageRecordAdded("avatar", value)
+              }
+              onHeaderAdded={(value: string) =>
+                handleImageRecordAdded("header", value)
+              }
+            />
           </div>
 
           {/* nav items */}

@@ -56,7 +56,7 @@ export const ContenthashRecord = ({
           }
         />
         <div onClick={() => onContenthashRemoved()}>
-          <Icon name="x" className="ns-close-icon ns-ms-1" size={20}/>
+          <Icon name="x" className="ns-close-icon ns-ms-1" size={18}/>
         </div>
       </div>
     </div>
