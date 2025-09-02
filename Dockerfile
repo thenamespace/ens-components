@@ -1,5 +1,5 @@
 # Multi-stage build for Storybook
-FROM node:18-alpine AS builder
+FROM node:24-alpine AS builder
 
 # Install build dependencies for native modules
 RUN apk add --no-cache \
