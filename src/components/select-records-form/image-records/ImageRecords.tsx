@@ -54,7 +54,8 @@ export const ImageRecords = ({
       >
         <div
           style={avatarStyles}
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             if (!avatarRecordSet) {
               onAvatarAdded("");
             }

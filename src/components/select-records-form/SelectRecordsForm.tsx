@@ -115,6 +115,7 @@ export const SelectRecordsForm = ({
       ...records,
       texts: [..._texts, { key: record, value }],
     });
+    setSelectedItem(NAV_TEXTS);
   };
 
   return (
@@ -177,7 +178,7 @@ export const SelectRecordsForm = ({
                 onContenthashRemoved={() => handleContenthashRemoved()}
               />
             )}
-            <div className="mt-3">
+            <div style={{padding: 20, paddingTop: 0}}>
               <Button
                 onClick={() => setSelectRecords(true)}
                 style={{ width: "100%", padding: "10px" }}

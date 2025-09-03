@@ -10,6 +10,7 @@ export interface SupportedTextRecord {
   key: string;
   category: TextRecordCategory;
   label?: string;
+  placeholder?: string
 }
 
 export const supportedTexts: SupportedTextRecord[] = [
@@ -18,36 +19,42 @@ export const supportedTexts: SupportedTextRecord[] = [
     key: "avatar",
     category: TextRecordCategory.Image,
     label: "Avatar",
+    placeholder: "https://"
   },
   {
     icon: "image",
     key: "header",
     category: TextRecordCategory.Image,
     label: "Header",
+    placeholder: "https://"
   },
   {
     icon: "person",
     key: "name",
     category: TextRecordCategory.General,
     label: "Nickname",
+    placeholder: "John Smith"
   },
   {
     icon: "book",
     key: "description",
     category: TextRecordCategory.General,
     label: "Short bio",
+    placeholder: "I am a ninja from far away land"
   },
   {
     icon: "globe",
     key: "url",
     category: TextRecordCategory.General,
     label: "Website",
+    placeholder: "https://namespace.ninja"
   },
   {
     icon: "map-pin",
     key: "location",
     category: TextRecordCategory.General,
     label: "Location",
+    placeholder: "Metaverse"
   },
   {
     icon: "mail",

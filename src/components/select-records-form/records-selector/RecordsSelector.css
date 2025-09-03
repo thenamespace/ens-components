@@ -38,7 +38,7 @@
 }
 
 .ns-records-selector-category .ns-text-record:hover {
-  border-color: var(--ns-color-fg);
+  background-color: rgb(245, 245, 245);
 }
 
 .ns-records-selector-category .ns-text-record.active {

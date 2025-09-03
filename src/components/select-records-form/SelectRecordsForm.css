@@ -5,9 +5,15 @@
   padding: 20px;
 }
 
+.ns-select-records-form .ns-records-wrapper {
+  padding: 10px 20px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+
 .ns-select-records-form .ns-select-records-content {
   background-color: var(--ns-color-bg);
-  padding: 15px;
 }
 
 .ns-select-records-nav .nav-cont {
@@ -35,5 +41,13 @@
 }
 
 .ns-select-records-form .ns-close-icon:hover {
-  transform: scale(1.1);
+  transform: scale(1.06);
+  background-color: var(--ns-color-bg-accent);
+  border-radius: 15px;
+  padding: 2px;
+  
+}
+
+.ns-select-records-form .not-found-badge {
+  border: 1px solid var(--ns-color-bg);
 }

@@ -314,7 +314,7 @@ export const RecordsSelector = ({
             );
           })}
         </div>
-        <div className="col-8 ns-records-content">
+        <div className="col-8 ns-records-content ns-styled-scrollbar">
           {noFilteredRecords && (
             <div className="d-flex flex-column justify-content-between align-items-center">
               <Text weight="medium" className="ns-mb-2">
@@ -436,7 +436,7 @@ export const RecordsSelector = ({
                         key={item.chainName}
                       >
                         <ChainIcon
-                          className="me-1"
+                          className="ns-me-1"
                           chain={item.chainName}
                           size={22}
                         />

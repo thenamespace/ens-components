@@ -30,7 +30,7 @@ const _addrs: EnsAddressRecord[] = [
 function TestApp() {
   const [records, setRecords] = useState<EnsRecords>({
     texts: [..._texts],
-    addresses: _addrs,
+    addresses: [..._addrs],
   });
 
   const handleRecordsUpdated = (newRecords: EnsRecords) => {

@@ -25,6 +25,8 @@ export type IconName =
   | "youtube"
    | "image"
   | "circle-person"
+  | "twitter"
+  | "circle-alert"
 
 const icons: Record<IconName, IconComponent> = {
   person: User,
@@ -42,7 +44,9 @@ const icons: Record<IconName, IconComponent> = {
   telegram: TelegramIcon,
   youtube: YoutubeIcon,
     image: LucideIcons.Image,
-  'circle-person': LucideIcons.CircleUser
+  'circle-person': LucideIcons.CircleUser,
+  twitter: XIcon,
+  'circle-alert': LucideIcons.CircleAlert
   
   
 };

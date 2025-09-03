@@ -9,16 +9,10 @@ export const XIcon: React.FC<XIconProps> = ({ size = 24, ...props }) => (
     width={size}
     height={size}
     viewBox="0 0 24 24"
-    fill="none"
+    fill={props.color}
     xmlns="http://www.w3.org/2000/svg"
     {...props}
   >
-    <path
-      d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+  <path fill="inherit" d="m.058 1 9.267 12.39L0 23.463h2.099l8.163-8.82 6.596 8.82H24l-9.788-13.086L22.892 1h-2.1l-7.517 8.122L7.2 1zm3.087 1.546h3.28l14.488 19.37h-3.28z"></path>
   </svg>
 ); 

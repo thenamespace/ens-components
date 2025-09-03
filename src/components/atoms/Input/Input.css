@@ -93,7 +93,11 @@
 .ns-input::placeholder {
   color: var(--ns-color-muted);
   opacity: 0.5;
-  font-size: 13px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.ns-input {
   font-weight: 500;
 }
 
