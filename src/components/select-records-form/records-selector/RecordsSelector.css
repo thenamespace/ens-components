@@ -56,14 +56,14 @@
 }
 
 .ns-text-record.disabled {
-    background-color: var(--ns-color-bg-darker);
-    border-color: var(--ns-color-bg-darker);
-    opacity: 0.5;
-    cursor: not-allowed;
+  background-color: var(--ns-color-bg-darker);
+  border-color: var(--ns-color-bg-darker);
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .ns-text-record.disabled:hover {
-    border-color: var(--ns-color-border);
+  border-color: var(--ns-color-border);
 }
 
 .ns-text-record.active .ns-icon-cont {

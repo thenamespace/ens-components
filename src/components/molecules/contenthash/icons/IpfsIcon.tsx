@@ -4,7 +4,13 @@ interface IpfsIconProps {
 
 export const IpfsIcon = ({ size = 20 }: IpfsIconProps) => {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 20 22" fill="none">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 20 22"
+      fill="none"
+    >
       <path
         fill="#469EA2"
         d="m0 16.44 9.56 5.48 9.559-5.48V5.48L9.559 0 0 5.48z"

@@ -5,74 +5,13 @@ import { ContenthashProtocol } from "@/types";
 const meta: Meta<typeof ContenthashIcon> = {
   title: "Molecules/ContenthashIcon",
   component: ContenthashIcon,
-  parameters: {
-    layout: "centered",
-  },
-  tags: ["autodocs"],
-  argTypes: {
-    protocol: {
-      control: { type: "select" },
-      options: Object.values(ContenthashProtocol),
-    },
-    size: {
-      control: { type: "number", min: 16, max: 64, step: 4 },
-    },
-  },
+  args: {},
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {
-    protocol: ContenthashProtocol.Ipfs,
-    size: 24,
-  },
-};
-
-export const AllProtocols: Story = {
-  render: () => (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(3, 1fr)",
-        gap: "16px",
-        padding: "20px",
-      }}
-    >
-      {Object.values(ContenthashProtocol).map(protocol => (
-        <div key={protocol} style={{ textAlign: "center" }}>
-          <ContenthashIcon protocol={protocol} size={32} />
-          <div
-            style={{
-              marginTop: "8px",
-              fontSize: "12px",
-              textTransform: "capitalize",
-            }}
-          >
-            {protocol}
-          </div>
-        </div>
-      ))}
-    </div>
-  ),
-};
-
-export const Large: Story = {
-  args: {
-    protocol: ContenthashProtocol.Ipfs,
-    size: 48,
-  },
-};
-
-export const Small: Story = {
-  args: {
-    protocol: ContenthashProtocol.Ipfs,
-    size: 16,
-  },
-};
-
-export const Sizes: Story = {
   args: {
     protocol: "airwave",
     size: 20,
@@ -85,15 +24,19 @@ export const Sizes: Story = {
         <div style={{ marginTop: "4px", fontSize: "10px" }}>16px</div>
       </div>
       <div style={{ textAlign: "center" }}>
-        <ContenthashIcon protocol={ContenthashProtocol.Ipfs} size={24} />
+        <ContenthashIcon protocol={ContenthashProtocol.Arweave} size={24} />
         <div style={{ marginTop: "4px", fontSize: "10px" }}>24px</div>
       </div>
       <div style={{ textAlign: "center" }}>
-        <ContenthashIcon protocol={ContenthashProtocol.Ipfs} size={32} />
+        <ContenthashIcon protocol={ContenthashProtocol.Onion} size={32} />
         <div style={{ marginTop: "4px", fontSize: "10px" }}>32px</div>
       </div>
       <div style={{ textAlign: "center" }}>
-        <ContenthashIcon protocol={ContenthashProtocol.Ipfs} size={48} />
+        <ContenthashIcon protocol={ContenthashProtocol.Skynet} size={48} />
+        <div style={{ marginTop: "4px", fontSize: "10px" }}>48px</div>
+      </div>
+      <div style={{ textAlign: "center" }}>
+        <ContenthashIcon protocol={ContenthashProtocol.Swarm} size={48} />
         <div style={{ marginTop: "4px", fontSize: "10px" }}>48px</div>
       </div>
     </div>

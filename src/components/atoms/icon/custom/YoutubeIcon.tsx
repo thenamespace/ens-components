@@ -1,10 +1,13 @@
-import React from 'react';
+import React from "react";
 
 interface YoutubeIconProps extends React.SVGProps<SVGSVGElement> {
   size?: number;
 }
 
-export const YoutubeIcon: React.FC<YoutubeIconProps> = ({ size = 24, ...props }) => (
+export const YoutubeIcon: React.FC<YoutubeIconProps> = ({
+  size = 24,
+  ...props
+}) => (
   <svg
     width={size}
     height={size}
@@ -28,4 +31,4 @@ export const YoutubeIcon: React.FC<YoutubeIconProps> = ({ size = 24, ...props })
       strokeLinejoin="round"
     />
   </svg>
-); 
+);

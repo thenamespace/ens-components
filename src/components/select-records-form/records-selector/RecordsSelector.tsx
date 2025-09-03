@@ -105,9 +105,9 @@ export const RecordsSelector = ({
       websiteCategoryRef.current
     ) {
       if (segment === "addresses") {
-        handleNavChanged(SidebarNavItem.Addresses)
+        handleNavChanged(SidebarNavItem.Addresses);
       } else if (segment === "website") {
-         handleNavChanged(SidebarNavItem.Website)
+        handleNavChanged(SidebarNavItem.Website);
       }
     }
   }, [segment, generalCategoryRef, addressesCategoryRef, websiteCategoryRef]);

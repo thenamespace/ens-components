@@ -16,15 +16,33 @@
 .ns-dropdown__menu {
   position: absolute;
   z-index: 1000;
-  width: 100%;
-  min-width: 100%;
+
+  width: max-content;
+
   background: var(--ns-color-bg);
   border: 1px solid var(--ns-color-border);
   border-radius: var(--ns-radius-md);
   box-shadow: var(--ns-shadow);
-  padding: 0.5rem 0;
   animation: ns-dropdown-fade-in 200ms cubic-bezier(0.4, 0, 0.2, 1);
   transform-origin: top center;
+  box-sizing: border-box;
+  /* optional: keep items on one line if you want “wide” behavior */
+  /* white-space: nowrap; */
+}
+
+/* keep your placement/alignment rules, but make sure end/center don't fight with left */
+.ns-dropdown--align-start {
+  left: 0;
+  right: auto;
+}
+.ns-dropdown--align-center {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+}
+.ns-dropdown--align-end {
+  right: 0;
+  left: auto;
 }
 
 /* Placement variants */
@@ -50,20 +68,6 @@
   left: 100%;
   margin-left: 0.25rem;
   transform-origin: left center;
-}
-
-/* Alignment variants */
-.ns-dropdown--align-start {
-  left: 0;
-}
-
-.ns-dropdown--align-center {
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.ns-dropdown--align-end {
-  right: 0;
 }
 
 /* Professional Fade Animation */

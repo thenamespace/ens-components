@@ -23,7 +23,7 @@
       "@/molecules": ["src/components/molecules/index"],
       "@/constants": ["src/constants/index"],
       "@/utils": ["src/utils/index"],
-      "@/types": ["src/types/index"],
+      "@/types": ["src/types/index"]
     }
   },
   "include": ["src", "*.ts", "*.tsx"],

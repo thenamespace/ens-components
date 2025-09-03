@@ -2,10 +2,30 @@ import React, { ReactElement } from "react";
 import * as LucideIcons from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import "./Icon.css";
-import { User, Search, SquareUser, Globe, Pin, Box, Book, X } from "lucide-react";
-import { DiscordIcon, GithubIcon, TelegramIcon, YoutubeIcon, XIcon } from "./custom";
+import {
+  User,
+  Search,
+  SquareUser,
+  Globe,
+  Pin,
+  Box,
+  Book,
+  X,
+} from "lucide-react";
+import {
+  DiscordIcon,
+  GithubIcon,
+  TelegramIcon,
+  YoutubeIcon,
+  XIcon,
+} from "./custom";
 
-type CustomIcon = React.ComponentType<{ size?: number; color?: string; className?: string; 'data-test-id'?: string }>;
+type CustomIcon = React.ComponentType<{
+  size?: number;
+  color?: string;
+  className?: string;
+  "data-test-id"?: string;
+}>;
 type IconComponent = LucideIcon | CustomIcon;
 
 export type IconName =
@@ -23,10 +43,10 @@ export type IconName =
   | "github"
   | "telegram"
   | "youtube"
-   | "image"
+  | "image"
   | "circle-person"
   | "twitter"
-  | "circle-alert"
+  | "circle-alert";
 
 const icons: Record<IconName, IconComponent> = {
   person: User,
@@ -37,18 +57,16 @@ const icons: Record<IconName, IconComponent> = {
   pin: Pin,
   box: Box,
   book: Book,
-  'map-pin': LucideIcons.MapPin,
+  "map-pin": LucideIcons.MapPin,
   mail: LucideIcons.Mail,
   discord: DiscordIcon,
   github: GithubIcon,
   telegram: TelegramIcon,
   youtube: YoutubeIcon,
-    image: LucideIcons.Image,
-  'circle-person': LucideIcons.CircleUser,
+  image: LucideIcons.Image,
+  "circle-person": LucideIcons.CircleUser,
   twitter: XIcon,
-  'circle-alert': LucideIcons.CircleAlert
-  
-  
+  "circle-alert": LucideIcons.CircleAlert,
 };
 
 export interface IconProps {

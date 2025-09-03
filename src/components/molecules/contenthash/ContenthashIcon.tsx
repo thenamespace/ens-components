@@ -15,8 +15,8 @@ const icons: Record<ContenthashProtocol, React.FC<{ size?: number }>> = {
   [ContenthashProtocol.Onion]: OnionIcon,
   [ContenthashProtocol.Arweave]: ArweaveIcon,
   [ContenthashProtocol.Skynet]: SkynetIcon,
-  [ContenthashProtocol.Swarm]: SwarmIcon
-}
+  [ContenthashProtocol.Swarm]: SwarmIcon,
+};
 
 export const ContenthashIcon = (props: ContenthashIconProps) => {
   const { className, size, protocol, ...restProps } = props;
@@ -29,8 +29,8 @@ export const ContenthashIcon = (props: ContenthashIconProps) => {
   }
 
   return (
-    <div className={`ns-chain-icon ${className || ''}`}>
+    <div className={`ns-chain-icon ${className || ""}`}>
       <IconComponent size={_size} />
     </div>
   );
-}
+};

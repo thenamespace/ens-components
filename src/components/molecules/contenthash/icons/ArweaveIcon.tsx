@@ -4,7 +4,13 @@ interface ArweaveIconProps {
 
 export const ArweaveIcon = ({ size = 20 }: ArweaveIconProps) => {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" width={size} height={size} viewBox="0 0 31.8 31.8">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xmlSpace="preserve"
+      width={size}
+      height={size}
+      viewBox="0 0 31.8 31.8"
+    >
       <circle
         cx="15.9"
         cy="15.9"

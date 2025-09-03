@@ -178,7 +178,7 @@ export const SelectRecordsForm = ({
                 onContenthashRemoved={() => handleContenthashRemoved()}
               />
             )}
-            <div style={{padding: 20, paddingTop: 0}}>
+            <div style={{ padding: 20, paddingTop: 0 }}>
               <Button
                 onClick={() => setSelectRecords(true)}
                 style={{ width: "100%", padding: "10px" }}

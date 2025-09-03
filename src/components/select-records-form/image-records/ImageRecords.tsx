@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import "./ImageRecords.css";
+import { Dropdown } from "@/components/molecules";
+import { Icon, Text } from "@/components/atoms";
 
 interface ImageRecordProps {
   avatar?: string;
@@ -43,25 +45,67 @@ export const ImageRecords = ({
 
   return (
     <div className="ns-image-records">
-      <div
-        style={headerStyles}
-        className="ns-cover-record-cont"
-        onClick={() => {
-          if (!headerRecordSet) {
-            onHeaderAdded("");
+      <div style={headerStyles} className="ns-cover-record-cont">
+        <Dropdown
+          trigger={
+            <div className="ns-image-handle header-handle">
+              <Icon color="white" name="image"></Icon>
+            </div>
           }
-        }}
-      >
-        <div
-          style={avatarStyles}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (!avatarRecordSet) {
-              onAvatarAdded("");
+        >
+          <div className="ns-upload-options">
+            <Text
+              onClick={e => {
+                e.stopPropagation();
+                if (!headerRecordSet) {
+                  onHeaderAdded("");
+                }
+              }}
+              weight="medium"
+              className="option"
+              size="sm"
+            >
+              Set Image Link
+            </Text>
+            <Text weight="medium" className="option disabled" size="sm">
+              Upload image
+            </Text>
+            <Text weight="medium" className="option disabled" size="sm">
+              Select NFT
+            </Text>
+          </div>
+        </Dropdown>
+        <div style={avatarStyles} className="ns-avatar-record-cont">
+          <Dropdown
+            trigger={
+              <div className="ns-image-handle">
+                <Icon color="white" name="image"></Icon>
+              </div>
             }
-          }}
-          className="ns-avatar-record-cont"
-        ></div>
+          >
+            <div className="ns-upload-options">
+              <Text
+                onClick={e => {
+                  e.stopPropagation();
+                  if (!avatarRecordSet) {
+                    onAvatarAdded("");
+                  }
+                }}
+                weight="medium"
+                className="option"
+                size="sm"
+              >
+                Add Avatar Record
+              </Text>
+              <Text weight="medium" className="option disabled" size="sm">
+                Upload image
+              </Text>
+              <Text weight="medium" className="option disabled" size="sm">
+                Select NFT
+              </Text>
+            </div>
+          </Dropdown>
+        </div>
       </div>
     </div>
   );

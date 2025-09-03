@@ -8,6 +8,7 @@ export interface DropdownProps {
   align?: "start" | "center" | "end";
   disabled?: boolean;
   dataTestId?: string;
+  closeCallback?: () => void;
 }
 
 export const Dropdown: React.FC<DropdownProps> = ({

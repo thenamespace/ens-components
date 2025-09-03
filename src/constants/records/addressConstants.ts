@@ -33,7 +33,7 @@ export const supportedAddresses: SupportedEnsAddress[] = [
     coinType: 0,
     chainName: "bitcoin",
     chainId: 0,
-    placeholder: "7Mi3m...sy7dw"
+    placeholder: "7Mi3m...sy7dw",
   },
   {
     isEMV: false,
@@ -41,7 +41,7 @@ export const supportedAddresses: SupportedEnsAddress[] = [
     coinType: 501,
     chainName: "sol",
     chainId: 501,
-    placeholder: "1BH2S...Y3x33"
+    placeholder: "1BH2S...Y3x33",
   },
   {
     isEMV: true,

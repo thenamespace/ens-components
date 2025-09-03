@@ -1,9 +1,16 @@
+.ns-image-records {
+  position: relative;
+  z-index: 15;
+}
+
 .ns-image-records .ns-cover-record-cont {
   height: 120px;
   width: 100%;
   background-color: var(--ns-color-border);
   border-radius: 10px;
   position: relative;
+  display: flex;
+  justify-content: end;
 }
 
 .ns-image-records .ns-avatar-record-cont {
@@ -17,8 +24,54 @@
   transform: translateX(-50%);
   bottom: -25px;
   transition: all 0.25s linear;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.ns-image-records .ns-avatar-record-cont:hover {
+.ns-image-records .ns-image-handle {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background-color: var(--ns-color-fg);
+  border-radius: 10px;
+  opacity: 0.2;
+  transition: all 0.25s linear;
+}
+
+.ns-image-records .ns-image-handle:hover {
+  opacity: 1;
+  outline: 1px solid (--ns-color-bg);
+}
+
+.ns-image-handle.header-handle {
+  margin: 15px;
+}
+
+.ns-upload-options {
+  padding: 5px;
+}
+
+.ns-upload-options .option {
+  opacity: 0.7;
+  padding: 5px;
+  transition: all 0.25s linear;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.ns-upload-options .option.disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.ns-upload-options .option.disabled:hover {
+  opacity: 0.4;
+}
+
+.ns-upload-options .option:hover {
+  opacity: 1;
+  background-color: var(--ns-color-bg-accent);
 }

@@ -8,9 +8,14 @@ export const TelegramIcon: React.FC<TelegramIconProps> = ({
   size = 24,
   ...props
 }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    fill={props.color} width={size} height={size} {...props} viewBox="0 0 24 24">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill={props.color}
+    width={size}
+    height={size}
+    {...props}
+    viewBox="0 0 24 24"
+  >
     <g clip-path="url(#SocialTelegram_svg__a)">
       <path
         fill-rule="evenodd"

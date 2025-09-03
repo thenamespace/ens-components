@@ -1,14 +1,17 @@
+## WE Had issues building a storybook 
+# so we just commit it for now!!
+
 # Multi-stage build for Storybook
 FROM node:24-alpine AS builder
 
 # Install build dependencies for native modules
-RUN apk add --no-cache \
-    python3 \
-    make \
-    g++ \
-    gcc \
-    libc-dev \
-    libffi-dev
+# RUN apk add --no-cache \
+#     python3 \
+#     make \
+#     g++ \
+#     gcc \
+#     libc-dev \
+#     libffi-dev
 
 # Set working directory
 WORKDIR /app
@@ -17,13 +20,13 @@ WORKDIR /app
 COPY package*.json ./
 
 # Copy source code
-COPY . .
+COPY .storybook-static ./
 
 # Install dependencies
-RUN npm install
+# RUN npm install
 
 # Build Storybook
-RUN npm run build-storybook
+# RUN npm run build-storybook
 
 # Production stage
 FROM nginx:alpine

@@ -2,7 +2,12 @@ import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Button, ContenthashIcon, SelectRecordsForm } from "@/components";
 import "./styles/theme.css";
-import { ContenthashProtocol, EnsAddressRecord, EnsRecords, EnsTextRecord } from "@/types";
+import {
+  ContenthashProtocol,
+  EnsAddressRecord,
+  EnsRecords,
+  EnsTextRecord,
+} from "@/types";
 import { zeroAddress } from "viem";
 
 const _texts: EnsTextRecord[] = [
@@ -19,13 +24,13 @@ const _texts: EnsTextRecord[] = [
 const _addrs: EnsAddressRecord[] = [
   {
     coinType: 60,
-    value: zeroAddress
+    value: zeroAddress,
   },
   {
     coinType: 0,
-    value: zeroAddress
-  }
-]
+    value: zeroAddress,
+  },
+];
 
 function TestApp() {
   const [records, setRecords] = useState<EnsRecords>({
@@ -51,9 +56,9 @@ function TestApp() {
       >
         Print
       </Button>
-      <ContenthashIcon protocol={ContenthashProtocol.Ipfs} size={20}/>
-      <ContenthashIcon protocol={ContenthashProtocol.Arweave} size={20}/>
-      <ContenthashIcon protocol={ContenthashProtocol.Onion} size={20}/>
+      <ContenthashIcon protocol={ContenthashProtocol.Ipfs} size={20} />
+      <ContenthashIcon protocol={ContenthashProtocol.Arweave} size={20} />
+      <ContenthashIcon protocol={ContenthashProtocol.Onion} size={20} />
     </div>
   );
 }

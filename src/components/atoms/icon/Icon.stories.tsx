@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Icon } from "./Icon";
+import { Icon, IconName } from "./Icon";
 
 const meta: Meta<typeof Icon> = {
   title: "Atoms/Icon",
@@ -14,31 +14,25 @@ export default meta;
 
 type Story = StoryObj<typeof Icon>;
 
-export const Default: Story = {};
+const commonIcons: IconName[] = [
+  "book",
+  "box",
+  "circle-alert",
+  "circle-person",
+  "globe",
+  "image",
+  "mail",
+  "map-pin",
+  "person",
+  "search",
+];
 
-export const DifferentSizes: Story = {
+export const Default: Story = {
   render: () => (
     <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-      <Icon name="person" size={16} />
-    </div>
-  ),
-};
-
-export const DifferentColors: Story = {
-  render: () => (
-    <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-      <Icon name="person" size={16} />
-    </div>
-  ),
-};
-
-export const CommonIcons: Story = {
-  render: () => (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
-      <Icon name="person" size={16} />
-      <Icon name="globe" size={16} />
-      <Icon name="mail" size={16} />
-      <Icon name="map-pin" size={16} />
+      {commonIcons.map((icon, index) => (
+        <Icon key={icon} name={icon} size={24} />
+      ))}
     </div>
   ),
 };
@@ -46,7 +40,7 @@ export const CommonIcons: Story = {
 export const SocialMediaIcons: Story = {
   render: () => (
     <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
-      <Icon name="x" size={24} />
+      <Icon name="twitter" size={24} />
       <Icon name="discord" size={24} />
       <Icon name="github" size={24} />
       <Icon name="telegram" size={24} />
