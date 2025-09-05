@@ -28,14 +28,18 @@ import { ContenthashIcon } from "@/components/molecules";
 // to a certain record type
 export type ScrollToRecordSegment = "texts" | "addresses" | "website";
 
+export interface RecordsAddedParams {
+  keys: string[];
+  coins: number[];
+  contenthash?: EnsContenthashRecord;
+}
+
 interface RecordsSelectorProps {
   texts: EnsTextRecord[];
   addresses: EnsAddressRecord[];
   contenthash?: EnsContenthashRecord;
   segment?: ScrollToRecordSegment;
-  onTextsAdded: (keys: string[]) => void;
-  onAddressesAdded: (coins: number[]) => void;
-  onContenthashAdded: (contenthash: EnsContenthashRecord) => void;
+  onRecordsAdded: (params: RecordsAddedParams) => void
   onClose: () => void;
 }
 
@@ -59,9 +63,7 @@ export const RecordsSelector = ({
   addresses,
   contenthash,
   segment,
-  onTextsAdded,
-  onAddressesAdded,
-  onContenthashAdded,
+  onRecordsAdded
 }: RecordsSelectorProps) => {
   const [selectedTextsMap, setSelectedTextsMap] = useState<
     Record<string, boolean>
@@ -172,23 +174,25 @@ export const RecordsSelector = ({
 
   const handleAddRecords = () => {
     const textKeys = Object.keys(selectedTextsMap);
-    if (textKeys.length > 0) {
-      onTextsAdded(textKeys);
-    }
     const addressKeys = Object.keys(selectedAddressesMap);
-    if (addressKeys.length > 0) {
-      console.log(addressKeys, "ADdress keys!")
-      onAddressesAdded(
-        addressKeys.map(i => {
+    const addressCoins: number[] = addressKeys.map(i => {
           const s = getSupportedAddressByName(i as any);
           return s?.coinType !== undefined ? s.coinType : 0;
         })
-      );
-    }
+   
+    const records: RecordsAddedParams = {
+      coins: addressCoins,
+      keys: textKeys
+    }    
 
     if (selectedContenthash) {
-      onContenthashAdded({ protocol: selectedContenthash, value: "" });
+      records.contenthash = {
+        protocol: selectedContenthash,
+        value: ""
+      }
     }
+    
+    onRecordsAdded(records);
 
     setSelectedContenthash(null);
     setSelectedTextsMap({});
@@ -499,7 +503,7 @@ export const RecordsSelector = ({
           )}
         </div>
       </div>
-      <div className="ns-mt-3" style={{display:"flex", gap: "8px"}}>
+      <div className="ns-mt-3" style={{ display: "flex", gap: "8px" }}>
         <Button
           style={{ width: "50%" }}
           size="lg"

@@ -1,5 +1,6 @@
 import { ChainName } from "@/components";
 import { convertEVMChainIdToCoinType } from "@/utils";
+import { getCoderByCoinName } from "@ensdomains/address-encoder";
 import { isAddress } from "viem";
 import { base, arbitrum, polygon, optimism, zora, mainnet } from "viem/chains";
 
@@ -16,6 +17,28 @@ export interface SupportedEnsAddress {
 const isValidEmvAddress = (value: string): boolean => {
   return isAddress(value);
 };
+
+const verifyAddress = (value: string, coinName: string): boolean => {
+
+  try {
+    const coder = getCoderByCoinName(coinName);
+    coder.decode(value);
+    return true;
+  } catch(err) {
+    console.log(`Failed to decode value: ${coinName}`, err);
+    return false;
+  }
+
+}
+
+const isValidBtcAddress = (value: string): boolean => {
+  return verifyAddress(value, "btc")
+}
+
+const isValidSolAddress = (value: string): boolean => {
+  return verifyAddress(value, "sol")
+}
+
 
 export const supportedAddresses: SupportedEnsAddress[] = [
   {
@@ -34,6 +57,7 @@ export const supportedAddresses: SupportedEnsAddress[] = [
     chainName: "bitcoin",
     chainId: 0,
     placeholder: "7Mi3m...sy7dw",
+    validateFunc: isValidBtcAddress
   },
   {
     isEMV: false,
@@ -42,6 +66,7 @@ export const supportedAddresses: SupportedEnsAddress[] = [
     chainName: "sol",
     chainId: 501,
     placeholder: "1BH2S...Y3x33",
+    validateFunc: isValidSolAddress
   },
   {
     isEMV: true,

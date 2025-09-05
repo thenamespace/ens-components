@@ -11,6 +11,7 @@ import { AddressRecords } from "./address-record/AddressRecords";
 import { ContenthashRecord } from "./contenthash-records/ContenthashRecord";
 import "./SelectRecordsForm.css";
 import {
+  RecordsAddedParams,
   RecordsSelector,
   ScrollToRecordSegment,
 } from "./records-selector/RecordsSelector";
@@ -44,40 +45,36 @@ export const SelectRecordsForm = ({
     onRecordsUpdated({ ...records, addresses });
   };
 
-  const handleTextsAdded = (textKeys: string[]) => {
-    const texts = [...records.texts];
-    textKeys.forEach(key => {
-      texts.push({
-        key: key,
-        value: "",
+  const handleRecordsAdded = (params: RecordsAddedParams) => {
+    const newTexts = [...records.texts];
+    if (params.keys.length > 0) {
+      params.keys.forEach(key => {
+        newTexts.push({ key: key, value: "" });
       });
-    });
-    onRecordsUpdated({ ...records, texts: texts });
-  };
-
-  const handleAddressesAdded = (coins: number[]) => {
-    const addresses = [...records.addresses];
-    coins.forEach(coin => {
-      addresses.push({
-        coinType: coin,
-        value: "",
+    }
+    const newAddresses = [...records.addresses];
+    if (params.coins.length > 0) {
+      params.coins.forEach(coin => {
+        newAddresses.push({ coinType: coin, value: "" });
       });
-    });
-    onRecordsUpdated({ ...records, addresses: addresses });
-  };
+    }
 
-  const handleContenthashAdded = (hash: EnsContenthashRecord) => {
-    let value = "";
-    if (records.contenthash && records.contenthash.protocol === hash.protocol) {
-      value = records.contenthash.value;
+    let newContenthash = records.contenthash
+      ? { ...records.contenthash }
+      : undefined; 
+    
+    if (params.contenthash?.protocol) {
+      const value = records.contenthash?.value || ""
+      newContenthash = {
+        protocol: params.contenthash.protocol,
+        value: value,
+      };
     }
     onRecordsUpdated({
-      ...records,
-      contenthash: {
-        protocol: hash.protocol,
-        value,
-      },
-    });
+      texts: newTexts,
+      addresses: newAddresses,
+      contenthash: newContenthash
+    })
   };
 
   const { avatar, header } = useMemo(() => {
@@ -180,7 +177,13 @@ export const SelectRecordsForm = ({
                 onContenthashRemoved={() => handleContenthashRemoved()}
               />
             )}
-            <div style={{ padding: 20, paddingTop: 0, paddingBottom: actions ? 0 : 20}}>
+            <div
+              style={{
+                padding: 20,
+                paddingTop: 0,
+                paddingBottom: actions ? 0 : 20,
+              }}
+            >
               <Button
                 onClick={() => setSelectRecords(true)}
                 style={{ width: "100%", padding: "10px" }}
@@ -189,7 +192,9 @@ export const SelectRecordsForm = ({
                 + Add Record
               </Button>
             </div>
-            {actions && <div className="ns-mt-2 ns-record-actions">{actions}</div>}
+            {actions && (
+              <div className="ns-mt-2 ns-record-actions">{actions}</div>
+            )}
           </div>
         </>
       )}
@@ -199,10 +204,8 @@ export const SelectRecordsForm = ({
           addresses={records.addresses}
           contenthash={records.contenthash}
           onClose={() => setSelectRecords(false)}
-          onAddressesAdded={coins => handleAddressesAdded(coins)}
-          onTextsAdded={keys => handleTextsAdded(keys)}
-          onContenthashAdded={hash => handleContenthashAdded(hash)}
           segment={getScrollToSegment()}
+          onRecordsAdded={(params) => handleRecordsAdded(params)}
         />
       )}
     </div>
