@@ -65,7 +65,7 @@ export const ImageRecords = ({
               className="option"
               size="sm"
             >
-              Set Image Link
+              Add Header Record
             </Text>
             <Text weight="medium" className="option disabled" size="sm">
               Upload image

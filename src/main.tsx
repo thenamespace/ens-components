@@ -10,6 +10,8 @@ import {
 } from "@/types";
 import { zeroAddress } from "viem";
 import { EditRecordsForm } from "./components/edit-records-form/EditRecordsForm";
+import { WalletConnect } from "./wallet-connect";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 const _texts: EnsTextRecord[] = [
   {
@@ -45,7 +47,13 @@ function TestApp() {
 
   return (
     <div>
-           <EditRecordsForm name="artii.eth"/>
+           <WalletConnect>
+            <EditRecordsForm name="artii.eth" resolverAddress={"0x0dcD506D1Be162E50A2b434028A9a148F2686444"} initialRecords={{
+              texts: [{ key: "avatar", value: "testvalue"}],
+              addresses: [{ coinType: 60, value: "0x0dcD506D1Be162E50A2b434028A9a148F2686444"}]
+            }}/>
+            <ConnectButton/>
+           </WalletConnect>
     </div>
   );
 }

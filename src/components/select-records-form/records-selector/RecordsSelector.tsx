@@ -281,12 +281,8 @@ export const RecordsSelector = ({
         className="ns-mb-3 text-center"
         style={{ textAlign: "center" }}
       >
-        <Icon name="x"></Icon>
         <Text size="lg" weight="bold">
           Add Records
-        </Text>
-        <Text color="grey" size="sm" weight="medium">
-          Lorem ipusm doalr sit amer
         </Text>
       </div>
       <div className="ns-mb-3">

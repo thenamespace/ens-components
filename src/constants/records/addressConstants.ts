@@ -115,6 +115,16 @@ export const supportedAddresses: SupportedEnsAddress[] = [
   },
 ];
 
+export const getSupportedAddressMap = (): Record<number,SupportedEnsAddress> => {
+  const map: Record<number,SupportedEnsAddress> = {}
+
+  supportedAddresses.forEach(addr => {
+    map[addr.coinType] = addr;
+  })
+
+  return map;
+}
+
 export const getSupportedAddressByCoin = (
   coin: number
 ): SupportedEnsAddress | undefined => {

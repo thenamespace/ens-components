@@ -57,3 +57,14 @@
   padding: 0px 20px;
   padding-bottom: 20px;
 }
+
+.ns-select-records-form .record-count-badge {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--ns-color-bg-accent);
+  border-radius: 3px;
+  padding: 1px;
+}
