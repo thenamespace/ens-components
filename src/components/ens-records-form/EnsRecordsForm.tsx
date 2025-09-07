@@ -1,14 +1,14 @@
 import { EnsRecords } from "@/types";
 import { useEffect, useMemo, useState } from "react";
 import { SelectRecordsForm } from "../select-records-form/SelectRecordsForm";
-import { Button } from "../atoms";
-import "./EditRecordsForm.css";
+import { Button, Text } from "../atoms";
+import "./EnsRecordsForm.css";
 import { convertToMulticallResolverData } from "@/utils/resolver";
 import { deepCopy, getEnsRecordsDiff } from "@/utils";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { mainnet } from "viem/chains";
 import { ENS_RESOLVER_ABI } from "@/web3";
-import { Address, ContractFunctionExecutionError } from "viem";
+import { Address, ContractFunctionExecutionError, Hash } from "viem";
 import { getSupportedAddressMap } from "@/constants";
 import { RecordDiff } from "./record-diff/RecordDiff";
 
@@ -18,7 +18,7 @@ interface EditRecordsFormProps {
   name: string;
   chainId?: number;
   onCancel?: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (txHash: Hash) => void;
 }
 
 const addressMapByCoin = getSupportedAddressMap();
@@ -28,11 +28,13 @@ const blankRecords: EnsRecords = {
   addresses: [],
 };
 
-export const EditRecordsForm = ({
+export const EnsRecordsForm = ({
   name,
   initialRecords,
   chainId,
   resolverAddress,
+  onCancel,
+  onSuccess
 }: EditRecordsFormProps) => {
   const [records, setRecords] = useState<EnsRecords>(
     initialRecords ? deepCopy(initialRecords) : { texts: [], addresses: [] }
@@ -43,19 +45,26 @@ export const EditRecordsForm = ({
   const { data: walletClient } = useWalletClient({ chainId: currentChainId });
   const { address } = useAccount();
   const [contractError, setContractError] = useState<string | null>(null);
-  const [generalError, setGeneralError] = useState<string | null>(null)
+  const [generalError, setGeneralError] = useState<string | null>(
+    "Something went wrong"
+  );
+  const [txIndicator, setTxIndicator] = useState<{
+    isWaitingForWallet: boolean
+    isWaitingForTx: boolean
+  }>({
+    isWaitingForTx: false,
+    isWaitingForWallet: false
+  })
 
   useEffect(() => {
-
     if (!address) {
-      setGeneralError("Wallet is not connected.")
+      setGeneralError("Wallet is not connected.");
     } else if (!walletClient || !publicClient) {
-      setGeneralError("Is this component run in the WagmiProvider")
+      setGeneralError("Is this component run in the WagmiProvider");
     } else {
       setGeneralError(null);
     }
-
-  },[address, publicClient, walletClient])
+  }, [address, publicClient, walletClient]);
 
   const areValidAddresses = useMemo(() => {
     for (const addr of records.addresses) {
@@ -108,7 +117,7 @@ export const EditRecordsForm = ({
       textsAdded.length > 0 ||
       textsRemoved.length > 0 ||
       textsModified.length > 0 ||
-      contenthashRemoved === true || 
+      contenthashRemoved === true ||
       contenthashModified !== undefined ||
       contenthashAdded !== undefined
     );
@@ -117,7 +126,6 @@ export const EditRecordsForm = ({
   const isFormValid = areValidTexts && areValidAddresses && isDiffPresent;
 
   const handleUpdateRecords = async () => {
-    console.log("Clicking")
     try {
       const old: EnsRecords = initialRecords
         ? initialRecords
@@ -125,7 +133,7 @@ export const EditRecordsForm = ({
       const diff = getEnsRecordsDiff(old, records);
       const resolverData = convertToMulticallResolverData(name, diff);
 
-      console.log(resolverData, "DATA!!")
+      setTxIndicator({...txIndicator, isWaitingForWallet: true})
 
       const { request } = await publicClient!.simulateContract({
         abi: ENS_RESOLVER_ABI,
@@ -136,8 +144,10 @@ export const EditRecordsForm = ({
       });
 
       const tx = await walletClient!.writeContract(request);
-      console.log(tx)
 
+      setTxIndicator({isWaitingForTx: true, isWaitingForWallet: false})
+
+      console.log(tx);
     } catch (err) {
       console.error(err);
       if (err instanceof ContractFunctionExecutionError) {
@@ -146,19 +156,9 @@ export const EditRecordsForm = ({
       } else {
         setContractError("Transaction failed for unknown reason!");
       }
+    } finally {
+      setTxIndicator({ isWaitingForTx: false, isWaitingForWallet: false})
     }
-  };
-
-  const updateRecords = async () => {};
-
-  const getDiff = () => {};
-
-  const test = () => {
-    const old: EnsRecords = initialRecords
-      ? initialRecords
-      : { texts: [], addresses: [] };
-    const diff = getEnsRecordsDiff(old, records);
-    const data = convertToMulticallResolverData("test.eth", diff);
   };
 
   return (
@@ -168,21 +168,27 @@ export const EditRecordsForm = ({
         actions={
           <div className="d-flex align-items-center" style={{ gap: "8px" }}>
             <Button
-              onClick={() => test()}
+              onClick={() => onCancel?.()}
               size="lg"
               style={{ width: "100%" }}
               variant="outline"
             >
               Cancel
             </Button>
-            <Button disabled={!isFormValid} onClick={() => handleUpdateRecords()} size="lg" style={{ width: "100%" }}>
+            <Button
+              disabled={!isFormValid}
+              onClick={() => handleUpdateRecords()}
+              size="lg"
+              style={{ width: "100%" }}
+            >
               Update
             </Button>
           </div>
         }
         onRecordsUpdated={records => setRecords(records)}
       />
-      <RecordDiff diff={getEnsRecordsDiff(getInitalRecords(), records)}/>
+      <RecordDiff diff={getEnsRecordsDiff(getInitalRecords(), records)} />
+      {generalError && <Text>{generalError}</Text>}
     </div>
   );
 };

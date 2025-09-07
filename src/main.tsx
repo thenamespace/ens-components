@@ -9,7 +9,7 @@ import {
   EnsTextRecord,
 } from "@/types";
 import { zeroAddress } from "viem";
-import { EditRecordsForm } from "./components/edit-records-form/EditRecordsForm";
+import { EnsRecordsForm } from "./components/ens-records-form/EnsRecordsForm";
 import { WalletConnect } from "./wallet-connect";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
@@ -48,7 +48,7 @@ function TestApp() {
   return (
     <div>
            <WalletConnect>
-            <EditRecordsForm name="artii.eth" resolverAddress={"0x0dcD506D1Be162E50A2b434028A9a148F2686444"} initialRecords={{
+            <EnsRecordsForm name="artii.eth" resolverAddress={"0x0dcD506D1Be162E50A2b434028A9a148F2686444"} initialRecords={{
               texts: [{ key: "avatar", value: "testvalue"}],
               addresses: [{ coinType: 60, value: "0x0dcD506D1Be162E50A2b434028A9a148F2686444"}]
             }}/>
