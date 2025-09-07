@@ -179,6 +179,7 @@ export const SelectRecordsForm = ({
                 <Text
                   size="sm"
                   weight="medium"
+                  style={{whiteSpace: "nowrap"}}
                   color={selectedItem === item ? "primary" : "grey"}
                 >
                   {item}

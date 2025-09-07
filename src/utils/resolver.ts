@@ -94,6 +94,7 @@ const convertContenthashData = (
   diff: EnsRecordsDiff
 ) => {
   if (diff.contenthashRemoved) {
+    console.log("Removed")
     const data = encodeFunctionData({
       functionName: "setContenthash",
       abi: parseAbi([SET_CONTENTHASH_FUNC]),
@@ -112,7 +113,7 @@ const convertContenthashData = (
 
   if (contenthash !== undefined) {
     const { protocol, value } = contenthash;
-    const encodedValue = encode(protocol, value);
+    const encodedValue = `0x${encode(protocol, value)}`
 
     const data = encodeFunctionData({
       functionName: "setContenthash",

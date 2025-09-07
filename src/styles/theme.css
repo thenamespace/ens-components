@@ -37,8 +37,8 @@
    /* Info Colors */
    --ns-alert-info-bg: #eff6ff;
    --ns-alert-info-border: #bfdbfe;
-   --ns-alert-info-text: #2563eb;
-   --ns-alert-info-icon: #2563eb;
+   --ns-alert-info-text: #257eeb;
+   --ns-alert-info-icon: #25a2eb;
    --ns-alert-info-close-hover: rgba(37, 99, 235, 0.1);
  
    /* Success Colors */

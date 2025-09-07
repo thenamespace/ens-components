@@ -5,7 +5,7 @@ import "./Alert.css";
 export type AlertVariant = "error" | "warning" | "info" | "success";
 
 export interface AlertProps {
-  variant: AlertVariant;
+  variant?: AlertVariant;
   children: React.ReactNode;
   className?: string;
   onClose?: () => void;
@@ -21,7 +21,7 @@ const variantConfig: Record<AlertVariant, { icon: IconName; colorClass: string }
 };
 
 export const Alert: React.FC<AlertProps> = ({
-  variant,
+  variant = "info",
   children,
   className = "",
   onClose,

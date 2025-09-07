@@ -6,7 +6,7 @@ import { zeroAddress } from "viem";
 import { EnsRecordsForm } from "./components/ens-records-form/EnsRecordsForm";
 import { WalletConnect } from "./wallet-connect";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { sepolia } from "viem/chains";
+import { mainnet, sepolia } from "viem/chains";
 
 const _texts: EnsTextRecord[] = [
   {
@@ -30,9 +30,9 @@ const _addrs: EnsAddressRecord[] = [
   },
 ];
 
-const SEPOLIA_PUB_RES = "0x8948458626811dd0c23EB25Cc74291247077cC51";
-const ENS_NAME = "bejzsepolija.eth";
-const NAME_CHAIN_ID = sepolia.id;
+const SEPOLIA_PUB_RES = "0x0dcD506D1Be162E50A2b434028A9a148F2686444";
+const ENS_NAME = "artii.eth";
+const NAME_CHAIN_ID = mainnet.id;
 
 function TestApp() {
   const [records, setRecords] = useState<EnsRecords>({

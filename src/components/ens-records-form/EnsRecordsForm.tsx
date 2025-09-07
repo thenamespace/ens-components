@@ -5,12 +5,18 @@ import { Button, Text } from "../atoms";
 import "./EnsRecordsForm.css";
 import { convertToMulticallResolverData } from "@/utils/resolver";
 import { deepCopy, getEnsRecordsDiff } from "@/utils";
-import { useAccount, usePublicClient, useSwitchChain, useWalletClient } from "wagmi";
+import {
+  useAccount,
+  usePublicClient,
+  useSwitchChain,
+  useWalletClient,
+} from "wagmi";
 import { mainnet } from "viem/chains";
 import { ENS_RESOLVER_ABI } from "@/web3";
 import { Address, ContractFunctionExecutionError, Hash } from "viem";
 import { getSupportedAddressMap, isContenthashValid } from "@/constants";
 import { RecordDiff } from "./record-diff/RecordDiff";
+import { Alert } from "../molecules";
 
 interface EditRecordsFormProps {
   initialRecords?: EnsRecords;
@@ -43,10 +49,13 @@ export const EnsRecordsForm = ({
   const currentChainId = chainId || mainnet.id;
   const publicClient = usePublicClient({ chainId: currentChainId });
   const { data: walletClient } = useWalletClient({ chainId: currentChainId });
-  const { switchChainAsync, switchChain} = useSwitchChain()
   const { address, chain } = useAccount();
+  const { switchChain } = useSwitchChain()
   const [contractError, setContractError] = useState<string | null>(null);
-  const [generalError, setGeneralError] = useState<string | null>(null);
+  const [generalError, setGeneralError] = useState<{
+    title: string;
+    subtitle: string;
+  } | null>(null);
   const [txIndicator, setTxIndicator] = useState<{
     isWaitingForWallet: boolean;
     isWaitingForTx: boolean;
@@ -55,22 +64,13 @@ export const EnsRecordsForm = ({
     isWaitingForWallet: false,
   });
 
-  useEffect(() => {
-
-    // if the chain is not current chain
-    // switch network async
-    if (!chain || chain?.id !== currentChainId) {
-      switchChain({chainId: currentChainId})
-    }
-
-
-  },[chain])
-
+  const shouldSwitchNetwork = chain && chain.id !== currentChainId;
   useEffect(() => {
     if (!address) {
-      setGeneralError("Wallet is not connected.");
-    } else if (!walletClient || !publicClient) {
-      setGeneralError("Is this component run in the WagmiProvider");
+      setGeneralError({
+        title: "Not connected",
+        subtitle: "Connect wallet to continue",
+      });
     } else {
       setGeneralError(null);
     }
@@ -164,7 +164,7 @@ export const EnsRecordsForm = ({
 
       const tx = await walletClient!.writeContract(request);
 
-      console.log(tx, "TRANSACTION!!")
+      console.log(tx, "TRANSACTION!!");
 
       setTxIndicator({ isWaitingForTx: true, isWaitingForWallet: false });
       await publicClient!.waitForTransactionReceipt({ hash: tx });
@@ -192,30 +192,46 @@ export const EnsRecordsForm = ({
       <SelectRecordsForm
         records={records}
         actions={
-          <div className="d-flex align-items-center" style={{ gap: "8px" }}>
-            <Button
-              onClick={() => onCancel?.()}
-              size="lg"
-              style={{ width: "100%" }}
-              variant="outline"
-            >
-              Cancel
-            </Button>
-            <Button
-              loading={updateBtnLoading}
-              disabled={!isFormValid || updateBtnLoading}
-              onClick={() => handleUpdateRecords()}
-              size="lg"
-              style={{ width: "100%" }}
-            >
-              Update
-            </Button>
+          <div>
+            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
+              <Button
+                onClick={() => onCancel?.()}
+                size="lg"
+                style={{ width: "100%" }}
+                variant="outline"
+              >
+                Cancel
+              </Button>
+              <Button
+                loading={updateBtnLoading}
+                disabled={!isFormValid || updateBtnLoading}
+                onClick={() => handleUpdateRecords()}
+                size="lg"
+                style={{ width: "100%" }}
+              >
+                Update
+              </Button>
+            </div>
+            {generalError && (
+              <Alert
+                onClose={() => setGeneralError(null)}
+                dismissible={true}
+                variant="warning"
+                title={generalError.title}
+              >
+                {generalError.subtitle}
+              </Alert>
+            )}
+            {(!generalError && shouldSwitchNetwork) && <Alert variant="warning" title="Switch network">
+             <div className="d-flex">
+               You are not on required network.
+              <Button onClick={() => switchChain({chainId: currentChainId})} className="ns-mt-2" variant="outline" style={{width: 180}}>Switch Network</Button>
+             </div>
+            </Alert> }
           </div>
         }
         onRecordsUpdated={records => setRecords(records)}
       />
-      <RecordDiff diff={getEnsRecordsDiff(getInitalRecords(), records)} />
-      {generalError && <Text>{generalError}</Text>}
     </div>
   );
 };
