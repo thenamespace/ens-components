@@ -49,6 +49,7 @@ function TestApp() {
     <div>
       <WalletConnect>
         <SelectRecordsForm records={records} onRecordsUpdated={(e) => setRecords(e)}/>
+        <EnsRecordsForm initialRecords={records} resolverAddress={SEPOLIA_PUB_RES} name={ENS_NAME}/>
         {/* <EnsRecordsForm
           name={ENS_NAME}
           resolverAddress={SEPOLIA_PUB_RES}

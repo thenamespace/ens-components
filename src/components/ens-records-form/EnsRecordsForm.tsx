@@ -50,7 +50,7 @@ export const EnsRecordsForm = ({
   const publicClient = usePublicClient({ chainId: currentChainId });
   const { data: walletClient } = useWalletClient({ chainId: currentChainId });
   const { address, chain } = useAccount();
-  const { switchChain } = useSwitchChain()
+  const { switchChain } = useSwitchChain();
   const [contractError, setContractError] = useState<string | null>(null);
   const [generalError, setGeneralError] = useState<{
     title: string;
@@ -164,8 +164,6 @@ export const EnsRecordsForm = ({
 
       const tx = await walletClient!.writeContract(request);
 
-      console.log(tx, "TRANSACTION!!");
-
       setTxIndicator({ isWaitingForTx: true, isWaitingForWallet: false });
       await publicClient!.waitForTransactionReceipt({ hash: tx });
       onSuccess?.(tx);
@@ -191,47 +189,54 @@ export const EnsRecordsForm = ({
     <div className="ns-edit-records-form">
       <SelectRecordsForm
         records={records}
-        actions={
-          <div>
-            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
-              <Button
-                onClick={() => onCancel?.()}
-                size="lg"
-                style={{ width: "100%" }}
-                variant="outline"
-              >
-                Cancel
-              </Button>
-              <Button
-                loading={updateBtnLoading}
-                disabled={!isFormValid || updateBtnLoading}
-                onClick={() => handleUpdateRecords()}
-                size="lg"
-                style={{ width: "100%" }}
-              >
-                Update
-              </Button>
-            </div>
-            {generalError && (
-              <Alert
-                onClose={() => setGeneralError(null)}
-                dismissible={true}
-                variant="warning"
-                title={generalError.title}
-              >
-                {generalError.subtitle}
-              </Alert>
-            )}
-            {(!generalError && shouldSwitchNetwork) && <Alert variant="warning" title="Switch network">
-             <div className="d-flex">
-               You are not on required network.
-              <Button onClick={() => switchChain({chainId: currentChainId})} className="ns-mt-2" variant="outline" style={{width: 180}}>Switch Network</Button>
-             </div>
-            </Alert> }
-          </div>
-        }
         onRecordsUpdated={records => setRecords(records)}
       />
+      <div style={{ padding: 15, paddingTop: -5 }}>
+        <div className="d-flex align-items-center" style={{ gap: "8px" }}>
+          <Button
+            onClick={() => onCancel?.()}
+            size="lg"
+            style={{ width: "100%" }}
+            variant="outline"
+          >
+            Cancel
+          </Button>
+          <Button
+            loading={updateBtnLoading}
+            disabled={!isFormValid || updateBtnLoading}
+            onClick={() => handleUpdateRecords()}
+            size="lg"
+            style={{ width: "100%" }}
+          >
+            Update
+          </Button>
+        </div>
+        {generalError && (
+          <Alert
+            onClose={() => setGeneralError(null)}
+            dismissible={true}
+            variant="warning"
+            title={generalError.title}
+          >
+            {generalError.subtitle}
+          </Alert>
+        )}
+        {!generalError && shouldSwitchNetwork && (
+          <Alert variant="warning" title="Switch network">
+            <div className="d-flex">
+              You are not on required network.
+              <Button
+                onClick={() => switchChain({ chainId: currentChainId })}
+                className="ns-mt-2"
+                variant="outline"
+                style={{ width: 180 }}
+              >
+                Switch Network
+              </Button>
+            </div>
+          </Alert>
+        )}
+      </div>
     </div>
   );
 };

@@ -176,7 +176,7 @@ export const SelectRecordsForm = ({
   return (
     <div className="ns-select-records-form">
       {/* Avatar and header */}
-      <div style={{ marginBottom: 50 }}>
+      <div style={{ marginBottom: 30 }}>
         <ImageRecords
           avatar={avatar}
           header={header}
@@ -248,7 +248,7 @@ export const SelectRecordsForm = ({
                 searchFilter={searchFilter}
               />
             </div>
-            {/* Address Records */}
+            {/* Contenthash Records */}
             <div ref={websiteCategoryRef} className="ns-mb-2">
               <ContenthashRecord
                 contenthash={records.contenthash}
