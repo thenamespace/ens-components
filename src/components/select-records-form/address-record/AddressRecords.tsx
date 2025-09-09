@@ -1,16 +1,20 @@
 import { EnsAddressRecord } from "@/types";
-import { supportedAddresses } from "@/constants";
+import { supportedAddresses, SupportedEnsAddress } from "@/constants";
 import { ChainIcon, Icon, Input, Text } from "@/components/atoms";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 interface AddressRecordProps {
+  initialAddresses: EnsAddressRecord[];
   addresses: EnsAddressRecord[];
   onAddressesChanged: (addresses: EnsAddressRecord[]) => void;
+  searchFilter?: string;
 }
 
 export const AddressRecords = ({
   addresses,
   onAddressesChanged,
+  initialAddresses,
+  searchFilter,
 }: AddressRecordProps) => {
   const existingAddressMap = useMemo(() => {
     const map: Record<number, EnsAddressRecord> = {};
@@ -45,7 +49,11 @@ export const AddressRecords = ({
   };
 
   const handleAddressAdded = (coin: number) => {
-    onAddressesChanged([...addresses, { coinType: coin, value: "" }]);
+    const initialAddress = initialAddresses.find(i => i.coinType === coin);
+    onAddressesChanged([
+      ...addresses,
+      { coinType: coin, value: initialAddress?.value || "" },
+    ]);
     setLastAddedKey(`${coin}`);
   };
 
@@ -53,12 +61,33 @@ export const AddressRecords = ({
     onAddressesChanged(addresses.filter(addr => addr.coinType !== coin));
   };
 
+  const filterAddress = (address: SupportedEnsAddress): boolean => {
+    if (searchFilter && searchFilter.length > 0) {
+      const lowercase = searchFilter.toLocaleLowerCase();
+      return (
+        address.chainName.includes(lowercase) ||
+        address.label.toLocaleLowerCase().includes(lowercase)
+      );
+    }
+    return true;
+  };
+
+  const filteredAddresses = useMemo(() => {
+
+    return supportedAddresses.filter(record => filterAddress(record));
+  },[searchFilter])
+
+  if (filteredAddresses.length === 0) {
+    return <></>
+  }
+
+
   return (
     <div className="ns-text-records">
       <Text className="ns-mb-2" weight="bold">
         Addresses
       </Text>
-      {supportedAddresses
+      {filteredAddresses
         .filter(record => existingAddressMap[record.coinType] !== undefined)
         .map(record => {
           const current = existingAddressMap[record.coinType];
@@ -110,7 +139,7 @@ export const AddressRecords = ({
           );
         })}
       <div className="row g-2">
-        {supportedAddresses
+        {filteredAddresses
           .filter(record => existingAddressMap[record.coinType] === undefined)
           .map(record => (
             <div key={record.coinType} className="col col-lg-3 col-sm-6">

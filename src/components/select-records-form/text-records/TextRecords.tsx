@@ -1,19 +1,27 @@
 import { EnsTextRecord } from "@/types";
-import { supportedTexts, TextRecordCategory } from "@/constants";
+import {
+  SupportedTextRecord,
+  supportedTexts,
+  TextRecordCategory,
+} from "@/constants";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon, Input, Text } from "@/components";
 import { capitalize } from "@/utils";
 
 interface TextRecordsProps {
+  initialTexts: EnsTextRecord[];
   texts: EnsTextRecord[];
   onTextsChanged: (texts: EnsTextRecord[]) => void;
   category: TextRecordCategory;
+  searchFilter?: string;
 }
 
 export const TextRecords = ({
   texts,
   onTextsChanged,
   category,
+  initialTexts,
+  searchFilter,
 }: TextRecordsProps) => {
   const existingTextsMap = useMemo(() => {
     const map: Record<string, EnsTextRecord> = {};
@@ -48,7 +56,8 @@ export const TextRecords = ({
   };
 
   const handleTextAdded = (key: string) => {
-    onTextsChanged([...texts, { key, value: "" }]);
+    const initialText = initialTexts.find(txt => txt.key === key);
+    onTextsChanged([...texts, { key, value: initialText?.value || "" }]);
     setLastAddedKey(key);
   };
 
@@ -56,24 +65,40 @@ export const TextRecords = ({
     onTextsChanged(texts.filter(text => text.key !== key));
   };
 
-  const supportedRecords = useMemo(() => {
+  const filterSuggestions = (record: SupportedTextRecord): boolean => {
+    if (searchFilter && searchFilter.length > 0) {
+      const lowercase = searchFilter.toLocaleLowerCase();
+      const label = record.label || "";
+
+      return (
+        record.key.toLocaleLowerCase().includes(lowercase) ||
+        label.toLocaleLowerCase().includes(lowercase)
+      );
+    }
+    return true;
+  };
+
+  const filteredItems: SupportedTextRecord[] = useMemo(() => {
+
     const shownTextCategory = [category];
     if (category === TextRecordCategory.General) {
       // We also show image records under general
       shownTextCategory.push(TextRecordCategory.Image);
     }
 
-    return supportedTexts.filter(txt =>
-      shownTextCategory.includes(txt.category)
-    );
-  }, []);
+    return supportedTexts.filter(record => filterSuggestions(record) && shownTextCategory.includes(record.category));
+  }, [searchFilter]);
+
+  if (filteredItems.length === 0) {
+    return <></>;
+  }
 
   return (
     <div className="ns-text-records">
       <Text className="ns-mb-2" weight="bold">
         {capitalize(category)}
       </Text>
-      {supportedRecords
+      {filteredItems
         .filter(record => existingTextsMap[record.key] !== undefined)
         .map(record => {
           const current = existingTextsMap[record.key];
@@ -113,11 +138,12 @@ export const TextRecords = ({
           );
         })}
       <div className="row g-2">
-        {supportedRecords
+        {filteredItems
           .filter(
             record =>
               existingTextsMap[record.key] === undefined &&
-              record.category !== TextRecordCategory.Image
+              record.category !== TextRecordCategory.Image &&
+              filterSuggestions(record)
           )
           .map(record => (
             <div key={record.key} className="col col-lg-3 col-sm-6">

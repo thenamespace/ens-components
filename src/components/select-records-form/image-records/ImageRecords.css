@@ -24,8 +24,8 @@
 }
 
 .ns-image-records .ns-avatar-record-cont {
-  width: 100px;
-  height: 100px;
+  width: 110px;
+  height: 110px;
   border-radius: 20px;
   background-color: var(--ns-color-bg);
   position: absolute;

@@ -14,6 +14,7 @@ interface ContenthashRecordProps {
   onContenthashChanged: (value: EnsContenthashRecord) => void;
   onContenthashRemoved: () => void;
   onContenthashAdded: (protocol: ContenthashProtocol) => void;
+  searchFilter?: string;
 }
 
 export const ContenthashRecord = ({
@@ -21,14 +22,8 @@ export const ContenthashRecord = ({
   onContenthashChanged,
   onContenthashRemoved,
   onContenthashAdded,
+  searchFilter,
 }: ContenthashRecordProps) => {
-  const isValidInput = useMemo(() => {
-    if (contenthash && contenthash.value.length > 0) {
-      return isContenthashValid(contenthash.protocol, contenthash.value);
-    }
-
-    return true;
-  }, [contenthash]);
   const metadata = useMemo<SupportedContenthashRecord | undefined>(() => {
     if (contenthash?.protocol) {
       return getSupportedChashByProtocol(contenthash?.protocol);
@@ -42,6 +37,26 @@ export const ContenthashRecord = ({
     onContenthashChanged({ protocol, value });
   };
 
+  const filterChash = (record: SupportedContenthashRecord): boolean => {
+    if (searchFilter && searchFilter.length > 0) {
+      const lowercase = searchFilter.toLocaleLowerCase();
+      return (
+        record.protocol.toLocaleLowerCase().includes(lowercase) ||
+        record.label.toLocaleLowerCase().includes(lowercase)
+      );
+    }
+
+    return true;
+  };
+
+  const filteredSuggestions: SupportedContenthashRecord[] = useMemo(() => {
+    return supportedContenthashRecords.filter(record => filterChash(record));
+  }, [searchFilter]);
+
+  if (filteredSuggestions.length === 0) {
+    return <></>;
+  }
+
   return (
     <div className="ns-text-records">
       <Text className="ns-mb-2" weight="bold">
@@ -49,7 +64,7 @@ export const ContenthashRecord = ({
       </Text>
       {!contenthash && (
         <div className="row g-2">
-          {supportedContenthashRecords.map(record => (
+          {filteredSuggestions.map(record => (
             <div key={record.protocol} className="col col-lg-3 col-sm-6">
               <div
                 className="ns-text-suggestion"
@@ -64,7 +79,7 @@ export const ContenthashRecord = ({
           ))}
         </div>
       )}
-      {contenthash && metadata && (
+      {contenthash && metadata && filterChash(metadata) && (
         <div>
           <Text
             style={{ marginBottom: "4px" }}
@@ -79,6 +94,10 @@ export const ContenthashRecord = ({
               style={{ width: "100%" }}
               onChange={e =>
                 handleContenthashChanged(contenthash.protocol, e.target.value)
+              }
+              error={
+                contenthash.value.length > 0 &&
+                !isContenthashValid(contenthash.protocol, contenthash.value)
               }
               prefix={
                 <ContenthashIcon protocol={contenthash.protocol} size={18} />

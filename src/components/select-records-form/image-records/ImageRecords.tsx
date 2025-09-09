@@ -47,6 +47,7 @@ export const ImageRecords = ({
     <div className="ns-image-records">
       <div style={headerStyles} className="ns-cover-record-cont">
         <div className="ns-top-grad"></div>
+         <div className="ns-bot-grad"></div>
         {!headerRecordSet && <Dropdown
           trigger={
             <div className="ns-header-handle">
