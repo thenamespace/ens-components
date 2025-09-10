@@ -4,74 +4,90 @@ import { Input } from "./Input";
 const meta: Meta<typeof Input> = {
   title: "Atoms/Input",
   component: Input,
+  parameters: {
+    layout: 'centered',
+    docs: {
+      description: {
+        component: 'Input component with support for prefixes, suffixes, and various states.',
+      },
+    },
+  },
   args: {
     placeholder: "Enter text...",
   },
+  tags: ['autodocs'],
 };
 export default meta;
 
 type Story = StoryObj<typeof Input>;
 
-export const Default: Story = {};
-
-export const WithPrefix: Story = {
-  args: {
-    prefix: "🔍",
-    placeholder: "Search...",
-  },
-};
-
-export const WithSuffix: Story = {
-  args: {
-    suffix: ".com",
-    placeholder: "Enter domain",
-  },
-};
-
-export const WithPrefixAndSuffix: Story = {
-  args: {
-    prefix: "$",
-    suffix: "USD",
-    placeholder: "0.00",
-  },
-};
-
-export const NumberInput: Story = {
-  args: {
-    type: "number",
-    placeholder: "Enter number",
-    min: 0,
-    max: 100,
-  },
-};
-
-export const Sizes: Story = {
+// Component Documentation
+export const ComponentDocs: Story = {
   render: () => (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "1rem",
-        width: "300px",
-      }}
-    >
-      <Input size="sm" placeholder="Small input" />
-      <Input size="md" placeholder="Medium input" />
-      <Input size="lg" placeholder="Large input" />
+    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '24px' }}>
+      <h2>Component Documentation</h2>
+      
+      <h3>Key Props</h3>
+      <ul>
+        <li><code>prefix</code> - Content before input (string)</li>
+        <li><code>suffix</code> - Content after input (string)</li>
+        <li><code>size</code> - Input size: 'sm', 'md', 'lg' (default: 'md')</li>
+        <li><code>error</code> - Error state (boolean)</li>
+        <li><code>disabled</code> - Disabled state (boolean)</li>
+        <li><code>placeholder</code> - Placeholder text (string)</li>
+      </ul>
+
+      <h3>Usage Examples</h3>
+      <pre style={{ backgroundColor: '#f5f5f5', padding: '16px', borderRadius: '8px', overflow: 'auto' }}>
+{`// Basic input
+<Input placeholder="Enter text..." />
+
+// With prefix
+<Input prefix="🔍" placeholder="Search..." />
+
+// With prefix and suffix
+<Input prefix="$" suffix="USD" placeholder="0.00" />`}
+      </pre>
     </div>
   ),
-};
-
-export const Error: Story = {
-  args: {
-    error: true,
-    placeholder: "Error state",
+  parameters: {
+    docs: {
+      description: {
+        story: 'Documentation for the Input component.',
+      },
+    },
   },
 };
 
-export const Disabled: Story = {
-  args: {
-    disabled: true,
-    placeholder: "Disabled input",
+export const WithPrefix: Story = {
+  render: () => (
+    <div style={{ display: "flex", flexDirection: "column", gap: "1rem", width: "300px" }}>
+      <Input prefix="🔍" placeholder="Search..." />
+      <Input prefix="$" placeholder="Enter amount" />
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story: 'Inputs with prefix content.',
+      },
+    },
+  },
+};
+
+export const States: Story = {
+  render: () => (
+    <div style={{ display: "flex", flexDirection: "column", gap: "1rem", width: "300px" }}>
+      <Input placeholder="Normal input" />
+      <Input error placeholder="Error state" />
+      <Input disabled placeholder="Disabled input" />
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story: 'Different input states: normal, error, and disabled.',
+      },
+    },
   },
 };

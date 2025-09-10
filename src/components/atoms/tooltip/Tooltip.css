@@ -1,6 +1,7 @@
 .ns-tooltip-trigger {
   display: inline-block;
   position: relative;
+  width: 100%;
 }
 
 .ns-tooltip {

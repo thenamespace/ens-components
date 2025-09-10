@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
-import "./styles/theme.css";
+import "./styles/global.css";
 import { EnsAddressRecord, EnsRecords, EnsTextRecord } from "@/types";
 import { zeroAddress } from "viem";
 import { EnsRecordsForm } from "./components/ens-records-form/EnsRecordsForm";
@@ -25,10 +25,6 @@ const _addrs: EnsAddressRecord[] = [
     coinType: 60,
     value: zeroAddress,
   },
-  {
-    coinType: 0,
-    value: zeroAddress,
-  },
 ];
 
 const SEPOLIA_PUB_RES = "0x0dcD506D1Be162E50A2b434028A9a148F2686444";
@@ -50,6 +46,7 @@ function TestApp() {
       <WalletConnect>
         <SelectRecordsForm records={records} onRecordsUpdated={(e) => setRecords(e)}/>
         <EnsRecordsForm initialRecords={records} resolverAddress={SEPOLIA_PUB_RES} name={ENS_NAME}/>
+        <ConnectButton></ConnectButton>
         {/* <EnsRecordsForm
           name={ENS_NAME}
           resolverAddress={SEPOLIA_PUB_RES}

@@ -1,7 +1,7 @@
 import { EnsRecords } from "@/types";
 import { useEffect, useMemo, useState } from "react";
 import { SelectRecordsForm } from "../select-records-form/SelectRecordsForm";
-import { Button, Icon } from "../atoms";
+import { Button, Icon, Tooltip } from "../atoms";
 import "./EnsRecordsForm.css";
 import { convertToMulticallResolverData } from "@/utils/resolver";
 import { deepCopy, getEnsRecordsDiff } from "@/utils";
@@ -174,17 +174,62 @@ export const EnsRecordsForm = ({
   };
 
   const getActionButton = () => {
-
+    const areInputsValue =
+      areValidAddresses && areValidTexts && isContenthashValid;
+    const style = { width: "100%" };
     if (!isConnected) {
-      return <Button prefix={<Icon name="x"/>} disabled={true}></Button>
+      return (
+        <Button
+          style={style}
+          size="lg"
+          disabled={true}
+          prefix={<Icon name="alert-triangle" />}
+        >
+          Connect Wallet
+        </Button>
+      );
+    } else if (shouldSwitchNetwork) {
+      return (
+        <Button
+          style={style}
+          size="lg"
+          onClick={() => switchChain({ chainId: currentChainId })}
+        >
+          Switch Network
+        </Button>
+      );
+    } else if (!areInputsValue) {
+      return (
+        <Tooltip content="Invalid inputs" position="top">
+          <Button style={style} size="lg" disabled={true}>
+            Update
+          </Button>
+        </Tooltip>
+      );
+    } else if (!isDiffPresent) {
+      return (
+        <Tooltip  content="No Records updated" position="top">
+          <Button style={style} size="lg" disabled={true}>
+            Update
+          </Button>
+        </Tooltip>
+      );
+    } else {
+      const updateBtnLoading =
+        txIndicator.isWaitingForTx || txIndicator.isWaitingForWallet;
+      return (
+        <Button
+          style={style}
+          size="lg"
+          disabled={updateBtnLoading}
+          loading={updateBtnLoading}
+          onClick={() => handleUpdateRecords()}
+        >
+          Update
+        </Button>
+      );
     }
-
-  }
-
-  const updateBtnLoading =
-    txIndicator.isWaitingForTx || txIndicator.isWaitingForWallet;
-  const isFormValid =
-    areValidTexts && areValidAddresses && isDiffPresent && isChashValid && !shouldSwitchNetwork && isConnected;
+  };
 
   return (
     <div className="ns-edit-records-form">

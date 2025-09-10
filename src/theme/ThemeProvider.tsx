@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import "../styles/theme.css";
+import "../styles/global.css";
 
 export type ThemeName = "light" | "dark";
 

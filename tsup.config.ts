@@ -20,6 +20,7 @@ export default defineConfig({
       "@/constants": "./src/constants",
       "@/utils": "./src/utils",
       "@/types": "./src/types",
+      "@/web3": "./src/web3"
     };
   },
 });
