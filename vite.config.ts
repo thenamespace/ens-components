@@ -16,7 +16,7 @@ export default defineConfig({
       "@/constants": path.resolve(__dirname, "./src/constants/index"),
       "@/utils": path.resolve(__dirname, "./src/utils/index"),
       "@/types": path.resolve(__dirname, "./src/types/index"),
-       "@/web3": path.resolve(__dirname, "./src/web3/index"),
+      "@/web3": path.resolve(__dirname, "./src/web3/index"),
     },
   },
   server: {

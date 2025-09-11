@@ -1,15 +1,6 @@
 import React from "react";
 import "./ChainIcon.css";
-
-export type ChainName =
-  | "eth"
-  | "arb"
-  | "base"
-  | "bitcoin"
-  | "matic"
-  | "op"
-  | "sol"
-  | "zora";
+import type { ChainName } from "@/types";
 
 interface ChainIconProps extends React.SVGProps<SVGSVGElement> {
   chain: ChainName;

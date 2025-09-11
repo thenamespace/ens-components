@@ -1,4 +1,4 @@
-import { ChainName } from "@/components";
+import { ChainName } from "@/types";
 import { convertEVMChainIdToCoinType } from "@/utils";
 import { getCoderByCoinName } from "@ensdomains/address-encoder";
 import { isAddress } from "viem";

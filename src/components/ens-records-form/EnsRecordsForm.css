@@ -3,7 +3,7 @@
   width: 500px;
 }
 
-@media screen and (min-width: 600px) {
+@media screen and (max-width: 600px) {
   .ns-edit-records-form {
     width: 100%;
   }

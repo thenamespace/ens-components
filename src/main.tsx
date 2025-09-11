@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { createRoot } from "react-dom/client";
-import "./styles/global.css";
+import "./styles/index.css";
 import { EnsAddressRecord, EnsRecords, EnsTextRecord } from "@/types";
 import { zeroAddress } from "viem";
 import { EnsRecordsForm } from "./components/ens-records-form/EnsRecordsForm";
 import { WalletConnect } from "./wallet-connect";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { mainnet, sepolia } from "viem/chains";
-import { SelectRecordsForm } from "./components";
+import { mainnet } from "viem/chains";
+import { SelectRecordsForm } from "@/components";
 
 const _texts: EnsTextRecord[] = [
   {

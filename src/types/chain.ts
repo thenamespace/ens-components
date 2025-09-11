@@ -1,0 +1,9 @@
+export type ChainName =
+  | "eth"
+  | "arb"
+  | "base"
+  | "bitcoin"
+  | "matic"
+  | "op"
+  | "sol"
+  | "zora";

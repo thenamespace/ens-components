@@ -1,6 +1,6 @@
 {
   "name": "@thenamespace/ens-components",
-  "version": "0.0.1-alpha",
+  "version": "0.0.3-alpha",
   "description": "",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -14,12 +14,12 @@
   "peerDependencies": {
     "@ensdomains/address-encoder": "^1.1.4",
     "@ensdomains/content-hash": "^3.0.0",
+    "@tanstack/react-query": "^5.87.0",
     "lucide-react": "^0.542.0",
     "react": ">=18",
     "react-dom": ">=18",
     "viem": "^2.36.0",
-    "wagmi": "^2.16.8",
-    "@tanstack/react-query": "^5.87.0"
+    "wagmi": "^2.16.8"
   },
   "exports": {
     ".": {
@@ -28,8 +28,8 @@
       "require": "./dist/index.cjs"
     },
     "./styles": {
-      "import": "./dist/styles/index.js",
-      "require": "./dist/styles/index.cjs"
+      "import": "./dist/styles.js",
+      "require": "./dist/styles.cjs"
     },
     "./styles.css": {
       "import": "./dist/index.css",
@@ -75,6 +75,7 @@
     "bootstrap": "^5.3.8",
     "cssnano": "^7.1.1",
     "eslint": "^9.34.0",
+    "postcss-import": "^16.1.1",
     "prettier": "^3.6.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
