@@ -1,0 +1,3 @@
+/* Import all styles in one file for easy consumption */
+@import './global.css';
+@import './utils.css';

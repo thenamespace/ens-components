@@ -5,7 +5,7 @@ export type ButtonVariant = "solid" | "outline" | "ghost";
 export type ButtonSize = "sm" | "md" | "lg";
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'prefix'> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
