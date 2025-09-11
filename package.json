@@ -1,6 +1,6 @@
 {
   "name": "@thenamespace/ens-components",
-  "version": "0.0.3-alpha",
+  "version": "0.0.4-alpha",
   "description": "",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -32,8 +32,12 @@
       "require": "./dist/styles.cjs"
     },
     "./styles.css": {
-      "import": "./dist/styles.css",
-      "require": "./dist/styles.css"
+      "import": "./dist/index.css",
+      "require": "./dist/index.css"
+    },
+    "./index.css": {
+      "import": "./dist/index.css",
+      "require": "./dist/index.css"
     },
     "./package.json": "./package.json"
   },
