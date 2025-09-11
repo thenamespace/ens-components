@@ -28,5 +28,12 @@
     }
   },
   "include": ["src", "*.ts", "*.tsx"],
-  "exclude": ["dist", "node_modules", ".storybook", "*.stories.tsx"]
+  "exclude": [
+    "dist",
+    "node_modules",
+    ".storybook",
+    "**/*.stories.tsx",
+    "src/main.tsx",
+    "src/wallet-connect.tsx"
+  ]
 }

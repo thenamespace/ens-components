@@ -1,3 +1,5 @@
-/* Import all styles in one file for easy consumption */
-@import './global.css';
-@import './utils.css';
+/* External imports must come first - these will be processed before any other CSS */
+@import url("https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap");
+@import "bootstrap/dist/css/bootstrap-grid.min.css";
+@import "./utils.css";
+@import "./global.css";

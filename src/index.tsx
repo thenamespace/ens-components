@@ -18,7 +18,3 @@ export * from "./web3";
 
 // Theme
 export * from "./theme/ThemeProvider";
-
-// Styles - Import all CSS files
-import "./styles/global.css";
-import "./styles/utils.css";

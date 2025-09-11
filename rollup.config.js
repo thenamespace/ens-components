@@ -56,7 +56,16 @@ export default [
         extract: "index.css",
         minimize: true,
         sourceMap: true,
-        plugins: [autoprefixer(), cssnano({ preset: "default" })],
+        plugins: [
+          autoprefixer(), 
+          cssnano({ 
+            preset: ["default", {
+              normalizeWhitespace: false,
+              discardComments: { removeAll: false }
+            }]
+          })
+        ],
+        inject: false,
       }),
     ],
     treeshake: true,

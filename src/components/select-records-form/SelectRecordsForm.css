@@ -1,7 +1,7 @@
 .ns-select-records-form {
   background-color: var(--ns-color-bg-accent);
   width: 100%;
-  max-width: 500px;
+  width: 500px;
   border-radius: 15px;
   min-height: 400px;
 }
@@ -124,4 +124,10 @@
   background-color: var(--ns-color-bg-accent);
   border-radius: 15px;
   padding: 2px;
+}
+
+@media screen and (min-width: 600px) {
+  .ns-select-records-form {
+    width: 100%;
+  }
 }

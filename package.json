@@ -18,7 +18,8 @@
     "react": ">=18",
     "react-dom": ">=18",
     "viem": "^2.36.0",
-    "wagmi": "^2.16.8"
+    "wagmi": "^2.16.8",
+    "@tanstack/react-query": "^5.87.0"
   },
   "exports": {
     ".": {
@@ -85,7 +86,6 @@
     "storybook": "^8.6.14",
     "typescript": "^5.9.2",
     "vite": "^6.3.5",
-    "vite-tsconfig-paths": "^5.1.4",
-    "@tanstack/react-query": "^5.87.0"
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }
