@@ -1,3 +1,6 @@
+// Styles - Import CSS so consumers get Bootstrap and other styles
+import "./styles/index.css";
+
 // Components
 export * from "./components";
 

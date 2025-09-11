@@ -1,4 +1,3 @@
-// rollup.config.js (ESM)
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import alias from "@rollup/plugin-alias";
@@ -38,15 +37,13 @@ const nodeResolveOpts = {
   browser: true,
   mainFields: ["module", "browser", "main"],
   exportConditions: ["browser", "module", "default"],
-  // include .css so `bootstrap/dist/css/...` resolves:
   extensions: [".mjs", ".js", ".ts", ".tsx", ".json", ".css"],
   preferBuiltins: false,
-  // helps pnpm workspaces:
   preserveSymlinks: false,
 };
 
 const cssPlugins = [
-  postcssImport(), // MUST be first for @import to inline (including from node_modules)
+  postcssImport(),
   autoprefixer(),
   cssnano({
     preset: [
@@ -57,7 +54,6 @@ const cssPlugins = [
 ];
 
 export default [
-  // 1) Main JS bundle + EXTRACTED CSS file
   {
     input: "src/index.tsx",
     external: externals,
@@ -90,9 +86,8 @@ export default [
     treeshake: true,
   },
 
-  // 2) styles.ts entry that INJECTS styles at runtime (JS import path)
   {
-    input: "src/styles.ts",   // should import index.css (and optionally bootstrap in TS)
+    input: "src/styles.ts",
     output: {
       file: "dist/styles.js",
       format: "es",
@@ -100,16 +95,15 @@ export default [
     },
     plugins: [
       alias({ entries: aliasEntries }),
-      // IMPORTANT: include resolver stack so `bootstrap/...` is found:
       nodeResolve(nodeResolveOpts),
       commonjs(),
       json(),
       postcss({
-        extract: false,        // runtime injection
+        extract: false, 
         inject: true,
         minimize: false,
         sourceMap: true,
-        plugins: cssPlugins,   // postcss-import first
+        plugins: cssPlugins,
       }),
     ],
   },

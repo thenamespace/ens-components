@@ -1,4 +1,3 @@
-import React from "react";
 import { Text, Icon } from "../atoms";
 import "./PendingTransaction.css";
 
