@@ -4,3 +4,4 @@ export * from "./text/Text";
 export * from "./icon/Icon";
 export * from "./chain-icon/ChainIcon";
 export * from "./tooltip/Tooltip";
+export * from "./card/Card";

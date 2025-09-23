@@ -1,0 +1,48 @@
+.ens-name-card {
+  width: 256px;
+}
+
+.ens-card-image-container {
+  position: relative;
+}
+
+.ens-card-image {
+  width: 100%;
+  height: 192px;
+  object-fit: cover;
+  display: block;
+}
+
+.ens-card-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #fff;
+  border-radius: 50%;
+  padding: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.ens-card-badge-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.ens-card-body {
+  padding: 12px;
+}
+
+.ens-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.ens-card-expiry {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #555;
+}

@@ -7,7 +7,8 @@ import { EnsRecordsForm } from "./components/ens-records-form/EnsRecordsForm";
 import { WalletConnect } from "./wallet-connect";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { mainnet } from "viem/chains";
-import { SelectRecordsForm } from "@/components";
+import { SelectRecordsForm } from "./components/select-records-form/SelectRecordsForm";
+import { ENSNameCard } from "./components/ens-names-card/EnsNameCard";
 
 const _texts: EnsTextRecord[] = [
   {
@@ -44,8 +45,22 @@ function TestApp() {
   return (
     <div>
       <WalletConnect>
-        <SelectRecordsForm records={records} onRecordsUpdated={(e) => setRecords(e)}/>
-        <EnsRecordsForm initialRecords={records} resolverAddress={SEPOLIA_PUB_RES} name={ENS_NAME}/>
+        {/* <SelectRecordsForm records={records} onRecordsUpdated={(e) => setRecords(e)} />
+        <EnsRecordsForm initialRecords={records} resolverAddress={SEPOLIA_PUB_RES} name={ENS_NAME} /> */}
+
+        <ENSNameCard
+          name={ENS_NAME}
+          imageUrl="https://media.istockphoto.com/id/814423752/photo/eye-of-model-with-colorful-art-make-up-close-up.jpg?s=612x612&w=0&k=20&c=l15OdMWjgCKycMMShP8UK94ELVlEGvt7GmB_esHWPYE="
+          expires="26/07/28"
+          chainId={1}
+        />
+
+        <ENSNameCard
+          name={ENS_NAME}
+          imageUrl="https://media.istockphoto.com/id/814423752/photo/eye-of-model-with-colorful-art-make-up-close-up.jpg?s=612x612&w=0&k=20&c=l15OdMWjgCKycMMShP8UK94ELVlEGvt7GmB_esHWPYE="
+          expires="25/11/29"
+          chainId={137}
+        />
         <ConnectButton></ConnectButton>
         {/* <EnsRecordsForm
           name={ENS_NAME}
