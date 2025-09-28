@@ -2,7 +2,7 @@ import { ChainName } from "@/types";
 import { convertEVMChainIdToCoinType } from "@/utils";
 import { getCoderByCoinName } from "@ensdomains/address-encoder";
 import { isAddress } from "viem";
-import { base, arbitrum, polygon, optimism, zora, mainnet } from "viem/chains";
+import { base, arbitrum, polygon, optimism, zora, mainnet, celo } from "viem/chains";
 
 export interface SupportedEnsAddress {
   validateFunc?: (value: string) => boolean;
@@ -83,6 +83,15 @@ export const supportedAddresses: SupportedEnsAddress[] = [
     coinType: convertEVMChainIdToCoinType(arbitrum.id),
     chainId: arbitrum.id,
     chainName: "arb",
+    validateFunc: isValidEmvAddress,
+    placeholder: "0x1D8...c19f8",
+  },
+  {
+    isEMV: true,
+    label: "Celo",
+    coinType: convertEVMChainIdToCoinType(celo.id),
+    chainId: arbitrum.id,
+    chainName: "celo",
     validateFunc: isValidEmvAddress,
     placeholder: "0x1D8...c19f8",
   },

@@ -61,7 +61,7 @@ export const AllChains: Story = {
   render: () => (
     <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
       {(
-        ["eth", "arb", "base", "bitcoin", "matic", "op", "sol", "zora"] as const
+        ["eth", "arb", "base", "bitcoin", "matic", "op", "sol", "zora", "celo"] as const
       ).map(chain => (
         <div key={chain} style={{ textAlign: "center" }}>
           <ChainIcon chain={chain} size={32} />

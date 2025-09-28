@@ -6,4 +6,5 @@ export type ChainName =
   | "matic"
   | "op"
   | "sol"
-  | "zora";
+  | "zora"
+  | "celo"

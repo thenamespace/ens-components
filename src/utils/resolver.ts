@@ -1,9 +1,22 @@
 import { encodeFunctionData, Hash, namehash, parseAbi, toHex } from "viem";
 import { EnsRecordsDiff } from "./records";
-import { EnsAddressRecord, EnsContenthashRecord, EnsTextRecord } from "@/types";
+import { EnsAddressRecord, EnsContenthashRecord, EnsRecords, EnsTextRecord } from "@/types";
 import { SET_ADDRESS_FUNC, SET_CONTENTHASH_FUNC, SET_TEXT_FUNC } from "@/web3";
 import { getCoderByCoinType } from "@ensdomains/address-encoder";
 import { encode } from "@ensdomains/content-hash";
+
+export const convertToResolverData = (name: string, records: EnsRecords) => {
+  return convertToMulticallResolverData(name, {
+    textsRemoved: [],
+    textsAdded: records.texts,
+    textsModified: [],
+    addressesAdded: records.addresses,
+    addressesModified: [],
+    addressesRemoved: [],
+    contenthashRemoved: false,
+    contenthashAdded: records.contenthash,
+  })
+}
 
 export const convertToMulticallResolverData = (
   name: string,
