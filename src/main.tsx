@@ -22,27 +22,118 @@ export const dummyENSNames = [
     name: "nikku.eth",
     imageUrl: "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg",
     expires: "2026-03-15",
-    chainId: 1, // Goerli Testnet
+    chainId: 5, // Goerli
   },
   {
     name: "buzzify.eth",
     imageUrl: "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg",
     expires: "2025-11-10",
-    chainId: 1, // Polygon
+    chainId: 137, // Polygon
   },
   {
     name: "cryptoqueen.eth",
     imageUrl: "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg",
     expires: "2026-01-20",
-    chainId: 1, // BSC
+    chainId: 56, // BSC
   },
   {
     name: "web3dev.eth",
     imageUrl: "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg",
     expires: "2025-10-05",
-    chainId: 1, // Avalanche
+    chainId: 43114, // Avalanche
+  },
+  {
+    name: "zkbuilder.eth",
+    imageUrl: "https://picsum.photos/200?random=1",
+    expires: "2026-02-12",
+    chainId: 324, // zkSync
+  },
+  {
+    name: "ethchamp.eth",
+    imageUrl: "https://picsum.photos/200?random=2",
+    expires: "2027-07-18",
+    chainId: 10, // Optimism
+  },
+  {
+    name: "defiking.eth",
+    imageUrl: "https://picsum.photos/200?random=3",
+    expires: "2026-06-22",
+    chainId: 42161, // Arbitrum
+  },
+  {
+    name: "solmax.eth",
+    imageUrl: "https://picsum.photos/200?random=4",
+    expires: "2025-09-14",
+    chainId: 1, // Ethereum
+  },
+  {
+    name: "chainmaster.eth",
+    imageUrl: "https://picsum.photos/200?random=5",
+    expires: "2027-01-03",
+    chainId: 250, // Fantom
+  },
+  {
+    name: "layerzero.eth",
+    imageUrl: "https://picsum.photos/200?random=6",
+    expires: "2026-12-09",
+    chainId: 43114, // Avalanche
+  },
+  {
+    name: "gasguru.eth",
+    imageUrl: "https://picsum.photos/200?random=7",
+    expires: "2025-05-21",
+    chainId: 1, // Ethereum
+  },
+  {
+    name: "rollup.eth",
+    imageUrl: "https://picsum.photos/200?random=8",
+    expires: "2026-04-30",
+    chainId: 10, // Optimism
+  },
+  {
+    name: "devwizard.eth",
+    imageUrl: "https://picsum.photos/200?random=9",
+    expires: "2027-03-12",
+    chainId: 42161, // Arbitrum
+  },
+  {
+    name: "stakingpro.eth",
+    imageUrl: "https://picsum.photos/200?random=10",
+    expires: "2025-08-08",
+    chainId: 137, // Polygon
+  },
+  {
+    name: "rektlord.eth",
+    imageUrl: "https://picsum.photos/200?random=11",
+    expires: "2026-09-01",
+    chainId: 56, // BSC
+  },
+  {
+    name: "airdrophunter.eth",
+    imageUrl: "https://picsum.photos/200?random=12",
+    expires: "2027-10-17",
+    chainId: 324, // zkSync
+  },
+  {
+    name: "wagmi.eth",
+    imageUrl: "https://picsum.photos/200?random=13",
+    expires: "2026-07-28",
+    chainId: 1, // Ethereum
+  },
+  {
+    name: "gmgn.eth",
+    imageUrl: "https://picsum.photos/200?random=14",
+    expires: "2025-11-02",
+    chainId: 137, // Polygon
+  },
+  {
+    name: "daoqueen.eth",
+    imageUrl: "https://picsum.photos/200?random=15",
+    expires: "2027-05-25",
+    chainId: 42161, // Arbitrum
   },
 ];
+
 
 const _texts: EnsTextRecord[] = [
   {
@@ -97,7 +188,7 @@ function TestApp() {
           chainId={137}
         /> */}
         <div className="ns-page">
-    
+
           <aside className="ns-left">
             <ProfileCard
               bannerUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoFRQjM-wM_nXMA03AGDXgJK3VeX7vtD3ctA&s"

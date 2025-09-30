@@ -156,22 +156,39 @@
 
 .ns-profile-extra {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 8px;
-    background: #f9f9f9;
-    padding: 10px;
-    border-radius: 10px;
-    font-size: 12px;
-    color: #555;
-    margin-bottom: 14px;
-    text-align: left;
+    padding: 8px;
+    border-radius: 12px;
+    background: transparent;
+    /* parent clean */
 }
 
 .ns-extra-item {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: #eef2ff;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.ns-extra-text {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ns-extra-btn {
+    background: transparent;
+    border: none;
+    color: #2563eb;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
 }
 
 .ns-extra-item span {
@@ -184,24 +201,39 @@
     color: #2563eb;
     text-decoration: none;
 }
-
 .ns-profile-footer {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    font-weight: 500;
-    color: #333;
-    border-top: 1px solid #eee;
-    padding-top: 10px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 16px;
+  padding: 10px;
+  background: #eef2ff; /* light blue for consistency */
+  border-radius: 12px;
+  margin-top: 12px;
+}
+
+.ns-footer-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 60px;
+}
+
+.ns-footer-label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #1e3a8a; /* dark blue */
+}
+
+.ns-footer-text {
+  font-size: 12px;
+  color: #2563eb; /* primary blue */
+  font-weight: 500;
 }
 
 .ns-footer-divider {
-    width: 1px;
-    background: #eee;
-    height: 20px;
-}
-
-.ns-footer-divider:first-child,
-.ns-footer-divider:last-child {
-    display: none;
+  width: 1px;
+  background: #c7d2fe; /* subtle divider */
+  align-self: stretch;
 }
