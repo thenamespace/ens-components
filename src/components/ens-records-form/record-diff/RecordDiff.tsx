@@ -1,12 +1,10 @@
 import { Text } from "@/components/atoms";
-import { getSupportedTextMap, SupportedTextRecord } from "@/constants";
+import { SupportedTextRecord } from "@/constants";
 import { EnsRecordsDiff } from "@/utils";
 
 interface RecordDiffProps {
   diff: EnsRecordsDiff;
 }
-
-const textMap: Record<string, SupportedTextRecord> = getSupportedTextMap();
 
 export const RecordDiff = ({ diff }: RecordDiffProps) => {
   const {
