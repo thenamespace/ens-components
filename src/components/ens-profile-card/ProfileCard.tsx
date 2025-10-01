@@ -137,26 +137,26 @@ export const ProfileCard = ({
                 </div>
 
 
-              <div className="ns-profile-footer">
-  <div className="ns-footer-item">
-    <span className="ns-footer-label">{subnames}</span>
-    <span className="ns-footer-text">Subnames</span>
-  </div>
+                <div className="ns-profile-footer">
+                    <div className="ns-footer-item">
+                        <span className="ns-footer-label">{subnames}</span>
+                        <span className="ns-footer-text">Subnames</span>
+                    </div>
 
-  <div className="ns-footer-divider"></div>
+         
 
-  <div className="ns-footer-item">
-    <span className="ns-footer-label">{profit}</span>
-    <span className="ns-footer-text">Profit</span>
-  </div>
+                    <div className="ns-footer-item">
+                        <span className="ns-footer-label">{profit}</span>
+                        <span className="ns-footer-text">Profit</span>
+                    </div>
 
-  <div className="ns-footer-divider"></div>
 
-  <div className="ns-footer-item">
-    <span className="ns-footer-label">{volume}</span>
-    <span className="ns-footer-text">Volume</span>
-  </div>
-</div>
+
+                    <div className="ns-footer-item">
+                        <span className="ns-footer-label">{volume}</span>
+                        <span className="ns-footer-text">Volume</span>
+                    </div>
+                </div>
             </div>
         </div>
     );

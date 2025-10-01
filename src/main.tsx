@@ -10,7 +10,9 @@ import { mainnet } from "viem/chains";
 import { SelectRecordsForm } from "./components/select-records-form/SelectRecordsForm";
 import { ENSNameCard } from "./components";
 import { ProfileCard } from "./components";
-
+import { FaUserCircle } from "react-icons/fa";   // Account
+import { FaEthereum } from "react-icons/fa";     // ENS
+import { FiSettings } from "react-icons/fi";
 export const dummyENSNames = [
   {
     name: "neeraj.eth",
@@ -168,27 +170,10 @@ function TestApp() {
     setRecords(newRecords);
   };
 
-  return (
-    <div>
-      <WalletConnect>
-        {/* <SelectRecordsForm records={records} onRecordsUpdated={(e) => setRecords(e)} />
-        <EnsRecordsForm initialRecords={records} resolverAddress={SEPOLIA_PUB_RES} name={ENS_NAME} /> */}
-
-        {/* <ENSNameCard
-          name={ENS_NAME}
-          imageUrl="https://media.istockphoto.com/id/814423752/photo/eye-of-model-with-colorful-art-make-up-close-up.jpg?s=612x612&w=0&k=20&c=l15OdMWjgCKycMMShP8UK94ELVlEGvt7GmB_esHWPYE="
-          expires="26/07/28"
-          chainId={1}
-        />
-
-        <ENSNameCard
-          name={ENS_NAME}
-          imageUrl="https://media.istockphoto.com/id/814423752/photo/eye-of-model-with-colorful-art-make-up-close-up.jpg?s=612x612&w=0&k=20&c=l15OdMWjgCKycMMShP8UK94ELVlEGvt7GmB_esHWPYE="
-          expires="25/11/29"
-          chainId={137}
-        /> */}
+  function MainContent() {
+    return (
+      <main className="ns-main">
         <div className="ns-page">
-
           <aside className="ns-left">
             <ProfileCard
               bannerUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoFRQjM-wM_nXMA03AGDXgJK3VeX7vtD3ctA&s"
@@ -210,12 +195,15 @@ function TestApp() {
             />
           </aside>
 
-          {/* Right ENS Section */}
-          <main className="ns-right">
+          <section className="ns-right">
             <div className="ns-header">
               <div className="ns-tabs">
-                <span className="active">ENS Names <span className="count">45</span></span>
-                <span>Subnames <span className="count">31</span></span>
+                <span className="active">
+                  ENS Names <span className="count">45</span>
+                </span>
+                <span>
+                  Subnames <span className="count">31</span>
+                </span>
                 <span>Wizard</span>
               </div>
               <div className="ns-search">
@@ -235,12 +223,79 @@ function TestApp() {
                 />
               ))}
             </div>
-          </main>
+          </section>
         </div>
+      </main>
+    );
+  }
+  function Navbar() {
+    return (
+      <nav className="ns-navbar">
+        <div className="ns-navbar-left">
+          <div className="ns-logo">n</div>
+          <input type="text" placeholder="Search" className="ns-searchbar" />
+        </div>
+        <div className="ns-navbar-right">
+          <span className="ns-network">ΞF</span>
+          <div className="ns-profile">
+            <img
+              src="https://i.pravatar.cc/40"
+              alt="avatar"
+              className="ns-navbar-profile-avatar"
+            />
+            <span>thecap.eth</span>
+          </div>
+        </div>
+      </nav>
+    );
+  }
+
+  function Sidebar() {
+    return (
+      <aside className="ns-sidebar">
+        <div className="ns-menu">
+          <span className="active">
+            <FaUserCircle className="ns-icon" />
+          </span>
+          <span>
+            <FaEthereum className="ns-icon" />
+          </span>
+          <span>
+            <FiSettings className="ns-icon" />
+          </span>
+        </div>
+      </aside>
+    );
+  }
+
+  return (
+    <div>
+      <WalletConnect>
+        {/* <SelectRecordsForm records={records} onRecordsUpdated={(e) => setRecords(e)} />
+        <EnsRecordsForm initialRecords={records} resolverAddress={SEPOLIA_PUB_RES} name={ENS_NAME} /> */}
+
+        {/* <ENSNameCard
+          name={ENS_NAME}
+          imageUrl="https://media.istockphoto.com/id/814423752/photo/eye-of-model-with-colorful-art-make-up-close-up.jpg?s=612x612&w=0&k=20&c=l15OdMWjgCKycMMShP8UK94ELVlEGvt7GmB_esHWPYE="
+          expires="26/07/28"
+          chainId={1}
+        />
+
+        <ENSNameCard
+          name={ENS_NAME}
+          imageUrl="https://media.istockphoto.com/id/814423752/photo/eye-of-model-with-colorful-art-make-up-close-up.jpg?s=612x612&w=0&k=20&c=l15OdMWjgCKycMMShP8UK94ELVlEGvt7GmB_esHWPYE="
+          expires="25/11/29"
+          chainId={137}
+        /> */}
 
 
-
-
+        <div className="ns-layout">
+          <Navbar />
+          <div className="ns-body">
+            <Sidebar />
+            <MainContent />
+          </div>
+        </div>
         {/* <EnsRecordsForm
           name={ENS_NAME}
           resolverAddress={SEPOLIA_PUB_RES}

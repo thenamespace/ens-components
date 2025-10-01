@@ -1,5 +1,5 @@
 .ns-profile-card {
-    max-width: 400px;
+    max-width: 450px;
     background: #fff;
     border-radius: 16px;
     overflow: hidden;
@@ -157,11 +157,10 @@
 .ns-profile-extra {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 2px;
     padding: 8px;
     border-radius: 12px;
     background: transparent;
-    /* parent clean */
 }
 
 .ns-extra-item {
@@ -207,33 +206,25 @@
   align-items: center;
   gap: 16px;
   padding: 10px;
-  background: #eef2ff; /* light blue for consistency */
   border-radius: 12px;
   margin-top: 12px;
 }
 
 .ns-footer-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   min-width: 60px;
 }
 
 .ns-footer-label {
   font-weight: 600;
-  font-size: 14px;
-  color: #1e3a8a; /* dark blue */
+  font-size: 16px ;
 }
 
 .ns-footer-text {
-  font-size: 12px;
-  color: #2563eb; /* primary blue */
+  font-size: 18px;
   font-weight: 500;
 }
 
-.ns-footer-divider {
-  width: 1px;
-  background: #c7d2fe; /* subtle divider */
-  align-self: stretch;
-}
+
