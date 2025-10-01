@@ -1,18 +1,17 @@
-import { Card } from "@/components/atoms";
+import { Card, ChainIcon } from "@/components/atoms";
 import { Text } from "@/components/atoms";
 import { Clock } from "lucide-react";
-import { chainIcons } from "@/constants";
 import "./ENSNameCard.css";
+import { ChainName } from "@/types";
 
 interface ENSNameCardProps {
   name: string;
   imageUrl: string;
   expires: string;
-  chainId?: number; 
+  chain?: ChainName | undefined; // optional, e.g., "eth", "arb", "base"
 }
 
-export const ENSNameCard = ({ name, imageUrl, expires, chainId }: ENSNameCardProps) => {
-  const iconSrc = chainId ? chainIcons[chainId] : "/icons/eth.svg";
+export const ENSNameCard = ({ name, imageUrl, expires, chain }: ENSNameCardProps) => {
   
   return (
     <Card className="ens-name-card">
@@ -20,11 +19,7 @@ export const ENSNameCard = ({ name, imageUrl, expires, chainId }: ENSNameCardPro
       <div className="ens-card-image-container">
         <img src={imageUrl} alt={name} className="ens-card-image" />
         <div className="ens-card-badge">
-          <img
-            src={iconSrc}
-            alt="chain icon"
-            className="ens-card-badge-icon"
-          />
+          <ChainIcon chain={chain ?? "eth"} size={20} />
         </div>
       </div>
       <div className="ens-card-body">

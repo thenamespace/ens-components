@@ -3,136 +3,138 @@ import { createRoot } from "react-dom/client";
 import "./styles/index.css";
 import { EnsAddressRecord, EnsRecords, EnsTextRecord } from "@/types";
 import { zeroAddress } from "viem";
-import { EnsRecordsForm } from "./components/ens-records-form/EnsRecordsForm";
+
 import { WalletConnect } from "./wallet-connect";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+
 import { mainnet } from "viem/chains";
-import { SelectRecordsForm } from "./components/select-records-form/SelectRecordsForm";
+
 import { ENSNameCard } from "./components";
 import { ProfileCard } from "./components";
-import { FaUserCircle } from "react-icons/fa";   // Account
-import { FaEthereum } from "react-icons/fa";     // ENS
-import { FiSettings } from "react-icons/fi";
+import { UserRound,Settings  } from "lucide-react";     
 export const dummyENSNames = [
   {
     name: "neeraj.eth",
     imageUrl: "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg",
     expires: "2025-12-31",
-    chainId: 1, // Ethereum Mainnet
+    chain: "eth",
   },
   {
     name: "nikku.eth",
     imageUrl: "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg",
     expires: "2026-03-15",
-    chainId: 5, // Goerli
+    chain: "arb", 
   },
   {
     name: "buzzify.eth",
     imageUrl: "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg",
     expires: "2025-11-10",
-    chainId: 137, // Polygon
+    chain: "base", 
   },
   {
     name: "cryptoqueen.eth",
     imageUrl: "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg",
     expires: "2026-01-20",
-    chainId: 56, // BSC
+    chain: "eth"
   },
   {
     name: "web3dev.eth",
     imageUrl: "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg",
     expires: "2025-10-05",
-    chainId: 43114, // Avalanche
+    chain: "eth"
   },
   {
     name: "zkbuilder.eth",
     imageUrl: "https://picsum.photos/200?random=1",
     expires: "2026-02-12",
-    chainId: 324, // zkSync
+    chain: "eth"
   },
   {
     name: "ethchamp.eth",
     imageUrl: "https://picsum.photos/200?random=2",
     expires: "2027-07-18",
-    chainId: 10, // Optimism
+    chain: "base"
   },
   {
     name: "defiking.eth",
     imageUrl: "https://picsum.photos/200?random=3",
     expires: "2026-06-22",
-    chainId: 42161, // Arbitrum
+    chain: "base"
   },
   {
     name: "solmax.eth",
     imageUrl: "https://picsum.photos/200?random=4",
     expires: "2025-09-14",
-    chainId: 1, // Ethereum
+    chain: "eth",
   },
   {
     name: "chainmaster.eth",
     imageUrl: "https://picsum.photos/200?random=5",
     expires: "2027-01-03",
-    chainId: 250, // Fantom
+    chain: "arb"
   },
   {
     name: "layerzero.eth",
     imageUrl: "https://picsum.photos/200?random=6",
     expires: "2026-12-09",
-    chainId: 43114, // Avalanche
+    chain: "arb"
   },
   {
     name: "gasguru.eth",
     imageUrl: "https://picsum.photos/200?random=7",
     expires: "2025-05-21",
-    chainId: 1, // Ethereum
+    chain: "arb"
   },
   {
     name: "rollup.eth",
     imageUrl: "https://picsum.photos/200?random=8",
     expires: "2026-04-30",
-    chainId: 10, // Optimism
+    chain: "base"
   },
   {
     name: "devwizard.eth",
     imageUrl: "https://picsum.photos/200?random=9",
     expires: "2027-03-12",
-    chainId: 42161, // Arbitrum
+    chain: "base"
   },
   {
     name: "stakingpro.eth",
     imageUrl: "https://picsum.photos/200?random=10",
     expires: "2025-08-08",
-    chainId: 137, // Polygon
+    chain: "base"
   },
   {
     name: "rektlord.eth",
     imageUrl: "https://picsum.photos/200?random=11",
     expires: "2026-09-01",
-    chainId: 56, // BSC
+    chain: "base"
   },
   {
     name: "airdrophunter.eth",
     imageUrl: "https://picsum.photos/200?random=12",
     expires: "2027-10-17",
-    chainId: 324, // zkSync
+    chain: "base"
+
   },
   {
     name: "wagmi.eth",
     imageUrl: "https://picsum.photos/200?random=13",
     expires: "2026-07-28",
-    chainId: 1, // Ethereum
+    chain: "base"
+
   },
   {
     name: "gmgn.eth",
     imageUrl: "https://picsum.photos/200?random=14",
     expires: "2025-11-02",
-    chainId: 137, // Polygon
+    chain: "base"
+
   },
   {
     name: "daoqueen.eth",
     imageUrl: "https://picsum.photos/200?random=15",
     expires: "2027-05-25",
-    chainId: 42161, // Arbitrum
+    chain: "base"
+
   },
 ];
 
@@ -219,7 +221,7 @@ function TestApp() {
                   name={ens.name}
                   imageUrl={ens.imageUrl}
                   expires={ens.expires}
-                  chainId={ens.chainId}
+                  chain={ens.chain}
                 />
               ))}
             </div>
@@ -255,13 +257,11 @@ function TestApp() {
       <aside className="ns-sidebar">
         <div className="ns-menu">
           <span className="active">
-            <FaUserCircle className="ns-icon" />
+            <UserRound className="ns-icon" />
           </span>
+        
           <span>
-            <FaEthereum className="ns-icon" />
-          </span>
-          <span>
-            <FiSettings className="ns-icon" />
+            <Settings className="ns-icon" />
           </span>
         </div>
       </aside>
