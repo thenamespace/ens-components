@@ -5,7 +5,7 @@ export default {
   title: "Components/ENSNameCard",
   component: ENSNameCard,
   parameters: {
-    layout: "padded",
+    layout: "centered",
     docs: {
       description: {
         component: `

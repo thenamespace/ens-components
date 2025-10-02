@@ -5,7 +5,7 @@ export default {
   title: "Components/NavbarProfileCard",
   component: NavbarProfileCard,
   parameters: {
-    layout: "padded",
+    layout: "centered",
     docs: {
       description: {
         component: `
