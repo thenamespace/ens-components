@@ -325,7 +325,7 @@ function TestApp() {
               </div>
               <MainContent /> */}
               <EnsOnchainRegisterModal
-                step={0}
+                step={2}
                 name={"Nikku"}
                 profileComplete={false}
                 onStepChange={(step) => console.log("Step changed:", step)}

@@ -131,23 +131,46 @@
   cursor: pointer;
 }
 
-/* Summary */
+/* Summary Section */
 .ns-onchain-register-summary {
   margin: 20px 0;
-  border-top: 1px solid #eee;
-  padding-top: 12px;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  padding: 16px;
+  background: #fafafa;
+  font-size: 14px;
 }
+
 .ns-onchain-register-summary .row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
-  font-size: 14px;
+  align-items: center;
+  padding: 6px 0;
+  color: #333;
 }
+
+.ns-onchain-register-summary .row span:first-child {
+  font-weight: 400;
+  color: #555;
+}
+
+.ns-onchain-register-summary .row span:last-child {
+  font-family: monospace;
+  font-weight: 500;
+  color: #111;
+}
+
 .ns-onchain-register-summary .row.total {
-  font-weight: bold;
+  font-weight: 600;
   font-size: 15px;
-  border-top: 1px solid #eee;
   padding-top: 10px;
+  margin-top: 8px;
+  border-top: 2px solid #ddd;
+}
+
+.ns-onchain-register-summary .row.total span:last-child {
+  color: #000;
+  font-weight: 700;
 }
 
 /* Profile Card */
