@@ -7,5 +7,6 @@ export {
 export { ENSNameCard } from "./ens-names-card/EnsNameCard";
 export { ProfileCard } from "./ens-profile-card/ProfileCard";
 export { NavbarProfileCard } from "./ens-navbar-profile-card/NavbarProfileCard";
+export { EnsOnchainRegisterModal } from "./ens-onchain-register-modal/EnsOnChainRegisterModal";
 export * from "./atoms";
 export * from "./molecules";

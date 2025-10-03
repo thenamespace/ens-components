@@ -7,9 +7,10 @@ import { WalletConnect } from "./wallet-connect";
 
 import { mainnet } from "viem/chains";
 
-import { Button, ENSNameCard, Icon, Input, Text } from "./components";
+import { ENSNameCard, EnsOnchainRegisterModal, Icon, Input, Text } from "./components";
 import { ProfileCard } from "./components";
 import { NavbarProfileCard } from "./components";
+
 
 export const dummyENSNames = [
   {
@@ -318,11 +319,21 @@ function TestApp() {
             </aside>
             <div className="ns-right-column">
               <Navbar />
-              <div className="ns-actions-buttons">
+              {/* <div className="ns-actions-buttons">
                 <Button variant="outline" size="md">Account Page</Button>
                 <Button variant="outline" size="md">ENS Name Page</Button>
               </div>
-              <MainContent />
+              <MainContent /> */}
+              <EnsOnchainRegisterModal
+                step={0}
+                name={"Nikku"}
+                profileComplete={false}
+                onStepChange={(step) => console.log("Step changed:", step)}
+                onNameChange={(name) => console.log("Name changed:", name)}
+                onProfileCompleteChange={(complete) => console.log("Profile complete:", complete)}
+                onRegister={() => console.log("Register clicked")}
+                onCancel={() => console.log("Cancel clicked")}
+              />
             </div>
           </div>
         </div>
