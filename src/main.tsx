@@ -7,10 +7,10 @@ import { WalletConnect } from "./wallet-connect";
 
 import { mainnet } from "viem/chains";
 
-import { ENSNameCard, Icon, Input, Text } from "./components";
+import { Button, ENSNameCard, Icon, Input, Text } from "./components";
 import { ProfileCard } from "./components";
 import { NavbarProfileCard } from "./components";
-import { UserRound, Settings } from "lucide-react";
+
 export const dummyENSNames = [
   {
     name: "neeraj.eth",
@@ -18,6 +18,7 @@ export const dummyENSNames = [
       "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg",
     expires: "2025-12-31",
     chain: "eth",
+    isSubname: false,
   },
   {
     name: "nikku.eth",
@@ -25,6 +26,7 @@ export const dummyENSNames = [
       "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg",
     expires: "2026-03-15",
     chain: "arb",
+    isSubname: false,
   },
   {
     name: "buzzify.eth",
@@ -32,6 +34,7 @@ export const dummyENSNames = [
       "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg",
     expires: "2025-11-10",
     chain: "base",
+    isSubname: false,
   },
   {
     name: "cryptoqueen.eth",
@@ -39,6 +42,7 @@ export const dummyENSNames = [
       "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg",
     expires: "2026-01-20",
     chain: "eth",
+    isSubname: false,
   },
   {
     name: "web3dev.eth",
@@ -46,96 +50,112 @@ export const dummyENSNames = [
       "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg",
     expires: "2025-10-05",
     chain: "eth",
+    isSubname: false,
   },
   {
     name: "zkbuilder.eth",
     imageUrl: "https://picsum.photos/200?random=1",
     expires: "2026-02-12",
     chain: "eth",
+    isSubname: false,
   },
   {
     name: "ethchamp.eth",
     imageUrl: "https://picsum.photos/200?random=2",
     expires: "2027-07-18",
     chain: "base",
+    isSubname: false,
   },
   {
     name: "defiking.eth",
     imageUrl: "https://picsum.photos/200?random=3",
     expires: "2026-06-22",
     chain: "base",
+    isSubname: false,
   },
   {
     name: "solmax.eth",
     imageUrl: "https://picsum.photos/200?random=4",
     expires: "2025-09-14",
     chain: "eth",
+    isSubname: false,
   },
   {
     name: "chainmaster.eth",
     imageUrl: "https://picsum.photos/200?random=5",
     expires: "2027-01-03",
     chain: "arb",
+    isSubname: false,
   },
   {
     name: "layerzero.eth",
     imageUrl: "https://picsum.photos/200?random=6",
     expires: "2026-12-09",
     chain: "arb",
+    isSubname: false,
   },
   {
     name: "gasguru.eth",
     imageUrl: "https://picsum.photos/200?random=7",
     expires: "2025-05-21",
     chain: "arb",
+    isSubname: false,
   },
   {
     name: "rollup.eth",
     imageUrl: "https://picsum.photos/200?random=8",
     expires: "2026-04-30",
     chain: "base",
+    isSubname: false,
   },
   {
     name: "devwizard.eth",
     imageUrl: "https://picsum.photos/200?random=9",
     expires: "2027-03-12",
     chain: "base",
+    isSubname: false,
   },
   {
     name: "stakingpro.eth",
     imageUrl: "https://picsum.photos/200?random=10",
     expires: "2025-08-08",
     chain: "base",
+    isSubname: false,
   },
   {
     name: "rektlord.eth",
     imageUrl: "https://picsum.photos/200?random=11",
     expires: "2026-09-01",
     chain: "base",
+    isSubname: false,
   },
   {
     name: "airdrophunter.eth",
     imageUrl: "https://picsum.photos/200?random=12",
     expires: "2027-10-17",
     chain: "base",
+    isSubname: false,
   },
   {
     name: "wagmi.eth",
     imageUrl: "https://picsum.photos/200?random=13",
     expires: "2026-07-28",
     chain: "base",
+    isSubname: false,
   },
   {
     name: "gmgn.eth",
     imageUrl: "https://picsum.photos/200?random=14",
     expires: "2025-11-02",
     chain: "base",
+    isSubname: false,
   },
   {
     name: "daoqueen.eth",
     imageUrl: "https://picsum.photos/200?random=15",
     expires: "2027-05-25",
     chain: "base",
+    isSubname: true,
   },
 ];
 
@@ -171,7 +191,13 @@ function TestApp() {
     setRecords(newRecords);
   };
 
+  function filterENSNames(list, showSubnames) {
+    return list.filter((item) => (showSubnames ? item.isSubname : !item.isSubname));
+  }
+
   function MainContent() {
+    const [showSubnames, setShowSubnames] = useState(false);
+    const filteredENSNames = filterENSNames(dummyENSNames, showSubnames);
     return (
       <main className="ns-main">
         <div className="ns-page">
@@ -192,23 +218,23 @@ function TestApp() {
               subnames={3}
               profit={6}
               volume={0}
-              // onFollowClick={() => console.log("Follow clicked")}
+            // onFollowClick={() => console.log("Follow clicked")}
             />
           </aside>
 
           <section className="ns-right">
             <div className="ns-header">
               <div className="ns-tabs">
-                <span className="active">
+                <span className={!showSubnames ? "active" : ""} onClick={() => setShowSubnames(false)}>
                   <Text>ENS Names</Text>{" "}
                   <Text weight="bold" color="primary">
-                    45
+                    {dummyENSNames.filter((item) => !item.isSubname).length}
                   </Text>
                 </span>
-                <span>
+                <span className={showSubnames ? "active" : ""} onClick={() => setShowSubnames(true)}>
                   <Text>Subnames</Text>{" "}
                   <Text weight="bold" color="primary">
-                    31
+                    {dummyENSNames.filter((item) => item.isSubname).length}
                   </Text>
                 </span>
                 <span>
@@ -221,8 +247,9 @@ function TestApp() {
             </div>
 
             <div className="ns-ens-grid">
-              {dummyENSNames.map((ens, idx) => (
+              {filteredENSNames.map((ens, idx) => (
                 <ENSNameCard
+                  key={ens.name}
                   name={ens.name}
                   imageUrl={ens.imageUrl}
                   expires={ens.expires}
@@ -284,22 +311,6 @@ function TestApp() {
   return (
     <div>
       <WalletConnect>
-        {/* <SelectRecordsForm records={records} onRecordsUpdated={(e) => setRecords(e)} />
-        <EnsRecordsForm initialRecords={records} resolverAddress={SEPOLIA_PUB_RES} name={ENS_NAME} /> */}
-
-        {/* <ENSNameCard
-          name={ENS_NAME}
-          imageUrl="https://media.istockphoto.com/id/814423752/photo/eye-of-model-with-colorful-art-make-up-close-up.jpg?s=612x612&w=0&k=20&c=l15OdMWjgCKycMMShP8UK94ELVlEGvt7GmB_esHWPYE="
-          expires="26/07/28"
-          chainId={1}
-        />
-
-        <ENSNameCard
-          name={ENS_NAME}
-          imageUrl="https://media.istockphoto.com/id/814423752/photo/eye-of-model-with-colorful-art-make-up-close-up.jpg?s=612x612&w=0&k=20&c=l15OdMWjgCKycMMShP8UK94ELVlEGvt7GmB_esHWPYE="
-          expires="25/11/29"
-          chainId={137}
-        /> */}
         <div className="ns-layout">
           <div className="ns-body">
             <aside className="ns-sidebar">
@@ -307,6 +318,10 @@ function TestApp() {
             </aside>
             <div className="ns-right-column">
               <Navbar />
+              <div className="ns-actions-buttons">
+                <Button variant="outline" size="md">Account Page</Button>
+                <Button variant="outline" size="md">ENS Name Page</Button>
+              </div>
               <MainContent />
             </div>
           </div>
@@ -321,3 +336,4 @@ if (container) {
   const root = createRoot(container);
   root.render(<TestApp />);
 }
+

@@ -158,6 +158,13 @@ html {
   font-weight: 500;
 }
 
+.ns-actions-buttons {
+  display: flex;
+  gap: 12px;
+  padding: 0px 18px;
+  width: fit-content;
+}
+
 .ns-tabs span {
   cursor: pointer;
   display: flex;
@@ -167,17 +174,24 @@ html {
   transition: all 0.2s ease;
   color: var(--muted);
 }
+.ns-tabs span.active {
+  background: #F8F8F9;
+  color: #fff;
+  border-radius: 8px;
+  padding: 4px 12px;
+  transition: background 0.2s, color 0.2s;
+}
 
 .ns-tabs span:hover {
   background: var(--bg);
   color: var(--primary);
 }
 
-.ns-tabs .active {
+/* .ns-tabs .active {
   color: var(--primary);
   font-weight: 600;
   background: var(--bg);
-}
+} */
 
 .ns-tabs .count {
   background: #f0f0f0;
@@ -240,7 +254,7 @@ html {
   align-items: center;
 
   /* Full height minus navbar */
-  height: calc(100vh - 60px);
+  height: 70vh;
   position: sticky;
   top: 0px;
 

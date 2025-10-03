@@ -18,6 +18,7 @@ import {
   LogOut,
   Edit,
   CopyIcon,
+  Clock,
 } from "lucide-react";
 import {
   DiscordIcon,
@@ -61,7 +62,8 @@ export type IconName =
   | "rotate-circle"
   | "logout"
   | "edit"
-  | "copy";
+  | "copy"
+  | "clock";
 
 const icons: Record<IconName, IconComponent> = {
   person: User,
@@ -90,6 +92,7 @@ const icons: Record<IconName, IconComponent> = {
   logout: LogOut,
   edit: Edit,
   copy: CopyIcon,
+  clock: Clock,
 };
 
 export interface IconProps {
