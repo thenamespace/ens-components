@@ -1,5 +1,7 @@
 import React from "react";
 import ensBanner from "../../assets/1.png";
+import ninjaLogo from "../../assets/ninja.png";
+import finishLogo from "../../assets/finish.png";
 import "./EnsOnchainRegisterModal.css";
 import { Button, Input, Text } from "../atoms";
 
@@ -125,7 +127,6 @@ export function EnsOnchainRegisterModal({
                         </div>
                         <div className="ns-onchain-register-container-inner">
                             <div className="ns-onchain-register-duration-section">
-                                <Text size="sm">Duration</Text>
                                 <div className="ns-onchain-register-duration">
                                     <button onClick={() => handleDurationChange(-1)}>-</button>
                                     <Text weight="bold">
@@ -151,20 +152,23 @@ export function EnsOnchainRegisterModal({
                             </div>
                         </div>
                         <div className="ns-onchain-register-profile-card">
-                            <div className="ns-onchain-register-profile-icon">◎</div>
+                            <div className="ns-onchain-register-profile-icon">
+                                <img src={ninjaLogo} alt="ENS Icon" />
+                            </div>
                             <div className="ns-onchain-register-profile-text">
-                                <strong>Complete your profile</strong>
-                                <p>Make your ENS more discoverable</p>
+                                <Text size="md" weight="bold">Complete your profile</Text>
+                                <Text size="sm">Make your ENS more discoverable</Text>
                             </div>
                             <div className="ns-onchain-register-profile-action">›</div>
                         </div>
+
                         <div className="ns-onchain-register-toggle">
                             <div className="toggle-text">
-                                <strong>Use as primary name</strong>
-                                <p>
+                                <Text size="md" weight="bold">Use as primary name</Text>
+                                <Text size="xs">
                                     This links your address to this name, allowing dApps to display it as your profile when connected.
                                     You can only have one primary name per address.
-                                </p>
+                                </Text>
                             </div>
                             <div className="toggle-switch">
                                 <input type="checkbox" id="primaryToggle" />
@@ -172,7 +176,9 @@ export function EnsOnchainRegisterModal({
                             </div>
                         </div>
                         <div className="ns-onchain-register-actions">
-                            <Button className="cancel" onClick={handleCancel}>Cancel</Button>
+                            <Button className="cancel" onClick={handleCancel}>
+                                Cancel
+                            </Button>
                             <Button className="primary" onClick={handleRegister}>
                                 Register
                             </Button>
@@ -182,12 +188,11 @@ export function EnsOnchainRegisterModal({
             case 5:
                 return (
                     <div className="ns-onchain-register-card ns-onchain-register-success">
-                        <div className="ns-onchain-register-banner">
-                            <img src={ensBanner} alt="ENS Banner" />
+                        <div className="ns-onchain-register-finish-banner">
+                            <img src={finishLogo} alt="ENS Banner" />
                         </div>
-                        <div className="ns-onchain-register-icon">✅</div>
-                        <Text size="lg" weight="bold">ENS name registered successfully</Text>
-                        <Text size="sm" color="grey">Lorem ipsum dolor sit amet</Text>
+                        <Text size="xl" weight="bold">ENS name registered successfully</Text>
+                        <Text size="lg" color="grey">Lorem ipsum dolor sit amet</Text>
                         <div className="ns-onchain-register-actions">
                             <Button className="primary" onClick={() => onStepChange(0)}>
                                 Finish

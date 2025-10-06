@@ -8,7 +8,7 @@
 .ns-onchain-register-card {
   background: #F9F8F9;
   border-radius: 20px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   padding: 24px;
   width: 100%;
   max-width: 420px;
@@ -25,14 +25,17 @@
   margin-bottom: 16px;
 }
 
+
 /* Header */
 .ns-onchain-register-header {
   margin-bottom: 16px;
 }
+
 .ns-onchain-register-header h3,
 .ns-onchain-register-header .ns-text {
   margin: 0;
 }
+
 .ns-onchain-register-header p,
 .ns-onchain-register-subtitle {
   margin-top: 6px;
@@ -50,6 +53,7 @@
   padding: 10px 14px;
   margin: 16px 0;
 }
+
 .ns-onchain-register-input-row input,
 .ns-onchain-register-input-row .ns-input {
   border: none;
@@ -57,6 +61,7 @@
   flex: 1;
   font-size: 15px;
 }
+
 .ns-onchain-register-input-row span {
   font-weight: bold;
   margin-left: 6px;
@@ -67,71 +72,85 @@
   display: flex;
   gap: 12px;
   margin-top: 20px;
+  width: 100%;
 }
+
+.ns-onchain-register-actions .cancel,
+.ns-onchain-register-actions .primary {
+  flex: 1; /* Equal width buttons */
+  padding: 12px 0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Cancel Button */
 .ns-onchain-register-actions .cancel {
   background: #f4f4f4;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 12px;
-  font-size: 14px;
-  cursor: pointer;
   color: #333;
 }
+
+.ns-onchain-register-actions .cancel:hover {
+  background: #e8e8e8;
+}
+
+/* Primary Button */
 .ns-onchain-register-actions .primary {
   background: #000;
   color: #fff;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 12px;
-  font-size: 14px;
-  cursor: pointer;
 }
+
+.ns-onchain-register-actions .primary:hover {
+  background: #111;
+}
+
 .ns-onchain-register-actions button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
 
-.ns-onchain-register-container-inner {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #e4e4e4;
-  border-radius: 20px;
-  overflow: hidden;
-  background: #ffffff;
-  
-}
-
 /* Section */
 .ns-onchain-register-section {
-  margin: 16px 0;
+  margin: 10px 0;
   border-radius: 10px;
 }
-.ns-onchain-register-duration-section{
+
+.ns-onchain-register-duration-section {
   padding: 10px;
   width: 100%;
   display: flex;
-    text-align: left;
+  text-align: left;
   flex-direction: column;
-  gap: 8px;
 }
 
 /* Dropdown */
 .ns-onchain-register-select select {
   width: 100%;
-  padding: 18px 14px;
+  padding: 18px 12px;
   border-radius: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #ffffff;
   font-size: 14px;
   background: #fff;
 }
 
+
+.ns-onchain-register-container-inner{
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-radius: 10px;
+  background: #ffffff;
+}
 /* Duration */
 
 
-.ns-onchain-register-section > p,
-.ns-onchain-register-section > span,
-.ns-onchain-register-section > div {
+.ns-onchain-register-section>p,
+.ns-onchain-register-section>span,
+.ns-onchain-register-section>div {
   font-size: 14px;
   font-weight: 500;
   color: #333;
@@ -146,7 +165,7 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 10px 14px;
-  width: 360px;
+  width: 370px;
 }
 
 .ns-onchain-register-duration button {
@@ -176,7 +195,6 @@
 /* Summary Section */
 .ns-onchain-register-summary {
   flex: 1;
-  background-color: #fff;
   border-radius: 10px;
   padding: 30px;
 }
@@ -187,15 +205,15 @@
   align-items: center;
   margin-bottom: 4px;
   color: #444;
-  gap: 40px; 
+  gap: 40px;
 }
 
-.ns-onchain-register-summary .row > :first-child {
+.ns-onchain-register-summary .row> :first-child {
   flex: 1;
   text-align: left;
 }
 
-.ns-onchain-register-summary .row > :last-child {
+.ns-onchain-register-summary .row> :last-child {
   flex: 1;
   text-align: right;
 }
@@ -211,42 +229,67 @@
 .ns-onchain-register-section span {
   font-size: 14px;
 }
+
 /* Profile Card */
 .ns-onchain-register-profile-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 2px dashed #ddd;
+  border: 1.9px dashed #d3d3d3;
   border-radius: 12px;
-  padding: 12px;
-  margin: 16px 0;
+  background: #fff;
+  padding: 10px 14px;
+  width: 100%;
+  max-width: 390px;
+  margin: 12px 0;
   cursor: pointer;
-  transition: border-color 0.3s ease;
-  background: #ffffff;
+  transition: all 0.2s ease-in-out;
 }
+
 .ns-onchain-register-profile-card:hover {
   border-color: #000;
+  background: #fafafa;
 }
+
 .ns-onchain-register-profile-icon {
-  font-size: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+.ns-onchain-register-profile-icon img {
+  width: 20px;
+  height: 20px;
+}
+
 .ns-onchain-register-profile-text {
   flex: 1;
   margin: 0 12px;
   text-align: left;
 }
+
 .ns-onchain-register-profile-text strong {
+  display: block;
   font-size: 14px;
+  font-weight: 600;
+  color: #111;
 }
+
 .ns-onchain-register-profile-text p {
   font-size: 12px;
   color: #666;
-  margin: 4px 0 0;
+  margin-top: 2px;
 }
+
 .ns-onchain-register-profile-action {
-  font-size: 18px;
+  font-size: 20px;
   color: #333;
 }
+
 
 /* Toggle */
 .ns-onchain-register-toggle {
@@ -258,13 +301,16 @@
   padding: 12px;
   margin-bottom: 20px;
 }
+
 .ns-onchain-register-toggle .toggle-text {
   max-width: 70%;
   text-align: left;
 }
+
 .ns-onchain-register-toggle strong {
   font-size: 14px;
 }
+
 .ns-onchain-register-toggle p {
   font-size: 12px;
   color: #666;
@@ -277,9 +323,11 @@
   width: 40px;
   height: 22px;
 }
+
 .toggle-switch input {
   display: none;
 }
+
 .toggle-switch label {
   position: absolute;
   top: 0;
@@ -290,6 +338,7 @@
   border-radius: 22px;
   cursor: pointer;
 }
+
 .toggle-switch label:after {
   content: "";
   position: absolute;
@@ -301,10 +350,12 @@
   left: 2px;
   transition: all 0.3s;
 }
-.toggle-switch input:checked + label {
+
+.toggle-switch input:checked+label {
   background: #000;
 }
-.toggle-switch input:checked + label:after {
+
+.toggle-switch input:checked+label:after {
   transform: translateX(18px);
 }
 
@@ -312,13 +363,16 @@
 .ns-onchain-register-success {
   text-align: center;
 }
+
 .ns-onchain-register-success .ns-onchain-register-icon {
   font-size: 40px;
   margin-bottom: 12px;
 }
+
 .ns-onchain-register-success h3 {
   margin-bottom: 8px;
 }
+
 .ns-onchain-register-success p {
   font-size: 14px;
   color: #666;
@@ -326,6 +380,13 @@
 
 /* Animation */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
