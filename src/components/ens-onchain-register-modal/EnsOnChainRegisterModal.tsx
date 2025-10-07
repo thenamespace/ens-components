@@ -3,7 +3,7 @@ import ensBanner from "../../assets/banner.png";
 import ninjaLogo from "../../assets/ninja.png";
 import finishLogo from "../../assets/finish.png";
 import "./EnsOnchainRegisterModal.css";
-import { Button, Input, Text } from "../atoms";
+import { Button, Icon, Input, Text } from "../atoms";
 
 export interface EnsOnchainRegisterModalProps {
     step: number;
@@ -28,10 +28,10 @@ export function EnsOnchainRegisterModal({
 }: EnsOnchainRegisterModalProps) {
     const [showInput, setShowInput] = React.useState(false);
     const [customOwner, setCustomOwner] = React.useState("");
-    const [duration, setDuration] = React.useState(1); // years
+    const [duration, setDuration] = React.useState(1);
 
     function handleRegister() {
-        if (step < 5) onStepChange(step + 1);
+        if (step < 3) onStepChange(step + 1);
         onRegister();
     }
     function handleCancel() {
@@ -52,41 +52,48 @@ export function EnsOnchainRegisterModal({
                             <Text size="lg" weight="bold">Get your Web3 Username</Text>
                         </div>
                         <div className="ns-onchain-register-input-row">
+                            <Icon name="search" size={16} className="ns-search-icon" />
                             <Input
                                 type="text"
+                                className="ns-input"
                                 placeholder="Find name"
                                 value={name}
                                 onChange={(e) => onNameChange(e.target.value)}
                             />
-                            <Text weight="bold">.eth</Text>
+
+                            {/* Using a span for consistency with your original code */}
+                            <Text className="ns-domain-suffix">
+                                bitflip.eth
+                            </Text>
                         </div>
+
                         <div className="ns-onchain-register-name-exist">
                             {[
                                 { name: "nikku.eth", status: "unavailable" },
-                                { name: "nikku.miracool.eth", status: "unavailable" },
                                 { name: "nikku.bitflip.eth", status: "unavailable" },
-                                { name: "nikku.basedsubs.eth", status: "free" },
-                                { name: "nikku.fbwallet.eth", status: "free" },
                                 { name: "nikku.bitflip.eth", status: "unavailable" },
-                                { name: "nikku.basedsubs.eth", status: "free" },
-                                { name: "nikku.fbwallet.eth", status: "free" },
-                                { name: "nikku.bitflip.eth", status: "unavailable" },
-                                { name: "nikku.basedsubs.eth", status: "free" },
-                                { name: "nikku.fbwallet.eth", status: "unavailable" },
                                 { name: "nikku.bitflip.eth", status: "free" },
-                                { name: "nikku.basedsubs.eth", status: "unavailable" },
-                                { name: "nikku.fbwallet.eth", status: "free" },
-                                { name: "nikku.bitflip.eth", status: "unavailable" },
-                                { name: "nikku.basedsubs.eth", status: "free" },
-                                { name: "nikku.fbwallet.eth", status: "free" },
-                                { name: "nikku.basedsubs.eth", status: "unavailable" },
-                                { name: "nikku.fbwallet.eth", status: "free" },
                                 { name: "nikku.bitflip.eth", status: "free" },
-                                { name: "nikku.basedsubs.eth", status: "unavailable" },
-                                { name: "nikku.fbwallet.eth", status: "free" },
+                                { name: "nikku.bitflip.eth", status: "unavailable" },
+                                { name: "nikku.bitflip.eth", status: "free" },
+                                { name: "nikku.bitflip.eth", status: "free" },
+                                { name: "nikku.bitflip.eth", status: "unavailable" },
+                                { name: "nikku.bitflip.eth", status: "free" },
+                                { name: "nikku.bitflip.eth", status: "unavailable" },
+                                { name: "nikku.bitflip.eth", status: "free" },
+                                { name: "nikku.bitflip.eth", status: "unavailable" },
+                                { name: "nikku.bitflip.eth", status: "free" },
+                                { name: "nikku.bitflip.eth", status: "unavailable" },
+                                { name: "nikku.bitflip.eth", status: "free" },
+                                { name: "nikku.bitflip.eth", status: "free" },
+                                { name: "nikku.bitflip.eth", status: "unavailable" },
+                                { name: "nikku.bitflip.eth", status: "free" },
+                                { name: "nikku.bitflip.eth", status: "free" },
+                                { name: "nikku.bitflip.eth", status: "unavailable" },
+                                { name: "nikku.bitflip.eth", status: "free" },
                                 { name: "nikku.bitflip.eth", status: "price", value: "0.0025 ETH" },
-                                { name: "nikku.basedsubs.eth", status: "free" },
-                                { name: "nikku.fbwallet.eth", status: "unavailable" },
+                                { name: "nikku.bitflip.eth", status: "free" },
+                                { name: "nikku.bitflip.eth", status: "unavailable" },
                             ].map((item, index) => (
                                 <div
                                     key={index}
@@ -210,7 +217,7 @@ export function EnsOnchainRegisterModal({
                         </div>
                         <div className="ns-onchain-register-actions">
                             <Button className="cancel" onClick={handleCancel}>
-                                Cancel
+                                Back
                             </Button>
                             <Button className="primary" onClick={handleRegister}>
                                 Register

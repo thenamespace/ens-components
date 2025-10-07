@@ -7,7 +7,7 @@ import { WalletConnect } from "./wallet-connect";
 
 import { mainnet } from "viem/chains";
 
-import { ENSNameCard, EnsOnchainRegisterModal, Icon, Input, Text } from "./components";
+import { ENSNameCard, EnsOnchainRegisterModal, EnsOffChainRegisterModal, Icon, Input, Text } from "./components";
 import { ProfileCard } from "./components";
 import { NavbarProfileCard } from "./components";
 
@@ -309,9 +309,13 @@ function TestApp() {
     );
   }
 
-  // State for EnsOnchainRegisterModal step
-  const [step, setStep] = useState(0);
-
+  // State for EnsOnchainRegisterModal and EnsOffChainRegisterModal
+  const [onchainStep, setOnchainStep] = useState(0);
+  const [offchainStep, setOffchainStep] = useState(0);
+  const [offchainName, setOffchainName] = useState("");
+  const [onchainName, setOnchainName] = useState("");
+  const [offchainProfileComplete, setOffchainProfileComplete] = useState(false);
+  const [onchainProfileComplete, setOnchainProfileComplete] = useState(false);
   return (
     <div>
       <WalletConnect>
@@ -327,15 +331,27 @@ function TestApp() {
                 <Button variant="outline" size="md">ENS Name Page</Button>
               </div>
               <MainContent /> */}
-              <EnsOnchainRegisterModal
-                step={step}
-                name={"Nikku"}
-                profileComplete={false}
-                onStepChange={(newStep) => setStep(newStep)}
-                onNameChange={(name) => console.log("Name changed:", name)}
-                onProfileCompleteChange={(complete) => console.log("Profile complete:", complete)}
+   
+                <EnsOnchainRegisterModal
+                step={onchainStep}
+                name={onchainName}
+                profileComplete={onchainProfileComplete}
+                onStepChange={setOnchainStep}
+                onNameChange={setOnchainName}
+                onProfileCompleteChange={setOnchainProfileComplete}
                 onRegister={() => console.log("Register clicked")}
                 onCancel={() => console.log("Cancel clicked")}
+                />
+       
+              <EnsOffChainRegisterModal
+                step={offchainStep}
+                name={offchainName}
+                profileComplete={offchainProfileComplete}
+                onStepChange={setOffchainStep}
+                onNameChange={setOffchainName}
+                onProfileCompleteChange={setOffchainProfileComplete}
+                onRegister={() => console.log("Offchain Register clicked")}
+                onCancel={() => console.log("Offchain Cancel clicked")}
               />
             </div>
           </div>

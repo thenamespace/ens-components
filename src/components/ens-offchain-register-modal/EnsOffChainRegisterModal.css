@@ -1,11 +1,11 @@
 /* Container */
-.ns-onchain-register-container {
+.ns-offchain-register-container {
   display: flex;
   padding: 50px;
 }
 
 /* Card */
-.ns-onchain-register-card {
+.ns-offchain-register-card {
   background: #F9F8F9;
   border-radius: 20px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
@@ -17,7 +17,7 @@
 }
 
 /* Banner */
-.ns-onchain-register-banner img {
+.ns-offchain-register-banner img {
   width: 100%;
   height: 140px;
   object-fit: cover;
@@ -27,72 +27,54 @@
 
 
 /* Header */
-.ns-onchain-register-header {
+.ns-offchain-register-header {
   margin-bottom: 16px;
 }
 
-.ns-onchain-register-header h3,
-.ns-onchain-register-header .ns-text {
+.ns-offchain-register-header h3,
+.ns-offchain-register-header .ns-text {
   margin: 0;
 }
 
-.ns-onchain-register-header p,
-.ns-onchain-register-subtitle {
+.ns-offchain-register-header p,
+.ns-offchain-register-subtitle {
   margin-top: 6px;
   font-size: 14px;
   color: #666;
 }
 
 /* Input Row */
-/* Main container for the input component */
-.ns-onchain-register-input-row {
+.ns-offchain-register-input-row {
   display: flex;
   align-items: center;
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding-left: 12px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  max-width: 400px;
-  margin-bottom: 20px;
+  justify-content: space-between;
+  border: 1px solid #ddd;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin: 16px 0;
 }
 
-/* Style for the new search icon */
-.ns-onchain-register-input-row .search-icon {
-  color: #9ca3af;
-  margin-right: 8px;
-}
-
-/* The actual input field */
-.ns-onchain-register-input-row .ns-input {
-  flex-grow: 1;
-  width: 100%;
-  padding: 12px 8px;
-  font-size: 16px;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
+.ns-offchain-register-input-row input,
+.ns-offchain-register-input-row .ns-input {
+  border: none;
   background: transparent;
+  outline: none;
+  flex: 1;
+  font-size: 15px;
 }
 
-/* Styling for the placeholder text */
-.ns-onchain-register-input-row .ns-input::placeholder {
-  color: #9ca3af;
+.ns-offchain-register-input-row input:focus{
+  border: none;
 }
-
-/* The static ".eth" suffix part */
-.ns-onchain-register-input-row .ns-domain-suffix {
-  border-left: 1px solid #e5e7eb;
-  padding: 12px 16px;
-  margin-left: 8px;
-  color: #374151;
-  font-size: 16px;
-  font-weight: 800; /* Overriding the bold from your original CSS */
-  white-space: nowrap;
+.ns-offchain-register-input-row span {
+  font-weight: bold;
+  margin-left: 6px;
 }
 
 
-.ns-onchain-register-name-exist {
+
+.ns-offchain-register-name-exist {
   border: 1px solid #e4e4e4;
   border-radius: 16px;
   background: #fff;
@@ -102,7 +84,7 @@
 }
 
 /* Each name row */
-.ns-onchain-register-name-item {
+.ns-offchain-register-name-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -112,24 +94,24 @@
   cursor: pointer;
 }
 
-.ns-onchain-register-name-item:hover {
+.ns-offchain-register-name-item:hover {
   background: #f8f8f8;
 }
 
 /* Selected (dark background) */
-.ns-onchain-register-name-item.selected {
+.ns-offchain-register-name-item.selected {
   background: #111;
   color: #fff;
 }
 
 /* Left section (icon + name) */
-.ns-onchain-register-name-left {
+.ns-offchain-register-name-left {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.ns-onchain-register-name-avatar {
+.ns-offchain-register-name-avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -140,20 +122,20 @@
   font-weight: bold;
 }
 
-.ns-onchain-register-name-avatar.blue {
+.ns-offchain-register-name-avatar.blue {
   background: #5b74f6;
 }
 
-.ns-onchain-register-name-avatar.purple {
+.ns-offchain-register-name-avatar.purple {
   background: #8b5cf6;
 }
 
-.ns-onchain-register-name-avatar.gold {
+.ns-offchain-register-name-avatar.gold {
   background: #fbbf24;
 }
 
 /* Name text */
-.ns-onchain-register-name-text {
+.ns-offchain-register-name-text {
   font-size: 14px;
   font-weight: 500;
   color: inherit;
@@ -185,25 +167,25 @@
 }
 
 /* Scrollbar styling */
-.ns-onchain-register-name-exist::-webkit-scrollbar {
+.ns-offchain-register-name-exist::-webkit-scrollbar {
   width: 4px;
 }
-.ns-onchain-register-name-exist::-webkit-scrollbar-thumb {
+.ns-offchain-register-name-exist::-webkit-scrollbar-thumb {
   background: #000;
   border-radius: 15px;
 }
 
 
 /* Actions */
-.ns-onchain-register-actions {
+.ns-offchain-register-actions {
   display: flex;
   gap: 12px;
   margin-top: 20px;
   width: 100%;
 }
 
-.ns-onchain-register-actions .cancel,
-.ns-onchain-register-actions .primary {
+.ns-offchain-register-actions .cancel,
+.ns-offchain-register-actions .primary {
   flex: 1; /* Equal width buttons */
   padding: 12px 0;
   border-radius: 8px;
@@ -215,38 +197,38 @@
 }
 
 /* Cancel Button */
-.ns-onchain-register-actions .cancel {
+.ns-offchain-register-actions .cancel {
   background: #f4f4f4;
   color: #333;
 }
 
-.ns-onchain-register-actions .cancel:hover {
+.ns-offchain-register-actions .cancel:hover {
   background: #e8e8e8;
 }
 
 /* Primary Button */
-.ns-onchain-register-actions .primary {
+.ns-offchain-register-actions .primary {
   background: #000;
   color: #fff;
 }
 
-.ns-onchain-register-actions .primary:hover {
+.ns-offchain-register-actions .primary:hover {
   background: #111;
 }
 
-.ns-onchain-register-actions button:disabled {
+.ns-offchain-register-actions button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
 
 /* Section */
-.ns-onchain-register-section {
+.ns-offchain-register-section {
   margin: 10px 0;
   border-radius: 10px;
 }
 
-.ns-onchain-register-duration-section {
+.ns-offchain-register-duration-section {
   padding: 10px;
   width: 100%;
   display: flex;
@@ -255,7 +237,7 @@
 }
 
 /* Dropdown */
-.ns-onchain-register-select select {
+.ns-offchain-register-select select {
   width: 100%;
   padding: 18px 12px;
   border-radius: 10px;
@@ -265,7 +247,7 @@
 }
 
 
-.ns-onchain-register-container-inner{
+.ns-offchain-register-container-inner{
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -275,16 +257,16 @@
 /* Duration */
 
 
-.ns-onchain-register-section>p,
-.ns-onchain-register-section>span,
-.ns-onchain-register-section>div {
+.ns-offchain-register-section>p,
+.ns-offchain-register-section>span,
+.ns-offchain-register-section>div {
   font-size: 14px;
   font-weight: 500;
   color: #333;
   margin-bottom: 10px;
 }
 
-.ns-onchain-register-duration {
+.ns-offchain-register-duration {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -295,7 +277,7 @@
   width: 370px;
 }
 
-.ns-onchain-register-duration button {
+.ns-offchain-register-duration button {
   border: none;
   background-color: #000;
   color: #ffffff;
@@ -308,11 +290,11 @@
   transition: all 0.2s ease-in-out;
 }
 
-.ns-onchain-register-duration button:hover {
+.ns-offchain-register-duration button:hover {
   background-color: #dcdcdc;
 }
 
-.ns-onchain-register-duration span {
+.ns-offchain-register-duration span {
   font-size: 14px;
   font-weight: 500;
   color: #222;
@@ -320,13 +302,13 @@
 
 
 /* Summary Section */
-.ns-onchain-register-summary {
+.ns-offchain-register-summary {
   flex: 1;
   border-radius: 10px;
   padding: 30px;
 }
 
-.ns-onchain-register-summary .row {
+.ns-offchain-register-summary .row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -335,30 +317,30 @@
   gap: 40px;
 }
 
-.ns-onchain-register-summary .row> :first-child {
+.ns-offchain-register-summary .row> :first-child {
   flex: 1;
   text-align: left;
 }
 
-.ns-onchain-register-summary .row> :last-child {
+.ns-offchain-register-summary .row> :last-child {
   flex: 1;
   text-align: right;
 }
 
-.ns-onchain-register-summary .row.total {
+.ns-offchain-register-summary .row.total {
   font-weight: 600;
   border-top: 1px solid #ddd;
   padding-top: 10px;
 }
 
 /* Optional: consistent text component style */
-.ns-onchain-register-summary .row span,
-.ns-onchain-register-section span {
+.ns-offchain-register-summary .row span,
+.ns-offchain-register-section span {
   font-size: 14px;
 }
 
 /* Profile Card */
-.ns-onchain-register-profile-card {
+.ns-offchain-register-profile-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -373,12 +355,12 @@
   transition: all 0.2s ease-in-out;
 }
 
-.ns-onchain-register-profile-card:hover {
+.ns-offchain-register-profile-card:hover {
   border-color: #000;
   background: #fafafa;
 }
 
-.ns-onchain-register-profile-icon {
+.ns-offchain-register-profile-icon {
   width: 40px;
   height: 40px;
   border-radius: 8px;
@@ -388,38 +370,38 @@
   justify-content: center;
 }
 
-.ns-onchain-register-profile-icon img {
+.ns-offchain-register-profile-icon img {
   width: 20px;
   height: 20px;
 }
 
-.ns-onchain-register-profile-text {
+.ns-offchain-register-profile-text {
   flex: 1;
   margin: 0 12px;
   text-align: left;
 }
 
-.ns-onchain-register-profile-text strong {
+.ns-offchain-register-profile-text strong {
   display: block;
   font-size: 14px;
   font-weight: 600;
   color: #111;
 }
 
-.ns-onchain-register-profile-text p {
+.ns-offchain-register-profile-text p {
   font-size: 12px;
   color: #666;
   margin-top: 2px;
 }
 
-.ns-onchain-register-profile-action {
+.ns-offchain-register-profile-action {
   font-size: 20px;
   color: #333;
 }
 
 
 /* Toggle */
-.ns-onchain-register-toggle {
+.ns-offchain-register-toggle {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -429,16 +411,16 @@
   margin-bottom: 20px;
 }
 
-.ns-onchain-register-toggle .toggle-text {
+.ns-offchain-register-toggle .toggle-text {
   max-width: 70%;
   text-align: left;
 }
 
-.ns-onchain-register-toggle strong {
+.ns-offchain-register-toggle strong {
   font-size: 14px;
 }
 
-.ns-onchain-register-toggle p {
+.ns-offchain-register-toggle p {
   font-size: 12px;
   color: #666;
   margin-top: 4px;
@@ -487,20 +469,20 @@
 }
 
 /* Success */
-.ns-onchain-register-success {
+.ns-offchain-register-success {
   text-align: center;
 }
 
-.ns-onchain-register-success .ns-onchain-register-icon {
+.ns-offchain-register-success .ns-offchain-register-icon {
   font-size: 40px;
   margin-bottom: 12px;
 }
 
-.ns-onchain-register-success h3 {
+.ns-offchain-register-success h3 {
   margin-bottom: 8px;
 }
 
-.ns-onchain-register-success p {
+.ns-offchain-register-success p {
   font-size: 14px;
   color: #666;
 }
