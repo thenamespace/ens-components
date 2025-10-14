@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./styles/index.css";
 import { EnsAddressRecord, EnsRecords, EnsTextRecord } from "@/types";
 import { zeroAddress } from "viem";
-import { WalletConnect } from "./wallet-connect";
+import { WalletConnect } from "./providers/wallet-connect";
 
 import { Sidebar } from "./components/sidebar";
 

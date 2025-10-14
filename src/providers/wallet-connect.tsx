@@ -11,7 +11,7 @@ import {
   sepolia,
 } from "wagmi/chains";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-import { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 
 const config = getDefaultConfig({
   appName: "My RainbowKit App",
