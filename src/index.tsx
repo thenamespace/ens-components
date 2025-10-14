@@ -20,4 +20,4 @@ export * from "./utils";
 export * from "./web3";
 
 // Theme
-export * from "./theme/ThemeProvider";
+export * from "./providers/theme";

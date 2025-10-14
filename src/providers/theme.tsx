@@ -1,10 +1,5 @@
-import React, {
-	createContext,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from "react";
+import type React from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import "../styles/global.css";
 
 export type ThemeName = "light" | "dark";
