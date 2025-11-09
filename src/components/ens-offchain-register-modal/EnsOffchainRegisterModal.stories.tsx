@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { EnsOffChainRegisterModal, EnsOffChainRegisterModalProps } from "./EnsOffChainRegisterModal";
+import {
+  EnsOffChainRegisterModal,
+  EnsOffChainRegisterModalProps,
+} from "./EnsOffChainRegisterModal";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta: Meta<typeof EnsOffChainRegisterModal> = {
@@ -15,11 +18,13 @@ type Story = StoryObj<typeof EnsOffChainRegisterModal>;
 
 const Template = (args: Partial<EnsOffChainRegisterModalProps>) => {
   const [step, setStep] = useState(args.step ?? 0);
-  const [name, setName] = useState(args.name ?? "newname");
-  const [profileComplete, setProfileComplete] = useState(args.profileComplete ?? false);
+  const [name, setName] = useState(args.name ?? "");
+  const [profileComplete, setProfileComplete] = useState(
+    args.profileComplete ?? false
+  );
 
   return (
-    <EnsOnchainRegisterModal
+    <EnsOffChainRegisterModal
       step={step}
       name={name}
       profileComplete={profileComplete}
@@ -28,30 +33,40 @@ const Template = (args: Partial<EnsOffChainRegisterModalProps>) => {
       onProfileCompleteChange={setProfileComplete}
       onRegister={() => alert("Register clicked")}
       onCancel={() => alert("Cancel clicked")}
+      onClose={() => alert("Close clicked")}
+      onCompleteProfile={() => {
+        setProfileComplete(true);
+        alert("Complete Profile clicked");
+      }}
+      onOpenWallet={() => alert("Open Wallet clicked")}
+      onCompleteRegistration={() => alert("Complete Registration clicked")}
+      onRegisterAnother={() => {
+        setName("");
+        setProfileComplete(false);
+        setStep(0);
+        alert("Register Another clicked");
+      }}
+      onViewName={() => alert("View Name clicked")}
     />
   );
 };
 
-export const Default: Story = {
-  render: () => <Template step={0} name="newname" profileComplete={false} />,
+export const InitialStep: Story = {
+  render: () => <Template step={0} name="" profileComplete={false} />,
 };
 
-export const Step1: Story = {
-  render: () => <Template step={1} name="newname" profileComplete={false} />,
+export const InitialStepWithName: Story = {
+  render: () => <Template step={0} name="magier" profileComplete={false} />,
 };
 
-export const Step2: Story = {
-  render: () => <Template step={2} name="newname" profileComplete={false} />,
+export const SuccessScreen: Story = {
+  render: () => (
+    <Template step={2} name="magier.particle.eth" profileComplete={false} />
+  ),
 };
 
-export const Step3: Story = {
-  render: () => <Template step={3} name="newname" profileComplete={false} />,
-};
-
-export const Step4: Story = {
-  render: () => <Template step={4} name="newname" profileComplete={false} />,
-};
-
-export const Success: Story = {
-  render: () => <Template step={5} name="newname" profileComplete={true} />,
+export const SuccessScreenWithProfile: Story = {
+  render: () => (
+    <Template step={2} name="magier.particle.eth" profileComplete={true} />
+  ),
 };

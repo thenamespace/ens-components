@@ -1,252 +1,226 @@
-import React from "react";
-import ensBanner from "../../assets/banner.png";
-import ninjaLogo from "../../assets/ninja.png";
-import finishLogo from "../../assets/finish.png";
-import "./EnsOnchainRegisterModal.css";
-import { Button, Icon, Input, Text } from "../atoms";
+import React, { useState } from "react";
+import "./EnsOnChainRegisterModal.css";
+import { InitialStep } from "./sub-components/InitialStep";
+import { RegistrationStep } from "./sub-components/RegistrationStep";
+import { ConfirmationStep } from "./sub-components/ConfirmationStep";
+import { OnchainSuccessScreen } from "./sub-components/OnchainSuccessScreen";
 
-export interface EnsOnchainRegisterModalProps {
-    step: number;
-    name: string;
-    profileComplete: boolean;
-    onStepChange: (step: number) => void;
-    onNameChange: (name: string) => void;
-    onProfileCompleteChange: (complete: boolean) => void;
-    onRegister: () => void;
-    onCancel: () => void;
+export interface EnsOnChainRegisterModalProps {
+  step?: number;
+  name?: string;
+  profileComplete?: boolean;
+  domainSuffix?: string;
+  owner?: string;
+  duration?: number;
+  registrationFee?: string;
+  networkFee?: string;
+  totalCost?: string;
+  useAsPrimary?: boolean;
+  profileImageUrl?: string;
+  onStepChange?: (step: number) => void;
+  onNameChange?: (name: string) => void;
+  onProfileCompleteChange?: (complete: boolean) => void;
+  onOwnerChange?: (owner: string) => void;
+  onDurationChange?: (duration: number) => void;
+  onUseAsPrimaryChange?: (useAsPrimary: boolean) => void;
+  onRegister?: () => void;
+  onCancel?: () => void;
+  onClose?: () => void;
+  onCompleteProfile?: () => void;
+  onOpenWallet?: () => void;
+  onCompleteRegistration?: () => void;
+  onRegisterAnother?: () => void;
+  onViewName?: () => void;
+  onFinish?: () => void;
 }
 
-export function EnsOnchainRegisterModal({
-    step,
-    name,
-    profileComplete,
-    onStepChange,
-    onNameChange,
-    onProfileCompleteChange,
-    onRegister,
-    onCancel,
-}: EnsOnchainRegisterModalProps) {
-    const [showInput, setShowInput] = React.useState(false);
-    const [customOwner, setCustomOwner] = React.useState("");
-    const [duration, setDuration] = React.useState(1);
+export function EnsOnChainRegisterModal({
+  step: initialStep = 0,
+  name: initialName = "",
+  profileComplete = false,
+  domainSuffix = "eth",
+  owner: initialOwner = "0x035eB...24117D3",
+  duration: initialDuration = 1,
+  registrationFee = "0.004",
+  networkFee = "0.0010",
+  totalCost = "0.0014",
+  useAsPrimary: initialUseAsPrimary = false,
+  profileImageUrl,
+  onStepChange,
+  onNameChange,
+  onProfileCompleteChange,
+  onOwnerChange,
+  onDurationChange,
+  onUseAsPrimaryChange,
+  onRegister,
+  onCancel,
+  onClose,
+  onCompleteProfile,
+  onOpenWallet,
+  onCompleteRegistration,
+  onRegisterAnother,
+  onViewName,
+  onFinish,
+}: EnsOnChainRegisterModalProps) {
+  const [currentStep, setCurrentStep] = useState(initialStep);
+  const [ensName, setEnsName] = useState(initialName);
+  const [owner, setOwner] = useState(initialOwner);
+  const [duration, setDuration] = useState(initialDuration);
+  const [useAsPrimary, setUseAsPrimary] = useState(initialUseAsPrimary);
 
-    function handleRegister() {
-        if (step < 3) onStepChange(step + 1);
-        onRegister();
+  const handleNameChange = (value: string) => {
+    setEnsName(value);
+    onNameChange?.(value);
+  };
+
+  const handleOwnerChange = (value: string) => {
+    setOwner(value);
+    onOwnerChange?.(value);
+  };
+
+  const handleDurationChange = (value: number) => {
+    setDuration(value);
+    onDurationChange?.(value);
+  };
+
+  const handleUseAsPrimaryChange = (value: boolean) => {
+    setUseAsPrimary(value);
+    onUseAsPrimaryChange?.(value);
+  };
+
+  const handleRegister = () => {
+    // Move to next step when register is clicked
+    setCurrentStep(1);
+    onStepChange?.(1);
+    onRegister?.();
+  };
+
+  const handleFinalRegister = () => {
+    // Move to success screen when final register is clicked
+    setCurrentStep(3);
+    onStepChange?.(3);
+    onCompleteRegistration?.();
+  };
+
+  const handleFinish = () => {
+    onFinish?.();
+    onClose?.();
+  };
+
+  const handleNext = () => {
+    // Move to confirmation step when Next is clicked (for subnames)
+    setCurrentStep(2);
+    onStepChange?.(2);
+  };
+
+  const handleBack = () => {
+    if (currentStep === 2) {
+      setCurrentStep(1);
+      onStepChange?.(1);
+    } else {
+      setCurrentStep(0);
+      onStepChange?.(0);
     }
-    function handleCancel() {
-        onCancel();
-    }
-    function handleDurationChange(delta: number) {
-        setDuration((d) => Math.max(1, d + delta));
-    }
-    function renderStep() {
-        switch (step) {
-            case 0:
-                return (
-                    <div className="ns-onchain-register-card">
-                        <div className="ns-onchain-register-banner">
-                            <img src={ensBanner} alt="ENS Banner" />
-                        </div>
-                        <div className="ns-onchain-register-header">
-                            <Text size="lg" weight="bold">Get your Web3 Username</Text>
-                        </div>
-                        <div className="ns-onchain-register-input-row">
-                            <Icon name="search" size={16} className="ns-search-icon" />
-                            <Input
-                                type="text"
-                                className="ns-input"
-                                placeholder="Find name"
-                                value={name}
-                                onChange={(e) => onNameChange(e.target.value)}
-                            />
+  };
 
-                            {/* Using a span for consistency with your original code */}
-                            <Text className="ns-domain-suffix">
-                                bitflip.eth
-                            </Text>
-                        </div>
+  const handleCancel = () => {
+    onCancel?.();
+  };
 
-                        <div className="ns-onchain-register-name-exist">
-                            {[
-                                { name: "nikku.eth", status: "unavailable" },
-                                { name: "nikku.bitflip.eth", status: "unavailable" },
-                                { name: "nikku.bitflip.eth", status: "unavailable" },
-                                { name: "nikku.bitflip.eth", status: "free" },
-                                { name: "nikku.bitflip.eth", status: "free" },
-                                { name: "nikku.bitflip.eth", status: "unavailable" },
-                                { name: "nikku.bitflip.eth", status: "free" },
-                                { name: "nikku.bitflip.eth", status: "free" },
-                                { name: "nikku.bitflip.eth", status: "unavailable" },
-                                { name: "nikku.bitflip.eth", status: "free" },
-                                { name: "nikku.bitflip.eth", status: "unavailable" },
-                                { name: "nikku.bitflip.eth", status: "free" },
-                                { name: "nikku.bitflip.eth", status: "unavailable" },
-                                { name: "nikku.bitflip.eth", status: "free" },
-                                { name: "nikku.bitflip.eth", status: "unavailable" },
-                                { name: "nikku.bitflip.eth", status: "free" },
-                                { name: "nikku.bitflip.eth", status: "free" },
-                                { name: "nikku.bitflip.eth", status: "unavailable" },
-                                { name: "nikku.bitflip.eth", status: "free" },
-                                { name: "nikku.bitflip.eth", status: "free" },
-                                { name: "nikku.bitflip.eth", status: "unavailable" },
-                                { name: "nikku.bitflip.eth", status: "free" },
-                                { name: "nikku.bitflip.eth", status: "price", value: "0.0025 ETH" },
-                                { name: "nikku.bitflip.eth", status: "free" },
-                                { name: "nikku.bitflip.eth", status: "unavailable" },
-                            ].map((item, index) => (
-                                <div
-                                    key={index}
-                                    className={`ns-onchain-register-name-item ${item.status === "price" ? "selected" : ""
-                                        }`}
-                                >
-                                    <div className="ns-onchain-register-name-left">
-                                        <img
-                                            className={`ns-onchain-register-name-avatar`}
-                                            src={ninjaLogo}
-                                            alt="ENS Logo"
-                                            style={{ width: 24, height: 24, objectFit: "cover", borderRadius: "50%" }}
-                                        />
-                                        <Text className="ns-onchain-register-name-text">{item.name}</Text>
-                                    </div>
-
-                                    <div className="ns-onchain-register-name-status">
-                                        {item.status === "unavailable" && (
-                                            <Text className="status-unavailable">Unavailable</Text>
-                                        )}
-                                        {item.status === "price" && (
-                                            <Text className="status-price">{item.value}</Text>
-                                        )}
-                                        {item.status === "free" && <Text className="status-free">Free</Text>}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="ns-onchain-register-actions">
-                            <Button className="cancel" onClick={handleCancel}>Cancel</Button>
-                            <Button
-                                className="primary"
-                                onClick={() => onStepChange(1)}
-                                disabled={!name}
-                            >
-                                Register
-                            </Button>
-                        </div>
-                    </div>
-                );
-            case 1:
-                return (
-                    <div className="ns-onchain-register-card">
-                        <div className="ns-onchain-register-banner">
-                            <img src={ensBanner} alt="ENS Banner" />
-                        </div>
-                        <div className="ns-onchain-register-header">
-                            <Text size="lg" weight="bold">You are about to mint</Text>
-                            <Text size="md" color="grey">{name}.eth</Text>
-                        </div>
-                        <div className="ns-onchain-register-section">
-
-                            <div className="ns-onchain-register-select">
-                                <select
-                                    onChange={(e) => setShowInput(e.target.value === "custom")}
-                                    defaultValue="self"
-                                >
-                                    <option value="self">Owner</option>
-                                    <option value="custom">Custom address</option>
-                                </select>
-                                {showInput && (
-                                    <Input
-                                        type="text"
-                                        placeholder="Enter custom address"
-                                        value={customOwner}
-                                        onChange={(e) => setCustomOwner(e.target.value)}
-                                    />
-                                )}
-                            </div>
-                        </div>
-                        <div className="ns-onchain-register-container-inner">
-                            <div className="ns-onchain-register-duration-section">
-                                <div className="ns-onchain-register-duration">
-                                    <button onClick={() => handleDurationChange(-1)}>-</button>
-                                    <Text weight="bold">
-                                        {duration} year{duration > 1 ? "s" : ""}
-                                    </Text>
-                                    <button onClick={() => handleDurationChange(1)}>+</button>
-                                </div>
-                            </div>
-
-                            <div className="ns-onchain-register-summary">
-                                <div className="row">
-                                    <Text size="sm">{duration} year registration</Text>
-                                    <Text size="sm" weight="bold">{(0.004 * duration).toFixed(3)} ETH</Text>
-                                </div>
-                                <div className="row">
-                                    <Text size="sm">Est. network fee</Text>
-                                    <Text size="sm" weight="bold">0.0010 ETH</Text>
-                                </div>
-                                <div className="row total">
-                                    <Text size="lg" weight="bold">Total</Text>
-                                    <Text size="lg" weight="bold">{(0.004 * duration + 0.001).toFixed(3)} ETH</Text>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="ns-onchain-register-profile-card">
-                            <div className="ns-onchain-register-profile-icon">
-                                <img src={ninjaLogo} alt="ENS Icon" />
-                            </div>
-                            <div className="ns-onchain-register-profile-text">
-                                <Text size="md" weight="bold">Complete your profile</Text>
-                                <Text size="sm">Make your ENS more discoverable</Text>
-                            </div>
-                            <div className="ns-onchain-register-profile-action">›</div>
-                        </div>
-
-                        <div className="ns-onchain-register-toggle">
-                            <div className="toggle-text">
-                                <Text size="md" weight="bold">Use as primary name</Text>
-                                <Text size="xs">
-                                    This links your address to this name, allowing dApps to display it as your profile when connected.
-                                    You can only have one primary name per address.
-                                </Text>
-                            </div>
-                            <div className="toggle-switch">
-                                <input type="checkbox" id="primaryToggle" />
-                                <label htmlFor="primaryToggle"></label>
-                            </div>
-                        </div>
-                        <div className="ns-onchain-register-actions">
-                            <Button className="cancel" onClick={handleCancel}>
-                                Back
-                            </Button>
-                            <Button className="primary" onClick={handleRegister}>
-                                Register
-                            </Button>
-                        </div>
-                    </div>
-                );
-            case 2:
-                return (
-                    <div className="ns-onchain-register-card ns-onchain-register-success">
-                        <div className="ns-onchain-register-finish-banner">
-                            <img src={finishLogo} alt="ENS Banner" />
-                        </div>
-                        <Text size="xl" weight="bold">ENS name registered successfully</Text>
-                        <Text size="lg" color="grey">Lorem ipsum dolor sit amet</Text>
-                        <div className="ns-onchain-register-actions">
-                            <Button className="primary" onClick={() => onStepChange(0)}>
-                                Finish
-                            </Button>
-                        </div>
-                    </div>
-                );
-            default:
-                return null;
-        }
-    }
+  // Initial step (first screen)
+  if (currentStep === 0) {
     return (
-        <div className="ns-onchain-register-container">
-            {renderStep()}
-        </div>
+      <div className="ns-onchain-register-container">
+        <InitialStep
+          name={ensName}
+          onNameChange={handleNameChange}
+          onCancel={handleCancel}
+          onRegister={handleRegister}
+          onClose={onClose}
+          domainSuffix={domainSuffix}
+        />
+      </div>
     );
+  }
+
+  // Registration step (second screen)
+  if (currentStep === 1) {
+    return (
+      <div className="ns-onchain-register-container">
+        <RegistrationStep
+          name={ensName}
+          domainSuffix={domainSuffix}
+          owner={owner}
+          duration={duration}
+          registrationFee={registrationFee}
+          networkFee={networkFee}
+          totalCost={totalCost}
+          useAsPrimary={useAsPrimary}
+          profileComplete={profileComplete}
+          profileImageUrl={profileImageUrl}
+          onBack={handleBack}
+          onCancel={handleCancel}
+          onRegister={onRegister}
+          onNext={handleNext}
+          onClose={onClose}
+          onOwnerChange={handleOwnerChange}
+          onDurationChange={handleDurationChange}
+          onUseAsPrimaryChange={handleUseAsPrimaryChange}
+          onCompleteProfile={onCompleteProfile}
+        />
+      </div>
+    );
+  }
+
+  // Confirmation step (third screen)
+  if (currentStep === 2) {
+    return (
+      <div className="ns-onchain-register-container">
+        <ConfirmationStep
+          name={ensName}
+          domainSuffix={domainSuffix}
+          owner={owner}
+          duration={duration}
+          registrationFee={registrationFee}
+          networkFee={networkFee}
+          totalCost={totalCost}
+          useAsPrimary={useAsPrimary}
+          profileComplete={profileComplete}
+          profileImageUrl={profileImageUrl}
+          onBack={handleBack}
+          onCancel={handleCancel}
+          onRegister={handleFinalRegister}
+          onClose={onClose}
+          onOwnerChange={handleOwnerChange}
+        />
+      </div>
+    );
+  }
+
+  // Success step (fourth screen)
+  if (currentStep === 3) {
+    return (
+      <div className="ns-onchain-register-container">
+        <OnchainSuccessScreen
+          name={ensName}
+          onClose={onClose}
+          onFinish={handleFinish}
+        />
+      </div>
+    );
+  }
+
+  // Default to initial step
+  return (
+    <div className="ns-onchain-register-container">
+      <InitialStep
+        name={ensName}
+        onNameChange={handleNameChange}
+        onCancel={handleCancel}
+        onRegister={handleRegister}
+        onClose={onClose}
+        domainSuffix={domainSuffix}
+      />
+    </div>
+  );
 }

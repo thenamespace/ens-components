@@ -1,0 +1,661 @@
+/* Container */
+.ens-names-register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f7f7f7;
+  padding: 20px;
+}
+
+/* Card */
+.ens-names-register-card {
+  background: #f7f7f7;
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+}
+
+/* Header with back and close buttons */
+.ens-names-register-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ens-names-register-back-btn,
+.ens-names-register-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ens-names-register-back-btn:hover,
+.ens-names-register-close-btn:hover {
+  background-color: #f0f0f0;
+  transform: scale(1.05);
+}
+
+/* Banner */
+.ens-names-register-banner {
+  margin-bottom: 20px;
+}
+
+.ens-names-register-banner img {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  object-fit: cover;
+}
+
+/* Title Section */
+.ens-names-register-title-section {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.ens-names-register-title {
+  display: block;
+  margin-bottom: 8px;
+  color: #333333;
+}
+
+.ens-names-register-subtitle {
+  display: block;
+  color: #666666;
+}
+
+/* Input Row */
+.ens-names-register-input-row {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 20px;
+  gap: 8px;
+}
+
+.ens-names-register-search-icon {
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.ens-names-register-input {
+  flex: 1;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent;
+  padding: 0 !important;
+}
+
+.ens-names-register-input input {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent;
+}
+
+.ens-names-register-domain-suffix {
+  color: #374151;
+  font-size: 16px;
+  font-weight: 800;
+  padding-left: 8px;
+  border-left: 1px solid #e5e7eb;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+/* Cost Section */
+.ens-names-register-cost-section {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* Duration Selector */
+.ens-names-register-duration {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+}
+
+.ens-names-register-duration-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background-color: #000000;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.ens-names-register-duration-btn:hover {
+  background-color: #333333;
+}
+
+.ens-names-register-duration-text {
+  color: #222222;
+  flex: 1;
+  text-align: center;
+}
+
+/* Summary */
+.ens-names-register-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ens-names-register-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ens-names-register-summary-total {
+  border-top: 1px solid #ddd;
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+.ens-names-register-total-amount {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ens-names-register-eth-logo {
+  font-size: 18px;
+  color: #627eea;
+  font-weight: bold;
+}
+
+/* Profile Card */
+.ens-names-register-profile-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 2px dashed #d3d3d3;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 16px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ens-names-register-profile-card:hover {
+  border-color: #000000;
+  background: #fafafa;
+}
+
+.ens-names-register-profile-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
+.ens-names-register-profile-icon img {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+}
+
+.ens-names-register-profile-text {
+  flex: 1;
+  text-align: left;
+}
+
+.ens-names-register-profile-text .ns-text {
+  display: block;
+}
+
+.ens-names-register-profile-text .ns-text:first-child {
+  margin-bottom: 4px;
+}
+
+.ens-names-register-profile-arrow {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #333333;
+  flex-shrink: 0;
+}
+
+.ens-names-register-profile-arrow:hover {
+  background-color: #f0f0f0;
+}
+
+/* Next Button */
+.ens-names-register-next-btn {
+  width: 100%;
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-radius: 12px;
+  padding: 14px 0;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ens-names-register-next-btn:hover {
+  background-color: #333333 !important;
+}
+
+.ens-names-register-next-btn:active {
+  transform: scale(0.98);
+}
+
+/* Step Process Styles */
+.ens-names-register-step {
+  background: #ffffff;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.ens-names-register-step.expanded {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ens-names-register-step-header {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.ens-names-register-step-header:hover {
+  background: #f8f8f8;
+}
+
+.ens-names-register-step-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  background: #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.ens-names-register-step-number span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666666;
+}
+
+.ens-names-register-step-number span.active {
+  color: #ffffff;
+}
+
+.ens-names-register-step.expanded .ens-names-register-step-number {
+  background: #000000;
+}
+
+.ens-names-register-step-title {
+  flex: 1;
+  text-align: left;
+  color: #333333;
+}
+
+.ens-names-register-step-chevron {
+  color: #666666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ens-names-register-step-content {
+  padding: 0 16px 16px 60px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ens-names-register-step-content-title {
+  display: block;
+  margin-bottom: 8px;
+  color: #333333;
+}
+
+.ens-names-register-step-content-description {
+  display: block;
+  margin-bottom: 20px;
+  line-height: 1.5;
+  color: #666666;
+}
+
+.ens-names-register-open-wallet-btn {
+  width: 100%;
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-radius: 12px;
+  padding: 14px 0;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ens-names-register-open-wallet-btn:hover {
+  background-color: #333333 !important;
+}
+
+/* Footer Link */
+.ens-names-register-footer-link {
+  text-align: center;
+  margin-top: 24px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.ens-names-register-footer-link:hover {
+  color: #000000 !important;
+}
+
+.ens-names-register-footer-link .ns-text {
+  text-decoration: underline;
+}
+
+/* Progress Bar Styles */
+.ens-names-register-progress-container {
+  margin-top: 20px;
+}
+
+.ens-names-register-progress-bar {
+  width: 100%;
+  height: 25px;
+  background-color: #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid #d1d5db;
+}
+
+.ens-names-register-progress-fill {
+  height: 100%;
+  background-color: #000000;
+  border-radius: 4px;
+  transition: width 0.1s linear;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 4px;
+}
+
+.ens-names-register-progress-sparkle {
+  color: #ffffff;
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+/* Timer Styles */
+.ens-names-register-timer-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+.ens-names-register-timer-circle {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ens-names-register-timer-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.ens-names-register-timer-progress {
+  transition: stroke-dashoffset 0.5s linear;
+}
+
+.ens-names-register-timer-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #000000;
+}
+
+.ens-names-register-timer-text .ns-text {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Completed Step Styles */
+.ens-names-register-step-number.completed {
+  background: #ffffff !important;
+  border: 2px solid #000000;
+}
+
+.ens-names-register-step-number.completed .ens-names-register-step-check {
+  color: #000000;
+  stroke-width: 3;
+}
+
+.ens-names-register-step.expanded .ens-names-register-step-number.completed {
+  background: #ffffff !important;
+  border: 2px solid #000000;
+}
+
+/* Complete Registration Button */
+.ens-names-register-complete-btn {
+  width: 100%;
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-radius: 12px;
+  padding: 14px 0;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 20px;
+}
+
+.ens-names-register-complete-btn:hover {
+  background-color: #333333 !important;
+}
+
+.ens-names-register-complete-btn:active {
+  transform: scale(0.98);
+}
+
+/* Success Screen Styles */
+.ens-names-register-success-card {
+  text-align: center;
+}
+
+.ens-names-register-success-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ens-names-register-success-illustration {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ens-names-register-success-illustration img {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  object-fit: contain;
+}
+
+.ens-names-register-success-title-section {
+  margin-bottom: 24px;
+}
+
+.ens-names-register-success-message {
+  display: block;
+  margin-bottom: 8px;
+  color: #333333;
+}
+
+.ens-names-register-success-name {
+  display: block;
+  color: #000000;
+  font-size: 28px;
+}
+
+.ens-names-register-success-summary {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.ens-names-register-success-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ens-names-register-success-summary-row:last-child {
+  margin-bottom: 0;
+}
+
+.ens-names-register-success-total {
+  border-top: 1px solid #ddd;
+  padding-top: 12px;
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+.ens-names-register-success-expiry {
+  border-top: 1px solid #ddd;
+  padding-top: 12px;
+  margin-top: 8px;
+}
+
+.ens-names-register-success-total-amount {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ens-names-register-success-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.ens-names-register-register-another-btn {
+  flex: 1;
+  background-color: #f4f4f4 !important;
+  color: #333333 !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 12px;
+  padding: 14px 0;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ens-names-register-register-another-btn:hover {
+  background-color: #e8e8e8 !important;
+  border-color: #9ca3af !important;
+}
+
+.ens-names-register-view-name-btn {
+  flex: 1;
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-radius: 12px;
+  padding: 14px 0;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ens-names-register-view-name-btn:hover {
+  background-color: #333333 !important;
+}

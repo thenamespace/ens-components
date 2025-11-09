@@ -2,6 +2,7 @@ import { nodeResolve } from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import alias from "@rollup/plugin-alias";
 import json from "@rollup/plugin-json";
+import image from "@rollup/plugin-image";
 import postcss from "rollup-plugin-postcss";
 import postcssImport from "postcss-import";
 import autoprefixer from "autoprefixer";
@@ -80,6 +81,7 @@ export default [
       nodeResolve(nodeResolveOpts),
       commonjs(),
       json(),
+      image(),
       esbuild({
         include: /\.[jt]sx?$/,
         target: "es2020",
@@ -110,6 +112,7 @@ export default [
       nodeResolve(nodeResolveOpts),
       commonjs(),
       json(),
+      image(),
       postcss({
         extract: false,
         inject: true,
@@ -124,7 +127,25 @@ export default [
   {
     input: "dist/types/index.d.ts",
     output: { file: "dist/index.d.ts", format: "es" },
-    plugins: [dts({ respectExternal: true })],
-    external: [/\.css$/, ...externals],
+    plugins: [
+      alias({ entries: aliasEntries }),
+      dts({ 
+        respectExternal: true,
+        compilerOptions: {
+          baseUrl: ".",
+          paths: {
+            "@/*": ["src/*"],
+            "@/components": ["src/components/index"],
+            "@/atoms": ["src/components/atoms/index"],
+            "@/molecules": ["src/components/molecules/index"],
+            "@/constants": ["src/constants/index"],
+            "@/utils": ["src/utils/index"],
+            "@/types": ["src/types/index"],
+            "@/web3": ["src/web3/index"],
+          },
+        },
+      }),
+    ],
+    external: [/\.css$/, ...externals, /^@\//],
   },
 ];

@@ -7,10 +7,17 @@ import { WalletConnect } from "./wallet-connect";
 
 import { mainnet } from "viem/chains";
 
-import { ENSNameCard, EnsOnchainRegisterModal, EnsOffChainRegisterModal, Icon, Input, Text } from "./components";
+import {
+  ENSNameCard,
+  EnsOnChainRegisterModal,
+  EnsOffChainRegisterModal,
+  Icon,
+  Input,
+  Text,
+  ENSNamesRegisterComponent,
+} from "./components";
 import { ProfileCard } from "./components";
 import { NavbarProfileCard } from "./components";
-
 
 export const dummyENSNames = [
   {
@@ -193,7 +200,9 @@ function TestApp() {
   };
 
   function filterENSNames(list, showSubnames) {
-    return list.filter((item) => (showSubnames ? item.isSubname : !item.isSubname));
+    return list.filter(item =>
+      showSubnames ? item.isSubname : !item.isSubname
+    );
   }
 
   function MainContent() {
@@ -219,23 +228,29 @@ function TestApp() {
               subnames={3}
               profit={6}
               volume={0}
-            // onFollowClick={() => console.log("Follow clicked")}
+              // onFollowClick={() => console.log("Follow clicked")}
             />
           </aside>
 
           <section className="ns-right">
             <div className="ns-header">
               <div className="ns-tabs">
-                <span className={!showSubnames ? "active" : ""} onClick={() => setShowSubnames(false)}>
+                <span
+                  className={!showSubnames ? "active" : ""}
+                  onClick={() => setShowSubnames(false)}
+                >
                   <Text>ENS Names</Text>{" "}
                   <Text weight="bold" color="primary">
-                    {dummyENSNames.filter((item) => !item.isSubname).length}
+                    {dummyENSNames.filter(item => !item.isSubname).length}
                   </Text>
                 </span>
-                <span className={showSubnames ? "active" : ""} onClick={() => setShowSubnames(true)}>
+                <span
+                  className={showSubnames ? "active" : ""}
+                  onClick={() => setShowSubnames(true)}
+                >
                   <Text>Subnames</Text>{" "}
                   <Text weight="bold" color="primary">
-                    {dummyENSNames.filter((item) => item.isSubname).length}
+                    {dummyENSNames.filter(item => item.isSubname).length}
                   </Text>
                 </span>
                 <span>
@@ -309,7 +324,6 @@ function TestApp() {
     );
   }
 
-  // State for EnsOnchainRegisterModal and EnsOffChainRegisterModal
   const [onchainStep, setOnchainStep] = useState(0);
   const [offchainStep, setOffchainStep] = useState(0);
   const [offchainName, setOffchainName] = useState("");
@@ -331,28 +345,58 @@ function TestApp() {
                 <Button variant="outline" size="md">ENS Name Page</Button>
               </div>
               <MainContent /> */}
-   
-                <EnsOnchainRegisterModal
+
+              <EnsOnChainRegisterModal
                 step={onchainStep}
                 name={onchainName}
                 profileComplete={onchainProfileComplete}
+                domainSuffix="bitflip.eth"
                 onStepChange={setOnchainStep}
                 onNameChange={setOnchainName}
                 onProfileCompleteChange={setOnchainProfileComplete}
                 onRegister={() => console.log("Register clicked")}
                 onCancel={() => console.log("Cancel clicked")}
-                />
-       
-              <EnsOffChainRegisterModal
-                step={offchainStep}
+                onClose={() => {
+                  setOnchainStep(0);
+                  setOnchainName("");
+                  console.log("Close clicked");
+                }}
+                onCompleteProfile={() => {
+                  setOnchainProfileComplete(true);
+                  console.log("Complete Profile clicked");
+                }}
+              />
+
+              {/* <EnsOffChainRegisterModal
                 name={offchainName}
-                profileComplete={offchainProfileComplete}
-                onStepChange={setOffchainStep}
                 onNameChange={setOffchainName}
-                onProfileCompleteChange={setOffchainProfileComplete}
                 onRegister={() => console.log("Offchain Register clicked")}
                 onCancel={() => console.log("Offchain Cancel clicked")}
-              />
+                onClose={() => console.log("Offchain Close clicked")}
+                onCompleteProfile={() => {
+                  setOffchainProfileComplete(true);
+                  console.log("Offchain Complete Profile clicked");
+                }}
+                onOpenWallet={() => console.log("Offchain Open Wallet clicked")}
+                onCompleteRegistration={() => console.log("Offchain Complete Registration clicked")}
+                onRegisterAnother={() => {
+                  setOffchainName("");
+                  setOffchainProfileComplete(false);
+                  console.log("Offchain Register Another clicked");
+                }}
+                onViewName={() => console.log("Offchain View Name clicked")}
+              /> */}
+
+              {/* <ENSNamesRegisterComponent
+                name="brightwave"
+                duration={1}
+                onNameChange={(name) => console.log("Name changed:", name)}
+                onDurationChange={(duration) => console.log("Duration changed:", duration)}
+                onBack={() => console.log("Back clicked")}
+                onClose={() => console.log("Close clicked")}
+                onNext={() => console.log("Next clicked")}
+                onCompleteProfile={() => console.log("Complete profile clicked")}
+              /> */}
             </div>
           </div>
         </div>
@@ -366,4 +410,3 @@ if (container) {
   const root = createRoot(container);
   root.render(<TestApp />);
 }
-
