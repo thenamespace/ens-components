@@ -184,12 +184,18 @@ export const SelectRecordsForm = ({
       ...records,
       texts: [..._texts, { key: record, value: _value }],
     });
-    scrollToCategory(RecordsSidebarItem.General);
+    
+    // Navigate to Avatar tab if avatar is being added, otherwise stay on General
+    if (record === "avatar") {
+      handleSidebarChange(RecordsSidebarItem.Avatar, true);
+    } else {
+      scrollToCategory(RecordsSidebarItem.General);
+    }
   };
 
   return (
     <div className="ns-select-records-form">
-      {/* Avatar and header */}
+
       <div style={{ marginBottom: 30 }}>
         <ImageRecords
           avatar={avatar}
@@ -202,7 +208,6 @@ export const SelectRecordsForm = ({
           }
         />
       </div>
-      {/* Search Input */}
       <div className="ns-records-content-wrapper">
         <div className="ns-records-content row g-2">
           <div className="col-12 ns-mb-1">

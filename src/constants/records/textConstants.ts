@@ -17,12 +17,6 @@ export interface SupportedTextRecord {
 export const supportedTexts: SupportedTextRecord[] = [
   {
     icon: "person",
-    key: "avatar",
-    category: TextRecordCategory.Image,
-    label: "Avatar",
-  },
-  {
-    icon: "person",
     key: "header",
     category: TextRecordCategory.Image,
     label: "Header",
