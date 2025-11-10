@@ -77,8 +77,6 @@ export function EnsOffChainRegisterModal({
       />
     );
   }
-
-  // Default to initial step
   return (
     <div className="ns-offchain-register-container">
       <InitialStep

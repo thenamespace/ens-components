@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./ENSNamesRegisterComponent.css";
+import { NameSearch } from "./sub-components/NameSearch";
 import { RegistrationForm } from "./sub-components/RegistrationForm";
 import { RegistrationProcess } from "./sub-components/RegistrationProcess";
 import { SuccessScreen } from "./sub-components/SuccessScreen";
@@ -119,13 +120,18 @@ export function ENSNamesRegisterComponent({
     onNameChange?.(value);
   };
 
-  const handleNext = () => {
+  const handleNameSearchNext = () => {
     setCurrentStep(1);
     onNext?.();
   };
 
+  const handleNext = () => {
+    setCurrentStep(2);
+    onNext?.();
+  };
+
   const handleBackToForm = () => {
-    setCurrentStep(0);
+    setCurrentStep(1);
     setIsTransactionInProgress(false);
     setProgress(0);
     setIsTimerActive(false);
@@ -145,7 +151,7 @@ export function ENSNamesRegisterComponent({
   };
 
   const handleCompleteRegistration = () => {
-    setCurrentStep(2);
+    setCurrentStep(3);
     onCompleteRegistration?.();
   };
 
@@ -167,6 +173,18 @@ export function ENSNamesRegisterComponent({
 
   if (currentStep === 0) {
     return (
+      <NameSearch
+        ensName={ensName}
+        onNameChange={handleNameChange}
+        onBack={onBack}
+        onClose={onClose}
+        onNext={handleNameSearchNext}
+      />
+    );
+  }
+
+  if (currentStep === 1) {
+    return (
       <RegistrationForm
         ensName={ensName}
         duration={duration}
@@ -175,7 +193,7 @@ export function ENSNamesRegisterComponent({
         total={total}
         onNameChange={handleNameChange}
         onDurationChange={handleDurationChange}
-        onBack={onBack}
+        onBack={() => setCurrentStep(0)}
         onClose={onClose}
         onNext={handleNext}
         onCompleteProfile={onCompleteProfile}
@@ -183,7 +201,7 @@ export function ENSNamesRegisterComponent({
     );
   }
 
-  if (currentStep === 2) {
+  if (currentStep === 3) {
     return (
       <SuccessScreen
         ensName={ensName}

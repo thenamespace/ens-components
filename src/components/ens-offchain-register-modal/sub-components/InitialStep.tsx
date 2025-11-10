@@ -95,41 +95,42 @@ export function InitialStep({
       </div>
 
       <div className="ns-offchain-register-input-row">
-        <Icon name="search" size={16} className="ns-search-icon" />
-        <div className="ns-offchain-register-input-wrapper">
-          <Input
-            type="text"
-            className="ns-input"
-            placeholder="Find name"
-            value={subnamePart}
-            onChange={handleNameInputChange}
-          />
-          {subnamePart && available && (
-            <div className="ns-offchain-register-checkmark available">
-              <Icon name="check-circle" size={16} color="#22c55e" />
-            </div>
-          )}
-          {subnamePart && isUnavailable && (
-            <button
-              className="ns-offchain-register-clear-btn"
-              onClick={handleClear}
-              type="button"
-            >
-              <Icon name="x" size={14} color="#ffffff" />
-            </button>
-          )}
-        </div>
-        <Text className="ns-domain-suffix">.{domainSuffix}</Text>
+        <Icon
+          name="search"
+          size={16}
+          className="ns-offchain-register-search-icon"
+        />
+        <Input
+          type="text"
+          className="ns-offchain-register-input"
+          placeholder="Find name"
+          value={subnamePart}
+          onChange={handleNameInputChange}
+        />
+        {subnamePart && available && (
+          <div className="ns-offchain-register-checkmark available">
+            <Icon name="check-circle" size={14} color="black" />
+          </div>
+        )}
+        {subnamePart && isUnavailable && (
+          <button
+            className="ns-offchain-register-clear-btn"
+            onClick={handleClear}
+            type="button"
+          >
+            <Icon name="x" size={14} color="#ffffff" />
+          </button>
+        )}
+        <Text className="ns-offchain-register-domain-suffix">.{domainSuffix}</Text>
       </div>
 
       {isUnavailable && (
         <div className="ns-offchain-register-unavailable-message">
           <Icon
             name="alert-triangle"
-            size={16}
-            className="ns-offchain-register-warning-icon"
+            size={14}
           />
-          <Text size="sm" color="grey">
+          <Text size="sm" className="ns-offchain-register-error-text">
             This name is unavailable. Please choose a different one.
           </Text>
         </div>
@@ -153,7 +154,7 @@ export function InitialStep({
           }}
           disabled={!subnamePart || !!isUnavailable}
         >
-          Next
+          {subnamePart && available ? "Next" : "Register"}
         </Button>
       </div>
 

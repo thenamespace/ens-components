@@ -8,6 +8,29 @@
   padding: 20px;
 }
 
+/* Modal Container */
+.ens-names-register-modal-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.ens-names-register-modal-wrapper .ens-names-register-container {
+  position: relative;
+  background: transparent;
+  padding: 0;
+  min-height: auto;
+}
+
 /* Card */
 .ens-names-register-card {
   background: #f7f7f7;
@@ -542,6 +565,7 @@
 /* Success Screen Styles */
 .ens-names-register-success-card {
   text-align: center;
+  width: 100%;
 }
 
 .ens-names-register-success-header {

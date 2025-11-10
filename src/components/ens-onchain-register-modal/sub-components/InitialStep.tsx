@@ -25,9 +25,6 @@ export function InitialStep({
     isNameAvailable
   );
 
-  // Check if it's a subname (domain suffix contains a dot, e.g., "bitflip.eth")
-  const isSubname = domainSuffix.includes(".");
-
   // Extract the subname part (remove domain suffix if user typed it)
   const getSubnamePart = (inputName: string) => {
     if (!inputName) return "";
@@ -99,41 +96,42 @@ export function InitialStep({
       </div>
 
       <div className="ns-onchain-register-input-row">
-        <Icon name="search" size={16} className="ns-search-icon" />
-        <div className="ns-onchain-register-input-wrapper">
-          <Input
-            type="text"
-            className="ns-input"
-            placeholder="Find name"
-            value={subnamePart}
-            onChange={handleNameInputChange}
-          />
-          {subnamePart && available && (
-            <div className="ns-onchain-register-checkmark available">
-              <Icon name="check-circle" size={16} color="#22c55e" />
-            </div>
-          )}
-          {subnamePart && isUnavailable && (
-            <button
-              className="ns-onchain-register-clear-btn"
-              onClick={handleClear}
-              type="button"
-            >
-              <Icon name="x" size={14} color="#ffffff" />
-            </button>
-          )}
-        </div>
-        <Text className="ns-domain-suffix">.{domainSuffix}</Text>
+        <Icon
+          name="search"
+          size={16}
+          className="ns-onchain-register-search-icon"
+        />
+        <Input
+          type="text"
+          className="ns-onchain-register-input"
+          placeholder="Find name"
+          value={subnamePart}
+          onChange={handleNameInputChange}
+        />
+        {subnamePart && available && (
+          <div className="ns-onchain-register-checkmark available">
+            <Icon name="check-circle" size={14} color="black" />
+          </div>
+        )}
+        {subnamePart && isUnavailable && (
+          <button
+            className="ns-onchain-register-clear-btn"
+            onClick={handleClear}
+            type="button"
+          >
+            <Icon name="x" size={14} color="#ffffff" />
+          </button>
+        )}
+        <Text className="ns-onchain-register-domain-suffix">.{domainSuffix}</Text>
       </div>
 
       {isUnavailable && (
         <div className="ns-onchain-register-unavailable-message">
           <Icon
             name="alert-triangle"
-            size={16}
-            className="ns-onchain-register-warning-icon"
+            size={14}
           />
-          <Text size="sm" color="grey">
+          <Text size="sm" className="ns-onchain-register-error-text">
             This name is unavailable. Please choose a different one.
           </Text>
         </div>
@@ -157,7 +155,7 @@ export function InitialStep({
           }}
           disabled={!subnamePart || !!isUnavailable}
         >
-          {isSubname ? "Next" : "Register"}
+          {available ? "Next" : "Register"}
         </Button>
       </div>
 
