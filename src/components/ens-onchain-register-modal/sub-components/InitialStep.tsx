@@ -122,15 +122,14 @@ export function InitialStep({
             <Icon name="x" size={14} color="#ffffff" />
           </button>
         )}
-        <Text className="ns-onchain-register-domain-suffix">.{domainSuffix}</Text>
+        <Text className="ns-onchain-register-domain-suffix">
+          .{domainSuffix}
+        </Text>
       </div>
 
       {isUnavailable && (
         <div className="ns-onchain-register-unavailable-message">
-          <Icon
-            name="alert-triangle"
-            size={14}
-          />
+          <Icon name="alert-triangle" size={14} />
           <Text size="sm" className="ns-onchain-register-error-text">
             This name is unavailable. Please choose a different one.
           </Text>

@@ -129,7 +129,7 @@ export default [
     output: { file: "dist/index.d.ts", format: "es" },
     plugins: [
       alias({ entries: aliasEntries }),
-      dts({ 
+      dts({
         respectExternal: true,
         compilerOptions: {
           baseUrl: ".",

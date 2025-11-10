@@ -164,7 +164,6 @@
   animation: slideDown 0.2s ease;
 }
 
-
 @keyframes slideDown {
   from {
     opacity: 0;

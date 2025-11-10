@@ -348,31 +348,39 @@ function TestApp() {
               </div>
               <MainContent /> */}
 
-              <div style={{ display: 'flex', gap: '20px', padding: '20px', alignItems: 'center', justifyContent: 'center' }}>
-                <Button 
-                  className="primary" 
-                  onClick={() => setActiveModal('onchain')}
-                  style={{ minWidth: '150px' }}
+              <div
+                style={{
+                  display: "flex",
+                  gap: "20px",
+                  padding: "20px",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Button
+                  className="primary"
+                  onClick={() => setActiveModal("onchain")}
+                  style={{ minWidth: "150px" }}
                 >
                   On-Chain Mint
                 </Button>
-                <Button 
-                  className="primary" 
-                  onClick={() => setActiveModal('offchain')}
-                  style={{ minWidth: '150px' }}
+                <Button
+                  className="primary"
+                  onClick={() => setActiveModal("offchain")}
+                  style={{ minWidth: "150px" }}
                 >
                   Off-Chain Mint
                 </Button>
-                <Button 
-                  className="primary" 
-                  onClick={() => setActiveModal('ens-register')}
-                  style={{ minWidth: '150px' }}
+                <Button
+                  className="primary"
+                  onClick={() => setActiveModal("ens-register")}
+                  style={{ minWidth: "150px" }}
                 >
                   ENS Register
                 </Button>
               </div>
 
-              {activeModal === 'onchain' && (
+              {activeModal === "onchain" && (
                 <EnsOnChainRegisterModal
                   step={onchainStep}
                   name={onchainName}
@@ -396,7 +404,7 @@ function TestApp() {
                 />
               )}
 
-              {activeModal === 'offchain' && (
+              {activeModal === "offchain" && (
                 <EnsOffChainRegisterModal
                   step={offchainStep}
                   name={offchainName}
@@ -414,8 +422,12 @@ function TestApp() {
                     setOffchainProfileComplete(true);
                     console.log("Offchain Complete Profile clicked");
                   }}
-                  onOpenWallet={() => console.log("Offchain Open Wallet clicked")}
-                  onCompleteRegistration={() => console.log("Offchain Complete Registration clicked")}
+                  onOpenWallet={() =>
+                    console.log("Offchain Open Wallet clicked")
+                  }
+                  onCompleteRegistration={() =>
+                    console.log("Offchain Complete Registration clicked")
+                  }
                   onRegisterAnother={() => {
                     setOffchainName("");
                     setOffchainProfileComplete(false);
@@ -425,22 +437,28 @@ function TestApp() {
                 />
               )}
 
-              {activeModal === 'ens-register' && (
+              {activeModal === "ens-register" && (
                 <div className="ens-names-register-modal-wrapper">
                   <ENSNamesRegisterComponent
                     name="brightwave"
                     duration={1}
-                    onNameChange={(name) => console.log("Name changed:", name)}
-                    onDurationChange={(duration) => console.log("Duration changed:", duration)}
+                    onNameChange={name => console.log("Name changed:", name)}
+                    onDurationChange={duration =>
+                      console.log("Duration changed:", duration)
+                    }
                     onBack={() => console.log("Back clicked")}
                     onClose={() => {
                       setActiveModal(null);
                       console.log("Close clicked");
                     }}
                     onNext={() => console.log("Next clicked")}
-                    onCompleteProfile={() => console.log("Complete profile clicked")}
+                    onCompleteProfile={() =>
+                      console.log("Complete profile clicked")
+                    }
                     onOpenWallet={() => console.log("Open wallet clicked")}
-                    onCompleteRegistration={() => console.log("Complete registration clicked")}
+                    onCompleteRegistration={() =>
+                      console.log("Complete registration clicked")
+                    }
                     onRegisterAnother={() => {
                       setActiveModal(null);
                       console.log("Register another clicked");
