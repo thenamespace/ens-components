@@ -124,7 +124,28 @@ export default [
   {
     input: "dist/types/index.d.ts",
     output: { file: "dist/index.d.ts", format: "es" },
-    plugins: [dts({ respectExternal: true })],
-    external: [/\.css$/, ...externals],
+    plugins: [
+      dts({
+        respectExternal: true,
+        compilerOptions: {
+          baseUrl: ".",
+          paths: {
+            "@/*": ["src/*"],
+            "@/components": ["src/components/index"],
+            "@/atoms": ["src/components/atoms/index"],
+            "@/molecules": ["src/components/molecules/index"],
+            "@/constants": ["src/constants/index"],
+            "@/utils": ["src/utils/index"],
+            "@/types": ["src/types/index"],
+            "@/web3": ["src/web3/index"],
+          },
+        },
+      }),
+    ],
+    external: [
+      /\.css$/,
+      /^@\//, // Treat all @/ aliases as external
+      ...externals,
+    ],
   },
 ];

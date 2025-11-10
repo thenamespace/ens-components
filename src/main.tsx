@@ -195,7 +195,9 @@ function TestApp() {
   };
 
   function filterENSNames(list, showSubnames) {
-    return list.filter((item) => (showSubnames ? item.isSubname : !item.isSubname));
+    return list.filter(item =>
+      showSubnames ? item.isSubname : !item.isSubname
+    );
   }
 
   function MainContent() {
@@ -221,23 +223,29 @@ function TestApp() {
               subnames={3}
               profit={6}
               volume={0}
-            // onFollowClick={() => console.log("Follow clicked")}
+              // onFollowClick={() => console.log("Follow clicked")}
             />
           </aside>
 
           <section className="ns-right">
             <div className="ns-header">
               <div className="ns-tabs">
-                <span className={!showSubnames ? "active" : ""} onClick={() => setShowSubnames(false)}>
+                <span
+                  className={!showSubnames ? "active" : ""}
+                  onClick={() => setShowSubnames(false)}
+                >
                   <Text>ENS Names</Text>{" "}
                   <Text weight="bold" color="primary">
-                    {dummyENSNames.filter((item) => !item.isSubname).length}
+                    {dummyENSNames.filter(item => !item.isSubname).length}
                   </Text>
                 </span>
-                <span className={showSubnames ? "active" : ""} onClick={() => setShowSubnames(true)}>
+                <span
+                  className={showSubnames ? "active" : ""}
+                  onClick={() => setShowSubnames(true)}
+                >
                   <Text>Subnames</Text>{" "}
                   <Text weight="bold" color="primary">
-                    {dummyENSNames.filter((item) => item.isSubname).length}
+                    {dummyENSNames.filter(item => item.isSubname).length}
                   </Text>
                 </span>
                 <span>
@@ -322,9 +330,17 @@ function TestApp() {
             <div className="ns-right-column">
               <Navbar />
               <div className="ns-actions-buttons">
-                <Button variant="outline" size="md">Account Page</Button>
-                <Button variant="outline" size="md">ENS Name Page</Button>
-                <Button variant="outline" size="md" onClick={() => setIsRecordsFormOpen(true)}>
+                <Button variant="outline" size="md">
+                  Account Page
+                </Button>
+                <Button variant="outline" size="md">
+                  ENS Name Page
+                </Button>
+                <Button
+                  variant="outline"
+                  size="md"
+                  onClick={() => setIsRecordsFormOpen(true)}
+                >
                   Edit Records
                 </Button>
               </div>
@@ -343,7 +359,7 @@ function TestApp() {
                 initialRecords={records}
                 chainId={NAME_CHAIN_ID}
                 onCancel={() => setIsRecordsFormOpen(false)}
-                onSuccess={(txHash) => {
+                onSuccess={txHash => {
                   console.log("Transaction successful:", txHash);
                   setIsRecordsFormOpen(false);
                 }}
@@ -361,4 +377,3 @@ if (container) {
   const root = createRoot(container);
   root.render(<TestApp />);
 }
-

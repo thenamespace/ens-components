@@ -38,7 +38,9 @@ export const AvatarRecords = ({
     onAvatarChanged(value);
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
@@ -55,14 +57,12 @@ export const AvatarRecords = ({
       setUploadProgress(0);
 
       try {
-
         const client = createAvatarClient({
           domain,
           network,
           provider: walletClient,
         });
 
- 
         const result = await client.uploadAvatar({
           subname: name,
           file: file,
@@ -71,19 +71,19 @@ export const AvatarRecords = ({
           },
         });
 
-
         setAvatarUrl(result.url);
         onAvatarChanged(result.url);
         setIsUploading(false);
         setUploadProgress(0);
       } catch (error) {
         console.error("Error uploading avatar:", error);
-        alert(`Error uploading avatar: ${error instanceof Error ? error.message : "Unknown error"}`);
+        alert(
+          `Error uploading avatar: ${error instanceof Error ? error.message : "Unknown error"}`
+        );
         setIsUploading(false);
         setUploadProgress(0);
       }
     } else {
-
       setIsUploading(true);
       try {
         const reader = new FileReader();
@@ -135,7 +135,10 @@ export const AvatarRecords = ({
   };
 
   // Filter by search if needed
-  if (searchFilter && !"avatar".toLowerCase().includes(searchFilter.toLowerCase())) {
+  if (
+    searchFilter &&
+    !"avatar".toLowerCase().includes(searchFilter.toLowerCase())
+  ) {
     return null;
   }
 
@@ -244,4 +247,3 @@ export const AvatarRecords = ({
     </div>
   );
 };
-

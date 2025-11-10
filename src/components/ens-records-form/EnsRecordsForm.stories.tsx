@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { EnsRecords } from "@/types";
 import { WalletConnect } from "@/wallet-connect";
 import { EnsRecordsForm } from "./EnsRecordsForm";
@@ -60,8 +60,22 @@ A comprehensive form component for editing ENS (Ethereum Name Service) records. 
 - **Text Records**: Edit various text records like description, URL, avatar, etc.
 - **Address Records**: Manage cryptocurrency addresses for different coin types
 - **Contenthash Records**: Set content hash for decentralized websites
+- **Avatar Upload**: Upload avatars using @thenamespace/avatar SDK with progress tracking
 - **Real-time Validation**: Validates ENS records before submission
 - **Transaction Management**: Handles blockchain transactions for record updates
+
+## Avatar Upload
+
+The component now includes a dedicated Avatar tab that allows users to:
+- Upload avatar images directly using the @thenamespace/avatar SDK
+- Paste image URLs manually
+- View upload progress in real-time
+- Preview avatars before saving
+
+The avatar upload requires:
+- A connected wallet (via wagmi)
+- A valid ENS name
+- The @thenamespace/avatar SDK configured with domain and network
 
 ## Usage
 
@@ -178,7 +192,33 @@ export const WithInitialRecords: StoryObj<typeof EnsRecordsForm> = {
     docs: {
       description: {
         story:
-          "EnsRecordsForm with pre-populated records and callback handlers.",
+          "EnsRecordsForm with pre-populated records including an avatar URL. Navigate to the Avatar tab to see the avatar preview and upload functionality.",
+      },
+    },
+  },
+};
+
+export const WithAvatar: StoryObj<typeof EnsRecordsForm> = {
+  render: Template,
+  args: {
+    name: "myavatar.eth",
+    resolverAddress: "0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41",
+    chainId: 1,
+    initialRecords: {
+      texts: [
+        { key: "avatar", value: "https://picsum.photos/200?random=1" },
+        { key: "description", value: "ENS name with avatar" },
+      ],
+      addresses: [],
+    },
+    onCancel: () => console.log("Cancel clicked"),
+    onSuccess: (txHash: any) => console.log("Success:", txHash),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "EnsRecordsForm focused on avatar functionality. Connect your wallet and navigate to the Avatar tab to upload a new avatar using the @thenamespace/avatar SDK. You can upload images or paste image URLs.",
       },
     },
   },
@@ -195,7 +235,8 @@ export const InteractiveDemo: StoryObj<typeof EnsRecordsForm> = {
   parameters: {
     docs: {
       description: {
-        story: "Interactive demo with wallet connection and ENS name input.",
+        story:
+          "Interactive demo with wallet connection and ENS name input. Connect your wallet, enter an ENS name, and explore all features including the Avatar tab for uploading avatars using the @thenamespace/avatar SDK.",
       },
     },
   },
@@ -225,7 +266,7 @@ export const Docs: StoryObj<typeof EnsRecordsForm> = {
     docs: {
       description: {
         story:
-          "Complete documentation and examples for the EnsRecordsForm component.",
+          "Complete documentation and examples for the EnsRecordsForm component. Includes all features including the new Avatar tab for uploading avatars.",
       },
     },
   },

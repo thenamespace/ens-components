@@ -232,15 +232,17 @@ export const EnsRecordsForm = ({
   };
 
   return (
-      <div className="ns-edit-records-form">
-        <SelectRecordsForm
-          records={records}
-          onRecordsUpdated={records => setRecords(records)}
-          name={name}
-          walletClient={walletClient}
-          network={currentChainId === mainnet.id ? "mainnet" : "sepolia"}
-          domain={typeof window !== "undefined" ? window.location.hostname : "myapp.com"}
-        />
+    <div className="ns-edit-records-form">
+      <SelectRecordsForm
+        records={records}
+        onRecordsUpdated={records => setRecords(records)}
+        name={name}
+        walletClient={walletClient}
+        network={currentChainId === mainnet.id ? "mainnet" : "sepolia"}
+        domain={
+          typeof window !== "undefined" ? window.location.hostname : "myapp.com"
+        }
+      />
       <div style={{ padding: 15, paddingTop: 0 }}>
         <div className="d-flex align-items-center" style={{ gap: "8px" }}>
           <Button

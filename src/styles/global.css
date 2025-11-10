@@ -175,11 +175,13 @@ html {
   color: var(--muted);
 }
 .ns-tabs span.active {
-  background: #F8F8F9;
+  background: #f8f8f9;
   color: #fff;
   border-radius: 8px;
   padding: 4px 12px;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .ns-tabs span:hover {
