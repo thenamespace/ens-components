@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
-import ensBanner from "../../../assets/banner.png";
 import ninjaLogo from "../../../assets/ninja.png";
 import { Button, Text, Icon, Input } from "../../atoms";
 
@@ -98,10 +97,6 @@ export function RegistrationStep({
           <Icon name="x" size={20} />
         </button>
       )}
-
-      <div className="ns-onchain-register-banner">
-        <img src={ensBanner} alt="ENS Banner" />
-      </div>
 
       <div className="ns-onchain-register-mint-title">
         <Text size="sm" color="grey">

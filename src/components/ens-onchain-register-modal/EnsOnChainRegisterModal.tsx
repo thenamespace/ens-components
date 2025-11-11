@@ -171,8 +171,6 @@ export function EnsOnChainRegisterModal({
       </div>
     );
   }
-
-  // Confirmation step (third screen)
   if (currentStep === 2) {
     return (
       <div className="ns-onchain-register-container">

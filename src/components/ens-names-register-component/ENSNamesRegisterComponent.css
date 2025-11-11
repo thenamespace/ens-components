@@ -37,8 +37,9 @@
   border-radius: 20px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   padding: 24px;
-  width: 100%;
+  width: 420px;
   max-width: 420px;
+  min-width: 420px;
   position: relative;
 }
 
@@ -565,7 +566,9 @@
 /* Success Screen Styles */
 .ens-names-register-success-card {
   text-align: center;
-  width: 100%;
+  width: 420px;
+  max-width: 420px;
+  min-width: 420px;
 }
 
 .ens-names-register-success-header {

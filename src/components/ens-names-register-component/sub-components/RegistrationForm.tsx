@@ -38,10 +38,6 @@ export function RegistrationForm({
       <div className="ens-names-register-card">
         <Header showBack={true} onBack={onBack} onClose={onClose} />
 
-        <div className="ens-names-register-banner">
-          <img src={ensBanner} alt="ENS Banner" />
-        </div>
-
         <div className="ens-names-register-title-section">
           <Text size="xl" weight="bold" className="ens-names-register-title">
             ENS Registration Registration

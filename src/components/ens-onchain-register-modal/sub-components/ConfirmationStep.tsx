@@ -56,10 +56,6 @@ export function ConfirmationStep({
         </button>
       )}
 
-      <div className="ns-onchain-register-banner">
-        <img src={ensBanner} alt="ENS Banner" />
-      </div>
-
       <div className="ns-onchain-register-mint-title">
         <Text size="sm" color="grey">
           You are about to mint
