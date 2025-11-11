@@ -1,4 +1,4 @@
-import React, { ReactElement } from "react";
+import React from "react";
 import * as LucideIcons from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import "./Icon.css";
@@ -19,6 +19,7 @@ import {
   Edit,
   CopyIcon,
   Clock,
+  Image
 } from "lucide-react";
 import {
   DiscordIcon,
@@ -63,7 +64,9 @@ export type IconName =
   | "logout"
   | "edit"
   | "copy"
-  | "clock";
+  | "clock"
+  | "image"
+  | "xSocial"
 
 const icons: Record<IconName, IconComponent> = {
   person: User,
@@ -80,7 +83,7 @@ const icons: Record<IconName, IconComponent> = {
   github: GithubIcon,
   telegram: TelegramIcon,
   youtube: YoutubeIcon,
-  image: LucideIcons.Image,
+  image: Image,
   "circle-person": LucideIcons.CircleUser,
   twitter: XIcon,
   "circle-alert": LucideIcons.CircleAlert,
@@ -93,6 +96,7 @@ const icons: Record<IconName, IconComponent> = {
   edit: Edit,
   copy: CopyIcon,
   clock: Clock,
+  xSocial: XIcon,
 };
 
 export interface IconProps {
