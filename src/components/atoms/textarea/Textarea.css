@@ -1,0 +1,105 @@
+.ns-textarea__wrapper {
+  position: relative;
+  display: block;
+  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ns-textarea {
+  width: 100%;
+  min-height: 35px;
+  background: #fcfcfc;
+  border: 1px solid var(--ns-color-border);
+  border-radius: var(--ns-radius-md);
+  color: var(--ns-color-fg);
+  font-family: var(--ns-font-family);
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+  outline: none;
+  padding: 0.7rem;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.ns-textarea:focus {
+  border-color: var(--ns-color-primary);
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--ns-color-primary) 15%, transparent);
+}
+
+.ns-textarea:disabled {
+  background: color-mix(in srgb, var(--ns-color-bg) 95%, var(--ns-color-muted));
+  color: var(--ns-color-muted);
+  cursor: not-allowed;
+}
+
+.ns-textarea--error {
+  border-color: #ef4444;
+}
+
+.ns-textarea--error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px color-mix(in srgb, #ef4444 15%, transparent);
+}
+
+/* Size variants */
+.ns-textarea--sm {
+  min-height: 40px;
+  font-size: 0.775rem;
+}
+
+.ns-textarea--md {
+  min-height: 60px;
+  font-size: 0.85rem;
+}
+
+.ns-textarea--lg {
+  min-height: 90px;
+  font-size: 1rem;
+}
+
+/* Prefix and Suffix - positioned inside textarea */
+.ns-textarea__prefix,
+.ns-textarea__suffix {
+  position: absolute;
+  display: flex;
+  align-items: flex-start;
+  color: var(--ns-color-muted);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ns-textarea__prefix {
+  left: 10px;
+  top: 10px;
+}
+
+.ns-textarea__suffix {
+  right: 10px;
+  top: 10px;
+}
+
+/* Adjust textarea padding when prefix/suffix present */
+.ns-textarea__wrapper:has(.ns-textarea__prefix) .ns-textarea {
+  padding-left: 2.5rem;
+}
+
+.ns-textarea__wrapper:has(.ns-textarea__suffix) .ns-textarea {
+  padding-right: 2.5rem;
+}
+
+/* Placeholder styling */
+.ns-textarea::placeholder {
+  color: var(--ns-color-muted);
+  opacity: 0.5;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.ns-textarea {
+  font-weight: 400;
+  line-height: 1.5;
+}
+

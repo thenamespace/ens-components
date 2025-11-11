@@ -25,4 +25,5 @@ export enum ContenthashProtocol {
   Arweave = "arweave",
   Skynet = "skynet",
   Swarm = "swarm",
+  Ipns = "ipns"
 }
