@@ -119,7 +119,7 @@ export const TextRecords = ({
               </Text>
               <div
                 style={{ width: "100%" }}
-                className="d-flex align-items-start"
+                className="d-flex align-items-center"
               >
                 {isDescription ? (
                   <Textarea

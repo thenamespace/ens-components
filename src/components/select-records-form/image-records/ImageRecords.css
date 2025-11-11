@@ -48,6 +48,7 @@
   background-color: var(--ns-color-bg-accent);
   border-radius: 100%;
   transition: all 0.25s linear;
+  cursor: pointer;
 }
 
 .ns-image-records .ns-image-handle:hover {
@@ -65,6 +66,7 @@
   background-color: rgb(0, 0, 0, 0.1);
   border-radius: 100%;
   transition: all 0.25s linear;
+  cursor: pointer;
 }
 
 .ns-header-handle:hover {
