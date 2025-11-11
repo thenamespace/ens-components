@@ -7,7 +7,7 @@ import {
   supportedContenthashRecords,
 } from "@/constants";
 import { ContenthashProtocol, EnsContenthashRecord } from "@/types";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 
 interface ContenthashRecordProps {
   contenthash?: EnsContenthashRecord;
@@ -24,6 +24,8 @@ export const ContenthashRecord = ({
   onContenthashAdded,
   searchFilter,
 }: ContenthashRecordProps) => {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
   const metadata = useMemo<SupportedContenthashRecord | undefined>(() => {
     if (contenthash?.protocol) {
       return getSupportedChashByProtocol(contenthash?.protocol);
@@ -32,9 +34,31 @@ export const ContenthashRecord = ({
 
   const handleContenthashChanged = (
     protocol: ContenthashProtocol,
-    value: string
+    inputValue: string
   ) => {
-    onContenthashChanged({ protocol, value });
+    const protocolPrefix = metadata!.protocolPrefix;
+    
+    // If input is shorter than or equal to prefix length, store empty string
+    // This prevents issues when user deletes characters from the prefix
+    if (inputValue.length <= protocolPrefix.length) {
+      onContenthashChanged({ protocol, value: "" });
+      return;
+    }
+    
+    // Strip the protocol prefix from the value before storing
+    let cleanValue = inputValue;
+    if (cleanValue.startsWith(protocolPrefix)) {
+      cleanValue = cleanValue.substring(protocolPrefix.length);
+    } else {
+      // If it doesn't start with prefix but is longer, it means user deleted part of prefix
+      // In this case, extract what comes after where the prefix should be
+      // But to be safe, just store empty to reset
+      onContenthashChanged({ protocol, value: "" });
+      return;
+    }
+    
+    // Store only the clean value without the prefix
+    onContenthashChanged({ protocol, value: cleanValue });
   };
 
   const filterChash = (record: SupportedContenthashRecord): boolean => {
@@ -49,6 +73,23 @@ export const ContenthashRecord = ({
     return true;
   };
 
+  const prefixWithProtocol = (value: string, protocol: ContenthashProtocol) => {
+   const protocolPrefix = metadata!.protocolPrefix;
+    
+    // If value is empty, show just the prefix
+    if (value.length === 0) {
+      return protocolPrefix;
+    }
+    
+    // If value already starts with the prefix, return as is (shouldn't happen but handle it)
+    if (value.startsWith(protocolPrefix)) {
+      return value;
+    }
+    
+    // Always prefix the value for display
+    return `${protocolPrefix}${value}`;
+  };
+
   const filteredSuggestions: SupportedContenthashRecord[] = useMemo(() => {
     return supportedContenthashRecords.filter(record => filterChash(record));
   }, [searchFilter]);
@@ -56,6 +97,7 @@ export const ContenthashRecord = ({
   if (filteredSuggestions.length === 0) {
     return <></>;
   }
+
 
   return (
     <div className="ns-text-records">
@@ -91,10 +133,30 @@ export const ContenthashRecord = ({
           </Text>
           <div style={{ width: "100%" }} className="d-flex align-items-center">
             <Input
+              ref={inputRef}
               style={{ width: "100%" }}
               onChange={e =>
                 handleContenthashChanged(contenthash.protocol, e.target.value)
               }
+              onKeyDown={e => {
+                const protocolPrefix = `${contenthash.protocol}://`;
+                const input = e.currentTarget;
+                const cursorPosition = input.selectionStart || 0;
+                
+                // Prevent deletion of the prefix part
+                if (cursorPosition <= protocolPrefix.length) {
+                  // If Backspace or Delete would remove part of the prefix, prevent it
+                  if (e.key === "Backspace" && cursorPosition > 0) {
+                    e.preventDefault();
+                    // Move cursor to after the prefix
+                    setTimeout(() => {
+                      input.setSelectionRange(protocolPrefix.length, protocolPrefix.length);
+                    }, 0);
+                  } else if (e.key === "Delete" && cursorPosition < protocolPrefix.length) {
+                    e.preventDefault();
+                  }
+                }
+              }}
               error={
                 contenthash.value.length > 0 &&
                 !isContenthashValid(contenthash.protocol, contenthash.value)
@@ -102,7 +164,7 @@ export const ContenthashRecord = ({
               prefix={
                 <ContenthashIcon protocol={contenthash.protocol} size={18} />
               }
-              value={contenthash.value}
+              value={prefixWithProtocol(contenthash.value, contenthash.protocol)}
               placeholder={`${contenthash.protocol}://`}
             />
             <div
