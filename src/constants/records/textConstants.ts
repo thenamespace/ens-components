@@ -16,43 +16,56 @@ export interface SupportedTextRecord {
 
 export const supportedTexts: SupportedTextRecord[] = [
   {
-    icon: "person",
+    icon: "image",
+    key: "avatar",
+    category: TextRecordCategory.Image,
+    label: "Avatar",
+    placeholder: "Your avatar image url...",
+  },
+  {
+    icon: "image",
     key: "header",
     category: TextRecordCategory.Image,
     label: "Header",
+    placeholder: "Your header image url...",
   },
   {
     icon: "person",
     key: "name",
     category: TextRecordCategory.General,
     label: "Nickname",
+    placeholder: "e.g. John",
   },
   {
     icon: "book",
     key: "description",
     category: TextRecordCategory.General,
     label: "Short bio",
+    placeholder: "e.g. john",
   },
   {
     icon: "globe",
     key: "url",
     category: TextRecordCategory.General,
     label: "Website",
+    placeholder: "e.g. https://celo.org",
   },
   {
     icon: "map-pin",
     key: "location",
     category: TextRecordCategory.General,
     label: "Location",
+    placeholder: "e.g. Jupiter",
   },
   {
     icon: "mail",
     key: "mail",
     category: TextRecordCategory.General,
     label: "E-Mail",
+    placeholder: "e.g. example@email.com",
   },
   {
-    icon: "person",
+    icon: "xSocial",
     key: "com.twitter",
     category: TextRecordCategory.Social,
     label: "Twitter",
