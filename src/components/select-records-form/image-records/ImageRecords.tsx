@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import "./ImageRecords.css";
-import { Dropdown } from "@/components/molecules";
-import { Icon, Text } from "@/components/atoms";
+import { Icon } from "@/components/atoms";
 
 interface ImageRecordProps {
   avatar?: string;
@@ -93,7 +92,7 @@ export const ImageRecords = ({
           {!avatarRecordSet && (
             <div style={{zIndex: 10}} onClick={(e) => {
               e.stopPropagation();
-              if (!headerRecordSet) {
+              if (!avatarRecordSet) {
                 onAvatarAdded("");
               }
             }} className="ns-image-handle">
