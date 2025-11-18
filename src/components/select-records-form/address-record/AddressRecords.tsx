@@ -140,7 +140,7 @@ export const AddressRecords = ({
         {filteredAddresses
           .filter(record => existingAddressMap[record.coinType] === undefined)
           .map(record => (
-            <div key={record.coinType} className="col col-lg-3 col-sm-6">
+            <div key={record.coinType} className="col col-lg-3 col-sm-6 col-6">
               <div
                 className="ns-text-suggestion"
                 onClick={() => handleAddressAdded(record.coinType)}

@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import "./ImageRecords.css";
-import { Dropdown } from "@/components/molecules";
-import { Icon, Text } from "@/components/atoms";
+import { Icon } from "@/components/atoms";
 
 interface ImageRecordProps {
   avatar?: string;
@@ -22,7 +21,7 @@ export const ImageRecords = ({
   onHeaderAdded,
 }: ImageRecordProps) => {
   // load avatar here
-  useEffect(() => {}, [avatar]);
+  useEffect(() => { }, [avatar]);
 
   let avatarStyles = {};
   if (avatar && avatar.length > 0) {
@@ -49,67 +48,86 @@ export const ImageRecords = ({
         <div className="ns-top-grad"></div>
         <div className="ns-bot-grad"></div>
         {!headerRecordSet && (
-          <Dropdown
-            trigger={
-              <div className="ns-header-handle">
-                <Icon color="white" name="rotate-circle"></Icon>
-              </div>
+          <div style={{zIndex: 10}} onClick={(e) => {
+            e.stopPropagation();
+            if (!headerRecordSet) {
+              onHeaderAdded("");
             }
-          >
-            <div className="ns-upload-options">
-              <Text
-                onClick={e => {
-                  e.stopPropagation();
-                  if (!headerRecordSet) {
-                    onHeaderAdded("");
-                  }
-                }}
-                weight="medium"
-                className="option"
-                size="sm"
-              >
-                Add Header Record
-              </Text>
-              <Text weight="medium" className="option disabled" size="sm">
-                Upload image
-              </Text>
-              <Text weight="medium" className="option disabled" size="sm">
-                Select NFT
-              </Text>
-            </div>
-          </Dropdown>
+          }} className="ns-header-handle">
+            <Icon color="white" name="rotate-circle"></Icon>
+          </div>
+
+          // We will allow this when we start supporting avatar uploads
+          // <Dropdown
+          //   trigger={
+          //     <div className="ns-header-handle">
+          //       <Icon color="white" name="rotate-circle"></Icon>
+          //     </div>
+          //   }
+          // >
+          //   <div className="ns-upload-options">
+          //     <Text
+          //       onClick={e => {
+          //         e.stopPropagation();
+          //         if (!headerRecordSet) {
+          //           onHeaderAdded("");
+          //         }
+          //       }}
+          //       weight="medium"
+          //       className="option"
+          //       size="sm"
+          //     >
+          //       Add Header Record
+          //     </Text>
+          //     <Text weight="medium" className="option disabled" size="sm">
+          //       Upload image
+          //     </Text>
+          //     <Text weight="medium" className="option disabled" size="sm">
+          //       Select NFT
+          //     </Text>
+          //   </div>
+          // </Dropdown>
         )}
         <div style={avatarStyles} className="ns-avatar-record-cont">
           {!avatarRecordSet && (
-            <Dropdown
-              trigger={
-                <div className="ns-image-handle">
-                  <Icon color="grey" name="rotate-circle"></Icon>
-                </div>
+            <div style={{zIndex: 10}} onClick={(e) => {
+              e.stopPropagation();
+              if (!avatarRecordSet) {
+                onAvatarAdded("");
               }
-            >
-              <div className="ns-upload-options">
-                <Text
-                  onClick={e => {
-                    e.stopPropagation();
-                    if (!avatarRecordSet) {
-                      onAvatarAdded("");
-                    }
-                  }}
-                  weight="medium"
-                  className="option"
-                  size="sm"
-                >
-                  Add Avatar Record
-                </Text>
-                <Text weight="medium" className="option disabled" size="sm">
-                  Upload image
-                </Text>
-                <Text weight="medium" className="option disabled" size="sm">
-                  Select NFT
-                </Text>
-              </div>
-            </Dropdown>
+            }} className="ns-image-handle">
+              <Icon color="grey" name="rotate-circle"></Icon>
+            </div>
+            // We will allow this when we start supporting avatar uploads
+            // <Dropdown
+            //   trigger={
+            //     <div className="ns-image-handle">
+            //       <Icon color="grey" name="rotate-circle"></Icon>
+            //     </div>
+            //   }
+            // >
+            //   <div className="ns-upload-options">
+            //     <Text
+            //       onClick={e => {
+            //         e.stopPropagation();
+            //         if (!avatarRecordSet) {
+            //           onAvatarAdded("");
+            //         }
+            //       }}
+            //       weight="medium"
+            //       className="option"
+            //       size="sm"
+            //     >
+            //       Add Avatar Record
+            //     </Text>
+            //     <Text weight="medium" className="option disabled" size="sm">
+            //       Upload image
+            //     </Text>
+            //     <Text weight="medium" className="option disabled" size="sm">
+            //       Select NFT
+            //     </Text>
+            //   </div>
+            // </Dropdown>
           )}
         </div>
       </div>

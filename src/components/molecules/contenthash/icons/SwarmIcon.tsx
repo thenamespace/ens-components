@@ -7,8 +7,10 @@ export const SwarmIcon = ({ size = 20 }: SwarmIconProps) => {
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width={size}
-      height={size * 1.03}
+      height={size}
+      viewBox="0 0 34.4 35"
       fill="none"
+      preserveAspectRatio="xMidYMid meet"
     >
       <g fill="#FF8A00">
         <path d="m0 30.47 8.02 4.502 8.022-4.502v-8.986L8.02 16.977 0 21.484zM26.516.03l-4.24 2.381-.006.036v4.758l4.246 2.382.036.017 4.24-2.376V2.43zM34.4 21.484l-8.02-4.507-8.022 4.507v8.986l8.021 4.502L34.4 30.47z" />

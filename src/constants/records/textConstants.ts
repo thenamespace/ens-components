@@ -41,7 +41,7 @@ export const supportedTexts: SupportedTextRecord[] = [
     key: "description",
     category: TextRecordCategory.General,
     label: "Short bio",
-    placeholder: "e.g. john",
+    placeholder: "I am an alien from outer space",
   },
   {
     icon: "globe",

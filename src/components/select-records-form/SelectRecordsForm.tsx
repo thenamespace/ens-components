@@ -1,4 +1,4 @@
-import { RefObject, useMemo, useRef, useState } from "react";
+import { RefObject, useEffect, useMemo, useRef, useState } from "react";
 import {
   ContenthashProtocol,
   EnsAddressRecord,
@@ -44,6 +44,64 @@ export const SelectRecordsForm = ({
     RecordsSidebarItem.General
   );
 
+  const recordsInnerRef = useRef<HTMLDivElement | null>(null);
+  const isScrollingProgrammatically = useRef(false);
+
+  // Update active nav based on scroll position
+  useEffect(() => {
+    const scrollContainer = recordsInnerRef.current;
+    if (!scrollContainer) return;
+
+    const refs = [
+      { ref: generalCategoryRef, nav: RecordsSidebarItem.General },
+      { ref: socialCategoryRef, nav: RecordsSidebarItem.Social },
+      { ref: addressesCategoryRef, nav: RecordsSidebarItem.Addresses },
+      { ref: websiteCategoryRef, nav: RecordsSidebarItem.Website },
+    ];
+
+    const updateActiveNav = () => {
+      // Don't update if we're programmatically scrolling
+      if (isScrollingProgrammatically.current) return;
+
+      const containerRect = scrollContainer.getBoundingClientRect();
+      const containerTop = containerRect.top;
+
+      // Find which section is closest to the top of the visible area
+      let closestSection: RecordsSidebarItem | null = null;
+      let closestDistance = Infinity;
+
+      refs.forEach(({ ref, nav }) => {
+        if (ref.current) {
+          const sectionRect = ref.current.getBoundingClientRect();
+          const sectionTop = sectionRect.top - containerTop;
+
+          // If section is visible and above or near the top
+          if (sectionTop <= 100 && sectionTop > -100) {
+            const distance = Math.abs(sectionTop);
+            if (distance < closestDistance) {
+              closestDistance = distance;
+              closestSection = nav;
+            }
+          }
+        }
+      });
+
+      if (closestSection) {
+        setCurrentNav(closestSection);
+      }
+    };
+
+    // Initial check
+    updateActiveNav();
+
+    // Listen to scroll events
+    scrollContainer.addEventListener("scroll", updateActiveNav);
+
+    return () => {
+      scrollContainer.removeEventListener("scroll", updateActiveNav);
+    };
+  }, []);
+
   const handleTextsUpdated = (texts: EnsTextRecord[]) => {
     onRecordsUpdated({ ...records, texts });
   };
@@ -66,10 +124,15 @@ export const SelectRecordsForm = ({
     const currentRef = references[category];
 
     if (currentRef && currentRef.current) {
+      isScrollingProgrammatically.current = true;
       currentRef.current.scrollIntoView({
         behavior: "smooth",
         block: "start",
       });
+      // Reset flag after scroll animation completes
+      setTimeout(() => {
+        isScrollingProgrammatically.current = false;
+      }, 1000);
     }
   };
 
@@ -77,6 +140,7 @@ export const SelectRecordsForm = ({
     nav: RecordsSidebarItem,
     scroll: boolean = true
   ) => {
+    // Set nav immediately when clicking
     setCurrentNav(nav);
     if (scroll) {
       scrollToCategory(nav);
@@ -218,7 +282,10 @@ export const SelectRecordsForm = ({
             })}
           </div>
           {/* Record Container */}
-          <div className="col col-sm-9 col-12 ns-records-inner ns-styled-scrollbar">
+          <div
+            ref={recordsInnerRef}
+            className="col col-sm-9 col-12 ns-records-inner ns-styled-scrollbar"
+          >
             {/* General Records */}
             <div ref={generalCategoryRef} className="ns-mb-2">
               <TextRecords
