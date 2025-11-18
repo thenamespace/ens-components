@@ -46,6 +46,7 @@ export function EnsOffChainRegisterModal({
 
   const handleRegister = () => {
     setCurrentStep(2);
+    onStepChange?.(2);
     onRegister?.();
   };
 

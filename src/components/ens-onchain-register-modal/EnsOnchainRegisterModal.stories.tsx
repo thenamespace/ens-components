@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   EnsOnChainRegisterModal,
   EnsOnChainRegisterModalProps,
@@ -25,9 +25,16 @@ const Template = (args: Partial<EnsOnChainRegisterModalProps>) => {
   const [owner, setOwner] = useState(args.owner ?? "0x035eB...24117D3");
   const [duration, setDuration] = useState(args.duration ?? 1);
   const [useAsPrimary, setUseAsPrimary] = useState(args.useAsPrimary ?? false);
+  const stepRef = useRef(step);
+
+  // Update ref when step changes
+  useEffect(() => {
+    stepRef.current = step;
+  }, [step]);
 
   return (
     <EnsOnChainRegisterModal
+      key={step}
       step={step}
       name={name}
       profileComplete={profileComplete}
@@ -45,14 +52,25 @@ const Template = (args: Partial<EnsOnChainRegisterModalProps>) => {
       onOwnerChange={setOwner}
       onDurationChange={setDuration}
       onUseAsPrimaryChange={setUseAsPrimary}
-      onRegister={() => alert("Register clicked")}
+      onRegister={() => {
+        // Advance to next step when register is clicked from step 1
+        const currentStep = stepRef.current;
+        if (currentStep === 1) {
+          setStep(2);
+        }
+        alert("Register clicked");
+      }}
       onCancel={() => alert("Cancel clicked")}
       onClose={() => alert("Close clicked")}
       onCompleteProfile={() => {
         setProfileComplete(true);
         alert("Complete Profile clicked");
       }}
-      onCompleteRegistration={() => alert("Complete Registration clicked")}
+      onCompleteRegistration={() => {
+        // Advance to success screen (step 3) when registration is completed
+        setStep(3);
+        alert("Complete Registration clicked");
+      }}
       onFinish={() => alert("Finish clicked")}
     />
   );

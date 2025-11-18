@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   EnsOffChainRegisterModal,
   EnsOffChainRegisterModalProps,
@@ -27,16 +27,30 @@ const Template = (args: Partial<EnsOffChainRegisterModalProps>) => {
   const [profileComplete, setProfileComplete] = useState(
     args.profileComplete ?? false
   );
+  const stepRef = useRef(step);
+
+  // Update ref when step changes
+  useEffect(() => {
+    stepRef.current = step;
+  }, [step]);
 
   return (
     <EnsOffChainRegisterModal
+      key={step}
       step={step}
       name={name}
       profileComplete={profileComplete}
       onStepChange={setStep}
       onNameChange={setName}
       onProfileCompleteChange={setProfileComplete}
-      onRegister={() => alert("Register clicked")}
+      onRegister={() => {
+        // Advance to success screen (step 2) when register is clicked from step 0
+        const currentStep = stepRef.current;
+        if (currentStep === 0) {
+          setStep(2);
+        }
+        alert("Register clicked");
+      }}
       onCancel={() => alert("Cancel clicked")}
       onClose={() => alert("Close clicked")}
       onCompleteProfile={() => {
