@@ -1,6 +1,6 @@
 import { Card, ChainIcon, Icon } from "@/components/atoms";
 import { Text } from "@/components/atoms";
-import "./ENSNameCard.css";
+import "./EnsNameCard.css";
 import { ChainName } from "@/types";
 
 /**

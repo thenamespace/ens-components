@@ -32,10 +32,6 @@ let records: EnsRecords = {
   addresses: [],
 };
 
-const updateRecords = (_records: EnsRecords) => {
-  records = _records;
-};
-
 export default {
   title: "Components/EnsRecordsForm",
   component: EnsRecordsForm,
