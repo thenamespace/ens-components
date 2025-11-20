@@ -19,7 +19,7 @@ import {
   Edit,
   CopyIcon,
   Clock,
-  Image
+  Image,
 } from "lucide-react";
 import {
   DiscordIcon,
@@ -66,7 +66,7 @@ export type IconName =
   | "copy"
   | "clock"
   | "image"
-  | "xSocial"
+  | "xSocial";
 
 const icons: Record<IconName, IconComponent> = {
   person: User,

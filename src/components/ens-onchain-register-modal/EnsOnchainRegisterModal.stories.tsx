@@ -13,9 +13,7 @@ const meta: Meta<typeof EnsOnChainRegisterModal> = {
   },
 };
 export default meta;
-
 type Story = StoryObj<typeof EnsOnChainRegisterModal>;
-
 const Template = (args: Partial<EnsOnChainRegisterModalProps>) => {
   const [step, setStep] = useState(args.step ?? 0);
   const [name, setName] = useState(args.name ?? "");

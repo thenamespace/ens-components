@@ -32,7 +32,7 @@ export const supportedContenthashRecords: SupportedContenthashRecord[] = [
     protocol: ContenthashProtocol.Swarm,
     label: "SWARM",
     protocolPrefix: "bzz://",
-  }
+  },
 ];
 
 export const getSupportedChashByProtocol = (
@@ -49,7 +49,7 @@ export const isContenthashValid = (
     encode(protocol, value);
     return true;
   } catch (err) {
-    console.log(err, "ERR HERE")
+    console.log(err, "ERR HERE");
     return false;
   }
 };

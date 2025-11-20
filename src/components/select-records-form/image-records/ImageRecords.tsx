@@ -21,7 +21,7 @@ export const ImageRecords = ({
   onHeaderAdded,
 }: ImageRecordProps) => {
   // load avatar here
-  useEffect(() => { }, [avatar]);
+  useEffect(() => {}, [avatar]);
 
   let avatarStyles = {};
   if (avatar && avatar.length > 0) {
@@ -48,12 +48,16 @@ export const ImageRecords = ({
         <div className="ns-top-grad"></div>
         <div className="ns-bot-grad"></div>
         {!headerRecordSet && (
-          <div style={{zIndex: 10}} onClick={(e) => {
-            e.stopPropagation();
-            if (!headerRecordSet) {
-              onHeaderAdded("");
-            }
-          }} className="ns-header-handle">
+          <div
+            style={{ zIndex: 10 }}
+            onClick={e => {
+              e.stopPropagation();
+              if (!headerRecordSet) {
+                onHeaderAdded("");
+              }
+            }}
+            className="ns-header-handle"
+          >
             <Icon color="white" name="rotate-circle"></Icon>
           </div>
 
@@ -90,12 +94,16 @@ export const ImageRecords = ({
         )}
         <div style={avatarStyles} className="ns-avatar-record-cont">
           {!avatarRecordSet && (
-            <div style={{zIndex: 10}} onClick={(e) => {
-              e.stopPropagation();
-              if (!avatarRecordSet) {
-                onAvatarAdded("");
-              }
-            }} className="ns-image-handle">
+            <div
+              style={{ zIndex: 10 }}
+              onClick={e => {
+                e.stopPropagation();
+                if (!avatarRecordSet) {
+                  onAvatarAdded("");
+                }
+              }}
+              className="ns-image-handle"
+            >
               <Icon color="grey" name="rotate-circle"></Icon>
             </div>
             // We will allow this when we start supporting avatar uploads

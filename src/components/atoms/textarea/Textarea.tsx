@@ -4,7 +4,10 @@ import "./Textarea.css";
 export type TextareaSize = "sm" | "md" | "lg";
 
 export interface TextareaProps
-  extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "size" | "prefix"> {
+  extends Omit<
+    React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+    "size" | "prefix"
+  > {
   size?: TextareaSize;
   prefix?: React.ReactNode;
   suffix?: React.ReactNode;
@@ -64,4 +67,3 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
 Textarea.displayName = "Textarea";
 
 export default Textarea;
-

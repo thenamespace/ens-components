@@ -32,7 +32,9 @@ export const TextRecords = ({
   }, [texts]);
 
   const [lastAddedKey, setLastAddedKey] = useState<string | null>(null);
-  const inputRefs = useRef<Record<string, HTMLInputElement | HTMLTextAreaElement | null>>({});
+  const inputRefs = useRef<
+    Record<string, HTMLInputElement | HTMLTextAreaElement | null>
+  >({});
 
   useEffect(() => {
     if (lastAddedKey && inputRefs.current[lastAddedKey]) {
@@ -128,7 +130,9 @@ export const TextRecords = ({
                       inputRefs.current[record.key] = el;
                     }}
                     style={{ width: "100%", flex: 1, height: 70 }}
-                    onChange={e => handleTextChanged(record.key, e.target.value)}
+                    onChange={e =>
+                      handleTextChanged(record.key, e.target.value)
+                    }
                     prefix={<Icon name={record.icon} size={18} color="grey" />}
                     value={current.value}
                     placeholder={record.placeholder}
@@ -140,7 +144,9 @@ export const TextRecords = ({
                       inputRefs.current[record.key] = el;
                     }}
                     style={{ width: "100%" }}
-                    onChange={e => handleTextChanged(record.key, e.target.value)}
+                    onChange={e =>
+                      handleTextChanged(record.key, e.target.value)
+                    }
                     prefix={<Icon name={record.icon} size={18} color="grey" />}
                     value={current.value}
                     placeholder={record.placeholder}
