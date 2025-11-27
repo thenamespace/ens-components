@@ -1,10 +1,10 @@
 import React from "react";
 import ensBanner from "../../../assets/banner.png";
 import { Button, Text } from "../../atoms";
-import { StepItem } from "../../ens-names-register-component/sub-components/StepItem";
-import { ProgressBar } from "../../ens-names-register-component/sub-components/ProgressBar";
-import { Timer } from "../../ens-names-register-component/sub-components/Timer";
-import { Header } from "../../ens-names-register-component/sub-components/Header";
+import { StepItem } from "../../ens-names-registrar-component/sub-components/StepItem";
+import { ProgressBar } from "../../ens-names-registrar-component/sub-components/ProgressBar";
+import { Timer } from "../../ens-names-registrar-component/sub-components/Timer";
+import { Header } from "../../ens-names-registrar-component/sub-components/Header";
 
 interface OffchainRegistrationProcessProps {
   name: string;

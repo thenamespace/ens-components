@@ -225,6 +225,8 @@ export function RegistrationProcess({
   const isRegistrationInProgress = step === RegistrationStep.RegistrationSent;
   const isRegistrationCompleted = step === RegistrationStep.RegistrationCompleted;
 
+  const nameBeingRegistered = registrations.length > 0 ? registrations[0].label : "";
+
   return (
     <div className="ens-names-register-container">
       <div className="ens-names-register-card">
@@ -232,7 +234,7 @@ export function RegistrationProcess({
 
         <div className="ens-names-register-title-section">
           <Text size="xl" weight="bold" className="ens-names-register-title">
-            ENS Registration Process
+          {nameBeingRegistered}.eth
           </Text>
           <Text size="md" color="grey" className="ens-names-register-subtitle">
             Registration Consists of 3 Steps

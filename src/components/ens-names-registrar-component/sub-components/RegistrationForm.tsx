@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import ninjaLogo from "../../../assets/ninja.png";
 import { ChevronRight } from "lucide-react";
 import { Button, Input, Text, Icon } from "../../atoms";
@@ -43,32 +43,33 @@ export function RegistrationForm({
   nameAvailability = { isAvailable: false, isChecking: false },
   canProceed = false,
 }: RegistrationFormProps) {
+  const [isDurationExpanded, setIsDurationExpanded] = useState(false);
   const getSearchInputInfo = () => {
 
     if (ensName.length < 3 && ensName.length !== 0) {
       return (
         <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-          <Text size="sm" style={{ color: "#ff4444" }}>
+          <Text size="sm" style={{ color: "#000000" }}>
             Too short
           </Text>
-          <Icon size={15} name="x" color="#ff4444" />
+          <Icon size={15} name="x" color="#000000" />
         </div>
       );
     }
-    
+
     // Show unavailable if name is taken
     const isTaken = ensName.length >= 3 && !nameAvailability.isChecking && !nameAvailability.isAvailable;
     if (isTaken) {
       return (
         <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-          <Text size="sm" style={{ color: "#ff4444" }}>
+          <Text size="sm" style={{ color: "#000000" }}>
             Unavailable
           </Text>
-          <Icon size={15} name="x" color="#ff4444" />
+          <Icon size={15} name="x" color="#000000" />
         </div>
       );
     }
-    
+
     // Show available if name is available
     if (nameAvailability.isAvailable && ensName.length >= 3) {
       return (
@@ -80,7 +81,7 @@ export function RegistrationForm({
         </div>
       );
     }
-    
+
     return null;
   };
 
@@ -90,69 +91,61 @@ export function RegistrationForm({
         <Header showBack={true} onBack={onBack} onClose={onClose} />
 
         <div className="ens-names-register-title-section">
-          <Text size="xl" weight="bold" className="ens-names-register-title">
-            ENS Registration Registration
+          <Text size="xl" weight="light" className="ens-names-register-title">
+            ENS Registration
           </Text>
           <Text size="md" color="grey" className="ens-names-register-subtitle">
-            Register multiple ENS name is a single transaction
+            Your about to mint this ENS name
           </Text>
         </div>
 
-        <div className="ens-names-register-input-row">
-          <Icon
-            name="search"
-            size={16}
-            className="ens-names-register-search-icon"
-          />
-          <Input
-            type="text"
-            className="ens-names-register-input"
-            value={ensName}
-            onChange={e => onNameChange(e.target.value)}
-          />
-          <Text className="ens-names-register-domain-suffix">.eth</Text>
-        </div>
-        {getSearchInputInfo() && (
-          <div style={{ marginTop: "8px", marginBottom: "8px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            {getSearchInputInfo()}
+
+
+        {ensName && (
+          <div className="ens-names-register-name-display">
+            <Text size="xl" weight="bold">
+              {ensName}.eth
+            </Text>
           </div>
         )}
 
-        <div className="ens-names-register-cost-section">
-          <div className="ens-names-register-duration">
+        <div className="ens-names-register-duration-section">
+          <div className="ens-names-register-duration-controls">
             <button
               className="ens-names-register-duration-btn"
               onClick={() => onDurationChange(-1)}
+              disabled={duration <= 1}
             >
-              <Text size="md" weight="bold" style={{ color: "#ffffff" }}>
-                -
-              </Text>
+              <span style={{ fontSize: "20px", lineHeight: "1" }}>−</span>
             </button>
-            <Text
-              size="lg"
-              weight="bold"
+            <div
               className="ens-names-register-duration-text"
+              onClick={() => setIsDurationExpanded(!isDurationExpanded)}
             >
-              {duration} year{duration > 1 ? "s" : ""}
-            </Text>
+              <Text size="md" weight="medium">
+                {duration} year{duration !== 1 ? "s" : ""}
+              </Text>
+            </div>
             <button
               className="ens-names-register-duration-btn"
               onClick={() => onDurationChange(1)}
             >
-              <Text size="md" weight="bold" style={{ color: "#ffffff" }}>
-                +
-              </Text>
+              <span style={{ fontSize: "20px", lineHeight: "1" }}>+</span>
             </button>
           </div>
 
-          <CostSummary
-            duration={duration}
-            registrationCost={registrationCost}
-            networkFee={networkFee}
-            total={total}
-            isLoading={isLoadingPrice}
-            priceError={priceError}
-          />
+          {isDurationExpanded && (
+            <div className="ens-names-register-cost-breakdown">
+              <CostSummary
+                duration={duration}
+                registrationCost={registrationCost}
+                networkFee={networkFee}
+                total={total}
+                isLoading={isLoadingPrice}
+                priceError={priceError}
+              />
+            </div>
+          )}
         </div>
 
         <div
@@ -174,7 +167,7 @@ export function RegistrationForm({
             <ChevronRight size={20} />
           </button>
         </div>
-  
+
         <Button
           className="ens-names-register-next-btn"
           variant="solid"
@@ -182,7 +175,7 @@ export function RegistrationForm({
           onClick={onNext}
           disabled={!canProceed}
         >
-          Next 
+          Next
         </Button>
       </div>
     </div>

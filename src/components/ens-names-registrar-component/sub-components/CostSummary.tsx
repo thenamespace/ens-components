@@ -30,7 +30,7 @@ export function CostSummary({
         className={`ens-names-register-${showExpiry ? "success-" : ""}summary-row`}
       >
         <Text size="sm">{duration} year registration</Text>
-        <Text size="sm" weight="bold" style={priceError ? { color: "#ff4444" } : undefined}>
+        <Text size="sm" weight="bold" style={priceError ? { color: "#000000" } : undefined}>
           {isLoading ? (
             "Loading..."
           ) : priceError ? (
@@ -62,7 +62,7 @@ export function CostSummary({
               Loading...
             </Text>
           ) : priceError ? (
-            <Text size={showExpiry ? "md" : "lg"} weight="bold" style={{ color: "#ff4444" }}>
+            <Text size={showExpiry ? "md" : "lg"} weight="bold" style={{ color: "#000000" }}>
               Error
             </Text>
           ) : (

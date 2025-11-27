@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import "./EnsOffChainRegisterModal.css";
+import "./SubnameOffChainRegistrarModal.css";
 import { InitialStep } from "./sub-components/InitialStep";
 import { OffchainSuccessScreen } from "./sub-components/OffchainSuccessScreen";
 
-export interface EnsOffChainRegisterModalProps {
+export interface SubnameOffChainRegistrarModalProps {
   step?: number;
   name?: string;
   profileComplete?: boolean;
@@ -20,7 +20,7 @@ export interface EnsOffChainRegisterModalProps {
   onViewName?: () => void;
 }
 
-export function EnsOffChainRegisterModal({
+export function SubnameOffChainRegistrarModal({
   step: initialStep = 0,
   name: initialName = "",
   profileComplete = false,
@@ -35,7 +35,7 @@ export function EnsOffChainRegisterModal({
   onCompleteRegistration,
   onRegisterAnother,
   onViewName,
-}: EnsOffChainRegisterModalProps) {
+}: SubnameOffChainRegistrarModalProps) {
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [ensName, setEnsName] = useState(initialName);
 

@@ -7,9 +7,9 @@ export {
 export { ENSNameCard } from "./ens-names-card/EnsNameCard";
 export { ProfileCard } from "./ens-profile-card/ProfileCard";
 export { NavbarProfileCard } from "./ens-navbar-profile-card/NavbarProfileCard";
-export { EnsOnChainRegisterModal } from "./ens-onchain-register-modal/EnsOnChainRegisterModal";
-export { EnsOffChainRegisterModal } from "./ens-offchain-register-modal/EnsOffChainRegisterModal";
-export { ENSNamesRegisterComponent } from "./ens-names-register-component/ENSNamesRegisterComponent";
+export { SubnameOnChainRegistrarModal } from "./subname-onchain-registrar-modal/SubnameOnChainRegistrarModal";
+export { SubnameOffChainRegistrarModal } from "./subname-offchain-registrar-modal/SubnameOffChainRegistrarModal";
+export { ENSNamesRegistrarComponent } from "./ens-names-registrar-component/ENSNamesRegistrarComponent";
 export * from "./atoms";
 export * from "./molecules";
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles/index.css";
 import { EnsAddressRecord, EnsRecords, EnsTextRecord } from "@/types";
@@ -10,12 +10,12 @@ import { ConnectedPrincipalProvider } from "./context";
 
 import {
   ENSNameCard,
-  EnsOnChainRegisterModal,
-  EnsOffChainRegisterModal,
+  SubnameOnChainRegistrarModal,
+  SubnameOffChainRegistrarModal,
   Icon,
   Input,
   Text,
-  ENSNamesRegisterComponent,
+  ENSNamesRegistrarComponent,
   Button,
 } from "./components";
 import { ProfileCard } from "./components";
@@ -390,11 +390,11 @@ function TestApp() {
               </div>
 
               {activeModal === "onchain" && (
-                <EnsOnChainRegisterModal
+                <SubnameOnChainRegistrarModal
                   step={onchainStep}
                   name={onchainName}
                   profileComplete={onchainProfileComplete}
-                  domainSuffix="bitflip.eth"
+                  domainSuffix="namespace.eth"
                   onStepChange={setOnchainStep}
                   onNameChange={setOnchainName}
                   onProfileCompleteChange={setOnchainProfileComplete}
@@ -414,7 +414,7 @@ function TestApp() {
               )}
 
               {activeModal === "offchain" && (
-                <EnsOffChainRegisterModal
+                <SubnameOffChainRegistrarModal
                   step={offchainStep}
                   name={offchainName}
                   onStepChange={setOffchainStep}
@@ -448,7 +448,7 @@ function TestApp() {
 
               {activeModal === "ens-register" && (
                 <div className="ens-names-register-modal-wrapper">
-                  <ENSNamesRegisterComponent
+                  <ENSNamesRegistrarComponent
                     name="brightwave"
                     duration={1}
                     onNameChange={name => console.log("Name changed:", name)}

@@ -32,10 +32,10 @@ export function NameSearch({
     if (ensName.length < 3 && ensName.length !== 0) {
       return (
         <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-          <Text size="sm" style={{ color: "#ff4444" }}>
+          <Text size="sm" style={{ color: "#000000" }}>
             Too short
           </Text>
-          <Icon size={15} name="x" color="#ff4444" />
+          <Icon size={15} name="x" color="#000000" />
         </div>
       );
     }
@@ -43,10 +43,10 @@ export function NameSearch({
     if (isTaken) {
       return (
         <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-          <Text size="sm" style={{ color: "#ff4444" }}>
+          <Text size="sm" style={{ color: "#000000" }}>
             Unavailable
           </Text>
-          <Icon size={15} name="x" color="#ff4444" />
+          <Icon size={15} name="x" color="#000000" />
         </div>
       );
     }
@@ -75,11 +75,12 @@ export function NameSearch({
         </div>
 
         <div className="ens-names-register-title-section">
-          <Text size="xl" weight="bold" className="ens-names-register-title">
-            ENS Registration Registration
-          </Text>
+         
           <Text size="md" color="grey" className="ens-names-register-subtitle">
-            Register multiple ENS name is a single transaction
+            Register Your ENS Name
+          </Text>
+          <Text size="xl" weight="bold" className="ens-names-register-title">
+            {ensName}.eth
           </Text>
         </div>
 
@@ -95,11 +96,25 @@ export function NameSearch({
             value={ensName}
             onChange={e => onNameChange(e.target.value)}
           />
+          {ensName && ensName.length >= 3 && isAvailable && !isChecking && (
+            <div className="ens-names-register-checkmark available">
+              <Icon name="check-circle" size={12} color="#ffffff" />
+            </div>
+          )}
+          {ensName && ensName.length >= 3 && isTaken && !isChecking && (
+            <button
+              className="ens-names-register-clear-btn"
+              onClick={() => onNameChange("")}
+              type="button"
+            >
+              <Icon name="x" size={12} color="#ffffff" />
+            </button>
+          )}
           <Text className="ens-names-register-domain-suffix">.eth</Text>
         </div>
 
         {getSearchInputInfo() && (
-          <div style={{ marginTop: "8px", marginBottom: "8px", paddingLeft: "12px" }}>
+          <div style={{ marginBottom: "8px", paddingLeft: "12px" }}>
             {getSearchInputInfo()}
           </div>
         )}

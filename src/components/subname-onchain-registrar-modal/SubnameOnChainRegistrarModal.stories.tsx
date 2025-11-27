@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  EnsOnChainRegisterModal,
-  EnsOnChainRegisterModalProps,
-} from "./EnsOnChainRegisterModal";
+  SubnameOnChainRegistrarModal,
+  SubnameOnChainRegistrarModalProps,
+} from "./SubnameOnChainRegistrarModal";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta: Meta<typeof EnsOnChainRegisterModal> = {
-  title: "Modals/EnsOnChainRegisterModal",
-  component: EnsOnChainRegisterModal,
+const meta: Meta<typeof SubnameOnChainRegistrarModal> = {
+  title: "Modals/SubnameOnChainRegistrarModal",
+  component: SubnameOnChainRegistrarModal,
   parameters: {
     layout: "centered",
   },
 };
 export default meta;
-type Story = StoryObj<typeof EnsOnChainRegisterModal>;
-const Template = (args: Partial<EnsOnChainRegisterModalProps>) => {
+type Story = StoryObj<typeof SubnameOnChainRegistrarModal>;
+const Template = (args: Partial<SubnameOnChainRegistrarModalProps>) => {
   const [step, setStep] = useState(args.step ?? 0);
   const [name, setName] = useState(args.name ?? "");
   const [profileComplete, setProfileComplete] = useState(
@@ -31,7 +31,7 @@ const Template = (args: Partial<EnsOnChainRegisterModalProps>) => {
   }, [step]);
 
   return (
-    <EnsOnChainRegisterModal
+    <SubnameOnChainRegistrarModal
       key={step}
       step={step}
       name={name}
@@ -65,8 +65,8 @@ const Template = (args: Partial<EnsOnChainRegisterModalProps>) => {
         alert("Complete Profile clicked");
       }}
       onCompleteRegistration={() => {
-        // Advance to success screen (step 3) when registration is completed
-        setStep(3);
+        // Advance to success screen (step 2) when registration is completed
+        setStep(2);
         alert("Complete Registration clicked");
       }}
       onFinish={() => alert("Finish clicked")}
@@ -83,7 +83,7 @@ export const InitialStepWithSubname: Story = {
     <Template
       step={0}
       name=""
-      domainSuffix="bitflip.eth"
+      domainSuffix="namespace.eth"
       profileComplete={false}
     />
   ),
@@ -94,7 +94,7 @@ export const RegistrationStep: Story = {
     <Template
       step={1}
       name="magier"
-      domainSuffix="bitflip.eth"
+      domainSuffix="namespace.eth"
       profileComplete={false}
       owner="0x035eBd096AFa6b98372494C7f08f3402324117D3"
       duration={1}
@@ -107,34 +107,17 @@ export const RegistrationStepWithProfileComplete: Story = {
     <Template
       step={1}
       name="magier"
-      domainSuffix="bitflip.eth"
+      domainSuffix="namespace.eth"
       profileComplete={true}
       profileImageUrl="https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg"
       owner="0x035eBd096AFa6b98372494C7f08f3402324117D3"
       duration={1}
-    />
-  ),
-};
-
-export const ConfirmationStep: Story = {
-  render: () => (
-    <Template
-      step={2}
-      name="magier"
-      domainSuffix="bitflip.eth"
-      profileComplete={true}
-      profileImageUrl="https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg"
-      owner="0x035eBd096AFa6b98372494C7f08f3402324117D3"
-      duration={1}
-      registrationFee="0.004"
-      networkFee="0.0010"
-      totalCost="0.0014"
     />
   ),
 };
 
 export const SuccessScreen: Story = {
   render: () => (
-    <Template step={3} name="magier.bitflip.eth" profileComplete={true} />
+    <Template step={2} name="magier.namespace.eth" profileComplete={true} />
   ),
 };

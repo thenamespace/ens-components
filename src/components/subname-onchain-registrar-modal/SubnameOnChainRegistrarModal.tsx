@@ -1,11 +1,10 @@
-import React, { useState } from "react";
-import "./EnsOnChainRegisterModal.css";
+import { useState } from "react";
+import "./SubnameOnChainRegistrarModal.css";
 import { InitialStep } from "./sub-components/InitialStep";
 import { RegistrationStep } from "./sub-components/RegistrationStep";
-import { ConfirmationStep } from "./sub-components/ConfirmationStep";
 import { OnchainSuccessScreen } from "./sub-components/OnchainSuccessScreen";
 
-export interface EnsOnChainRegisterModalProps {
+export interface SubnameOnChainRegistrarModalProps {
   step?: number;
   name?: string;
   profileComplete?: boolean;
@@ -34,7 +33,7 @@ export interface EnsOnChainRegisterModalProps {
   onFinish?: () => void;
 }
 
-export function EnsOnChainRegisterModal({
+export function SubnameOnChainRegistrarModal({
   step: initialStep = 0,
   name: initialName = "",
   profileComplete = false,
@@ -61,7 +60,7 @@ export function EnsOnChainRegisterModal({
   onRegisterAnother,
   onViewName,
   onFinish,
-}: EnsOnChainRegisterModalProps) {
+}: SubnameOnChainRegistrarModalProps) {
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [ensName, setEnsName] = useState(initialName);
   const [owner, setOwner] = useState(initialOwner);
@@ -88,18 +87,11 @@ export function EnsOnChainRegisterModal({
     onUseAsPrimaryChange?.(value);
   };
 
-  const handleRegister = () => {
-    // Move to next step when register is clicked
+  const handleInitialRegister = () => {
+    // Move to registration step when register is clicked from InitialStep
     setCurrentStep(1);
     onStepChange?.(1);
     onRegister?.();
-  };
-
-  const handleFinalRegister = () => {
-    // Move to success screen when final register is clicked
-    setCurrentStep(3);
-    onStepChange?.(3);
-    onCompleteRegistration?.();
   };
 
   const handleFinish = () => {
@@ -107,20 +99,16 @@ export function EnsOnChainRegisterModal({
     onClose?.();
   };
 
-  const handleNext = () => {
-    // Move to confirmation step when Next is clicked (for subnames)
+  const handleRegister = () => {
+    // Move to success screen when register is clicked from RegistrationStep
     setCurrentStep(2);
     onStepChange?.(2);
+    onCompleteRegistration?.();
   };
 
   const handleBack = () => {
-    if (currentStep === 2) {
-      setCurrentStep(1);
-      onStepChange?.(1);
-    } else {
-      setCurrentStep(0);
-      onStepChange?.(0);
-    }
+    setCurrentStep(0);
+    onStepChange?.(0);
   };
 
   const handleCancel = () => {
@@ -135,7 +123,7 @@ export function EnsOnChainRegisterModal({
           name={ensName}
           onNameChange={handleNameChange}
           onCancel={handleCancel}
-          onRegister={handleRegister}
+          onRegister={handleInitialRegister}
           onClose={onClose}
           domainSuffix={domainSuffix}
         />
@@ -160,8 +148,7 @@ export function EnsOnChainRegisterModal({
           profileImageUrl={profileImageUrl}
           onBack={handleBack}
           onCancel={handleCancel}
-          onRegister={onRegister}
-          onNext={handleNext}
+          onRegister={handleRegister}
           onClose={onClose}
           onOwnerChange={handleOwnerChange}
           onDurationChange={handleDurationChange}
@@ -171,32 +158,9 @@ export function EnsOnChainRegisterModal({
       </div>
     );
   }
-  if (currentStep === 2) {
-    return (
-      <div className="ns-onchain-register-container">
-        <ConfirmationStep
-          name={ensName}
-          domainSuffix={domainSuffix}
-          owner={owner}
-          duration={duration}
-          registrationFee={registrationFee}
-          networkFee={networkFee}
-          totalCost={totalCost}
-          useAsPrimary={useAsPrimary}
-          profileComplete={profileComplete}
-          profileImageUrl={profileImageUrl}
-          onBack={handleBack}
-          onCancel={handleCancel}
-          onRegister={handleFinalRegister}
-          onClose={onClose}
-          onOwnerChange={handleOwnerChange}
-        />
-      </div>
-    );
-  }
 
-  // Success step (fourth screen)
-  if (currentStep === 3) {
+  // Success step (third screen)
+  if (currentStep === 2) {
     return (
       <div className="ns-onchain-register-container">
         <OnchainSuccessScreen
@@ -215,7 +179,7 @@ export function EnsOnChainRegisterModal({
         name={ensName}
         onNameChange={handleNameChange}
         onCancel={handleCancel}
-        onRegister={handleRegister}
+        onRegister={handleInitialRegister}
         onClose={onClose}
         domainSuffix={domainSuffix}
       />

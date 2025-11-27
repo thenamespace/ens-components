@@ -9,7 +9,6 @@ export interface InitialStepProps {
   onRegister: () => void;
   onClose?: () => void;
   isNameAvailable?: boolean;
-  domainSuffix?: string;
 }
 
 export function InitialStep({
@@ -19,11 +18,11 @@ export function InitialStep({
   onRegister,
   onClose,
   isNameAvailable,
-  domainSuffix = "eth",
 }: InitialStepProps) {
   const [nameAvailable, setNameAvailable] = useState<boolean | undefined>(
     isNameAvailable
   );
+  const domainSuffix = "particle.eth";
 
   // Extract the subname part (remove domain suffix if user typed it)
   const getSubnamePart = (inputName: string) => {
@@ -78,65 +77,65 @@ export function InitialStep({
   };
 
   return (
-    <div className="ns-onchain-register-card">
+    <div className="ns-offchain-register-card">
       {onClose && (
-        <button className="ns-onchain-register-close-btn" onClick={onClose}>
+        <button className="ns-offchain-register-close-btn" onClick={onClose}>
           <Icon name="x" size={20} />
         </button>
       )}
 
-      <div className="ns-onchain-register-banner">
+      <div className="ns-offchain-register-banner">
         <img src={ensBanner} alt="ENS Banner" />
       </div>
 
-      <div className="ns-onchain-register-header">
+      <div className="ns-offchain-register-header">
         <Text size="lg" weight="bold">
           Get your Web3 Username
         </Text>
       </div>
 
-      <div className="ns-onchain-register-input-row">
+      <div className="ns-offchain-register-input-row">
         <Icon
           name="search"
-          size={16}
-          className="ns-onchain-register-search-icon"
+          size={14}
+          className="ns-offchain-register-search-icon"
         />
         <Input
           type="text"
-          className="ns-onchain-register-input"
+          className="ns-offchain-register-input"
           placeholder="Find name"
           value={subnamePart}
           onChange={handleNameInputChange}
         />
         {subnamePart && available && (
-          <div className="ns-onchain-register-checkmark available">
-            <Icon name="check-circle" size={14} color="black" />
+          <div className="ns-offchain-register-checkmark available">
+            <Icon name="check-circle" size={12} color="#ffffff" />
           </div>
         )}
         {subnamePart && isUnavailable && (
           <button
-            className="ns-onchain-register-clear-btn"
+            className="ns-offchain-register-clear-btn"
             onClick={handleClear}
             type="button"
           >
-            <Icon name="x" size={14} color="#ffffff" />
+            <Icon name="x" size={12} color="#ffffff" />
           </button>
         )}
-        <Text className="ns-onchain-register-domain-suffix">
+        <Text className="ns-offchain-register-domain-suffix">
           .{domainSuffix}
         </Text>
       </div>
 
       {isUnavailable && (
-        <div className="ns-onchain-register-unavailable-message">
+        <div className="ns-offchain-register-unavailable-message">
           <Icon name="alert-triangle" size={14} />
-          <Text size="sm" className="ns-onchain-register-error-text">
+          <Text size="sm" className="ns-offchain-register-error-text">
             This name is unavailable. Please choose a different one.
           </Text>
         </div>
       )}
 
-      <div className="ns-onchain-register-actions">
+      <div className="ns-offchain-register-actions">
         <Button className="cancel" onClick={onCancel}>
           Cancel
         </Button>
@@ -154,11 +153,11 @@ export function InitialStep({
           }}
           disabled={!subnamePart || !!isUnavailable}
         >
-          {available ? "Next" : "Register"}
+          {subnamePart && available ? "Next" : "Register"}
         </Button>
       </div>
 
-      <div className="ns-onchain-register-footer">
+      <div className="ns-offchain-register-footer">
         <Text size="sm" color="grey">
           Powered by Namespace
         </Text>

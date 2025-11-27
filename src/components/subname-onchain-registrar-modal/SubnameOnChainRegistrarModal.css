@@ -12,6 +12,9 @@
   z-index: 1000;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Card */
@@ -20,12 +23,15 @@
   border-radius: 20px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  width: 420px;
-  max-width: 420px;
-  min-width: 420px;
+  width: 420px !important;
+  max-width: 420px !important;
+  min-width: 420px !important;
   text-align: center;
   animation: fadeIn 0.4s ease;
   position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: visible;
+  box-sizing: border-box;
 }
 
 /* Registration step card - specific alignments */
@@ -76,7 +82,7 @@
   background-color: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  padding: 12px;
+  padding: 8px 8px;
   margin-bottom: 12px;
   gap: 8px;
 }
@@ -112,7 +118,13 @@
 }
 
 .ns-onchain-register-checkmark.available {
-  background: transparent;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @keyframes scaleIn {
@@ -127,8 +139,8 @@
 }
 
 .ns-onchain-register-checkmark .ns-icon {
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
 }
 
 .ns-onchain-register-clear-btn {
@@ -190,12 +202,12 @@
 }
 
 .ns-onchain-register-domain-suffix {
-  color: #374151;
-  font-size: 16px;
+  color: #6b7280;
+  font-size: 14px;
   font-weight: 800;
-  padding-left: 8px;
+  padding-left: 12px;
   border-left: 1px solid #e5e7eb;
-  margin-left: 8px;
+  margin-left: 4px;
   white-space: nowrap;
 }
 
@@ -293,7 +305,7 @@
 /* Mint Title */
 .ns-onchain-register-mint-title {
   text-align: center;
-  margin-bottom: 6px;
+  margin-bottom: 16px;
 }
 
 /* Name Display */
@@ -304,7 +316,7 @@
 
 /* Owner Section */
 .ns-onchain-register-owner-section {
-  background: #f4f4f4;
+  background: #ffffff;
   border-radius: 10px;
   margin-bottom: 16px;
   overflow: hidden;
@@ -320,7 +332,7 @@
 }
 
 .ns-onchain-register-owner-header:hover {
-  background: #e8e8e8;
+  background: #f5f5f5;
 }
 
 .ns-onchain-register-owner-left {
@@ -365,15 +377,37 @@
   border-radius: 12px;
   padding: 14px;
   margin-bottom: 16px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .ns-onchain-register-duration-controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 0;
   padding: 2px;
   width: 100% !important;
+}
+
+.ns-onchain-register-duration-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s ease;
+}
+
+.ns-onchain-register-duration-text:hover {
+  opacity: 0.7;
+}
+
+.ns-onchain-register-duration-chevron {
+  display: flex;
+  align-items: center;
+  color: #6b7280;
+  transition: transform 0.2s ease;
 }
 
 .ns-onchain-register-card
@@ -408,6 +442,30 @@
 .ns-onchain-register-cost-breakdown {
   border-top: 1px solid #e5e7eb;
   padding-top: 14px;
+  margin-top: 16px;
+  max-height: 500px;
+  opacity: 1;
+  overflow: hidden;
+  animation: slideDown 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: max-height, opacity, transform;
+  transform-origin: top;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    margin-top: 0;
+    transform: translateY(-8px) scaleY(0.95);
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+    padding-top: 14px;
+    margin-top: 16px;
+    transform: translateY(0) scaleY(1);
+  }
 }
 
 .ns-onchain-register-cost-row {
@@ -557,19 +615,43 @@
   padding: 14px;
   margin-bottom: 16px;
   gap: 14px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.ns-onchain-register-toggle-text {
+.ns-onchain-register-toggle-content {
   flex: 1;
   text-align: left;
+  overflow: hidden;
 }
 
-.ns-onchain-register-toggle-text .ns-text:first-child {
-  margin-bottom: 8px;
+.ns-onchain-register-toggle-title {
+  display: block;
+  margin-bottom: 0;
 }
 
-.ns-onchain-register-toggle-text strong {
-  font-weight: 600;
+.ns-onchain-register-toggle-description {
+  margin-top: 8px;
+  max-height: 200px;
+  opacity: 1;
+  overflow: hidden;
+  animation: expandDescription 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: max-height, opacity;
+}
+
+@keyframes expandDescription {
+  from {
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    max-height: 200px;
+    margin-top: 8px;
+    transform: translateY(0);
+  }
 }
 
 /* Toggle Switch */
@@ -619,6 +701,13 @@
 /* Success Screen Styles */
 .ns-onchain-register-success {
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.ns-onchain-register-success > * {
+  position: relative;
+  z-index: 1;
 }
 
 .ns-onchain-register-success-title-section {
@@ -628,8 +717,18 @@
 
 .ns-onchain-register-success-message {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
   color: #333333;
+}
+
+.ns-onchain-register-success-name {
+  display: block;
+  color: #333333;
+  margin: 0;
+}
+
+.ns-onchain-register-success .ns-onchain-register-actions {
+  margin-top: 20px;
 }
 
 .ns-onchain-register-success-subtitle {

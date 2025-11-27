@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import "./ENSNamesRegisterComponent.css";
+import "./ENSNamesRegistrarComponent.css";
 import { NameSearch } from "./sub-components/NameSearch";
 import { RegistrationForm } from "./sub-components/RegistrationForm";
 import { RegistrationProcess } from "./sub-components/RegistrationProcess";
@@ -27,7 +27,7 @@ import { Address, Hash, toHex } from "viem";
 import { formatPrice, NameRegistration , EnsRegistrationSteps } from "@/utils/models";
 import { useAccount, useSwitchChain } from "wagmi";
 import { AppEnv } from "@/environment";
-export interface ENSNamesRegisterComponentProps {
+export interface ENSNamesRegistrarComponentProps {
   name?: string;
   duration?: number;
   onNameChange?: (name: string) => void;
@@ -42,7 +42,7 @@ export interface ENSNamesRegisterComponentProps {
   onViewName?: () => void;
 }
 
-export function ENSNamesRegisterComponent({
+export function ENSNamesRegistrarComponent({
   name = "brightwave",
   duration: initialDuration = 1,
   onNameChange,
@@ -55,7 +55,7 @@ export function ENSNamesRegisterComponent({
   onCompleteRegistration,
   onRegisterAnother,
   onViewName,
-}: ENSNamesRegisterComponentProps) {
+}: ENSNamesRegistrarComponentProps) {
   const [duration, setDuration] = useState(initialDuration);
   const [ensName, setEnsName] = useState(name);
   const [currentStep, setCurrentStep] = useState<EnsRegistrationSteps>(EnsRegistrationSteps.SelectNames);
@@ -79,7 +79,6 @@ export function ENSNamesRegisterComponent({
   const [timerSeconds, setTimerSeconds] = useState(60);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  const [remainingHours, setRemainingHours] = useState(23);
   const [registrations, setRegistrations] = useState<NameRegistration[]>([]);
   const [fetchedEthPrice, setFetchedEthPrice] = useState<number | null>(null);
   const [isLoadingPrice, setIsLoadingPrice] = useState(false);
@@ -494,4 +493,4 @@ export function ENSNamesRegisterComponent({
   );
 }
 
-export default ENSNamesRegisterComponent;
+export default ENSNamesRegistrarComponent;

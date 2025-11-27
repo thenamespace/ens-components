@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
 import ninjaLogo from "../../../assets/ninja.png";
 import { Button, Text, Icon, Input } from "../../atoms";
@@ -17,7 +17,6 @@ export interface RegistrationStepProps {
   onBack?: () => void;
   onCancel?: () => void;
   onRegister?: () => void;
-  onNext?: () => void;
   onClose?: () => void;
   onOwnerChange?: (owner: string) => void;
   onDurationChange?: (duration: number) => void;
@@ -39,7 +38,6 @@ export function RegistrationStep({
   onBack,
   onCancel,
   onRegister,
-  onNext,
   onClose,
   onOwnerChange,
   onDurationChange,
@@ -50,11 +48,26 @@ export function RegistrationStep({
   const [useAsPrimary, setUseAsPrimary] = useState(initialUseAsPrimary);
   const [ownerAddress, setOwnerAddress] = useState(owner);
   const [isOwnerExpanded, setIsOwnerExpanded] = useState(true);
+  const [isDurationExpanded, setIsDurationExpanded] = useState(false);
+  const costBreakdownRef = useRef<HTMLDivElement>(null);
 
   // Sync owner address with prop changes
   useEffect(() => {
     setOwnerAddress(owner);
   }, [owner]);
+
+  // Smooth scroll when cost breakdown expands
+  useEffect(() => {
+    if (isDurationExpanded && costBreakdownRef.current) {
+      // Small delay to ensure animation starts
+      setTimeout(() => {
+        costBreakdownRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
+      }, 100);
+    }
+  }, [isDurationExpanded]);
 
   const handleDurationDecrease = () => {
     if (duration > 1) {
@@ -88,7 +101,6 @@ export function RegistrationStep({
   };
 
   const fullName = name.includes(".") ? name : `${name}.${domainSuffix}`;
-  const isSubname = domainSuffix.includes(".");
 
   return (
     <div className="ns-onchain-register-card">
@@ -154,9 +166,14 @@ export function RegistrationStep({
           >
             <span style={{ fontSize: "20px", lineHeight: "1" }}>−</span>
           </button>
-          <Text size="md" weight="medium">
-            {duration} year{duration !== 1 ? "s" : ""}
-          </Text>
+          <div
+            className="ns-onchain-register-duration-text"
+            onClick={() => setIsDurationExpanded(!isDurationExpanded)}
+          >
+            <Text size="md" weight="medium">
+              {duration} year{duration !== 1 ? "s" : ""}
+            </Text>
+          </div>
           <button
             className="ns-onchain-register-duration-btn"
             onClick={handleDurationIncrease}
@@ -165,38 +182,43 @@ export function RegistrationStep({
           </button>
         </div>
 
-        <div className="ns-onchain-register-cost-breakdown">
-          <div className="ns-onchain-register-cost-row">
-            <Text size="sm" color="grey">
-              {duration} year registration
-            </Text>
-            <Text size="sm" weight="medium">
-              {registrationFee} ETH
-            </Text>
-          </div>
-          <div className="ns-onchain-register-cost-row">
-            <Text size="sm" color="grey">
-              Est. network fee
-            </Text>
-            <Text size="sm" weight="medium">
-              {networkFee} ETH
-            </Text>
-          </div>
-          <div className="ns-onchain-register-cost-row total">
-            <Text size="md" weight="bold">
-              Total
-            </Text>
-            <div className="ns-onchain-register-total-cost">
-              <Text size="md" weight="bold">
-                {totalCost}
+        {isDurationExpanded && (
+          <div
+            ref={costBreakdownRef}
+            className="ns-onchain-register-cost-breakdown"
+          >
+            <div className="ns-onchain-register-cost-row">
+              <Text size="sm" color="grey">
+                {duration} year registration
               </Text>
-              <span style={{ fontSize: "14px", color: "#3b82f6" }}>Ξ</span>
               <Text size="sm" weight="medium">
-                ETH
+                {registrationFee} ETH
               </Text>
             </div>
+            <div className="ns-onchain-register-cost-row">
+              <Text size="sm" color="grey">
+                Est. network fee
+              </Text>
+              <Text size="sm" weight="medium">
+                {networkFee} ETH
+              </Text>
+            </div>
+            <div className="ns-onchain-register-cost-row total">
+              <Text size="md" weight="bold">
+                Total
+              </Text>
+              <div className="ns-onchain-register-total-cost">
+                <Text size="md" weight="bold">
+                  {totalCost}
+                </Text>
+                <span style={{ fontSize: "14px", color: "#3b82f6" }}>Ξ</span>
+                <Text size="sm" weight="medium">
+                  ETH
+                </Text>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Profile Section */}
@@ -247,22 +269,24 @@ export function RegistrationStep({
 
       {/* Use as Primary Name Section */}
       <div className="ns-onchain-register-toggle">
-        <div className="ns-onchain-register-toggle-text">
-          <Text size="md" weight="bold">
+        <div className="ns-onchain-register-toggle-content">
+          <Text size="md" weight="bold" className="ns-onchain-register-toggle-title">
             Use as primary name
           </Text>
-          <div style={{ marginTop: "8px" }}>
-            <Text size="sm" color="grey">
-              This links your address to this name, allowing dApps to display it
-              as your profile when connected to them. You can only have{" "}
-            </Text>
-            <Text size="sm" color="grey" weight="bold">
-              one primary name per address
-            </Text>
-            <Text size="sm" color="grey">
-              .
-            </Text>
-          </div>
+          {useAsPrimary && (
+            <div className="ns-onchain-register-toggle-description">
+              <Text size="sm" color="grey">
+                This links your address to this name, allowing dApps to display it
+                as your profile when connected to them. You can only have{" "}
+              </Text>
+              <Text size="sm" color="grey" weight="bold">
+                one primary name per address
+              </Text>
+              <Text size="sm" color="grey">
+                .
+              </Text>
+            </div>
+          )}
         </div>
         <div className="toggle-switch">
           <input
@@ -282,9 +306,9 @@ export function RegistrationStep({
         </Button>
         <Button
           className="primary"
-          onClick={isSubname && onNext ? onNext : onRegister}
+          onClick={onRegister}
         >
-          {isSubname ? "Next" : "Register"}
+          Register
         </Button>
       </div>
     </div>
