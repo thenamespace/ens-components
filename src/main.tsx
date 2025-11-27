@@ -3,9 +3,10 @@ import { createRoot } from "react-dom/client";
 import "./styles/index.css";
 import { EnsAddressRecord, EnsRecords, EnsTextRecord } from "@/types";
 import { zeroAddress } from "viem";
-import { WalletConnect } from "./wallet-connect";
-
-import { mainnet } from "viem/chains";
+import "@rainbow-me/rainbowkit/styles.css";
+import { WalletConnectProvider } from "./web3/wallet-connect";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ConnectedPrincipalProvider } from "./context";
 
 import {
   ENSNameCard,
@@ -185,11 +186,6 @@ const _addrs: EnsAddressRecord[] = [
     value: zeroAddress,
   },
 ];
-
-const SEPOLIA_PUB_RES = "0x0dcD506D1Be162E50A2b434028A9a148F2686444";
-const ENS_NAME = "artii.eth";
-const NAME_CHAIN_ID = mainnet.id;
-
 function TestApp() {
   const [records, setRecords] = useState<EnsRecords>({
     texts: [..._texts],
@@ -285,7 +281,8 @@ function TestApp() {
         <div className="ns-navbar-left">
           <Input size="lg" placeholder="Search ENS, addresses, txns..." />
         </div>
-        <div className="ns-navbar-right">
+        <div className="ns-navbar-right" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <ConnectButton />
           <NavbarProfileCard
             imageUrl="https://avatars.githubusercontent.com/u/123456?v=4"
             name="thecap.eth"
@@ -334,8 +331,9 @@ function TestApp() {
   const [activeModal, setActiveModal] = useState<string | null>(null);
   return (
     <div>
-      <WalletConnect>
-        <div className="ns-layout">
+      <WalletConnectProvider>
+        <ConnectedPrincipalProvider>
+          <div className="ns-layout">
           <div className="ns-body">
             <aside className="ns-sidebar">
               <Sidebar />
@@ -351,33 +349,44 @@ function TestApp() {
               <div
                 style={{
                   display: "flex",
+                  flexDirection: "column",
                   gap: "20px",
                   padding: "20px",
                   alignItems: "center",
                   justifyContent: "center",
                 }}
               >
-                <Button
-                  className="primary"
-                  onClick={() => setActiveModal("onchain")}
-                  style={{ minWidth: "150px" }}
-                >
-                  On-Chain Mint
-                </Button>
-                <Button
-                  className="primary"
-                  onClick={() => setActiveModal("offchain")}
-                  style={{ minWidth: "150px" }}
-                >
-                  Off-Chain Mint
-                </Button>
-                <Button
-                  className="primary"
-                  onClick={() => setActiveModal("ens-register")}
-                  style={{ minWidth: "150px" }}
-                >
-                  ENS Register
-                </Button>
+                <div style={{ 
+                  display: "flex", 
+                  gap: "20px", 
+                  alignItems: "center",
+                  marginBottom: "20px"
+                }}>
+                  <ConnectButton />
+                </div>
+                <div style={{ display: "flex", gap: "20px" }}>
+                  <Button
+                    className="primary"
+                    onClick={() => setActiveModal("onchain")}
+                    style={{ minWidth: "150px" }}
+                  >
+                    On-Chain Mint
+                  </Button>
+                  <Button
+                    className="primary"
+                    onClick={() => setActiveModal("offchain")}
+                    style={{ minWidth: "150px" }}
+                  >
+                    Off-Chain Mint
+                  </Button>
+                  <Button
+                    className="primary"
+                    onClick={() => setActiveModal("ens-register")}
+                    style={{ minWidth: "150px" }}
+                  >
+                    ENS Register
+                  </Button>
+                </div>
               </div>
 
               {activeModal === "onchain" && (
@@ -470,7 +479,8 @@ function TestApp() {
             </div>
           </div>
         </div>
-      </WalletConnect>
+        </ConnectedPrincipalProvider>
+      </WalletConnectProvider>
     </div>
   );
 }

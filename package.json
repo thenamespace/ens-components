@@ -12,14 +12,20 @@
     "**/*.css"
   ],
   "peerDependencies": {
-    "@ensdomains/address-encoder": "^1.1.4",
-    "@ensdomains/content-hash": "^3.0.0",
+    "@ensdomains/address-encoder": "1.1.4",
+    "@ensdomains/content-hash": "3.0.0",
+    "@ensdomains/ensjs": "^4.0.2",
+    "ethereum-identity-kit": "^0.2.39",
     "@tanstack/react-query": "^5.87.0",
+    "@namespacesdk/addresses": "^1.0.15",
+    "@namespacesdk/indexer": "^1.0.1",
+    "@namespacesdk/mint-manager": "^1.0.15",
     "lucide-react": ">=0.525.0",
     "react": ">=18",
     "react-dom": ">=18",
     "viem": "^2.36.0",
-    "wagmi": "^2.16.8"
+    "wagmi": "^2.16.8",
+    "alchemy-sdk": "^3.6.0"
   },
   "exports": {
     ".": {

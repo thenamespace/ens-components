@@ -1,5 +1,4 @@
 import React from "react";
-import ensBanner from "../../../assets/banner.png";
 import ninjaLogo from "../../../assets/ninja.png";
 import { ChevronRight } from "lucide-react";
 import { Button, Input, Text, Icon } from "../../atoms";
@@ -18,6 +17,13 @@ interface RegistrationFormProps {
   onClose?: () => void;
   onNext: () => void;
   onCompleteProfile?: () => void;
+  isLoadingPrice?: boolean;
+  priceError?: string | null;
+  nameAvailability?: {
+    isAvailable: boolean;
+    isChecking: boolean;
+  };
+  canProceed?: boolean;
 }
 
 export function RegistrationForm({
@@ -32,7 +38,52 @@ export function RegistrationForm({
   onClose,
   onNext,
   onCompleteProfile,
+  isLoadingPrice = false,
+  priceError = null,
+  nameAvailability = { isAvailable: false, isChecking: false },
+  canProceed = false,
 }: RegistrationFormProps) {
+  const getSearchInputInfo = () => {
+
+    if (ensName.length < 3 && ensName.length !== 0) {
+      return (
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <Text size="sm" style={{ color: "#ff4444" }}>
+            Too short
+          </Text>
+          <Icon size={15} name="x" color="#ff4444" />
+        </div>
+      );
+    }
+    
+    // Show unavailable if name is taken
+    const isTaken = ensName.length >= 3 && !nameAvailability.isChecking && !nameAvailability.isAvailable;
+    if (isTaken) {
+      return (
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <Text size="sm" style={{ color: "#ff4444" }}>
+            Unavailable
+          </Text>
+          <Icon size={15} name="x" color="#ff4444" />
+        </div>
+      );
+    }
+    
+    // Show available if name is available
+    if (nameAvailability.isAvailable && ensName.length >= 3) {
+      return (
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <Text size="sm" style={{ color: "#22c55e" }}>
+            Yes, this name is Available
+          </Text>
+          <Icon size={15} name="check-circle" color="#22c55e" />
+        </div>
+      );
+    }
+    
+    return null;
+  };
+
   return (
     <div className="ens-names-register-container">
       <div className="ens-names-register-card">
@@ -61,6 +112,11 @@ export function RegistrationForm({
           />
           <Text className="ens-names-register-domain-suffix">.eth</Text>
         </div>
+        {getSearchInputInfo() && (
+          <div style={{ marginTop: "8px", marginBottom: "8px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {getSearchInputInfo()}
+          </div>
+        )}
 
         <div className="ens-names-register-cost-section">
           <div className="ens-names-register-duration">
@@ -68,7 +124,7 @@ export function RegistrationForm({
               className="ens-names-register-duration-btn"
               onClick={() => onDurationChange(-1)}
             >
-              <Text size="md" weight="bold">
+              <Text size="md" weight="bold" style={{ color: "#ffffff" }}>
                 -
               </Text>
             </button>
@@ -83,7 +139,7 @@ export function RegistrationForm({
               className="ens-names-register-duration-btn"
               onClick={() => onDurationChange(1)}
             >
-              <Text size="md" weight="bold">
+              <Text size="md" weight="bold" style={{ color: "#ffffff" }}>
                 +
               </Text>
             </button>
@@ -94,6 +150,8 @@ export function RegistrationForm({
             registrationCost={registrationCost}
             networkFee={networkFee}
             total={total}
+            isLoading={isLoadingPrice}
+            priceError={priceError}
           />
         </div>
 
@@ -116,14 +174,15 @@ export function RegistrationForm({
             <ChevronRight size={20} />
           </button>
         </div>
-
+  
         <Button
           className="ens-names-register-next-btn"
           variant="solid"
           size="lg"
           onClick={onNext}
+          disabled={!canProceed}
         >
-          Next
+          Next 
         </Button>
       </div>
     </div>

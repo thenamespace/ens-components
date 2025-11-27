@@ -9,6 +9,9 @@ interface NameSearchProps {
   onBack?: () => void;
   onClose?: () => void;
   onNext: () => void;
+  isChecking?: boolean;
+  isAvailable?: boolean;
+  isTaken?: boolean;
 }
 
 export function NameSearch({
@@ -17,7 +20,51 @@ export function NameSearch({
   onBack,
   onClose,
   onNext,
+  isChecking = false,
+  isAvailable = false,
+  isTaken = false,
 }: NameSearchProps) {
+  const getSearchInputInfo = () => {
+    if (isChecking) {
+      return <Text size="sm" color="grey">Checking...</Text>;
+    }
+    
+    if (ensName.length < 3 && ensName.length !== 0) {
+      return (
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <Text size="sm" style={{ color: "#ff4444" }}>
+            Too short
+          </Text>
+          <Icon size={15} name="x" color="#ff4444" />
+        </div>
+      );
+    }
+    
+    if (isTaken) {
+      return (
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <Text size="sm" style={{ color: "#ff4444" }}>
+            Unavailable
+          </Text>
+          <Icon size={15} name="x" color="#ff4444" />
+        </div>
+      );
+    }
+    
+    if (isAvailable && ensName.length >= 3) {
+      return (
+        <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+          <Text size="sm" style={{ color: "black" }}>
+            Yes, this name is Available
+          </Text>
+          <Icon size={15} name="check-circle" color="black" />
+        </div>
+      );
+    }
+    
+    return null;
+  };
+
   return (
     <div className="ens-names-register-container">
       <div className="ens-names-register-card">
@@ -51,13 +98,20 @@ export function NameSearch({
           <Text className="ens-names-register-domain-suffix">.eth</Text>
         </div>
 
+        {getSearchInputInfo() && (
+          <div style={{ marginTop: "8px", marginBottom: "8px", paddingLeft: "12px" }}>
+            {getSearchInputInfo()}
+          </div>
+        )}
+
         <Button
           className="ens-names-register-next-btn"
           variant="solid"
           size="lg"
           onClick={onNext}
+          disabled={isChecking || isTaken || ensName.length < 3 || !isAvailable}
         >
-          Next
+          Next 
         </Button>
       </div>
     </div>

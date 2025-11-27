@@ -8,6 +8,8 @@ interface CostSummaryProps {
   total: number;
   showExpiry?: boolean;
   expiryDate?: string;
+  isLoading?: boolean;
+  priceError?: string | null;
 }
 
 export function CostSummary({
@@ -17,6 +19,8 @@ export function CostSummary({
   total,
   showExpiry = false,
   expiryDate,
+  isLoading = false,
+  priceError = null,
 }: CostSummaryProps) {
   return (
     <div
@@ -26,8 +30,14 @@ export function CostSummary({
         className={`ens-names-register-${showExpiry ? "success-" : ""}summary-row`}
       >
         <Text size="sm">{duration} year registration</Text>
-        <Text size="sm" weight="bold">
-          {registrationCost.toFixed(3)} ETH
+        <Text size="sm" weight="bold" style={priceError ? { color: "#ff4444" } : undefined}>
+          {isLoading ? (
+            "Loading..."
+          ) : priceError ? (
+            "Error"
+          ) : (
+            `${registrationCost.toFixed(4)} ETH`
+          )}
         </Text>
       </div>
       <div
@@ -47,13 +57,25 @@ export function CostSummary({
         <div
           className={`ens-names-register-${showExpiry ? "success-" : ""}total-amount`}
         >
-          <Text size={showExpiry ? "md" : "lg"} weight="bold">
-            {total.toFixed(4)}
-          </Text>
-          <span className="ens-names-register-eth-logo">⟠</span>
-          <Text size={showExpiry ? "md" : "lg"} weight="bold">
-            ETH
-          </Text>
+          {isLoading ? (
+            <Text size={showExpiry ? "md" : "lg"} weight="bold">
+              Loading...
+            </Text>
+          ) : priceError ? (
+            <Text size={showExpiry ? "md" : "lg"} weight="bold" style={{ color: "#ff4444" }}>
+              Error
+            </Text>
+          ) : (
+            <>
+              <Text size={showExpiry ? "md" : "lg"} weight="bold">
+                {total.toFixed(4)}
+              </Text>
+              <span className="ens-names-register-eth-logo">⟠</span>
+              <Text size={showExpiry ? "md" : "lg"} weight="bold">
+                ETH
+              </Text>
+            </>
+          )}
         </div>
       </div>
       {showExpiry && expiryDate && (

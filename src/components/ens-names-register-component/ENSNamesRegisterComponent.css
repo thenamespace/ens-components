@@ -184,6 +184,10 @@
   background-color: #333333;
 }
 
+.ens-names-register-duration-btn .ns-text {
+  color: #ffffff !important;
+}
+
 .ens-names-register-duration-text {
   color: #222222;
   flex: 1;
