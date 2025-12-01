@@ -282,9 +282,7 @@ export function RegistrationStep({
               <Text size="sm" color="grey" weight="bold">
                 one primary name per address
               </Text>
-              <Text size="sm" color="grey">
-                .
-              </Text>
+
             </div>
           )}
         </div>

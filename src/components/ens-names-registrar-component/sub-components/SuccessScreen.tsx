@@ -28,18 +28,19 @@ export function SuccessScreen({
   onRegisterAnother,
   onViewName,
 }: SuccessScreenProps) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [cardSize, setCardSize] = useState({
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerSize, setContainerSize] = useState({
     width: 0,
     height: 0,
   });
 
   useEffect(() => {
     const updateSize = () => {
-      if (cardRef.current) {
-        setCardSize({
-          width: cardRef.current.offsetWidth,
-          height: cardRef.current.offsetHeight,
+      if (containerRef.current) {
+        // Use full viewport dimensions for confetti to cover entire modal
+        setContainerSize({
+          width: window.innerWidth,
+          height: window.innerHeight,
         });
       }
     };
@@ -50,79 +51,77 @@ export function SuccessScreen({
   }, []);
 
   return (
-    <div className="ens-names-register-container">
-      <div
-        ref={cardRef}
-        className="ens-names-register-card ens-names-register-success-card"
-        style={{ position: "relative", overflow: "hidden" }}
-      >
-        {cardSize.width > 0 && cardSize.height > 0 && (
-          <Confetti
-            width={cardSize.width}
-            height={cardSize.height}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              zIndex: 0,
-              pointerEvents: "none",
-            }}
+    <div
+      ref={containerRef}
+      className="ens-names-register-container"
+      style={{ position: "relative", overflow: "hidden", minHeight: "100vh" }}
+    >
+      {containerSize.width > 0 && containerSize.height > 0 && (
+        <Confetti
+          width={containerSize.width}
+          height={containerSize.height}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      <div className="ens-names-register-card ens-names-register-success-card" style={{ position: "relative", zIndex: 1 }}>
+        <Header showBack={false} showClose={false} />
+
+        <div className="ens-names-register-success-illustration">
+          <img src={finishLogo} alt="Success Illustration" />
+        </div>
+
+        <div className="ens-names-register-success-title-section">
+          <Text
+            size="lg"
+            weight="bold"
+            className="ens-names-register-success-message"
+          >
+            Hooray! You've registered
+          </Text>
+          <Text
+            size="xl"
+            weight="bold"
+            className="ens-names-register-success-name"
+          >
+            {ensName}.eth
+          </Text>
+        </div>
+
+        <div className="ens-names-register-success-summary">
+          <CostSummary
+            duration={duration}
+            registrationCost={registrationCost}
+            networkFee={networkFee}
+            total={total}
+            showExpiry={true}
+            expiryDate={expiryDate}
           />
-        )}
+        </div>
 
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <Header showBack={false} showClose={false} />
-
-          <div className="ens-names-register-success-illustration">
-            <img src={finishLogo} alt="Success Illustration" />
-          </div>
-
-          <div className="ens-names-register-success-title-section">
-            <Text
-              size="lg"
-              weight="bold"
-              className="ens-names-register-success-message"
-            >
-              Hooray! You've registered
-            </Text>
-            <Text
-              size="xl"
-              weight="bold"
-              className="ens-names-register-success-name"
-            >
-              {ensName}.eth
-            </Text>
-          </div>
-
-          <div className="ens-names-register-success-summary">
-            <CostSummary
-              duration={duration}
-              registrationCost={registrationCost}
-              networkFee={networkFee}
-              total={total}
-              showExpiry={true}
-              expiryDate={expiryDate}
-            />
-          </div>
-
-          <div className="ens-names-register-success-actions">
-            <Button
-              className="ens-names-register-register-another-btn"
-              variant="outline"
-              size="lg"
-              onClick={onRegisterAnother}
-            >
-              Register another
-            </Button>
-            <Button
-              className="ens-names-register-view-name-btn"
-              variant="solid"
-              size="lg"
-              onClick={onViewName}
-            >
-              View Name
-            </Button>
-          </div>
+        <div className="ens-names-register-success-actions">
+          <Button
+            className="ens-names-register-register-another-btn"
+            variant="outline"
+            size="lg"
+            onClick={onRegisterAnother}
+          >
+            Register another
+          </Button>
+          <Button
+            className="ens-names-register-view-name-btn"
+            variant="solid"
+            size="lg"
+            onClick={onViewName}
+          >
+            View Name
+          </Button>
         </div>
       </div>
     </div>

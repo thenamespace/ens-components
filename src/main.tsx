@@ -449,7 +449,7 @@ function TestApp() {
               {activeModal === "ens-register" && (
                 <div className="ens-names-register-modal-wrapper">
                   <ENSNamesRegistrarComponent
-                    name="brightwave"
+                    name=""
                     duration={1}
                     onNameChange={name => console.log("Name changed:", name)}
                     onDurationChange={duration =>
