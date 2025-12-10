@@ -12,9 +12,15 @@
     "**/*.css"
   ],
   "peerDependencies": {
-    "@ensdomains/address-encoder": "^1.1.4",
-    "@ensdomains/content-hash": "^3.0.0",
+    "@ensdomains/address-encoder": "1.1.4",
+    "@ensdomains/content-hash": "3.0.0",
+    "@ensdomains/ensjs": "^4.0.2",
+    "@namespacesdk/addresses": "^1.0.15",
+    "@namespacesdk/indexer": "^1.0.1",
+    "@namespacesdk/mint-manager": "^1.0.15",
     "@tanstack/react-query": "^5.87.0",
+    "alchemy-sdk": "^3.6.0",
+    "ethereum-identity-kit": "^0.2.39",
     "lucide-react": ">=0.525.0",
     "react": ">=18",
     "react-dom": ">=18",
@@ -84,6 +90,7 @@
     "prettier": "^3.6.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-easy-crop": "^5.5.6",
     "rimraf": "^6.0.1",
     "rollup": "^4.50.1",
     "rollup-plugin-dts": "^6.2.3",
@@ -93,5 +100,8 @@
     "typescript": "^5.9.2",
     "vite": "^6.3.5",
     "vite-tsconfig-paths": "^5.1.4"
+  },
+  "dependencies": {
+    "react-confetti": "^6.4.0"
   }
 }
