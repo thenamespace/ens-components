@@ -284,7 +284,7 @@ export const ListingFormContextProvider = ({
       let _isEqual = true
       const _listingFormData = convertListingToFormData(existingListings)
       _isEqual = _isEqual && isEqual(formState, _listingFormData)
-      _isEqual = _isEqual && equalsIgnoreCase(existingListings.paymentWallet, paymentWallet)
+      _isEqual = _isEqual && equalsIgnoreCase(existingListings.paymentWallet,paymentWallet ? paymentWallet : "")
 
       if (formState.listingType === ListingType.L2 && existingListings.l2Metadata) {
         const meta = existingListings.l2Metadata;

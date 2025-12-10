@@ -27,6 +27,7 @@ import {
   mainnet,
   celo,
 } from "viem/chains";
+import { IconName } from "@/components";
 
 export interface SupportedEnsAddress {
   validateFunc?: (value: string) => boolean;
@@ -169,7 +170,16 @@ export const getSupportedAddressByName = (
 ): SupportedEnsAddress | undefined => {
   return supportedAddresses.find(addr => addr.chainName === name);
 };
-
+export type TextCategory = "profile" | "social";
+export interface SupportedText {
+  iconUrl: string ;
+  key: string;
+  category: TextCategory;
+  label: string;
+  placeholder: string;
+  iconName?: IconName;
+  hidden?: boolean;
+}
 
 export const SupportedTexts: SupportedText[] = [
   {
@@ -259,7 +269,7 @@ export const SupportedTexts: SupportedText[] = [
     iconUrl: warpcastIcon,
     label: "Farcaster",
     placeholder: "ex. johndoe",
-    iconName: "warpcast"
+    iconName: "globe"
   },
   {
     key: "com.youtube",

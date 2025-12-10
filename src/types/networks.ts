@@ -1,6 +1,5 @@
 import { baseSepolia, sepolia } from "viem/chains";
 import { ListingNetwork } from "./list-manager";
-import { List } from "antd";
 
 export type Web3Network = "mainnet" | "sepolia";
 export type Layer2Network = "base" | "baseSepolia" | "optimism"

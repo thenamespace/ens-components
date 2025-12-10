@@ -5,8 +5,10 @@ import { useEnsFullNameProfile } from "@/hooks/ens/use-ens-name-profile";
 import {
   EnsAddressRecord,
   EnsContenthashRecord,
+  EnsContenthashRecordDecoded,
   EnsNameOwner,
   EnsRecords,
+  EnsRecordsDecoded,
   EnsTextRecord,
   GenericMintedName,
   IEnsNameFullProfile,
@@ -53,11 +55,7 @@ const defaultFilter: SubnamesFilter = {
 
 interface EnsProfileState {
   ensName: string;
-  ensRecords: {
-    texts: EnsTextRecord[];
-    addresses: EnsAddressRecord[];
-    contenthash?: EnsContenthashRecord;
-  };
+  ensRecords: EnsRecordsDecoded;
   ownership: EnsNameOwner;
   isFetching: boolean;
   subnames: GenericMintedName[];
@@ -94,7 +92,7 @@ const defaultContext: EnsProfileContext = {
   ensRecords: {
     addresses: [],
     texts: [],
-  },
+  } as EnsRecordsDecoded,
   isFetching: true,
   ownership: {
     address: zeroAddress,
@@ -242,9 +240,22 @@ export const EnsProfileContextProvider = ({
     }
   }, [networkName, ensName])
 
+  const convertRecordsToDecoded = (records: EnsRecords): EnsRecordsDecoded => {
+    return {
+      texts: records.texts,
+      addresses: records.addresses,
+      contenthash: records.contenthash
+        ? {
+            decoded: records.contenthash.value,
+            protocolType: records.contenthash.protocol,
+          }
+        : undefined,
+    };
+  };
+
   const handleRecordsUpdated = (ensRecords: EnsRecords) => {
     const _ctx = { ...ensProfile };
-    _ctx.records = ensRecords;
+    _ctx.records = convertRecordsToDecoded(ensRecords);
     setProfileToCache(ensName, networkName, _ctx);
     setEnsProfile(_ctx);
   };
