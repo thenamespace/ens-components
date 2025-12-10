@@ -1,19 +1,27 @@
 import React from "react";
-import { Sparkles } from "lucide-react";
+import starImage from "../../../assets/star.png";
 
 interface ProgressBarProps {
   progress: number;
 }
 
 export function ProgressBar({ progress }: ProgressBarProps) {
+  const progressPercent = Math.min(Math.max(progress, 0), 100);
+
   return (
     <div className="ens-names-register-progress-container">
       <div className="ens-names-register-progress-bar">
         <div
           className="ens-names-register-progress-fill"
-          style={{ width: `${Math.min(progress, 100)}%` }}
+          style={{ width: `${progressPercent}%` }}
         >
-          <Sparkles size={25} className="ens-names-register-progress-sparkle" />
+          <div className="ens-names-register-progress-star-wrapper">
+            <img
+              src={starImage}
+              alt="Progress star"
+              className="ens-names-register-progress-star"
+            />
+          </div>
         </div>
       </div>
     </div>

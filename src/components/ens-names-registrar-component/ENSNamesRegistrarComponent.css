@@ -585,40 +585,54 @@
 
 .ens-names-register-progress-bar {
   width: 100%;
-  height: 25px;
-  background-color: #e5e7eb;
-  border-radius: 10px;
-  overflow: hidden;
+  height: 24px;
+  background-color: #000000;
+  border-radius: 4px;
+  padding: 4px;
   position: relative;
-  border: 1px solid #d1d5db;
+  overflow: hidden;
 }
 
 .ens-names-register-progress-fill {
   height: 100%;
-  background-color: #000000;
-  border-radius: 4px;
+  background-color: #FFFFFF;
+  border-radius: 0 12px 12px 0;
   transition: width 0.1s linear;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding-right: 4px;
+  padding-right: 8px;
+  overflow: visible;
 }
 
-.ens-names-register-progress-sparkle {
-  color: #ffffff;
-  animation: sparkle 1.5s ease-in-out infinite;
+.ens-names-register-progress-star-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: 2;
+  top: 0;
+  height: 100%;
+  width: 25px;
+  pointer-events: none;
 }
 
-@keyframes sparkle {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
+.ens-names-register-progress-star {
+  display: block;
+  width: 100%;
+  height: 100%;
+  animation: rotate-star 2s linear infinite;
+  will-change: transform;
+  transform-origin: center center;
+}
+
+@keyframes rotate-star {
+  from {
+    transform: rotate(0deg);
   }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.1);
+  to {
+    transform: rotate(360deg);
   }
 }
 
