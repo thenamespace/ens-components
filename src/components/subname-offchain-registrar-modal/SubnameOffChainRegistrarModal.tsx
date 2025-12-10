@@ -38,7 +38,6 @@ export function SubnameOffChainRegistrarModal({
 }: SubnameOffChainRegistrarModalProps) {
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [ensName, setEnsName] = useState(initialName);
-
   const handleNameChange = (value: string) => {
     setEnsName(value);
     onNameChange?.(value);
@@ -49,6 +48,7 @@ export function SubnameOffChainRegistrarModal({
     onStepChange?.(2);
     onRegister?.();
   };
+
 
   const handleCancel = () => {
     onCancel?.();

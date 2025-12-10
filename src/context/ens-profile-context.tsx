@@ -269,7 +269,9 @@ export const EnsProfileContextProvider = ({
   const refreshListing = async (ensName: string, network: Web3Network) => {
     setListing({ isFetching: true, isListed: false })
     try {
-      const listing = await listManager.getListedName(ensName)
+      console.log("ensName", ensName);
+      const listing = await listManager.getListedName(ensName);
+      console.log("listing", listing);
       setListing({
         isFetching: false,
         isListed: listing?.name !== undefined,

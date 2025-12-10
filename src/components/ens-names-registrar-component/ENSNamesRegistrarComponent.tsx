@@ -7,7 +7,6 @@ import { SuccessScreen } from "./sub-components/SuccessScreen";
 import {
   EnsRegistrationContext,
   useEnsContractAddresses,
-  useErrorModal,
   useEthRegistrarController,
   useMainChain,
 } from "@/hooks";
@@ -15,16 +14,13 @@ import {
 import { normalise } from "@ensdomains/ensjs/utils";
 import { debounce } from "lodash";
 import {
-  EnsAddressRecord,
-  EnsContenthashRecord,
   EnsRecords,
-  EnsTextRecord,
 } from "@/types";
 
 import { useConnectedPrincipal } from "@/context";
 import { Address, Hash, toHex } from "viem";
 
-import { formatPrice, NameRegistration , EnsRegistrationSteps } from "@/utils/models";
+import { NameRegistration , EnsRegistrationSteps } from "@/utils/models";
 import { useAccount, useSwitchChain } from "wagmi";
 import { AppEnv } from "@/environment";
 export interface ENSNamesRegistrarComponentProps {
@@ -94,10 +90,7 @@ export function ENSNamesRegistrarComponent({
   const [lastFetchedName, setLastFetchedName] = useState<string>("");
   const [lastFetchedDuration, setLastFetchedDuration] = useState<number>(0);
   const { isNameAvailable, getRegistrationPrice } = useEthRegistrarController();
-  // const { showErrorModal } = useErrorModal();
-  const { networkId, networkName } = useMainChain();
-  const { chain } = useAccount();
-  const { switchChainAsync } = useSwitchChain();
+  const { networkId } = useMainChain();
   const { connectedAddress } = useConnectedPrincipal();
   const { publicResolver } = useEnsContractAddresses();
   console.log("connectedAddress:", connectedAddress);

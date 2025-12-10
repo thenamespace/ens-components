@@ -1,16 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
 import ninjaLogo from "../../../assets/ninja.png";
-import { Button, Text, Icon, Input } from "../../atoms";
+import { Button, Text, Icon, Input, ChainIcon } from "../../atoms";
+import { formatFloat } from "@/utils/numbers";
 
 export interface RegistrationStepProps {
   name: string;
   domainSuffix?: string;
   owner?: string;
   duration?: number;
-  registrationFee?: string;
-  networkFee?: string;
-  totalCost?: string;
+  registrationFee?: string | null;
+  networkFee?: string | null;
+  totalCost?: string | null;
   useAsPrimary?: boolean;
   profileComplete?: boolean;
   profileImageUrl?: string;
@@ -22,6 +23,10 @@ export interface RegistrationStepProps {
   onDurationChange?: (duration: number) => void;
   onUseAsPrimaryChange?: (useAsPrimary: boolean) => void;
   onCompleteProfile?: () => void;
+  mintPrice?: number;
+  isFetchingPrice?: boolean;
+  expiryYears?: number;
+  isExpirable?: boolean;
 }
 
 export function RegistrationStep({
@@ -29,9 +34,9 @@ export function RegistrationStep({
   domainSuffix = "eth",
   owner = "0x035eB...24117D3",
   duration: initialDuration = 1,
-  registrationFee = "0.004",
-  networkFee = "0.0010",
-  totalCost = "0.0014",
+  registrationFee,
+  networkFee,
+  totalCost,
   useAsPrimary: initialUseAsPrimary = false,
   profileComplete = false,
   profileImageUrl,
@@ -43,6 +48,10 @@ export function RegistrationStep({
   onDurationChange,
   onUseAsPrimaryChange,
   onCompleteProfile,
+  mintPrice = 0,
+  isFetchingPrice = false,
+  expiryYears = 1,
+  isExpirable = false,
 }: RegistrationStepProps) {
   const [duration, setDuration] = useState(initialDuration);
   const [useAsPrimary, setUseAsPrimary] = useState(initialUseAsPrimary);
@@ -182,6 +191,25 @@ export function RegistrationStep({
           </button>
         </div>
 
+        {/* Mint Price Display */}
+        {mintPrice > 0 && (
+          <div className="d-flex justify-content-between align-items-center mb-1" style={{ marginTop: "12px", marginBottom: "8px" }}>
+            <Text size="sm" color="grey">Mint price</Text>
+            <div className="d-flex align-items-center">
+              {isFetchingPrice ? (
+                <Text size="sm" color="grey">Loading...</Text>
+              ) : (
+                <>
+                  <Text size="sm" weight="bold" className="me-1">
+                    {isExpirable ? formatFloat(mintPrice * expiryYears, 6) : formatFloat(mintPrice, 6)}
+                  </Text>
+                  <ChainIcon chain="eth" size={20} />
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
         {isDurationExpanded && (
           <div
             ref={costBreakdownRef}
@@ -192,31 +220,35 @@ export function RegistrationStep({
                 {duration} year registration
               </Text>
               <Text size="sm" weight="medium">
-                {registrationFee} ETH
+                {isFetchingPrice || !registrationFee ? "..." : `${registrationFee} ETH`}
               </Text>
             </div>
-            <div className="ns-onchain-register-cost-row">
-              <Text size="sm" color="grey">
-                Est. network fee
-              </Text>
-              <Text size="sm" weight="medium">
-                {networkFee} ETH
-              </Text>
-            </div>
-            <div className="ns-onchain-register-cost-row total">
-              <Text size="md" weight="bold">
-                Total
-              </Text>
-              <div className="ns-onchain-register-total-cost">
-                <Text size="md" weight="bold">
-                  {totalCost}
+            {networkFee && parseFloat(networkFee) > 0 && (
+              <div className="ns-onchain-register-cost-row">
+                <Text size="sm" color="grey">
+                  Est. network fee
                 </Text>
-                <span style={{ fontSize: "14px", color: "#3b82f6" }}>Ξ</span>
                 <Text size="sm" weight="medium">
-                  ETH
+                  {isFetchingPrice ? "..." : `${networkFee} ETH`}
                 </Text>
               </div>
-            </div>
+            )}
+            {totalCost && (
+              <div className="ns-onchain-register-cost-row total">
+                <Text size="md" weight="bold">
+                  Total
+                </Text>
+                <div className="ns-onchain-register-total-cost">
+                  <Text size="md" weight="bold">
+                    {isFetchingPrice ? "..." : totalCost}
+                  </Text>
+                  <span style={{ fontSize: "14px", color: "#3b82f6" }}>Ξ</span>
+                  <Text size="sm" weight="medium">
+                    ETH
+                  </Text>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

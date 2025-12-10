@@ -1,6 +1,6 @@
 import { MintClient, createMintClient } from "@namespacesdk/mint-manager";
 import { AppEnv } from "@/environment";
-import { base, baseSepolia, optimism } from "viem/chains";
+import { base, baseSepolia, optimism, mainnet, sepolia } from "viem/chains";
 
 const mintClient = createMintClient({
     environment: AppEnv.isTestnet ? "staging" : "production",
@@ -9,9 +9,10 @@ const mintClient = createMintClient({
     cursomRpcUrls: {
         [base.id]: "/rpc/base",
         [optimism.id]: "/rpc/optimism",
-        [baseSepolia.id]: "/rpc/baseSepolia"
+        [baseSepolia.id]: "/rpc/baseSepolia",
+        [mainnet.id]: "/rpc/mainnet",
+        [sepolia.id]: "/rpc/sepolia"
     }
-   
 })
 
 export const useMintClient = (): MintClient => {

@@ -394,7 +394,7 @@ function TestApp() {
                   step={onchainStep}
                   name={onchainName}
                   profileComplete={onchainProfileComplete}
-                  domainSuffix="namespace.eth"
+                  domainSuffix="bighead.eth"
                   onStepChange={setOnchainStep}
                   onNameChange={setOnchainName}
                   onProfileCompleteChange={setOnchainProfileComplete}

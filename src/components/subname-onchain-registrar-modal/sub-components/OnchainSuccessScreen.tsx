@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Confetti from "react-confetti";
 import finishLogo from "../../../assets/finish.png";
 import { Button, Text } from "../../atoms";
@@ -14,47 +14,40 @@ export function OnchainSuccessScreen({
   onClose,
   onFinish,
 }: OnchainSuccessScreenProps) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [cardSize, setCardSize] = useState({
-    width: 0,
-    height: 0,
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
   });
 
   useEffect(() => {
     const updateSize = () => {
-      if (cardRef.current) {
-        setCardSize({
-          width: cardRef.current.offsetWidth,
-          height: cardRef.current.offsetHeight,
-        });
-      }
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
     };
 
-    updateSize();
     window.addEventListener("resize", updateSize);
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
   return (
-    <div
-      ref={cardRef}
-      className="ns-onchain-register-card ns-onchain-register-success"
-      style={{ position: "relative", overflow: "hidden" }}
-    >
-        {cardSize.width > 0 && cardSize.height > 0 && (
-          <Confetti
-            width={cardSize.width}
-            height={cardSize.height}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              zIndex: 0,
-              pointerEvents: "none",
-            }}
-          />
-        )}
-
+    <>
+      <Confetti
+        width={windowSize.width}
+        height={windowSize.height}
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          zIndex: 9999,
+          pointerEvents: "none",
+        }}
+      />
+      <div
+        className="ns-onchain-register-card ns-onchain-register-success"
+        style={{ position: "relative", overflow: "hidden" }}
+      >
         <div className="ns-onchain-register-finish-banner">
           <img src={finishLogo} alt="Success" />
         </div>
@@ -81,6 +74,7 @@ export function OnchainSuccessScreen({
             Finish
           </Button>
         </div>
-    </div>
+      </div>
+    </>
   );
 }
