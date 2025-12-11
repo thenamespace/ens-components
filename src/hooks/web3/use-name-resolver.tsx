@@ -10,7 +10,7 @@ import {
 } from "viem";
 import { useWeb3Clients } from "./use-web3-clients";
 import {EnsContenthashRecordDecoded} from "@/types/ens"
-import { EnsAddressRecord, EnsContenthashRecord, EnsTextRecord } from "@/types";
+import { EnsAddressRecord, EnsTextRecord } from "@/types";
 import RESOLVER_ABI from "./temp-abi.json";
 import { useAccount } from "wagmi";
 import { getCoderByCoinType } from "@ensdomains/address-encoder";

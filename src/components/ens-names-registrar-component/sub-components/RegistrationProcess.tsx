@@ -42,6 +42,7 @@ export function RegistrationProcess({
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [isTransactionInProgress, setIsTransactionInProgress] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [registrationProgress, setRegistrationProgress] = useState(0);
   const [timerSeconds, setTimerSeconds] = useState(60);
   const [timerProgress, setTimerProgress] = useState(0);
   const [waitingForWallet, setWaitingForWallet] = useState(false);
@@ -97,6 +98,25 @@ export function RegistrationProcess({
     }
   }, [isTransactionInProgress, step]);
 
+  // Progress bar effect for registration transaction
+  useEffect(() => {
+    if (waitingForTx && step === RegistrationStep.RegistrationSent) {
+      setRegistrationProgress(0);
+      const interval = setInterval(() => {
+        setRegistrationProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            return 100;
+          }
+          return prev + 0.5;
+        });
+      }, 50);
+
+      return () => clearInterval(interval);
+    }
+  }, [waitingForTx, step]);
+
+
   const sendCommitmentTx = async () => {
     let tx: Hash;
 
@@ -151,10 +171,12 @@ export function RegistrationProcess({
     try {
       setStep(RegistrationStep.RegistrationSent);
       setWaitingForTx(true);
+      setRegistrationProgress(0);
 
       await waitForTransactionReceipt(tx, 2);
 
       setWaitingForTx(false);
+      setRegistrationProgress(100);
       setStep(RegistrationStep.RegistrationCompleted);
       setCompletedSteps([1, 2, 3]);
       onRegistrationComplete?.();
@@ -162,6 +184,7 @@ export function RegistrationProcess({
       console.log(err);
       showErrorModal(err);
       setWaitingForTx(false);
+      setRegistrationProgress(0);
       setStep(RegistrationStep.TimerCompleted);
     }
   };
@@ -402,15 +425,16 @@ export function RegistrationProcess({
                 weight="bold"
                 className="ens-names-register-step-content-title"
               >
-                Registration in Progress
+                Transaction in Progress
               </Text>
               <Text
                 size="sm"
                 color="grey"
                 className="ens-names-register-step-content-description"
               >
-                Your registration transaction is being processed. Please wait...
+                Your transaction has been sent! Once the progress bar completes, your registration will be confirmed.
               </Text>
+              <ProgressBar progress={registrationProgress} />
             </>
           ) : isRegistrationCompleted ? (
             <>

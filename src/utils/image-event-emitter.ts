@@ -19,3 +19,4 @@ export const onCoverUpdated = (callback: () => void) => {
 export const offCoverUpdated = (callback: () => void) => {
   eventEmitter.off(COVER_UPDATED, callback);
 };
+
