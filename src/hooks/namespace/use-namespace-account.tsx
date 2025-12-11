@@ -1,13 +1,12 @@
-import { EnsName, EnsRecords, GenericMintedName, IEnsNameFullProfile, isTestnet } from "@/types";
+import { EnsName, EnsRecords, EnsRecordsDecoded, EnsContenthashRecord, EnsContenthashRecordDecoded, GenericMintedName, IEnsNameFullProfile, isTestnet } from "@/types";
 import { useEffect, useState } from "react";
 import { Address } from "viem";
-import { useENS } from "../ens/use-ens";
+
 import {
   useEnsFullNameProfile,
 } from "../ens/use-ens-name-profile";
 import { useMainPublicClient } from "../web3/use-main-public-client";
 import { useMainChain } from "../web3/use-main-chain";
-import { useAccount } from "wagmi";
 
 export interface INamespaceAccount {
   primaryName: PrimaryNameState
@@ -83,10 +82,23 @@ export const useNamespaceAccount = (
     fetchProfile();
   }, [ownerAddress, networkName]);
 
+  const convertRecordsToDecoded = (records: EnsRecords): EnsRecordsDecoded => {
+    return {
+      texts: records.texts,
+      addresses: records.addresses,
+      contenthash: records.contenthash
+        ? {
+            decoded: records.contenthash.value,
+            protocolType: records.contenthash.protocol,
+          }
+        : undefined,
+    };
+  };
+
   const handleRecordsUpdated = (newRecords: EnsRecords) => {
     if (primaryName.data !== undefined) {
         const _primaryName = {...primaryName};
-        _primaryName.data!.records = newRecords;
+        _primaryName.data!.records = convertRecordsToDecoded(newRecords);
 
         if (_primaryName.data !== undefined) {
           setPrimaryName(_primaryName);

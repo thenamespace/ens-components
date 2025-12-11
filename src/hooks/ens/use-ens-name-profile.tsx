@@ -1,6 +1,7 @@
 import {
   EnsAddressRecord,
   EnsContenthashRecord,
+  EnsContenthashRecordDecoded,
   EnsName,
   EnsTextRecord,
   GenericMintedName,
@@ -42,6 +43,39 @@ interface ICachedItem {
 }
 
 const CACHE_EXPIRY_MILLISECONDS = 15 * 60 * 1000;
+
+const convertContenthashToDecoded = (
+  contenthash: EnsContenthashRecord | string | undefined
+): EnsContenthashRecordDecoded | undefined => {
+  if (!contenthash) {
+    return undefined;
+  }
+
+  // If it's already a string (hex encoded), decode it
+  if (typeof contenthash === "string") {
+    try {
+      const decoded = decode(contenthash);
+      const codec = getCodec(contenthash);
+      return {
+        decoded: decoded,
+        protocolType: codec as string,
+      };
+    } catch (err) {
+      console.error("Failed to decode contenthash: " + contenthash, err);
+      return undefined;
+    }
+  }
+
+  // If it's an EnsContenthashRecord object (with protocol and value)
+  if (contenthash && typeof contenthash === "object" && "protocol" in contenthash) {
+    return {
+      decoded: contenthash.value,
+      protocolType: contenthash.protocol,
+    };
+  }
+
+  return undefined;
+};
 
 export const useEnsFullNameProfile = () => {
   const ens = useENS();
@@ -127,12 +161,21 @@ export const useEnsFullNameProfile = () => {
       networkName
     );
 
+    // Convert records to decoded format
+    const decodedRecords: IEnsNameFullProfile["records"] = {
+      texts: records.texts,
+      addresses: records.addresses,
+      contenthash: records.contenthash
+        ? convertContenthashToDecoded(records.contenthash)
+        : undefined,
+    };
+
     const profile: IEnsNameFullProfile = {
       ensName,
       expiry: expiryInt,
       subnames: [],
       ownership: ownership || { address: zeroAddress, isWrapped: false },
-      records: records,
+      records: decodedRecords,
       resolver: resolver!,
     };
     // if ens store the records on l2, it will have
@@ -189,7 +232,7 @@ export const useEnsFullNameProfile = () => {
       let ownerName = await getNameAndAvatarForAddr(node.owner as Address);
       let texts: EnsTextRecord[] = [];
       let addresses: EnsAddressRecord[] = [];
-      let contenthash: EnsContenthashRecord | undefined = undefined;
+      let contenthash: EnsContenthashRecordDecoded | undefined = undefined;
 
       Object.keys(node?.records.texts || {}).forEach((txt) => {
 
@@ -263,9 +306,18 @@ export const useEnsFullNameProfile = () => {
       const [records, ownership, expiry] = result;
       const expiryInt = expiry?.expiry?.value;
 
+      // Convert records to decoded format
+      const decodedRecords: IEnsNameFullProfile["records"] = {
+        texts: records.texts,
+        addresses: records.addresses,
+        contenthash: records.contenthash
+          ? convertContenthashToDecoded(records.contenthash)
+          : undefined,
+      };
+
       return {
         ensName,
-        records,
+        records: decodedRecords,
         ownership: ownership || { address: zeroAddress, isWrapped: false },
         expiry: expiryInt ? parseInt(expiryInt.toString()) : 0,
         resolver: resolver,

@@ -9,6 +9,7 @@ import {
   toHex,
 } from "viem";
 import { useWeb3Clients } from "./use-web3-clients";
+import {EnsContenthashRecordDecoded} from "@/types/ens"
 import { EnsAddressRecord, EnsContenthashRecord, EnsTextRecord } from "@/types";
 import RESOLVER_ABI from "./temp-abi.json";
 import { useAccount } from "wagmi";
@@ -140,7 +141,7 @@ export const convertRecordsToResolverData = (
   ensName: string,
   texts: EnsTextRecord[],
   addresses: EnsAddressRecord[],
-  contenthash?: EnsContenthashRecord
+  contenthash?: EnsContenthashRecordDecoded
 ): Hash[] => {
   const resolverData: Hash[] = [];
   const node = namehash(ensName);

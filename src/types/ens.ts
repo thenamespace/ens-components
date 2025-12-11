@@ -1,26 +1,19 @@
 import { Address } from "viem"
 import { Layer2Network } from "./networks"
 import { INameListing } from "./listing"
+import { EnsTextRecord, EnsAddressRecord } from "./records"
 
-export interface EnsTextRecord {
-    key: string
-    value: string
-}
-
-export interface EnsAddressRecord {
-    coinType: number
-    value: string
-}
-
-export interface EnsContenthashRecord {
+// Note: EnsContenthashRecord and EnsRecords are exported from ./records
+// These are different types with decoded contenthash format
+export interface EnsContenthashRecordDecoded {
     decoded: string
     protocolType: string
 }
 
-export interface EnsRecords {
+export interface EnsRecordsDecoded {
     texts: EnsTextRecord[]
     addresses: EnsAddressRecord[]
-    contenthash?: EnsContenthashRecord
+    contenthash?: EnsContenthashRecordDecoded
 }
 
 export interface EnsNameOwner {
@@ -70,7 +63,7 @@ export interface L2NameMetadata {
 export interface IEnsNameFullProfile {
     ensName: string
     ownership: EnsNameOwner
-    records: EnsRecords
+    records: EnsRecordsDecoded
     resolver: Address
     expiry: number
     l2Metadata?: L2NameMetadata
