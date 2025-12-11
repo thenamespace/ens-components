@@ -75,7 +75,11 @@ const networkMappings: Record<ListingNetwork, SupportedChainName> = {
 };
 
 export const getListingNetworkId = (listingNetwork: ListingNetwork) => {
-  return getChain(networkMappings[listingNetwork]);
+  const chainName = networkMappings[listingNetwork];
+  if (!chainName) {
+    throw new Error(`No chain mapping found for listing network: ${listingNetwork}`);
+  }
+  return getChain(chainName);
 };
 
 export const getListingNetwork = (chainId: number): ListingNetwork => {

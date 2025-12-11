@@ -27,6 +27,7 @@ export interface RegistrationStepProps {
   isFetchingPrice?: boolean;
   expiryYears?: number;
   isExpirable?: boolean;
+  isRegistering?: boolean;
 }
 
 export function RegistrationStep({
@@ -52,6 +53,7 @@ export function RegistrationStep({
   isFetchingPrice = false,
   expiryYears = 1,
   isExpirable = false,
+  isRegistering = false,
 }: RegistrationStepProps) {
   const [duration, setDuration] = useState(initialDuration);
   const [useAsPrimary, setUseAsPrimary] = useState(initialUseAsPrimary);
@@ -331,12 +333,14 @@ export function RegistrationStep({
 
       {/* Action Buttons */}
       <div className="ns-onchain-register-actions">
-        <Button className="cancel" onClick={onCancel || onBack}>
+        <Button className="cancel" onClick={onCancel || onBack} disabled={isRegistering}>
           Cancel
         </Button>
         <Button
           className="primary"
           onClick={onRegister}
+          loading={isRegistering}
+          disabled={isRegistering}
         >
           Register
         </Button>

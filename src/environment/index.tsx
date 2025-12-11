@@ -1,11 +1,6 @@
 
 'use client'
 
-// TODO, app env is actualy an environment for frontend,
-// we should find a better way instead of hardcoding it here
-// the problem is that Nextjs injects variables at build time,
-// and we cannot change them at runtime via ENV variables
-
 interface AppEnvironment {
     listManagerApi: string
     isTestnet: boolean
@@ -22,11 +17,3 @@ export const AppEnv: AppEnvironment = {
     indexerUrl: import.meta.env.VITE_INDEXER_API || import.meta.env.NEXT_PUBLIC_INDEXER_API || ""
 }
 
-// Log environment configuration for debugging
-console.log("Environment Configuration:", {
-    isTestnet: AppEnv.isTestnet,
-    network: AppEnv.isTestnet ? "Sepolia" : "Mainnet",
-    hasTestnetRpcUrl: !!AppEnv.testnetRpcUrl,
-    hasAlchemyToken: !!AppEnv.alchemyToken,
-    hasIndexerUrl: !!AppEnv.indexerUrl
-});

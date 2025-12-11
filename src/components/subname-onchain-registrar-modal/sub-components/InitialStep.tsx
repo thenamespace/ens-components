@@ -10,6 +10,7 @@ export interface InitialStepProps {
   onClose?: () => void;
   isNameAvailable?: boolean;
   domainSuffix?: string;
+  parentName?: string;
 }
 
 export function InitialStep({
@@ -20,30 +21,52 @@ export function InitialStep({
   onClose,
   isNameAvailable,
   domainSuffix = "eth",
+  parentName,
 }: InitialStepProps) {
   const [nameAvailable, setNameAvailable] = useState<boolean | undefined>(
     isNameAvailable
   );
-
-  // Extract the subname part (remove domain suffix if user typed it)
+  
+  // Extract the subname part (remove domain suffix or parent name if user typed it)
   const getSubnamePart = (inputName: string) => {
     if (!inputName) return "";
+    let cleaned = inputName;
+    // Remove parent name if user included it
+    if (parentName) {
+      const parentPattern = new RegExp(
+        `\\.${parentName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+        "i"
+      );
+      cleaned = cleaned.replace(parentPattern, "");
+    }
     // Remove the domain suffix if user included it
     const suffixPattern = new RegExp(
       `\\.${domainSuffix.replace(".", "\\.")}$`,
       "i"
     );
-    return inputName.replace(suffixPattern, "").trim();
+    return cleaned.replace(suffixPattern, "").trim();
   };
+  
+  // Use local state for input value to prevent fluctuation
+  const [inputValue, setInputValue] = useState(() => getSubnamePart(name));
+  
+  // Sync local state with prop only on mount or when name is cleared externally
+  useEffect(() => {
+    const propSubnamePart = getSubnamePart(name);
+    // Only sync if name prop is empty (external clear) or on initial mount
+    if (!propSubnamePart && inputValue) {
+      setInputValue("");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name]);
 
   // Simulate name availability check - in real app, this would be an API call
   useEffect(() => {
-    const subnamePart = getSubnamePart(name);
-    if (subnamePart && subnamePart.length > 0) {
+    if (inputValue && inputValue.length > 0) {
       // Simulate async check - for demo, consider names with length > 3 as available
       // Also check that it doesn't contain invalid characters
       const isValid =
-        /^[a-z0-9-]+$/i.test(subnamePart) && subnamePart.length > 3;
+        /^[a-z0-9-]+$/i.test(inputValue) && inputValue.length > 3;
       const timer = setTimeout(() => {
         setNameAvailable(isValid);
       }, 300);
@@ -51,29 +74,42 @@ export function InitialStep({
     } else {
       setNameAvailable(undefined);
     }
-  }, [name]);
+  }, [inputValue]);
 
   // Use prop if provided, otherwise use internal state
   const available =
     isNameAvailable !== undefined ? isNameAvailable : nameAvailable;
-  const showStatus = name && name.length > 0 && available !== undefined;
+  const showStatus = inputValue && inputValue.length > 0 && available !== undefined;
   const isUnavailable = showStatus && available === false;
-  const subnamePart = getSubnamePart(name);
+  const subnamePart = inputValue;
 
   const handleClear = () => {
+    setInputValue("");
     onNameChange("");
   };
 
   const handleNameInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
+    // Remove parent name if user tries to type it
+    if (parentName) {
+      const parentPattern = new RegExp(
+        `\\.${parentName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
+        "gi"
+      );
+      value = value.replace(parentPattern, "");
+    }
     // Remove the domain suffix if user tries to type it
     const suffixPattern = new RegExp(
-      `\\.${domainSuffix.replace(".", "\\.")}$`,
-      "i"
+      `\\.${domainSuffix.replace(".", "\\.")}`,
+      "gi"
     );
     value = value.replace(suffixPattern, "");
     // Only allow alphanumeric and hyphens for subname
     value = value.replace(/[^a-z0-9-]/gi, "");
+    
+    // Update local state immediately for smooth input
+    setInputValue(value);
+    // Notify parent
     onNameChange(value);
   };
 
@@ -101,13 +137,15 @@ export function InitialStep({
           size={14}
           className="ns-onchain-register-search-icon"
         />
-        <Input
-          type="text"
-          className="ns-onchain-register-input"
-          placeholder="Find name"
-          value={subnamePart}
-          onChange={handleNameInputChange}
-        />
+        <div style={{ position: "relative", flex: 1 }}>
+          <Input
+            type="text"
+            className="ns-onchain-register-input"
+            placeholder="Find name"
+            value={inputValue}
+            onChange={handleNameInputChange}
+          />
+        </div>
         {subnamePart && available && (
           <div className="ns-onchain-register-checkmark available">
             <Icon name="check-circle" size={12} color="#ffffff" />
@@ -122,9 +160,16 @@ export function InitialStep({
             <Icon name="x" size={12} color="#ffffff" />
           </button>
         )}
-        <Text className="ns-onchain-register-domain-suffix">
-          .{domainSuffix}
-        </Text>
+        {parentName && (
+          <Text className="ns-onchain-register-domain-suffix">
+            {parentName}
+          </Text>
+        )}
+        {!parentName && (
+          <Text className="ns-onchain-register-domain-suffix">
+            .{domainSuffix}
+          </Text>
+        )}
       </div>
 
       {isUnavailable && (
@@ -143,12 +188,9 @@ export function InitialStep({
         <Button
           className="primary"
           onClick={() => {
-            // Pass the full subname format
-            const fullName = subnamePart
-              ? `${subnamePart}.${domainSuffix}`
-              : "";
-            if (fullName) {
-              onNameChange(fullName);
+            // Pass just the label - parentName is handled in the parent component
+            if (subnamePart) {
+              onNameChange(subnamePart);
             }
             onRegister();
           }}

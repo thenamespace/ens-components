@@ -393,8 +393,9 @@ function TestApp() {
                 <SubnameOnChainRegistrarModal
                   step={onchainStep}
                   name={onchainName}
+                  parentName="celotest.eth"
                   profileComplete={onchainProfileComplete}
-                  domainSuffix="bighead.eth"
+              
                   onStepChange={setOnchainStep}
                   onNameChange={setOnchainName}
                   onProfileCompleteChange={setOnchainProfileComplete}

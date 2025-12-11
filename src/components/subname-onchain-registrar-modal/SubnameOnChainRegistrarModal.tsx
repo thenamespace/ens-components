@@ -1,33 +1,38 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import "./SubnameOnChainRegistrarModal.css";
 import { InitialStep } from "./sub-components/InitialStep";
 import { RegistrationStep } from "./sub-components/RegistrationStep";
 import { OnchainSuccessScreen } from "./sub-components/OnchainSuccessScreen";
-import { useEnsProfileContext } from "@/context";
-import { useMainChain, useMintClient, showErrorModal } from "@/hooks";
-import { useAccount } from "wagmi";
+import { useEnsProfileContext, useConnectedPrincipal } from "@/context";
+import { useMainChain, useMintClient, useListingManager, showErrorModal } from "@/hooks";
+import { useAccount, useBalance } from "wagmi";
 import { normalise } from "@ensdomains/ensjs/utils";
-import { GenericMintedName } from "@/types";
 import { debounce } from "lodash";
 import { getChainForListingV2 } from "@/web3";
-import { ListingType } from "@/types/list-manager";
-import { Address, zeroAddress } from "viem";
+import { ListingType, NamespaceListing, ListingSuggestion, ListingNetwork } from "@/types/list-manager";
+import { Address, zeroAddress, Hash, parseEther, isAddress, namehash } from "viem";
+import { SupportedNetwork } from "@/types";
+import { sepolia, mainnet } from "viem/chains";
 // import { useProfileFilterCtx } from "../profile-filter.context";
 import { formatFloat } from "@/utils/numbers";
 import { useProfileFilterCtx } from "@/context/profile-filter.context";
-import { AppEnv } from "@/environment";
+import { useWeb3Clients } from "@/hooks/web3/use-web3-clients";
+import { useWaitForTransaction } from "@/hooks/web3/use-wait-for-transaction";
+import { PendingTransaction, TransactionState } from "@/components/pending-transaction/PendingTransaction";
+import { ContenthashType, MintTransactionResponse } from "@namespacesdk/mint-manager";
+import { EnsRecords as MintENSRecords } from "@namespacesdk/mint-manager";
+import { EnsRecords } from "@/types";
+import { useBlockExplorer } from "@/hooks/web3/use-block-explorer";
+import { getChainName } from "@/web3";
+import { Button, Icon } from "@/components/atoms";
 
-enum ValidationErrors {
-  EXPIRED = "LISTING_EXPIRED",
-  WHITELIST = "MINTER_NOT_WHITELISTED",
-  TOKEN_GATED_ACCESS = "MINTER_NOT_TOKEN_OWNER",
-}
 const randomLabel = `${Math.floor(Math.random() * 1_000_000_000)}`;
 
 
 export interface SubnameOnChainRegistrarModalProps {
   step?: number;
   name?: string;
+  parentName?: string;
   profileComplete?: boolean;
   domainSuffix?: string;
   owner?: string;
@@ -57,6 +62,7 @@ export interface SubnameOnChainRegistrarModalProps {
 export function SubnameOnChainRegistrarModal({
   step: initialStep = 0,
   name: initialName = "",
+  parentName: initialParentName = "celotest.eth",
   profileComplete = false,
   domainSuffix = "eth",
   owner: initialOwner = "0x035eB...24117D3",
@@ -79,14 +85,38 @@ export function SubnameOnChainRegistrarModal({
   onViewName,
   onFinish,
 }: SubnameOnChainRegistrarModalProps) {
+  // Parent name from prop - user will input label
+  const PARENT_NAME = initialParentName;
+  
   const { listing, onSubnameMinted, subnames } = useEnsProfileContext();
-  console.log("listing", listing);
-  const { address } = useAccount();
+  const { connectedAddress } = useConnectedPrincipal();
+  const { address, chain } = useAccount();
   const mintClient = useMintClient();
-  const { networkId, isTestnet } = useMainChain();
+  const listManager = useListingManager();
+  const { networkId, isTestnet, network: envNetwork } = useMainChain();
+  
+  // Determine network based on connected chain, fallback to environment network
+  const network = useMemo(() => {
+    if (chain) {
+      if (chain.id === sepolia.id) {
+        return SupportedNetwork.Sepolia;
+      } else if (chain.id === mainnet.id) {
+        return SupportedNetwork.Mainnet;
+      }
+    }
+    return envNetwork;
+  }, [chain, envNetwork]);
   const [currentStep, setCurrentStep] = useState(initialStep);
-  const [ensName, setEnsName] = useState(initialName);
-  const [owner, setOwner] = useState(initialOwner || address || "");
+  const [ensName, setEnsName] = useState(initialName || "");
+  // Extract label from initialName if provided (e.g., "nikku.celotest.eth" -> "nikku")
+  const getLabelFromName = (name: string): string => {
+    if (!name) return "";
+    const parts = name.split(".");
+    return parts[0] || "";
+  };
+  const [subnameLabel, setSubnameLabel] = useState(getLabelFromName(initialName || ""));
+  const [parentName, setParentName] = useState(initialParentName);
+  const [owner, setOwner] = useState(connectedAddress || initialOwner || address || "");
   const [duration, setDuration] = useState(initialDuration);
   const [useAsPrimary, setUseAsPrimary] = useState(initialUseAsPrimary);
   const {
@@ -95,6 +125,65 @@ export function SubnameOnChainRegistrarModal({
     availableIndicator,
     onAvailableIndicatorChange,
   } = useProfileFilterCtx();
+  
+  // Mint transaction state
+  const [mintTransaction, setMintTransaction] = useState<{
+    state: TransactionState;
+    showTxScreen: boolean;
+    transactionHash: Hash;
+  }>({
+    showTxScreen: false,
+    state: TransactionState.InProgress,
+    transactionHash: "0x0" as Hash,
+  });
+  
+  const [mintBtnState, setMintBtnState] = useState<{
+    waitingForWallet: boolean;
+  }>({
+    waitingForWallet: false,
+  });
+  
+  // ENS records state (empty by default, can be extended later)
+  const [nameRecords, setNameRecords] = useState<EnsRecords>({
+    addresses: [],
+    texts: [],
+  });
+
+  const [dynamicListing, setDynamicListing] = useState<NamespaceListing | null>(null);
+  const [isLoadingListing, setIsLoadingListing] = useState(false);
+  const activeListing = useMemo(() => {
+    return dynamicListing || listing.listingData || null;
+  }, [dynamicListing, listing.listingData]);
+  
+  // Get listing chain for minting
+  const listingChain = useMemo(() => {
+    if (activeListing) {
+      return getChainForListingV2(activeListing);
+    }
+    return null;
+  }, [activeListing]);
+  
+  // Get chain name for block explorer
+  const chainName = useMemo(() => {
+    if (listingChain) {
+      return getChainName(listingChain.id);
+    }
+    return null;
+  }, [listingChain]);
+  
+  // Web3 clients for minting
+  const { publicClient, walletClient } = useWeb3Clients({ 
+    chainId: listingChain?.id || sepolia.id 
+  });
+  
+  // Transaction waiting hook
+  const { waitForTransactionReceipt } = useWaitForTransaction({ 
+    chainId: listingChain?.id || sepolia.id 
+  });
+  
+  // Balance checking
+  const { data: currentBalance } = useBalance({ address: connectedAddress });
+
   const [initialCheck, setInitialCheck] = useState<{
     canMint: boolean;
     isFetching: boolean;
@@ -107,6 +196,7 @@ export function SubnameOnChainRegistrarModal({
   const [availabilityStatus, setAvailabilityStatus] = useState<{
     isAvailable: boolean | undefined;
     isChecking: boolean;
+    status?: "free" | "available";
   }>({
     isAvailable: undefined,
     isChecking: false,
@@ -116,11 +206,11 @@ export function SubnameOnChainRegistrarModal({
   const [mintDetails, setMintDetails] = useState<{
     isChecking: boolean;
     price: number;
-    isReserved: boolean;
+    canMint: boolean;
     isFreeMint?: boolean;
   }>({
     isChecking: false,
-    isReserved: false,
+    canMint: false,
     price: 0,
     isFreeMint: false,
   });
@@ -138,25 +228,88 @@ export function SubnameOnChainRegistrarModal({
     isFetching: true,
   });
 
-  const fetchMintDetails = useCallback(
-    async (label: string, minter: Address, expiryYears: number = 1) => {
-      return mintClient.getMintDetails({
-        label: label,
-        minterAddress: minter,
-        parentName: ensName,
-        isTestnet: isTestnet,
-        expiryInYears: expiryYears,
-      });
+  // Parse input like "nikku.bighead.eth" to label and parent name
+  const parseInput = useCallback((value: string): { label: string; parentName: string } => {
+    const parts = value.split(".");
+    if (parts.length >= 2) {
+      const labelPart = parts[0];
+      const parentParts = parts.slice(1);
+      const parent = parentParts.join(".");
+      return { label: labelPart, parentName: parent };
+    }
+    return { label: value, parentName: "" };
+  }, []);
+
+  // Helper function to split subname input - improved version
+  const handleSearch = useCallback((value: string): { label: string; parent: string; isValid: boolean } => {
+    const parsed = parseInput(value);
+    setSubnameLabel(parsed.label);
+    setParentName(parsed.parentName);
+    return { label: parsed.label, parent: parsed.parentName, isValid: true };
+  }, [parseInput]);
+
+
+  const [pendingLabel, setPendingLabel] = useState<string | null>(null);
+
+  const fetchListing = useCallback(
+    async (parent: string, label?: string) => {
+      if (!parent || parent.length < 3) {
+        setDynamicListing(null);
+        setPendingLabel(null);
+        return;
+      }
+
+      setIsLoadingListing(true);
+      if (label) {
+        setPendingLabel(label);
+      }
+      try {
+        const fetchedListing = await listManager.getListedName(parent);
+        setDynamicListing(fetchedListing);
+      } catch (err) {
+        showErrorModal(err);
+        setDynamicListing(null);
+        setPendingLabel(null);
+      } finally {
+        setIsLoadingListing(false);
+      }
     },
-    [mintClient, ensName, isTestnet]
+    [listManager, network, isTestnet, networkId]
   );
 
-  // Step 1: Check if user can mint on page load
+  const fetchMintDetails = useCallback(async (label: string, minter: Address, expiryYears: number = 1) => {
+    const parent = activeListing?.name || parentName || ensName;
+    return mintClient.getMintDetails({
+      label: label,
+      minterAddress: minter,
+      parentName: parent,
+      isTestnet: isTestnet,
+      expiryInYears: expiryYears,
+    });
+  }, [mintClient, activeListing?.name, parentName, ensName, isTestnet]);
+
+  // Debounced listing fetch
+  const debouncedFetchListing = useCallback(
+    debounce((parent: string, label?: string) => {
+      fetchListing(parent, label);
+    }, 500),
+    [fetchListing]
+  );
+
+  // Initialize parent name on mount and when prop changes
   useEffect(() => {
-    if (listing.listingData) {
+    setParentName(initialParentName);
+    // Fetch listing for the parent name on mount
+    if (initialParentName && initialParentName.length >= 3) {
+      debouncedFetchListing(initialParentName);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialParentName]); // Run when parentName prop changes
+
+  useEffect(() => {
+    if (activeListing) {
       fetchMintDetails(randomLabel, address || zeroAddress, duration)
         .then((result) => {
-          console.log("result", result);
           setInitialCheck({
             canMint: result.canMint,
             isFetching: false,
@@ -167,7 +320,7 @@ export function SubnameOnChainRegistrarModal({
           showErrorModal(err);
           setInitialCheck({
             canMint: false,
-            errorMessage: "Unknown issue ocurred",
+            errorMessage: "Unknown issue occurred",
             isFetching: false,
           });
         });
@@ -177,116 +330,186 @@ export function SubnameOnChainRegistrarModal({
         isFetching: false,
       });
     }
-  }, [listing.listingData, address, fetchMintDetails, duration]);
+  }, [activeListing, address, fetchMintDetails, duration]);
 
 
-  const checkIsAvailable = useCallback(
-    async (label: string) => {
-      if (listing.listingData && label.length > 0) {
-        const fullName = `${label}.${listing.listingData.name}`;
-        const listingChain = getChainForListingV2(listing.listingData);
-        const isL2Type = listing.listingData.type === ListingType.L2;
-        console.log("fullName", fullName);
-        console.log("listingChain", listingChain);
-        console.log("isL2Type", isL2Type);
-        try {
-          const checkPromise = isL2Type
-            ? mintClient.isL2SubnameAvailable(fullName, listingChain.id)
-            : mintClient.isL1SubnameAvailable(fullName);
-          const available = await checkPromise;
+  // Check if subname is available
+  const checkAvailability = useCallback(
+    async (label: string, parent: string, listingData: NamespaceListing) => {
+      if (!label || !parent || !listingData) {
+        setAvailabilityStatus({ isChecking: false, isAvailable: false });
+        onAvailableIndicatorChange({ isChecking: false, isAvailable: false });
+        return;
+      }
 
-          let _available = true;
-          if (subnames && subnames.length > 0) {
-            _available = subnames.find((s) => s.label === label) === undefined;
+      setAvailabilityStatus({ isChecking: true, isAvailable: false });
+      onAvailableIndicatorChange({ isChecking: true, isAvailable: false });
+
+      try {
+        const fullName = `${label}.${parent}`;
+        const listingChain = getChainForListingV2(listingData);
+        const isL2Type = listingData.type === ListingType.L2;
+
+        let available: boolean;
+        if (isL2Type) {
+          if (!listingChain || !listingChain.id) {
+            throw new Error(`Invalid chain for L2 listing: ${listingData.l2Metadata?.registryNetwork}`);
           }
-
-          onAvailableIndicatorChange({
-            isChecking: false,
-            isAvailable: available && _available,
-          });
-        } catch (err) {
-          onAvailableIndicatorChange({
-            isChecking: false,
-            isAvailable: false,
-          });
-          showErrorModal(err);
+          available = await mintClient.isL2SubnameAvailable(fullName, listingChain.id);
+        } else {
+          available = await mintClient.isL1SubnameAvailable(fullName);
         }
-      } else {
-        onAvailableIndicatorChange({
-          isChecking: false,
-          isAvailable: false,
-        });
+        let _available = available;
+        if (subnames && subnames.length > 0) {
+          const existingSubname = subnames.find((s) => s.label === label);
+          _available = available && existingSubname === undefined;
+        }
+
+        setAvailabilityStatus({ isChecking: false, isAvailable: _available });
+        onAvailableIndicatorChange({ isChecking: false, isAvailable: _available });
+      } catch (err) {
+        showErrorModal(err);
+        setAvailabilityStatus({ isChecking: false, isAvailable: false });
+        onAvailableIndicatorChange({ isChecking: false, isAvailable: false });
       }
     },
-    [listing.listingData, mintClient, subnames, onAvailableIndicatorChange]
+    [mintClient, subnames, onAvailableIndicatorChange]
   );
 
-  const debouncedCheckIsAvailable = useCallback(
-    debounce((label: string) => checkIsAvailable(label), 300),
-    [checkIsAvailable]
+  const debouncedCheckAvailability = useCallback(
+    debounce(
+      (label: string, parent: string, listingData: NamespaceListing) => {
+        checkAvailability(label, parent, listingData);
+      },
+      300
+    ),
+    [checkAvailability]
   );
-
   const fetchMintDetailsDebounced = useCallback(
-    debounce((label: string, minterAddress: Address, expiryYears: number = 1) => {
-      fetchMintDetails(label, minterAddress, expiryYears)
-        .then((result) => {
-          const isFreeMint = result.estimatedPriceEth === 0;
-          const totalPrice = result.estimatedPriceEth + result.estimatedFeeEth;
+    debounce(
+      (label: string, parent: string, listingData: NamespaceListing, minterAddress: Address, expiryYears: number = 1) => {
+        if (!label || !parent || !listingData || !minterAddress) {
           setMintDetails({
             isChecking: false,
-            isReserved: !result.canMint,
-            price: totalPrice,
-            isFreeMint,
-          });
-          setMintValidation({
-            isFetching: false,
-            result: {
-              estimatedFeeEth: result.estimatedFeeEth,
-              estimatedPriceEth: result.estimatedPriceEth,
-              isStandardFee: result.isStandardFee || false,
-              canMint: result.canMint,
-            },
-          });
-        })
-        .catch((err) => {
-          showErrorModal(err);
-          setMintDetails({
-            isChecking: false,
-            isReserved: true,
             price: 0,
+            canMint: false,
             isFreeMint: false,
           });
-          setMintValidation({
-            isFetching: false,
+          setMintValidation({ isFetching: false });
+          return;
+        }
+
+        setMintDetails((prev) => ({ ...prev, isChecking: true }));
+        setMintValidation({ isFetching: true });
+
+        fetchMintDetails(label, minterAddress, expiryYears)
+          .then((result) => {
+            const isFreeMint = result.estimatedPriceEth === 0;
+            const totalPrice = result.estimatedPriceEth + result.estimatedFeeEth;
+            setMintDetails({
+              isChecking: false,
+              price: totalPrice,
+              canMint: result.canMint,
+              isFreeMint,
+            });
+            // Also update mintValidation with full result
+            setMintValidation({
+              isFetching: false,
+              result: {
+                estimatedFeeEth: result.estimatedFeeEth,
+                estimatedPriceEth: result.estimatedPriceEth,
+                isStandardFee: result.isStandardFee || false,
+                canMint: result.canMint,
+              },
+            });
+          })
+          .catch((err) => {
+            showErrorModal(err);
+            setMintDetails({
+              isChecking: false,
+              price: 0,
+              canMint: false,
+              isFreeMint: false,
+            });
+            setMintValidation({ isFetching: false });
           });
-        });
-    }, 300),
+      },
+      300
+    ),
     [fetchMintDetails]
   );
 
-  const handleMintableSubnameChange = async (val: string) => {
-    console.log("handleMintableSubnameChange", val);
-    const _val = val.toLowerCase();
+  // Helper wrapper for fetchMintDetailsDebounced
+  const debouncedFetchMintDetails = useCallback(
+    (label: string, parent: string, listingData: NamespaceListing, minterAddress: Address, expiryYears: number = 1) => {
+      fetchMintDetailsDebounced(label, parent, listingData, minterAddress, expiryYears);
+    },
+    [fetchMintDetailsDebounced]
+  );
 
-    try {
-      normalise(val);
-    } catch (err) {
-      return;
+  // When listing is loaded and we have a label, check availability and fetch price
+  useEffect(() => {
+    if (activeListing && subnameLabel && subnameLabel.length > 0) {
+      const parent = activeListing.name || parentName;
+      if (parent) {
+        debouncedCheckAvailability(subnameLabel, parent, activeListing);
+        debouncedFetchMintDetails(
+          subnameLabel,
+          parent,
+          activeListing,
+          connectedAddress || address || zeroAddress,
+          duration
+        );
+      }
+    }
+  }, [activeListing, subnameLabel, parentName, connectedAddress, address, duration, debouncedCheckAvailability, debouncedFetchMintDetails]);
+
+  // Handle input change - user inputs just the label
+  const handleMintableSubnameChange = async (val: string) => {
+    const _val = val.toLowerCase().trim();
+
+    // Validate label format (alphanumeric and hyphens only)
+    if (_val.length > 0) {
+      // Check for invalid characters
+      if (!/^[a-z0-9-]+$/i.test(_val)) {
+        return; // Invalid character, don't update
+      }
+      
+      // Validate ENS name format
+      try {
+        normalise(_val);
+      } catch (err) {
+        // Invalid character, don't update
+        return;
+      }
     }
 
-    setEnsName(_val);
-    onSubnameSeach(_val);
-    onNameChange?.(_val);
-    console.log("initialCheck.isFetching", initialCheck);
+    // User inputs just the label, parent comes from prop
+    const label = _val;
+    const currentParent = parentName || initialParentName;
+    const fullName = label ? `${label}.${currentParent}` : "";
+    
+    // Set state
+    setSubnameLabel(label);
+    setParentName(currentParent);
+    setEnsName(fullName);
+    onSubnameSeach(fullName);
+    onNameChange?.(fullName);
 
-    if (_val.length > 0 && !initialCheck.isFetching) {
-      if (initialCheck.canMint) {
-        onAvailableIndicatorChange({ isAvailable: false, isChecking: true });
-        debouncedCheckIsAvailable(_val);
-        setMintDetails({ ...mintDetails, isChecking: true });
-        setMintValidation({ isFetching: true });
-        fetchMintDetailsDebounced(_val, address || zeroAddress, duration);
-      }
+    // Reset states
+    setAvailabilityStatus({ isChecking: false, isAvailable: false });
+    setMintDetails({
+      isChecking: false,
+      price: 0,
+      canMint: false,
+      isFreeMint: false,
+    });
+
+    // If we have a label, fetch listing and process it
+    if (label && label.length > 0 && currentParent && currentParent.length >= 3) {
+      debouncedFetchListing(currentParent, label);
+    } else {
+      setDynamicListing(null);
     }
   };
 
@@ -299,26 +522,36 @@ export function SubnameOnChainRegistrarModal({
     onOwnerChange?.(value);
   };
 
-  // Update owner when connected address changes (always use connected address when available)
   useEffect(() => {
-    if (address) {
+    if (connectedAddress) {
+      setOwner(connectedAddress);
+      onOwnerChange?.(connectedAddress);
+    } else if (address) {
       setOwner(address);
       onOwnerChange?.(address);
     } else if (!address && initialOwner) {
       // Only use initialOwner if no address is connected
       setOwner(initialOwner);
     }
-  }, [address, initialOwner]);
+  }, [connectedAddress, address, initialOwner]);
 
   const handleDurationChange = (value: number) => {
     setDuration(value);
     onDurationChange?.(value);
-    
+
     // Fetch price when duration changes
-    if (ensName && ensName.length > 0 && address && initialCheck.canMint) {
-      const label = ensName.split(".")[0].toLowerCase();
+    // Use the extracted subnameLabel, or extract from ensName if not set
+    const labelToUse = subnameLabel || (ensName ? ensName.split(".")[0].toLowerCase() : "");
+    const parentToUse = activeListing?.name || parentName;
+    if (labelToUse && labelToUse.length > 0 && parentToUse && activeListing && (connectedAddress || address) && initialCheck.canMint) {
       setMintValidation({ isFetching: true });
-      fetchMintDetailsDebounced(label, address, value);
+      fetchMintDetailsDebounced(
+        labelToUse,
+        parentToUse,
+        activeListing,
+        connectedAddress || address || zeroAddress,
+        value
+      );
     }
   };
 
@@ -328,7 +561,6 @@ export function SubnameOnChainRegistrarModal({
   };
 
   const handleInitialRegister = () => {
-    // Move to registration step when register is clicked from InitialStep
     setCurrentStep(1);
     onStepChange?.(1);
     onRegister?.();
@@ -339,11 +571,173 @@ export function SubnameOnChainRegistrarModal({
     onClose?.();
   };
 
-  const handleRegister = () => {
-    // Move to success screen when register is clicked from RegistrationStep
-    setCurrentStep(2);
-    onStepChange?.(2);
-    onCompleteRegistration?.();
+  const handleRegister = async () => {
+    if (!connectedAddress || !activeListing || !listingChain || !subnameLabel) {
+      showErrorModal(new Error("Missing required information for minting"));
+      return;
+    }
+    
+    // Validate owner address
+    if (!isAddress(owner)) {
+      showErrorModal(new Error("Invalid owner address"));
+      return;
+    }
+    
+    // Check balance
+    const estimatedPriceEth = mintValidation.result?.estimatedPriceEth || 0;
+    const estimatedFeeEth = mintValidation.result?.estimatedFeeEth || 0;
+    const isStandardFee = mintValidation.result?.isStandardFee || false;
+    const mintPrice = isStandardFee ? estimatedPriceEth : estimatedPriceEth + estimatedFeeEth;
+    const totalPrice = mintPrice * duration;
+    const currentPriceWei = parseEther(totalPrice.toString(), "wei");
+    
+    if ((currentBalance?.value || BigInt(0)) < currentPriceWei) {
+      showErrorModal(new Error("Insufficient balance to complete the transaction"));
+      return;
+    }
+    
+    let mintParameters: MintTransactionResponse;
+    
+    try {
+      // Prepare ENS records
+      const records: MintENSRecords = {
+        addresses: (nameRecords.addresses || []).map((addr) => ({
+          chain: addr.coinType,
+          value: addr.value,
+        })),
+        texts: nameRecords.texts || [],
+      };
+      
+      if (nameRecords.contenthash) {
+        // Map ContenthashProtocol to ContenthashType
+        const protocolMap: Record<string, ContenthashType> = {
+          ipfs: ContenthashType.Ipfs,
+          onion3: ContenthashType.Onion,
+          arweave: ContenthashType.Arweave,
+          skynet: ContenthashType.Skynet,
+          swarm: ContenthashType.Swarm,
+        };
+        const contentType = protocolMap[nameRecords.contenthash.protocol.toLowerCase()] || ContenthashType.Ipfs;
+        records.contenthash = {
+          type: contentType as unknown as ContenthashType,
+          value: nameRecords.contenthash.value,
+        };
+      }
+      
+      // Ensure addresses array exists
+      if (!records.addresses) {
+        records.addresses = [];
+      }
+      
+      // Add connected address as ETH address if not already present
+      const hasEthAddress = records.addresses.some(addr => addr.chain === 60);
+      if (!hasEthAddress && connectedAddress) {
+        records.addresses.push({
+          chain: 60,
+          value: connectedAddress,
+        });
+      }
+      
+      setMintBtnState({ waitingForWallet: true });
+      
+      // Get mint transaction parameters from backend
+      mintParameters = await mintClient.getMintTransactionParameters({
+        label: subnameLabel,
+        minterAddress: connectedAddress,
+        parentName: activeListing.name,
+        expiryInYears: duration,
+        owner: owner,
+        records: records,
+      });
+    } catch (err) {
+      showErrorModal(err);
+      setMintBtnState({ waitingForWallet: false });
+      return;
+    }
+    
+    let tx: Hash = "0x0" as Hash;
+    
+    try {
+      if (!publicClient || !walletClient) {
+        throw new Error("Wallet not connected");
+      }
+      const { request } = await publicClient.simulateContract({
+        abi: mintParameters.abi,
+        address: mintParameters.contractAddress,
+        functionName: mintParameters.functionName,
+        args: mintParameters.args,
+        account: connectedAddress,
+        value: mintParameters.value,
+      });
+      
+      // Send mint transaction
+      tx = await walletClient.writeContract(request);
+    } catch (err) {
+      showErrorModal(err);
+      setMintBtnState({ waitingForWallet: false });
+      return;
+    }
+    
+    try {
+      setMintTransaction({
+        showTxScreen: true,
+        state: TransactionState.InProgress,
+        transactionHash: tx,
+      });
+      
+      // Wait for transaction receipt
+      await waitForTransactionReceipt(tx, 1);
+      
+      // Callback for successful mint
+      const fullName = `${subnameLabel}.${activeListing.name}`;
+      const nameChainId = listingChain.id;
+      
+      if (onSubnameMinted) {
+        const addrs: Record<string, string> = {};
+        const txts: Record<string, string> = {};
+        
+        nameRecords.addresses.forEach((addr) => {
+          addrs[addr.coinType.toString()] = addr.value;
+        });
+        nameRecords.texts.forEach((txt) => {
+          txts[txt.key] = txt.value;
+        });
+        
+        onSubnameMinted({
+          addresses: addrs,
+          texts: txts,
+          chainId: nameChainId,
+          isL2: listingChain.id !== mainnet.id && listingChain.id !== sepolia.id,
+          label: subnameLabel,
+          owner: owner,
+          name: fullName,
+          namehash: namehash(fullName),
+          parentName: activeListing.name,
+          expiry: 0,
+        });
+      }
+      
+      // Reset states and move to success screen
+      setMintTransaction({
+        showTxScreen: false,
+        state: TransactionState.Completed,
+        transactionHash: tx,
+      });
+      setMintBtnState({ waitingForWallet: false });
+      
+      // Move to success screen
+      setCurrentStep(2);
+      onStepChange?.(2);
+      onCompleteRegistration?.();
+    } catch (err) {
+      showErrorModal(err);
+      setMintTransaction({
+        showTxScreen: false,
+        state: TransactionState.Failed,
+        transactionHash: tx,
+      });
+      setMintBtnState({ waitingForWallet: false });
+    }
   };
 
   const handleBack = () => {
@@ -355,17 +749,205 @@ export function SubnameOnChainRegistrarModal({
     onCancel?.();
   };
 
+  const handleListingSelected = useCallback(async (suggestion: ListingSuggestion) => {
+    try {
+
+      console.log("[DEBUG] handleListingSelected called with suggestion:", suggestion);
+      const { label, parentName } = suggestion;
+      const fullName = `${label}.${parentName}`;
+      
+      // Set state variables
+      setSubnameLabel(label);
+      setParentName(parentName);
+      setEnsName(fullName);
+      onNameChange?.(fullName);
+      onSubnameSeach?.(fullName);
+      
+      // Reset states
+      setAvailabilityStatus({ isChecking: true, isAvailable: false });
+      setMintDetails({
+        isChecking: true,
+        price: 0,
+        canMint: false,
+        isFreeMint: false,
+      });
+      setMintValidation({ isFetching: true });
+      
+      // Get the listing (should already be fetched, but fetch again to be sure)
+      const listing = dynamicListing || await listManager.getListedName(parentName);
+      if (!listing) {
+        throw new Error("Listing not found");
+      }
+      setDynamicListing(listing);
+      
+      // Check availability and fetch mint details
+      if (listing && (connectedAddress || address)) {
+        const minterAddress = connectedAddress || address || zeroAddress;
+        
+        // Check availability
+        const fullNameForCheck = `${label}.${parentName}`;
+        const listingChain = getChainForListingV2(listing);
+        const isL2Type = listing.type === ListingType.L2;
+        
+        let available: boolean;
+        try {
+          if (isL2Type) {
+            if (!listingChain || !listingChain.id) {
+              throw new Error(`Invalid chain for L2 listing: ${listing.l2Metadata?.registryNetwork}`);
+            }
+            available = await mintClient.isL2SubnameAvailable(fullNameForCheck, listingChain.id);
+          } else {
+            available = await mintClient.isL1SubnameAvailable(fullNameForCheck);
+          }
+          
+          // Check against existing subnames
+          let _available = available;
+          if (subnames && subnames.length > 0) {
+            const existingSubname = subnames.find((s) => s.label === label);
+            _available = available && existingSubname === undefined;
+          }
+
+          const basePrice = listing.prices?.basePrice || 0;
+          const statusText = basePrice === 0 ? "free" : "available";
+
+          setAvailabilityStatus({ 
+            isChecking: false, 
+            isAvailable: _available, 
+            status: statusText 
+          });
+          onAvailableIndicatorChange({ 
+            isChecking: false, 
+            isAvailable: _available 
+          });
+        } catch (err) {
+          showErrorModal(err);
+          setAvailabilityStatus({ isChecking: false, isAvailable: false });
+          onAvailableIndicatorChange({ isChecking: false, isAvailable: false });
+        }
+        
+        try {
+          const mintResult = await mintClient.getMintDetails({
+            label: label,
+            minterAddress: minterAddress,
+            parentName: listing.name || parentName,
+            isTestnet: isTestnet,
+            expiryInYears: duration,
+          });
+          
+          const isFreeMint = mintResult.estimatedPriceEth === 0;
+          const totalPrice = mintResult.estimatedPriceEth + mintResult.estimatedFeeEth;
+          
+          // Update suggestion with actual fee and total price
+          suggestion.fee = mintResult.estimatedFeeEth;
+          suggestion.isStandardFee = mintResult.isStandardFee || false;
+          suggestion.totalPrice = totalPrice;
+          
+          setMintDetails({
+            isChecking: false,
+            price: totalPrice,
+            canMint: mintResult.canMint,
+            isFreeMint,
+          });
+          
+          setMintValidation({
+            isFetching: false,
+            result: {
+              estimatedFeeEth: mintResult.estimatedFeeEth,
+              estimatedPriceEth: mintResult.estimatedPriceEth,
+              isStandardFee: mintResult.isStandardFee || false,
+              canMint: mintResult.canMint,
+            },
+          });
+          
+          // Update initial check
+          setInitialCheck({
+            canMint: mintResult.canMint,
+            isFetching: false,
+            errorMessage: mintResult.validationErrors?.[0],
+          });
+        } catch (err) {
+          showErrorModal(err);
+          setMintDetails({
+            isChecking: false,
+            price: 0,
+            canMint: false,
+            isFreeMint: false,
+          });
+          setMintValidation({ isFetching: false });
+        }
+      }
+    } catch (err) {
+      showErrorModal(err);
+      setDynamicListing(null);
+      setAvailabilityStatus({ isChecking: false, isAvailable: false });
+      setMintDetails({
+        isChecking: false,
+        price: 0,
+        canMint: false,
+        isFreeMint: false,
+      });
+      setMintValidation({ isFetching: false });
+    }
+  }, [
+    listManager,
+    mintClient,
+    connectedAddress,
+    address,
+    subnames,
+    duration,
+    isTestnet,
+    onNameChange,
+    onSubnameSeach,
+    onAvailableIndicatorChange,
+    dynamicListing,
+  ]);
+
+  // Map listing response to ListingSuggestion format
+  const mapListingToSuggestion = useCallback(
+    (listing: NamespaceListing, label: string): ListingSuggestion => {
+      const basePrice = listing.prices?.basePrice || 0;
+      const l2Network = listing.l2Metadata?.registryNetwork 
+        ? (listing.l2Metadata.registryNetwork as ListingNetwork)
+        : undefined;
+      
+      return {
+        label: label,
+        parentName: listing.name,
+        nameNetwork: listing.nameNetwork,
+        listingType: listing.type as ListingType,
+        l2Network: l2Network,
+        price: basePrice,
+        fee: 0, // Will be calculated from mint details
+        isStandardFee: true, // Will be determined from mint details
+        totalPrice: basePrice, // Will be updated with fee
+      };
+    },
+    []
+  );
+
+  // Process listing when it's fetched and we have a pending label
+  useEffect(() => {
+    if (dynamicListing && pendingLabel && pendingLabel.length > 0) {
+      const suggestion = mapListingToSuggestion(dynamicListing, pendingLabel);
+      handleListingSelected(suggestion).catch((err) => {
+        showErrorModal(err);
+      });
+      setPendingLabel(null);
+    }
+  }, [dynamicListing, pendingLabel, mapListingToSuggestion, handleListingSelected]);
+
   // Initial step (first screen)
   if (currentStep === 0) {
     return (
       <div className="ns-onchain-register-container">
         <InitialStep
-          name={ensName}
+          name={subnameLabel || ""}
           onNameChange={handleNameChange}
           onCancel={handleCancel}
           onRegister={handleInitialRegister}
           onClose={onClose}
           domainSuffix={domainSuffix}
+          parentName={parentName || initialParentName}
           isNameAvailable={
             availabilityStatus.isChecking
               ? undefined
@@ -382,30 +964,21 @@ export function SubnameOnChainRegistrarModal({
     const estimatedPriceEth = mintValidation.result?.estimatedPriceEth || 0;
     const estimatedFeeEth = mintValidation.result?.estimatedFeeEth || 0;
     const isStandardFee = mintValidation.result?.isStandardFee || false;
-    
-    // Calculate registration fee (price per year)
-    const registrationFeePerYear = isStandardFee 
-      ? estimatedPriceEth 
+    const registrationFeePerYear = isStandardFee
+      ? estimatedPriceEth
       : estimatedPriceEth + estimatedFeeEth;
-    
-    // Total registration fee for the duration
     const registrationFee = registrationFeePerYear * duration;
-    
-    // Network fee (estimated fee, only if not standard fee)
     const networkFee = isStandardFee ? 0 : estimatedFeeEth;
-    
-    // Total cost
     const totalCost = registrationFee + networkFee;
-    
-    // Mint price for display (per year)
     const mintPrice = registrationFeePerYear;
     const isExpirable = duration > 1;
-
+    const isMinting = mintBtnState.waitingForWallet || mintTransaction.showTxScreen;
+    
     return (
       <div className="ns-onchain-register-container">
         <RegistrationStep
-          name={ensName}
-          domainSuffix={domainSuffix}
+          name={subnameLabel || ensName.split(".")[0]}
+          domainSuffix={activeListing?.name || parentName || domainSuffix}
           owner={owner}
           duration={duration}
           registrationFee={mintValidation.result ? formatFloat(registrationFee, 6).toString() : null}
@@ -426,34 +999,37 @@ export function SubnameOnChainRegistrarModal({
           isFetchingPrice={mintValidation.isFetching}
           expiryYears={duration}
           isExpirable={isExpirable}
+          isRegistering={isMinting}
         />
       </div>
     );
   }
 
-  // Success step (third screen)
   if (currentStep === 2) {
+    const label = subnameLabel || ensName.split(".")[0];
+    const parent = activeListing?.name || parentName || domainSuffix;
+    const fullName = `${label}.${parent}`;
+    
     return (
       <div className="ns-onchain-register-container">
         <OnchainSuccessScreen
-          name={ensName}
+          name={fullName}
           onClose={onClose}
           onFinish={handleFinish}
         />
       </div>
     );
   }
-
-  // Default to initial step
   return (
     <div className="ns-onchain-register-container">
       <InitialStep
-        name={ensName}
+        name={subnameLabel || ""}
         onNameChange={handleNameChange}
         onCancel={handleCancel}
         onRegister={handleInitialRegister}
         onClose={onClose}
         domainSuffix={domainSuffix}
+        parentName={parentName || initialParentName}
         isNameAvailable={
           availabilityStatus.isChecking
             ? undefined
