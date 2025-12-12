@@ -19,6 +19,7 @@ import {
 
 import { useConnectedPrincipal } from "@/context";
 import { Address, Hash, toHex } from "viem";
+import { getSupportedAddressByName } from "@/constants";
 
 import { NameRegistration , EnsRegistrationSteps } from "@/utils/models";
 import { useAccount, useSwitchChain } from "wagmi";
@@ -319,8 +320,6 @@ export function ENSNamesRegistrarComponent({
   }, []);
 
   const handleNameSearchNext = () => {
-    console.log("[ENS Registration] handleNameSearchNext called - Moving to RegistrationBegin");
-    // Fetch price when moving to RegistrationBegin step, only if we haven't fetched for this name/duration yet
     if (ensName && ensName.length >= 3 && duration > 0) {
       const normalizedName = normalise(ensName.trim());
       if (normalizedName !== lastFetchedName || duration !== lastFetchedDuration) {
@@ -433,6 +432,15 @@ export function ENSNamesRegistrarComponent({
     // Only allow next if name is available, not checking, and name length is valid
     const canProceed = nameAvailability.isAvailable && !nameAvailability.isChecking && ensName.length >= 3;
     
+    const normalizedName = normalise(ensName.trim());
+    
+    const handleRecordsChange = (records: EnsRecords) => {
+      setRecordsPerName({
+        ...recordsPerName,
+        [normalizedName]: records,
+      });
+    };
+    
     return (
       <RegistrationForm
         ensName={ensName}
@@ -446,6 +454,7 @@ export function ENSNamesRegistrarComponent({
         onClose={onClose}
         onNext={handleNext}
         onCompleteProfile={onCompleteProfile}
+        onRecordsChange={handleRecordsChange}
         isLoadingPrice={isLoadingPrice}
         priceError={priceError}
         nameAvailability={nameAvailability}
