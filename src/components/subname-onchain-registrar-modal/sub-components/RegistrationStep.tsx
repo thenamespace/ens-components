@@ -1,8 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
 import ninjaLogo from "../../../assets/ninja.png";
 import { Button, Text, Icon, Input, ChainIcon } from "../../atoms";
 import { formatFloat } from "@/utils/numbers";
+import { Modal } from "../../molecules/modal/Modal";
+import { SelectRecordsForm } from "../../select-records-form/SelectRecordsForm";
+import { EnsRecords, EnsAddressRecord } from "@/types";
+import { deepCopy } from "@/utils";
+import { getSupportedAddressByCoin, getSupportedAddressByName } from "@/constants";
 
 export interface RegistrationStepProps {
   name: string;
@@ -23,6 +28,7 @@ export interface RegistrationStepProps {
   onDurationChange?: (duration: number) => void;
   onUseAsPrimaryChange?: (useAsPrimary: boolean) => void;
   onCompleteProfile?: () => void;
+  onRecordsChange?: (records: EnsRecords) => void;
   mintPrice?: number;
   isFetchingPrice?: boolean;
   expiryYears?: number;
@@ -49,6 +55,7 @@ export function RegistrationStep({
   onDurationChange,
   onUseAsPrimaryChange,
   onCompleteProfile,
+  onRecordsChange,
   mintPrice = 0,
   isFetchingPrice = false,
   expiryYears = 1,
@@ -60,12 +67,65 @@ export function RegistrationStep({
   const [ownerAddress, setOwnerAddress] = useState(owner);
   const [isOwnerExpanded, setIsOwnerExpanded] = useState(true);
   const [isDurationExpanded, setIsDurationExpanded] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [records, setRecords] = useState<EnsRecords>({
+    addresses: [],
+    texts: [],
+  });
+  const [initialRecords, setInitialRecords] = useState<EnsRecords>({
+    addresses: [],
+    texts: [],
+  });
   const costBreakdownRef = useRef<HTMLDivElement>(null);
+
+  const eth_address = getSupportedAddressByName("eth");
+  const celo_address = getSupportedAddressByName("celo");
 
   // Sync owner address with prop changes
   useEffect(() => {
     setOwnerAddress(owner);
   }, [owner]);
+
+  // Initialize records with owner address when available
+  useEffect(() => {
+    if (ownerAddress && ownerAddress.length > 0 && records.addresses.length === 0) {
+      const newAddresses: EnsAddressRecord[] = [];
+      if (eth_address) {
+        newAddresses.push({ coinType: eth_address.coinType, value: ownerAddress });
+      }
+      if (celo_address) {
+        newAddresses.push({ coinType: celo_address.coinType, value: ownerAddress });
+      }
+      if (newAddresses.length > 0) {
+        setRecords((prevRecords) => ({
+          ...prevRecords,
+          addresses: newAddresses,
+        }));
+      }
+    }
+  }, [ownerAddress]);
+
+  // Calculate number of records to add
+  const recordsToAdd = useMemo(() => {
+    let count = 0;
+    records.texts.forEach((text) => {
+      if (text.value.length > 0) {
+        count++;
+      }
+    });
+    records.addresses.forEach((addr) => {
+      const supportedAddr = getSupportedAddressByCoin(addr.coinType);
+      if (supportedAddr) {
+        if (addr.value.length > 0 && supportedAddr.validateFunc?.(addr.value)) {
+          count++;
+        }
+      }
+    });
+    if (records.contenthash && records.contenthash.value.length > 0) {
+      count++;
+    }
+    return count;
+  }, [records]);
 
   // Smooth scroll when cost breakdown expands
   useEffect(() => {
@@ -109,6 +169,23 @@ export function RegistrationStep({
     if (!address) return "";
     if (address.length <= 20) return address;
     return `${address.slice(0, 6)}...${address.slice(-6)}`;
+  };
+
+  const handleAddProfile = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleRecordsAdded = () => {
+    const _initialRecords = deepCopy(records);
+    setInitialRecords(_initialRecords);
+    onRecordsChange?.(records);
+    setIsModalOpen(false);
+    onCompleteProfile?.();
+  };
+
+  const handleRecordsCancel = () => {
+    setRecords(deepCopy(initialRecords));
+    setIsModalOpen(false);
   };
 
   const fullName = name.includes(".") ? name : `${name}.${domainSuffix}`;
@@ -281,7 +358,7 @@ export function RegistrationStep({
         onCompleteProfile && (
           <div
             className="ns-onchain-register-profile-card"
-            onClick={onCompleteProfile}
+            onClick={handleAddProfile}
           >
             <div className="ns-onchain-register-profile-icon">
               <img src={ninjaLogo} alt="Profile Icon" />
@@ -345,6 +422,47 @@ export function RegistrationStep({
           Register
         </Button>
       </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        size="md"
+        footer={null}
+        isDismissDisabled={true}
+        style={{ maxWidth: "500px" }}
+      >
+        <div style={{ margin: "-20px", padding: 0 }}>
+          <SelectRecordsForm
+            records={records}
+            onRecordsUpdated={(updatedRecords: EnsRecords) => {
+              setRecords(updatedRecords);
+            }}
+          />
+          <div
+            style={{
+              background: "#f4f4f4",
+              gap: "7px",
+              display: "flex",
+              padding: "4px",
+            }}
+          >
+            <Button
+              onClick={handleRecordsCancel}
+              variant="outline"
+              style={{ width: "50%" }}
+              size="lg"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleRecordsAdded}
+              size="lg"
+              style={{ width: "50%" }}
+            >
+              Add ({recordsToAdd})
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
