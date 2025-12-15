@@ -10,6 +10,7 @@ export { NavbarProfileCard } from "./ens-navbar-profile-card/NavbarProfileCard";
 export { SubnameOnChainRegistrarModal } from "./subname-onchain-registrar-modal/SubnameOnChainRegistrarModal";
 export { SubnameOffChainRegistrarModal } from "./subname-offchain-registrar-modal/SubnameOffChainRegistrarModal";
 export { ENSNamesRegistrarComponent } from "./ens-names-registrar-component/ENSNamesRegistrarComponent";
+export { EnsRecordsForm } from "./ens-records-form/EnsRecordsForm";
 export * from "./atoms";
 export * from "./molecules";
 

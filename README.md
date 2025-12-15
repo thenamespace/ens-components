@@ -62,7 +62,7 @@ function AppProviders({ children }: { children: React.ReactNode }) {
 ### 2. Use the Components
 
 ```tsx
-import { ENSNamesRegistrarComponent, SubnameOnChainRegistrarModal } from "@thenamespace/ens-components";
+import { ENSNamesRegistrarComponent, SubnameOnChainRegistrarModal, EnsRecordsForm } from "@thenamespace/ens-components";
 
 function MyApp() {
   return (
@@ -188,6 +188,187 @@ function ENSRegistrationExample() {
   );
 }
 ```
+
+---
+
+### EnsRecordsForm
+
+Component for editing ENS (Ethereum Name Service) records associated with a domain name. This component allows users to modify text records, address records, and contenthash records.
+
+#### Basic Usage
+
+```tsx
+import { EnsRecordsForm } from "@thenamespace/ens-components";
+import { EnsRecords } from "@thenamespace/ens-components";
+
+function EditENSRecords() {
+  const initialRecords: EnsRecords = {
+    texts: [
+      { key: "description", value: "My ENS profile" },
+      { key: "url", value: "https://example.com" },
+    ],
+    addresses: [
+      { coinType: 60, value: "0x1234567890123456789012345678901234567890" }, // ETH
+    ],
+  };
+
+  return (
+    <EnsRecordsForm
+      name="example.eth"
+      resolverAddress="0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41"
+      initialRecords={initialRecords}
+      onSuccess={(txHash) => {
+        console.log("Records updated! Transaction:", txHash);
+      }}
+      onCancel={() => {
+        console.log("Edit cancelled");
+      }}
+    />
+  );
+}
+```
+
+#### Features
+
+- **Text Records**: Edit various text records like description, URL, avatar, etc.
+- **Address Records**: Manage cryptocurrency addresses for different coin types (ETH, BTC, etc.)
+- **Contenthash Records**: Set content hash for decentralized websites (IPFS, Arweave, etc.)
+- **Real-time Validation**: Validates ENS records before submission
+- **Transaction Management**: Handles blockchain transactions for record updates
+- **Network Switching**: Automatically prompts to switch networks if needed
+- **Wallet Connection**: Handles wallet connection state
+
+#### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `name` | `string` | Yes | - | The ENS name to edit records for (e.g., "example.eth") |
+| `resolverAddress` | `Address` | Yes | - | The resolver contract address for the ENS name |
+| `initialRecords` | `EnsRecords` | No | `{ texts: [], addresses: [] }` | Initial records to populate the form with |
+| `chainId` | `number` | No | `1` (mainnet) | The blockchain chain ID |
+| `onCancel` | `() => void` | No | - | Callback when cancel button is clicked |
+| `onSuccess` | `(txHash: Hash) => void` | No | - | Callback when records are successfully updated with transaction hash |
+
+#### EnsRecords Type
+
+```tsx
+interface EnsRecords {
+  texts: EnsTextRecord[];
+  addresses: EnsAddressRecord[];
+  contenthash?: EnsContenthashRecord;
+}
+
+interface EnsTextRecord {
+  key: string;    // e.g., "description", "url", "avatar", "email"
+  value: string;
+}
+
+interface EnsAddressRecord {
+  coinType: number;  // e.g., 60 for ETH, 0 for BTC
+  value: string;     // Address string
+}
+
+interface EnsContenthashRecord {
+  protocol: "ipfs" | "onion3" | "arweave" | "skynet" | "swarm";
+  value: string;
+}
+```
+
+#### Complete Example
+
+```tsx
+import { useState } from "react";
+import { EnsRecordsForm, EnsRecords } from "@thenamespace/ens-components";
+import { Address } from "viem";
+
+function ENSRecordsEditor() {
+  const [ensName, setEnsName] = useState("example.eth");
+  const [resolverAddress] = useState<Address>("0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41");
+  
+  const initialRecords: EnsRecords = {
+    texts: [
+      { key: "description", value: "My awesome ENS profile" },
+      { key: "url", value: "https://mywebsite.com" },
+      { key: "avatar", value: "https://mywebsite.com/avatar.png" },
+      { key: "email", value: "me@example.com" },
+    ],
+    addresses: [
+      { 
+        coinType: 60, // ETH
+        value: "0x1234567890123456789012345678901234567890" 
+      },
+      { 
+        coinType: 0, // BTC
+        value: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa" 
+      },
+    ],
+    contenthash: {
+      protocol: "ipfs",
+      value: "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG",
+    },
+  };
+
+  const handleSuccess = (txHash: string) => {
+    console.log("Records updated successfully!");
+    console.log("Transaction hash:", txHash);
+    // Optionally show a success message or navigate away
+    alert(`Records updated! Transaction: ${txHash}`);
+  };
+
+  const handleCancel = () => {
+    console.log("Edit cancelled");
+    // Optionally navigate back or close modal
+  };
+
+  return (
+    <div style={{ maxWidth: "800px", margin: "0 auto", padding: "20px" }}>
+      <h2>Edit ENS Records</h2>
+      <div style={{ marginBottom: "20px" }}>
+        <label>
+          ENS Name:
+          <input
+            type="text"
+            value={ensName}
+            onChange={(e) => setEnsName(e.target.value)}
+            placeholder="example.eth"
+            style={{ marginLeft: "10px", padding: "5px" }}
+          />
+        </label>
+      </div>
+      
+      <EnsRecordsForm
+        name={ensName}
+        resolverAddress={resolverAddress}
+        initialRecords={initialRecords}
+        chainId={1} // Mainnet
+        onSuccess={handleSuccess}
+        onCancel={handleCancel}
+      />
+    </div>
+  );
+}
+```
+
+#### Supported Coin Types
+
+Common coin types supported:
+- `60` - Ethereum (ETH)
+- `0` - Bitcoin (BTC)
+- `700` - Polygon (MATIC)
+- `137` - Binance Smart Chain (BNB)
+- And many more...
+
+#### Supported Text Record Keys
+
+Common text record keys:
+- `description` - Profile description
+- `url` - Website URL
+- `avatar` - Avatar image URL
+- `email` - Email address
+- `com.github` - GitHub username
+- `com.twitter` - Twitter/X username
+- `com.discord` - Discord username
+- And any custom key you want to use
 
 ---
 
@@ -364,7 +545,7 @@ function SubnameRegistrationExample() {
 }
 ```
 
-## Full Example with Both Components
+## Full Example with All Components
 
 ```tsx
 import React, { useState } from "react";
@@ -373,7 +554,8 @@ import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { RainbowKitProvider, getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { mainnet, sepolia } from "wagmi/chains";
 import { http } from "wagmi";
-import { ENSNamesRegistrarComponent, SubnameOnChainRegistrarModal } from "@thenamespace/ens-components";
+import { ENSNamesRegistrarComponent, SubnameOnChainRegistrarModal, EnsRecordsForm, EnsRecords } from "@thenamespace/ens-components";
+import { Address } from "viem";
 import "@thenamespace/ens-components/index.css";
 import "@rainbow-me/rainbowkit/styles.css";
 
@@ -402,7 +584,7 @@ function AppProviders({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
-  const [activeTab, setActiveTab] = useState<"ens" | "subname">("ens");
+  const [activeTab, setActiveTab] = useState<"ens" | "subname" | "records">("ens");
   
   // ENS Name Registration State
   const [ensName, setEnsName] = useState("");
@@ -417,6 +599,19 @@ function App() {
   const [duration, setDuration] = useState(1);
   const [useAsPrimary, setUseAsPrimary] = useState(false);
 
+  // ENS Records Form State
+  const [recordsName, setRecordsName] = useState("example.eth");
+  const [resolverAddress] = useState<Address>("0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41");
+  const [initialRecords] = useState<EnsRecords>({
+    texts: [
+      { key: "description", value: "My ENS profile" },
+      { key: "url", value: "https://example.com" },
+    ],
+    addresses: [
+      { coinType: 60, value: "0x1234567890123456789012345678901234567890" },
+    ],
+  });
+
   return (
     <AppProviders>
       <div style={{ padding: "20px" }}>
@@ -429,9 +624,15 @@ function App() {
           </button>
           <button 
             onClick={() => setActiveTab("subname")}
-            style={{ padding: "10px", backgroundColor: activeTab === "subname" ? "#007bff" : "#ccc", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}
+            style={{ marginRight: "10px", padding: "10px", backgroundColor: activeTab === "subname" ? "#007bff" : "#ccc", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}
           >
             Register Subname
+          </button>
+          <button 
+            onClick={() => setActiveTab("records")}
+            style={{ padding: "10px", backgroundColor: activeTab === "records" ? "#007bff" : "#ccc", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}
+          >
+            Edit Records
           </button>
         </div>
 
@@ -474,6 +675,35 @@ function App() {
               onFinish={() => {
                 setSubnameStep(0);
                 setSubname("");
+              }}
+            />
+          </div>
+        )}
+
+        {activeTab === "records" && (
+          <div>
+            <h2>Edit ENS Records</h2>
+            <div style={{ marginBottom: "20px" }}>
+              <label>
+                ENS Name:
+                <input
+                  type="text"
+                  value={recordsName}
+                  onChange={(e) => setRecordsName(e.target.value)}
+                  placeholder="example.eth"
+                  style={{ marginLeft: "10px", padding: "5px" }}
+                />
+              </label>
+            </div>
+            <EnsRecordsForm
+              name={recordsName}
+              resolverAddress={resolverAddress}
+              initialRecords={initialRecords}
+              onSuccess={(txHash) => {
+                alert(`Records updated! Transaction: ${txHash}`);
+              }}
+              onCancel={() => {
+                console.log("Edit cancelled");
               }}
             />
           </div>
