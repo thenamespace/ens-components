@@ -49,7 +49,6 @@ export function SubnameOffChainRegistrarModal({
     onRegister?.();
   };
 
-
   const handleCancel = () => {
     onCancel?.();
   };

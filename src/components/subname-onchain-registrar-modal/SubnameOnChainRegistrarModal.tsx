@@ -6,18 +6,26 @@ import { OnchainSuccessScreen } from "./sub-components/OnchainSuccessScreen";
 import { useAccount, useBalance } from "wagmi";
 import { normalise } from "@ensdomains/ensjs/utils";
 import { debounce } from "lodash";
-import { Address, zeroAddress, Hash, parseEther, isAddress, namehash } from "viem";
+import {
+  Address,
+  zeroAddress,
+  Hash,
+  parseEther,
+  isAddress,
+  namehash,
+} from "viem";
 import { sepolia, mainnet } from "viem/chains";
 // import { useProfileFilterCtx } from "../profile-filter.context";
 import { formatFloat } from "@/utils/numbers";
 import { TransactionState } from "@/components/pending-transaction/PendingTransaction";
-import { ContenthashType, MintTransactionResponse } from "@namespacesdk/mint-manager";
+import {
+  ContenthashType,
+  MintTransactionResponse,
+} from "@namespacesdk/mint-manager";
 import { EnsRecords as MintENSRecords } from "@namespacesdk/mint-manager";
 import { EnsRecords } from "@/types";
 
-
 const randomLabel = `${Math.floor(Math.random() * 1_000_000_000)}`;
-
 
 export interface SubnameOnChainRegistrarModalProps {
   step?: number;
@@ -75,7 +83,7 @@ export function SubnameOnChainRegistrarModal({
   onViewName,
   onFinish,
 }: SubnameOnChainRegistrarModalProps) {
-  return <div></div>
+  return <div></div>;
 }
 
 // export function SubnameOnChainRegistrarModal({
@@ -106,14 +114,14 @@ export function SubnameOnChainRegistrarModal({
 // }: SubnameOnChainRegistrarModalProps) {
 //   // Parent name from prop - user will input label
 //   const PARENT_NAME = initialParentName;
-  
+
 //   // const { listing, onSubnameMinted, subnames } = useEnsProfileContext();
 //   // const { connectedAddress } = useConnectedPrincipal();
 //   // const { address, chain } = useAccount();
 //   // const mintClient = useMintClient();
 //   // const listManager = useListingManager();
 //   // const { networkId, isTestnet, network: envNetwork } = useMainChain();
-  
+
 //   // Determine network based on connected chain, fallback to environment network
 //   // const network = useMemo(() => {
 //   //   if (chain) {
@@ -144,7 +152,7 @@ export function SubnameOnChainRegistrarModal({
 //     availableIndicator,
 //     onAvailableIndicatorChange,
 //   } = useProfileFilterCtx();
-  
+
 //   // Mint transaction state
 //   const [mintTransaction, setMintTransaction] = useState<{
 //     state: TransactionState;
@@ -155,13 +163,13 @@ export function SubnameOnChainRegistrarModal({
 //     state: TransactionState.InProgress,
 //     transactionHash: "0x0" as Hash,
 //   });
-  
+
 //   const [mintBtnState, setMintBtnState] = useState<{
 //     waitingForWallet: boolean;
 //   }>({
 //     waitingForWallet: false,
 //   });
-  
+
 //   // ENS records state (empty by default, can be extended later)
 //   const [nameRecords, setNameRecords] = useState<EnsRecords>({
 //     addresses: [],
@@ -173,7 +181,7 @@ export function SubnameOnChainRegistrarModal({
 //   const activeListing = useMemo(() => {
 //     return dynamicListing || listing.listingData || null;
 //   }, [dynamicListing, listing.listingData]);
-  
+
 //   // Get listing chain for minting
 //   const listingChain = useMemo(() => {
 //     if (activeListing) {
@@ -181,7 +189,7 @@ export function SubnameOnChainRegistrarModal({
 //     }
 //     return null;
 //   }, [activeListing]);
-  
+
 //   // Get chain name for block explorer
 //   const chainName = useMemo(() => {
 //     if (listingChain) {
@@ -189,17 +197,17 @@ export function SubnameOnChainRegistrarModal({
 //     }
 //     return null;
 //   }, [listingChain]);
-  
+
 //   // Web3 clients for minting
-//   const { publicClient, walletClient } = useWeb3Clients({ 
-//     chainId: listingChain?.id || sepolia.id 
+//   const { publicClient, walletClient } = useWeb3Clients({
+//     chainId: listingChain?.id || sepolia.id
 //   });
-  
+
 //   // Transaction waiting hook
-//   const { waitForTransactionReceipt } = useWaitForTransaction({ 
-//     chainId: listingChain?.id || sepolia.id 
+//   const { waitForTransactionReceipt } = useWaitForTransaction({
+//     chainId: listingChain?.id || sepolia.id
 //   });
-  
+
 //   // Balance checking
 //   const { data: currentBalance } = useBalance({ address: connectedAddress });
 
@@ -266,7 +274,6 @@ export function SubnameOnChainRegistrarModal({
 //     setParentName(parsed.parentName);
 //     return { label: parsed.label, parent: parsed.parentName, isValid: true };
 //   }, [parseInput]);
-
 
 //   const [pendingLabel, setPendingLabel] = useState<string | null>(null);
 
@@ -350,7 +357,6 @@ export function SubnameOnChainRegistrarModal({
 //       });
 //     }
 //   }, [activeListing, address, fetchMintDetails, duration]);
-
 
 //   // Check if subname is available
 //   const checkAvailability = useCallback(
@@ -493,7 +499,7 @@ export function SubnameOnChainRegistrarModal({
 //       if (!/^[a-z0-9-]+$/i.test(_val)) {
 //         return; // Invalid character, don't update
 //       }
-      
+
 //       // Validate ENS name format
 //       try {
 //         normalise(_val);
@@ -507,7 +513,7 @@ export function SubnameOnChainRegistrarModal({
 //     const label = _val;
 //     const currentParent = parentName || initialParentName;
 //     const fullName = label ? `${label}.${currentParent}` : "";
-    
+
 //     // Set state
 //     setSubnameLabel(label);
 //     setParentName(currentParent);
@@ -595,13 +601,13 @@ export function SubnameOnChainRegistrarModal({
 //       showErrorModal(new Error("Missing required information for minting"));
 //       return;
 //     }
-    
+
 //     // Validate owner address
 //     if (!isAddress(owner)) {
 //       showErrorModal(new Error("Invalid owner address"));
 //       return;
 //     }
-    
+
 //     // Check balance
 //     const estimatedPriceEth = mintValidation.result?.estimatedPriceEth || 0;
 //     const estimatedFeeEth = mintValidation.result?.estimatedFeeEth || 0;
@@ -609,14 +615,14 @@ export function SubnameOnChainRegistrarModal({
 //     const mintPrice = isStandardFee ? estimatedPriceEth : estimatedPriceEth + estimatedFeeEth;
 //     const totalPrice = mintPrice * duration;
 //     const currentPriceWei = parseEther(totalPrice.toString(), "wei");
-    
+
 //     if ((currentBalance?.value || BigInt(0)) < currentPriceWei) {
 //       showErrorModal(new Error("Insufficient balance to complete the transaction"));
 //       return;
 //     }
-    
+
 //     let mintParameters: MintTransactionResponse;
-    
+
 //     try {
 //       // Prepare ENS records
 //       const records: MintENSRecords = {
@@ -626,7 +632,7 @@ export function SubnameOnChainRegistrarModal({
 //         })),
 //         texts: nameRecords.texts || [],
 //       };
-      
+
 //       if (nameRecords.contenthash) {
 //         // Map ContenthashProtocol to ContenthashType
 //         const protocolMap: Record<string, ContenthashType> = {
@@ -642,12 +648,12 @@ export function SubnameOnChainRegistrarModal({
 //           value: nameRecords.contenthash.value,
 //         };
 //       }
-      
+
 //       // Ensure addresses array exists
 //       if (!records.addresses) {
 //         records.addresses = [];
 //       }
-      
+
 //       // Add connected address as ETH address if not already present
 //       const hasEthAddress = records.addresses.some(addr => addr.chain === 60);
 //       if (!hasEthAddress && connectedAddress) {
@@ -656,9 +662,9 @@ export function SubnameOnChainRegistrarModal({
 //           value: connectedAddress,
 //         });
 //       }
-      
+
 //       setMintBtnState({ waitingForWallet: true });
-      
+
 //       // Get mint transaction parameters from backend
 //       mintParameters = await mintClient.getMintTransactionParameters({
 //         label: subnameLabel,
@@ -673,9 +679,9 @@ export function SubnameOnChainRegistrarModal({
 //       setMintBtnState({ waitingForWallet: false });
 //       return;
 //     }
-    
+
 //     let tx: Hash = "0x0" as Hash;
-    
+
 //     try {
 //       if (!publicClient || !walletClient) {
 //         throw new Error("Wallet not connected");
@@ -688,7 +694,7 @@ export function SubnameOnChainRegistrarModal({
 //         account: connectedAddress,
 //         value: mintParameters.value,
 //       });
-      
+
 //       // Send mint transaction
 //       tx = await walletClient.writeContract(request);
 //     } catch (err) {
@@ -696,32 +702,32 @@ export function SubnameOnChainRegistrarModal({
 //       setMintBtnState({ waitingForWallet: false });
 //       return;
 //     }
-    
+
 //     try {
 //       setMintTransaction({
 //         showTxScreen: true,
 //         state: TransactionState.InProgress,
 //         transactionHash: tx,
 //       });
-      
+
 //       // Wait for transaction receipt
 //       await waitForTransactionReceipt(tx, 1);
-      
+
 //       // Callback for successful mint
 //       const fullName = `${subnameLabel}.${activeListing.name}`;
 //       const nameChainId = listingChain.id;
-      
+
 //       if (onSubnameMinted) {
 //         const addrs: Record<string, string> = {};
 //         const txts: Record<string, string> = {};
-        
+
 //         nameRecords.addresses.forEach((addr) => {
 //           addrs[addr.coinType.toString()] = addr.value;
 //         });
 //         nameRecords.texts.forEach((txt) => {
 //           txts[txt.key] = txt.value;
 //         });
-        
+
 //         onSubnameMinted({
 //           addresses: addrs,
 //           texts: txts,
@@ -735,7 +741,7 @@ export function SubnameOnChainRegistrarModal({
 //           expiry: 0,
 //         });
 //       }
-      
+
 //       // Reset states and move to success screen
 //       setMintTransaction({
 //         showTxScreen: false,
@@ -743,7 +749,7 @@ export function SubnameOnChainRegistrarModal({
 //         transactionHash: tx,
 //       });
 //       setMintBtnState({ waitingForWallet: false });
-      
+
 //       // Move to success screen
 //       setCurrentStep(2);
 //       onStepChange?.(2);
@@ -774,14 +780,14 @@ export function SubnameOnChainRegistrarModal({
 //       console.log("[DEBUG] handleListingSelected called with suggestion:", suggestion);
 //       const { label, parentName } = suggestion;
 //       const fullName = `${label}.${parentName}`;
-      
+
 //       // Set state variables
 //       setSubnameLabel(label);
 //       setParentName(parentName);
 //       setEnsName(fullName);
 //       onNameChange?.(fullName);
 //       onSubnameSeach?.(fullName);
-      
+
 //       // Reset states
 //       setAvailabilityStatus({ isChecking: true, isAvailable: false });
 //       setMintDetails({
@@ -791,23 +797,23 @@ export function SubnameOnChainRegistrarModal({
 //         isFreeMint: false,
 //       });
 //       setMintValidation({ isFetching: true });
-      
+
 //       // Get the listing (should already be fetched, but fetch again to be sure)
 //       const listing = dynamicListing || await listManager.getListedName(parentName);
 //       if (!listing) {
 //         throw new Error("Listing not found");
 //       }
 //       setDynamicListing(listing);
-      
+
 //       // Check availability and fetch mint details
 //       if (listing && (connectedAddress || address)) {
 //         const minterAddress = connectedAddress || address || zeroAddress;
-        
+
 //         // Check availability
 //         const fullNameForCheck = `${label}.${parentName}`;
 //         const listingChain = getChainForListingV2(listing);
 //         const isL2Type = listing.type === ListingType.L2;
-        
+
 //         let available: boolean;
 //         try {
 //           if (isL2Type) {
@@ -818,7 +824,7 @@ export function SubnameOnChainRegistrarModal({
 //           } else {
 //             available = await mintClient.isL1SubnameAvailable(fullNameForCheck);
 //           }
-          
+
 //           // Check against existing subnames
 //           let _available = available;
 //           if (subnames && subnames.length > 0) {
@@ -829,21 +835,21 @@ export function SubnameOnChainRegistrarModal({
 //           const basePrice = listing.prices?.basePrice || 0;
 //           const statusText = basePrice === 0 ? "free" : "available";
 
-//           setAvailabilityStatus({ 
-//             isChecking: false, 
-//             isAvailable: _available, 
-//             status: statusText 
+//           setAvailabilityStatus({
+//             isChecking: false,
+//             isAvailable: _available,
+//             status: statusText
 //           });
-//           onAvailableIndicatorChange({ 
-//             isChecking: false, 
-//             isAvailable: _available 
+//           onAvailableIndicatorChange({
+//             isChecking: false,
+//             isAvailable: _available
 //           });
 //         } catch (err) {
 //           showErrorModal(err);
 //           setAvailabilityStatus({ isChecking: false, isAvailable: false });
 //           onAvailableIndicatorChange({ isChecking: false, isAvailable: false });
 //         }
-        
+
 //         try {
 //           const mintResult = await mintClient.getMintDetails({
 //             label: label,
@@ -852,22 +858,22 @@ export function SubnameOnChainRegistrarModal({
 //             isTestnet: isTestnet,
 //             expiryInYears: duration,
 //           });
-          
+
 //           const isFreeMint = mintResult.estimatedPriceEth === 0;
 //           const totalPrice = mintResult.estimatedPriceEth + mintResult.estimatedFeeEth;
-          
+
 //           // Update suggestion with actual fee and total price
 //           suggestion.fee = mintResult.estimatedFeeEth;
 //           suggestion.isStandardFee = mintResult.isStandardFee || false;
 //           suggestion.totalPrice = totalPrice;
-          
+
 //           setMintDetails({
 //             isChecking: false,
 //             price: totalPrice,
 //             canMint: mintResult.canMint,
 //             isFreeMint,
 //           });
-          
+
 //           setMintValidation({
 //             isFetching: false,
 //             result: {
@@ -877,7 +883,7 @@ export function SubnameOnChainRegistrarModal({
 //               canMint: mintResult.canMint,
 //             },
 //           });
-          
+
 //           // Update initial check
 //           setInitialCheck({
 //             canMint: mintResult.canMint,
@@ -925,10 +931,10 @@ export function SubnameOnChainRegistrarModal({
 //   const mapListingToSuggestion = useCallback(
 //     (listing: NamespaceListing, label: string): ListingSuggestion => {
 //       const basePrice = listing.prices?.basePrice || 0;
-//       const l2Network = listing.l2Metadata?.registryNetwork 
+//       const l2Network = listing.l2Metadata?.registryNetwork
 //         ? (listing.l2Metadata.registryNetwork as ListingNetwork)
 //         : undefined;
-      
+
 //       return {
 //         label: label,
 //         parentName: listing.name,
@@ -992,7 +998,7 @@ export function SubnameOnChainRegistrarModal({
 //     const mintPrice = registrationFeePerYear;
 //     const isExpirable = duration > 1;
 //     const isMinting = mintBtnState.waitingForWallet || mintTransaction.showTxScreen;
-    
+
 //     return (
 //       <div className="ns-onchain-register-container">
 //         <RegistrationStep
@@ -1028,7 +1034,7 @@ export function SubnameOnChainRegistrarModal({
 //     const label = subnameLabel || ensName.split(".")[0];
 //     const parent = activeListing?.name || parentName || domainSuffix;
 //     const fullName = `${label}.${parent}`;
-    
+
 //     return (
 //       <div className="ns-onchain-register-container">
 //         <OnchainSuccessScreen

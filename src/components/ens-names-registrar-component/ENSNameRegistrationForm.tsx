@@ -7,13 +7,11 @@ import { SuccessScreen } from "./sub-components/SuccessScreen";
 
 import { normalise } from "@ensdomains/ensjs/utils";
 import { debounce } from "lodash";
-import {
-  EnsRecords,
-} from "@/types";
+import { EnsRecords } from "@/types";
 
 import { Address, Hash, toHex, zeroAddress } from "viem";
 
-import { NameRegistration , EnsRegistrationSteps } from "@/utils/models";
+import { NameRegistration, EnsRegistrationSteps } from "@/utils/models";
 import { useAccount } from "wagmi";
 
 export interface ENSNameRegistrationFormProps {
@@ -47,7 +45,9 @@ export function ENSNameRegistrationForm({
 }: ENSNameRegistrationFormProps) {
   const [duration, setDuration] = useState(initialDuration);
   const [ensName, setEnsName] = useState(name);
-  const [currentStep, setCurrentStep] = useState<EnsRegistrationSteps>(EnsRegistrationSteps.SelectNames);
+  const [currentStep, setCurrentStep] = useState<EnsRegistrationSteps>(
+    EnsRegistrationSteps.SelectNames
+  );
   const [expandedStep, setExpandedStep] = useState(1);
 
   // Debug: Log step changes
@@ -61,7 +61,9 @@ export function ENSNameRegistrationForm({
       [EnsRegistrationSteps.RegistrationSent]: "RegistrationSent",
       [EnsRegistrationSteps.RegistrationCompleted]: "RegistrationCompleted",
     };
-    console.log(`[ENS Registration] Step changed to: ${stepNames[currentStep]} (${currentStep})`);
+    console.log(
+      `[ENS Registration] Step changed to: ${stepNames[currentStep]} (${currentStep})`
+    );
   }, [currentStep]);
   const [isTransactionInProgress, setIsTransactionInProgress] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -84,48 +86,50 @@ export function ENSNameRegistrationForm({
   const [lastFetchedDuration, setLastFetchedDuration] = useState<number>(0);
   // const { isNameAvailable, getRegistrationPrice } = useEthRegistrarController();
   // const { networkId } = useMainChain();
-  const { address:connectedAddress } = useAccount();
+  const { address: connectedAddress } = useAccount();
   // const { publicResolver } = useEnsContractAddresses();
 
-  const fetchPrice = useCallback(async (name: string, durationInYears: number) => {
-    if (!name || name.trim() === "" || durationInYears <= 0) {
-      setFetchedEthPrice(null);
-      setIsLoadingPrice(false);
-      setPriceError(null);
-      return;
-    }
-
-    const normalizedName = normalise(name.trim());
-
-    try {
-      setIsLoadingPrice(true);
-      setPriceError(null);
-      // const priceResult = await getRegistrationPrice(normalizedName, durationInYears);
-      const priceResult = {
-        ethPrice: 0
+  const fetchPrice = useCallback(
+    async (name: string, durationInYears: number) => {
+      if (!name || name.trim() === "" || durationInYears <= 0) {
+        setFetchedEthPrice(null);
+        setIsLoadingPrice(false);
+        setPriceError(null);
+        return;
       }
-      
-      if (priceResult) {
-        setFetchedEthPrice(priceResult.ethPrice);
-        setLastFetchedName(normalizedName);
-        setLastFetchedDuration(durationInYears);
-      }
-    } catch (error) {
-      console.error("Error fetching registration price:", error);
-      setPriceError("Failed to fetch price");
-      setFetchedEthPrice(null);
-    } finally {
-      setIsLoadingPrice(false);
-    }
-  }, []);
 
+      const normalizedName = normalise(name.trim());
+
+      try {
+        setIsLoadingPrice(true);
+        setPriceError(null);
+        // const priceResult = await getRegistrationPrice(normalizedName, durationInYears);
+        const priceResult = {
+          ethPrice: 0,
+        };
+
+        if (priceResult) {
+          setFetchedEthPrice(priceResult.ethPrice);
+          setLastFetchedName(normalizedName);
+          setLastFetchedDuration(durationInYears);
+        }
+      } catch (error) {
+        console.error("Error fetching registration price:", error);
+        setPriceError("Failed to fetch price");
+        setFetchedEthPrice(null);
+      } finally {
+        setIsLoadingPrice(false);
+      }
+    },
+    []
+  );
 
   const [recordsPerName, setRecordsPerName] = useState<
-  Record<string, EnsRecords>
->({});
+    Record<string, EnsRecords>
+  >({});
 
   const isRegistrationPresent = (label: string) => {
-    return registrations.find((reg) => reg.label === label) !== undefined;
+    return registrations.find(reg => reg.label === label) !== undefined;
   };
   const addNewRegistration = async (label: string) => {
     if (isRegistrationPresent(label)) {
@@ -135,8 +139,8 @@ export function ENSNameRegistrationForm({
     // const price = await getRegistrationPrice(label, 1);
     const price = {
       ethPrice: 0,
-      weiPrice: 0n
-    }
+      weiPrice: 0n,
+    };
     const _registrations = [
       {
         durationInYears: 1,
@@ -195,7 +199,9 @@ export function ENSNameRegistrationForm({
         setProgress(prev => {
           if (prev >= 100) {
             clearInterval(interval);
-            console.log("[ENS Registration] Progress reached 100% - Moving to TimerStarted");
+            console.log(
+              "[ENS Registration] Progress reached 100% - Moving to TimerStarted"
+            );
             setIsTimerActive(true);
             setCurrentStep(EnsRegistrationSteps.TimerStarted);
             setCompletedSteps([1]);
@@ -215,7 +221,9 @@ export function ENSNameRegistrationForm({
         setTimerSeconds(prev => {
           if (prev <= 1) {
             clearInterval(interval);
-            console.log("[ENS Registration] Timer completed - Moving to TimerCompleted");
+            console.log(
+              "[ENS Registration] Timer completed - Moving to TimerCompleted"
+            );
             setIsTimerActive(false);
             setCurrentStep(EnsRegistrationSteps.TimerCompleted);
             setCompletedSteps([1, 2]);
@@ -234,11 +242,19 @@ export function ENSNameRegistrationForm({
     const newDuration = Math.max(1, duration + delta);
     setDuration(newDuration);
     onDurationChange?.(newDuration);
-    
+
     // Fetch price when duration changes on RegistrationBegin step, only if name or duration changed
-    if (currentStep === EnsRegistrationSteps.RegistrationBegin && ensName && ensName.length >= 3 && newDuration > 0) {
+    if (
+      currentStep === EnsRegistrationSteps.RegistrationBegin &&
+      ensName &&
+      ensName.length >= 3 &&
+      newDuration > 0
+    ) {
       const normalizedName = normalise(ensName.trim());
-      if (normalizedName !== lastFetchedName || newDuration !== lastFetchedDuration) {
+      if (
+        normalizedName !== lastFetchedName ||
+        newDuration !== lastFetchedDuration
+      ) {
         fetchPrice(ensName, newDuration);
       }
     }
@@ -246,7 +262,6 @@ export function ENSNameRegistrationForm({
 
   const checkAvailable = useCallback(async (label: string) => {
     try {
-      
       // const available = await isNameAvailable(label);
       const available = true;
       console.log("Available:", available);
@@ -258,7 +273,7 @@ export function ENSNameRegistrationForm({
       console.log("Error response:", error);
       console.log("Error details:", {
         message: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
+        stack: error instanceof Error ? error.stack : undefined,
       });
       setNameAvailability({ isAvailable: false, isChecking: false });
     }
@@ -294,9 +309,16 @@ export function ENSNameRegistrationForm({
     }
 
     // Fetch price when name changes on RegistrationBegin step, only if name or duration changed
-    if (currentStep === EnsRegistrationSteps.RegistrationBegin && _value.length >= 3 && duration > 0) {
+    if (
+      currentStep === EnsRegistrationSteps.RegistrationBegin &&
+      _value.length >= 3 &&
+      duration > 0
+    ) {
       const normalizedName = normalise(_value.trim());
-      if (normalizedName !== lastFetchedName || duration !== lastFetchedDuration) {
+      if (
+        normalizedName !== lastFetchedName ||
+        duration !== lastFetchedDuration
+      ) {
         fetchPrice(_value, duration);
       }
     }
@@ -304,7 +326,10 @@ export function ENSNameRegistrationForm({
 
   // Check availability on mount if there's an initial name
   useEffect(() => {
-    console.log("[ENS Registration] Component mounted - Initial step:", EnsRegistrationSteps.SelectNames);
+    console.log(
+      "[ENS Registration] Component mounted - Initial step:",
+      EnsRegistrationSteps.SelectNames
+    );
     if (ensName && ensName.length >= 3 && !nameAvailability.isChecking) {
       try {
         normalise(ensName);
@@ -319,8 +344,16 @@ export function ENSNameRegistrationForm({
   const handleNameSearchNext = () => {
     if (ensName && ensName.length >= 3 && duration > 0) {
       const normalizedName = normalise(ensName.trim());
-      if (normalizedName !== lastFetchedName || duration !== lastFetchedDuration) {
-        console.log("[ENS Registration] Fetching price for:", ensName, "duration:", duration);
+      if (
+        normalizedName !== lastFetchedName ||
+        duration !== lastFetchedDuration
+      ) {
+        console.log(
+          "[ENS Registration] Fetching price for:",
+          ensName,
+          "duration:",
+          duration
+        );
         fetchPrice(ensName, duration);
       }
     }
@@ -329,13 +362,17 @@ export function ENSNameRegistrationForm({
   };
 
   const handleNext = () => {
-    console.log("[ENS Registration] handleNext called - Moving to CommitmentSent");
+    console.log(
+      "[ENS Registration] handleNext called - Moving to CommitmentSent"
+    );
     setCurrentStep(EnsRegistrationSteps.CommitmentSent);
     onNext?.();
   };
 
   const handleBackToForm = () => {
-    console.log("[ENS Registration] handleBackToForm called - Moving back to RegistrationBegin");
+    console.log(
+      "[ENS Registration] handleBackToForm called - Moving back to RegistrationBegin"
+    );
     setCurrentStep(EnsRegistrationSteps.RegistrationBegin);
     setIsTransactionInProgress(false);
     setProgress(0);
@@ -350,7 +387,9 @@ export function ENSNameRegistrationForm({
   };
 
   const handleOpenWallet = () => {
-    console.log("[ENS Registration] handleOpenWallet called - Moving to CommitmentSent");
+    console.log(
+      "[ENS Registration] handleOpenWallet called - Moving to CommitmentSent"
+    );
     setCurrentStep(EnsRegistrationSteps.CommitmentSent);
     setIsTransactionInProgress(true);
     setProgress(0);
@@ -363,36 +402,46 @@ export function ENSNameRegistrationForm({
     }
 
     const normalizedName = normalise(ensName.trim());
-    const records = recordsPerName[normalizedName] || { addresses: [], texts: [] };
-    const price = fetchedEthPrice !== null 
-      ? BigInt(Math.floor(fetchedEthPrice * 1e18))
-      : BigInt(0);
+    const records = recordsPerName[normalizedName] || {
+      addresses: [],
+      texts: [],
+    };
+    const price =
+      fetchedEthPrice !== null
+        ? BigInt(Math.floor(fetchedEthPrice * 1e18))
+        : BigInt(0);
 
     // Generate a random secret for the commitment
     const secretArray = new Uint8Array(32);
     crypto.getRandomValues(secretArray);
     const secret = toHex(secretArray) as Hash;
 
-    return [{
-      label: normalizedName,
-      owner: connectedAddress as Address,
-      secret: secret,
-      durationInYears: duration,
-      resolver: zeroAddress,
-      reverseRecord: false,
-      records: records,
-      registrationPrice: price,
-    }];
+    return [
+      {
+        label: normalizedName,
+        owner: connectedAddress as Address,
+        secret: secret,
+        durationInYears: duration,
+        resolver: zeroAddress,
+        reverseRecord: false,
+        records: records,
+        registrationPrice: price,
+      },
+    ];
   };
 
   const handleCompleteRegistration = () => {
-    console.log("[ENS Registration] handleCompleteRegistration called - Moving to RegistrationCompleted");
+    console.log(
+      "[ENS Registration] handleCompleteRegistration called - Moving to RegistrationCompleted"
+    );
     setCurrentStep(EnsRegistrationSteps.RegistrationCompleted);
     onCompleteRegistration?.();
   };
 
   const handleRegisterAnother = () => {
-    console.log("[ENS Registration] handleRegisterAnother called - Resetting to SelectNames");
+    console.log(
+      "[ENS Registration] handleRegisterAnother called - Resetting to SelectNames"
+    );
     setCurrentStep(EnsRegistrationSteps.SelectNames);
     setIsTransactionInProgress(false);
     setProgress(0);
@@ -404,7 +453,7 @@ export function ENSNameRegistrationForm({
   };
 
   const timerProgress = ((60 - timerSeconds) / 60) * 100;
-  
+
   // Use only fetched price, no hardcoded costs
   const registrationCost = fetchedEthPrice !== null ? fetchedEthPrice : 0;
   const networkFee = 0; // Network fee is typically estimated at transaction time
@@ -420,24 +469,31 @@ export function ENSNameRegistrationForm({
         onNext={handleNameSearchNext}
         isChecking={nameAvailability.isChecking}
         isAvailable={nameAvailability.isAvailable}
-        isTaken={ensName.length >= 3 && !nameAvailability.isChecking && !nameAvailability.isAvailable}
+        isTaken={
+          ensName.length >= 3 &&
+          !nameAvailability.isChecking &&
+          !nameAvailability.isAvailable
+        }
       />
     );
   }
 
   if (currentStep === EnsRegistrationSteps.RegistrationBegin) {
     // Only allow next if name is available, not checking, and name length is valid
-    const canProceed = nameAvailability.isAvailable && !nameAvailability.isChecking && ensName.length >= 3;
-    
+    const canProceed =
+      nameAvailability.isAvailable &&
+      !nameAvailability.isChecking &&
+      ensName.length >= 3;
+
     const normalizedName = normalise(ensName.trim());
-    
+
     const handleRecordsChange = (records: EnsRecords) => {
       setRecordsPerName({
         ...recordsPerName,
         [normalizedName]: records,
       });
     };
-    
+
     return (
       <RegistrationForm
         ensName={ensName}
@@ -471,7 +527,7 @@ export function ENSNameRegistrationForm({
         expiryDate={getExpiryDate()}
         onClose={onClose}
         onRegisterAnother={handleRegisterAnother}
-        onViewName={onViewName || (() => { })}
+        onViewName={onViewName || (() => {})}
       />
     );
   }

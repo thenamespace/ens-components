@@ -50,9 +50,7 @@ function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
-          {children}
-        </RainbowKitProvider>
+        <RainbowKitProvider>{children}</RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );
@@ -62,14 +60,13 @@ function AppProviders({ children }: { children: React.ReactNode }) {
 ### 2. Use the Components
 
 ```tsx
-import { ENSNamesRegistrarComponent, SubnameOnChainRegistrarModal } from "@thenamespace/ens-components";
+import {
+  ENSNamesRegistrarComponent,
+  SubnameOnChainRegistrarModal,
+} from "@thenamespace/ens-components";
 
 function MyApp() {
-  return (
-    <AppProviders>
-      {/* Your components here */}
-    </AppProviders>
-  );
+  return <AppProviders>{/* Your components here */}</AppProviders>;
 }
 ```
 
@@ -114,20 +111,20 @@ The component has 4 main steps:
 
 #### Props
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `name` | `string` | No | `"brightwave"` | Initial ENS name (without .eth suffix) |
-| `duration` | `number` | No | `1` | Registration duration in years |
-| `onNameChange` | `(name: string) => void` | No | - | Callback when name changes |
-| `onDurationChange` | `(duration: number) => void` | No | - | Callback when duration changes |
-| `onBack` | `() => void` | No | - | Callback when back button is clicked |
-| `onClose` | `() => void` | No | - | Callback when close button is clicked |
-| `onNext` | `() => void` | No | - | Callback when next button is clicked |
-| `onCompleteProfile` | `() => void` | No | - | Callback when "Complete Profile" is clicked |
-| `onOpenWallet` | `() => void` | No | - | Callback when wallet needs to be opened |
-| `onCompleteRegistration` | `() => void` | No | - | Callback when registration completes |
-| `onRegisterAnother` | `() => void` | No | - | Callback when "Register Another" is clicked |
-| `onViewName` | `() => void` | No | - | Callback when "View Name" is clicked |
+| Prop                     | Type                         | Required | Default        | Description                                 |
+| ------------------------ | ---------------------------- | -------- | -------------- | ------------------------------------------- |
+| `name`                   | `string`                     | No       | `"brightwave"` | Initial ENS name (without .eth suffix)      |
+| `duration`               | `number`                     | No       | `1`            | Registration duration in years              |
+| `onNameChange`           | `(name: string) => void`     | No       | -              | Callback when name changes                  |
+| `onDurationChange`       | `(duration: number) => void` | No       | -              | Callback when duration changes              |
+| `onBack`                 | `() => void`                 | No       | -              | Callback when back button is clicked        |
+| `onClose`                | `() => void`                 | No       | -              | Callback when close button is clicked       |
+| `onNext`                 | `() => void`                 | No       | -              | Callback when next button is clicked        |
+| `onCompleteProfile`      | `() => void`                 | No       | -              | Callback when "Complete Profile" is clicked |
+| `onOpenWallet`           | `() => void`                 | No       | -              | Callback when wallet needs to be opened     |
+| `onCompleteRegistration` | `() => void`                 | No       | -              | Callback when registration completes        |
+| `onRegisterAnother`      | `() => void`                 | No       | -              | Callback when "Register Another" is clicked |
+| `onViewName`             | `() => void`                 | No       | -              | Callback when "View Name" is clicked        |
 
 #### Complete Example
 
@@ -173,12 +170,12 @@ function ENSRegistrationExample() {
           }
         }}
       />
-      
+
       {registeredNames.length > 0 && (
         <div>
           <h3>Registered Names:</h3>
           <ul>
-            {registeredNames.map((n) => (
+            {registeredNames.map(n => (
               <li key={n}>{n}.eth</li>
             ))}
           </ul>
@@ -243,35 +240,35 @@ The component has 3 main steps:
 
 #### Props
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `step` | `number` | No | `0` | Current step (0: Initial, 1: Registration, 2: Success) |
-| `name` | `string` | No | `""` | Subname label (without parent domain) |
-| `parentName` | `string` | No | `"celotest.eth"` | Parent domain name |
-| `profileComplete` | `boolean` | No | `false` | Whether profile is complete |
-| `domainSuffix` | `string` | No | `"eth"` | Domain suffix |
-| `owner` | `string` | No | `"0x035eB...24117D3"` | Owner address for the subname |
-| `duration` | `number` | No | `1` | Registration duration in years |
-| `registrationFee` | `string` | No | - | Registration fee (optional) |
-| `networkFee` | `string` | No | - | Network fee (optional) |
-| `totalCost` | `string` | No | - | Total cost (optional) |
-| `useAsPrimary` | `boolean` | No | `false` | Whether to use as primary name |
-| `profileImageUrl` | `string` | No | - | Profile image URL (optional) |
-| `onStepChange` | `(step: number) => void` | No | - | Callback when step changes |
-| `onNameChange` | `(name: string) => void` | No | - | Callback when name changes |
-| `onProfileCompleteChange` | `(complete: boolean) => void` | No | - | Callback when profile complete status changes |
-| `onOwnerChange` | `(owner: string) => void` | No | - | Callback when owner changes |
-| `onDurationChange` | `(duration: number) => void` | No | - | Callback when duration changes |
-| `onUseAsPrimaryChange` | `(useAsPrimary: boolean) => void` | No | - | Callback when useAsPrimary changes |
-| `onRegister` | `() => void` | No | - | Callback when register button is clicked |
-| `onCancel` | `() => void` | No | - | Callback when cancel button is clicked |
-| `onClose` | `() => void` | No | - | Callback when close button is clicked |
-| `onCompleteProfile` | `() => void` | No | - | Callback when "Complete Profile" is clicked |
-| `onOpenWallet` | `() => void` | No | - | Callback when wallet needs to be opened |
-| `onCompleteRegistration` | `() => void` | No | - | Callback when registration completes |
-| `onRegisterAnother` | `() => void` | No | - | Callback when "Register Another" is clicked |
-| `onViewName` | `() => void` | No | - | Callback when "View Name" is clicked |
-| `onFinish` | `() => void` | No | - | Callback when finish button is clicked (success screen) |
+| Prop                      | Type                              | Required | Default               | Description                                             |
+| ------------------------- | --------------------------------- | -------- | --------------------- | ------------------------------------------------------- |
+| `step`                    | `number`                          | No       | `0`                   | Current step (0: Initial, 1: Registration, 2: Success)  |
+| `name`                    | `string`                          | No       | `""`                  | Subname label (without parent domain)                   |
+| `parentName`              | `string`                          | No       | `"celotest.eth"`      | Parent domain name                                      |
+| `profileComplete`         | `boolean`                         | No       | `false`               | Whether profile is complete                             |
+| `domainSuffix`            | `string`                          | No       | `"eth"`               | Domain suffix                                           |
+| `owner`                   | `string`                          | No       | `"0x035eB...24117D3"` | Owner address for the subname                           |
+| `duration`                | `number`                          | No       | `1`                   | Registration duration in years                          |
+| `registrationFee`         | `string`                          | No       | -                     | Registration fee (optional)                             |
+| `networkFee`              | `string`                          | No       | -                     | Network fee (optional)                                  |
+| `totalCost`               | `string`                          | No       | -                     | Total cost (optional)                                   |
+| `useAsPrimary`            | `boolean`                         | No       | `false`               | Whether to use as primary name                          |
+| `profileImageUrl`         | `string`                          | No       | -                     | Profile image URL (optional)                            |
+| `onStepChange`            | `(step: number) => void`          | No       | -                     | Callback when step changes                              |
+| `onNameChange`            | `(name: string) => void`          | No       | -                     | Callback when name changes                              |
+| `onProfileCompleteChange` | `(complete: boolean) => void`     | No       | -                     | Callback when profile complete status changes           |
+| `onOwnerChange`           | `(owner: string) => void`         | No       | -                     | Callback when owner changes                             |
+| `onDurationChange`        | `(duration: number) => void`      | No       | -                     | Callback when duration changes                          |
+| `onUseAsPrimaryChange`    | `(useAsPrimary: boolean) => void` | No       | -                     | Callback when useAsPrimary changes                      |
+| `onRegister`              | `() => void`                      | No       | -                     | Callback when register button is clicked                |
+| `onCancel`                | `() => void`                      | No       | -                     | Callback when cancel button is clicked                  |
+| `onClose`                 | `() => void`                      | No       | -                     | Callback when close button is clicked                   |
+| `onCompleteProfile`       | `() => void`                      | No       | -                     | Callback when "Complete Profile" is clicked             |
+| `onOpenWallet`            | `() => void`                      | No       | -                     | Callback when wallet needs to be opened                 |
+| `onCompleteRegistration`  | `() => void`                      | No       | -                     | Callback when registration completes                    |
+| `onRegisterAnother`       | `() => void`                      | No       | -                     | Callback when "Register Another" is clicked             |
+| `onViewName`              | `() => void`                      | No       | -                     | Callback when "View Name" is clicked                    |
+| `onFinish`                | `() => void`                      | No       | -                     | Callback when finish button is clicked (success screen) |
 
 #### Complete Example
 
@@ -311,14 +308,12 @@ function SubnameRegistrationExample() {
   if (!isOpen) {
     return (
       <div>
-        <button onClick={() => setIsOpen(true)}>
-          Register Subname
-        </button>
+        <button onClick={() => setIsOpen(true)}>Register Subname</button>
         {registeredSubnames.length > 0 && (
           <div>
             <h3>Registered Subnames:</h3>
             <ul>
-              {registeredSubnames.map((n) => (
+              {registeredSubnames.map(n => (
                 <li key={n}>{n}</li>
               ))}
             </ul>
@@ -329,8 +324,28 @@ function SubnameRegistrationExample() {
   }
 
   return (
-    <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0, 0, 0, 0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
-      <div style={{ backgroundColor: "white", borderRadius: "8px", padding: "20px", maxWidth: "600px", width: "90%", maxHeight: "90vh", overflow: "auto" }}>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1000,
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: "white",
+          borderRadius: "8px",
+          padding: "20px",
+          maxWidth: "600px",
+          width: "90%",
+          maxHeight: "90vh",
+          overflow: "auto",
+        }}
+      >
         <SubnameOnChainRegistrarModal
           step={step}
           name={name}
@@ -373,7 +388,10 @@ import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { RainbowKitProvider, getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { mainnet, sepolia } from "wagmi/chains";
 import { http } from "wagmi";
-import { ENSNamesRegistrarComponent, SubnameOnChainRegistrarModal } from "@thenamespace/ens-components";
+import {
+  ENSNamesRegistrarComponent,
+  SubnameOnChainRegistrarModal,
+} from "@thenamespace/ens-components";
 import "@thenamespace/ens-components/index.css";
 import "@rainbow-me/rainbowkit/styles.css";
 
@@ -393,9 +411,7 @@ function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
-          {children}
-        </RainbowKitProvider>
+        <RainbowKitProvider>{children}</RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );
@@ -403,11 +419,11 @@ function AppProviders({ children }: { children: React.ReactNode }) {
 
 function App() {
   const [activeTab, setActiveTab] = useState<"ens" | "subname">("ens");
-  
+
   // ENS Name Registration State
   const [ensName, setEnsName] = useState("");
   const [ensDuration, setEnsDuration] = useState(1);
-  
+
   // Subname Registration State
   const [subnameStep, setSubnameStep] = useState(0);
   const [subname, setSubname] = useState("");
@@ -421,15 +437,30 @@ function App() {
     <AppProviders>
       <div style={{ padding: "20px" }}>
         <div style={{ marginBottom: "20px" }}>
-          <button 
+          <button
             onClick={() => setActiveTab("ens")}
-            style={{ marginRight: "10px", padding: "10px", backgroundColor: activeTab === "ens" ? "#007bff" : "#ccc", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}
+            style={{
+              marginRight: "10px",
+              padding: "10px",
+              backgroundColor: activeTab === "ens" ? "#007bff" : "#ccc",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
           >
             Register ENS Name
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab("subname")}
-            style={{ padding: "10px", backgroundColor: activeTab === "subname" ? "#007bff" : "#ccc", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}
+            style={{
+              padding: "10px",
+              backgroundColor: activeTab === "subname" ? "#007bff" : "#ccc",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
           >
             Register Subname
           </button>

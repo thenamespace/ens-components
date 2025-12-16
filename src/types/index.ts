@@ -7,7 +7,6 @@ export * from "./ens";
 export * from "./l2";
 export * from "./errors";
 export * from "./auth";
-export * from "./name-listing"
+export * from "./name-listing";
 export * from "./hybrid-resolver";
 export * from "./indexer";
-

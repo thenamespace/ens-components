@@ -9,5 +9,3 @@ export { SubnameOffChainRegistrarModal } from "./subname-offchain-registrar-moda
 export { ENSNameRegistrationForm } from "./ens-names-registrar-component/ENSNameRegistrationForm";
 export * from "./atoms";
 export * from "./molecules";
-
-

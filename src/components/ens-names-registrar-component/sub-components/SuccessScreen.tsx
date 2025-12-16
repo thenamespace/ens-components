@@ -70,7 +70,10 @@ export function SuccessScreen({
         />
       )}
 
-      <div className="ens-names-register-card ens-names-register-success-card" style={{ position: "relative", zIndex: 1 }}>
+      <div
+        className="ens-names-register-card ens-names-register-success-card"
+        style={{ position: "relative", zIndex: 1 }}
+      >
         <Header showBack={false} showClose={false} />
 
         <div className="ens-names-register-success-illustration">

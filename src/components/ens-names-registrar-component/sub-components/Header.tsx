@@ -1,4 +1,3 @@
-
 import { ChevronLeft } from "lucide-react";
 import { Icon } from "../../atoms";
 
@@ -9,7 +8,12 @@ interface HeaderProps {
   onClose?: () => void;
 }
 
-export function Header({ showBack = true, showClose = true, onBack, onClose }: HeaderProps) {
+export function Header({
+  showBack = true,
+  showClose = true,
+  onBack,
+  onClose,
+}: HeaderProps) {
   return (
     <div className="ens-names-register-header">
       {showBack && (

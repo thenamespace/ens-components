@@ -26,7 +26,7 @@ export function InitialStep({
   const [nameAvailable, setNameAvailable] = useState<boolean | undefined>(
     isNameAvailable
   );
-  
+
   // Extract the subname part (remove domain suffix or parent name if user typed it)
   const getSubnamePart = (inputName: string) => {
     if (!inputName) return "";
@@ -46,10 +46,10 @@ export function InitialStep({
     );
     return cleaned.replace(suffixPattern, "").trim();
   };
-  
+
   // Use local state for input value to prevent fluctuation
   const [inputValue, setInputValue] = useState(() => getSubnamePart(name));
-  
+
   // Sync local state with prop only on mount or when name is cleared externally
   useEffect(() => {
     const propSubnamePart = getSubnamePart(name);
@@ -65,8 +65,7 @@ export function InitialStep({
     if (inputValue && inputValue.length > 0) {
       // Simulate async check - for demo, consider names with length > 3 as available
       // Also check that it doesn't contain invalid characters
-      const isValid =
-        /^[a-z0-9-]+$/i.test(inputValue) && inputValue.length > 3;
+      const isValid = /^[a-z0-9-]+$/i.test(inputValue) && inputValue.length > 3;
       const timer = setTimeout(() => {
         setNameAvailable(isValid);
       }, 300);
@@ -79,7 +78,8 @@ export function InitialStep({
   // Use prop if provided, otherwise use internal state
   const available =
     isNameAvailable !== undefined ? isNameAvailable : nameAvailable;
-  const showStatus = inputValue && inputValue.length > 0 && available !== undefined;
+  const showStatus =
+    inputValue && inputValue.length > 0 && available !== undefined;
   const isUnavailable = showStatus && available === false;
   const subnamePart = inputValue;
 
@@ -106,7 +106,7 @@ export function InitialStep({
     value = value.replace(suffixPattern, "");
     // Only allow alphanumeric and hyphens for subname
     value = value.replace(/[^a-z0-9-]/gi, "");
-    
+
     // Update local state immediately for smooth input
     setInputValue(value);
     // Notify parent

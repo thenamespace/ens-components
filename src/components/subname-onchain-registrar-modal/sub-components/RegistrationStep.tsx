@@ -7,7 +7,10 @@ import { Modal } from "../../molecules/modal/Modal";
 import { SelectRecordsForm } from "../../select-records-form/SelectRecordsForm";
 import { EnsRecords, EnsAddressRecord } from "@/types";
 import { deepCopy } from "@/utils";
-import { getSupportedAddressByCoin, getSupportedAddressByName } from "@/constants";
+import {
+  getSupportedAddressByCoin,
+  getSupportedAddressByName,
+} from "@/constants";
 
 export interface RegistrationStepProps {
   name: string;
@@ -88,16 +91,26 @@ export function RegistrationStep({
 
   // Initialize records with owner address when available
   useEffect(() => {
-    if (ownerAddress && ownerAddress.length > 0 && records.addresses.length === 0) {
+    if (
+      ownerAddress &&
+      ownerAddress.length > 0 &&
+      records.addresses.length === 0
+    ) {
       const newAddresses: EnsAddressRecord[] = [];
       if (eth_address) {
-        newAddresses.push({ coinType: eth_address.coinType, value: ownerAddress });
+        newAddresses.push({
+          coinType: eth_address.coinType,
+          value: ownerAddress,
+        });
       }
       if (celo_address) {
-        newAddresses.push({ coinType: celo_address.coinType, value: ownerAddress });
+        newAddresses.push({
+          coinType: celo_address.coinType,
+          value: ownerAddress,
+        });
       }
       if (newAddresses.length > 0) {
-        setRecords((prevRecords) => ({
+        setRecords(prevRecords => ({
           ...prevRecords,
           addresses: newAddresses,
         }));
@@ -108,12 +121,12 @@ export function RegistrationStep({
   // Calculate number of records to add
   const recordsToAdd = useMemo(() => {
     let count = 0;
-    records.texts.forEach((text) => {
+    records.texts.forEach(text => {
       if (text.value.length > 0) {
         count++;
       }
     });
-    records.addresses.forEach((addr) => {
+    records.addresses.forEach(addr => {
       const supportedAddr = getSupportedAddressByCoin(addr.coinType);
       if (supportedAddr) {
         if (addr.value.length > 0 && supportedAddr.validateFunc?.(addr.value)) {
@@ -272,15 +285,24 @@ export function RegistrationStep({
 
         {/* Mint Price Display */}
         {mintPrice > 0 && (
-          <div className="d-flex justify-content-between align-items-center mb-1" style={{ marginTop: "12px", marginBottom: "8px" }}>
-            <Text size="sm" color="grey">Mint price</Text>
+          <div
+            className="d-flex justify-content-between align-items-center mb-1"
+            style={{ marginTop: "12px", marginBottom: "8px" }}
+          >
+            <Text size="sm" color="grey">
+              Mint price
+            </Text>
             <div className="d-flex align-items-center">
               {isFetchingPrice ? (
-                <Text size="sm" color="grey">Loading...</Text>
+                <Text size="sm" color="grey">
+                  Loading...
+                </Text>
               ) : (
                 <>
                   <Text size="sm" weight="bold" className="me-1">
-                    {isExpirable ? formatFloat(mintPrice * expiryYears, 6) : formatFloat(mintPrice, 6)}
+                    {isExpirable
+                      ? formatFloat(mintPrice * expiryYears, 6)
+                      : formatFloat(mintPrice, 6)}
                   </Text>
                   <ChainIcon chain="eth" size={20} />
                 </>
@@ -299,7 +321,9 @@ export function RegistrationStep({
                 {duration} year registration
               </Text>
               <Text size="sm" weight="medium">
-                {isFetchingPrice || !registrationFee ? "..." : `${registrationFee} ETH`}
+                {isFetchingPrice || !registrationFee
+                  ? "..."
+                  : `${registrationFee} ETH`}
               </Text>
             </div>
             {networkFee && parseFloat(networkFee) > 0 && (
@@ -381,19 +405,23 @@ export function RegistrationStep({
       {/* Use as Primary Name Section */}
       <div className="ns-onchain-register-toggle">
         <div className="ns-onchain-register-toggle-content">
-          <Text size="md" weight="bold" className="ns-onchain-register-toggle-title">
+          <Text
+            size="md"
+            weight="bold"
+            className="ns-onchain-register-toggle-title"
+          >
             Use as primary name
           </Text>
           {useAsPrimary && (
             <div className="ns-onchain-register-toggle-description">
               <Text size="sm" color="grey">
-                This links your address to this name, allowing dApps to display it
-                as your profile when connected to them. You can only have{" "}
+                This links your address to this name, allowing dApps to display
+                it as your profile when connected to them. You can only
+                have{" "}
               </Text>
               <Text size="sm" color="grey" weight="bold">
                 one primary name per address
               </Text>
-
             </div>
           )}
         </div>
@@ -410,7 +438,11 @@ export function RegistrationStep({
 
       {/* Action Buttons */}
       <div className="ns-onchain-register-actions">
-        <Button className="cancel" onClick={onCancel || onBack} disabled={isRegistering}>
+        <Button
+          className="cancel"
+          onClick={onCancel || onBack}
+          disabled={isRegistering}
+        >
           Cancel
         </Button>
         <Button

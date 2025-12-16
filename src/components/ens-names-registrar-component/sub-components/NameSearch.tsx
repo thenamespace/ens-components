@@ -26,9 +26,13 @@ export function NameSearch({
 }: NameSearchProps) {
   const getSearchInputInfo = () => {
     if (isChecking) {
-      return <Text size="sm" color="grey">Checking...</Text>;
+      return (
+        <Text size="sm" color="grey">
+          Checking...
+        </Text>
+      );
     }
-    
+
     if (ensName.length < 3 && ensName.length !== 0) {
       return (
         <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
@@ -39,7 +43,7 @@ export function NameSearch({
         </div>
       );
     }
-    
+
     if (isTaken) {
       return (
         <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
@@ -50,7 +54,7 @@ export function NameSearch({
         </div>
       );
     }
-    
+
     if (isAvailable && ensName.length >= 3) {
       return (
         <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
@@ -61,7 +65,7 @@ export function NameSearch({
         </div>
       );
     }
-    
+
     return null;
   };
 
@@ -75,7 +79,6 @@ export function NameSearch({
         </div>
 
         <div className="ens-names-register-title-section">
-         
           <Text size="md" color="grey" className="ens-names-register-subtitle">
             Register Your ENS Name
           </Text>
@@ -126,7 +129,7 @@ export function NameSearch({
           onClick={onNext}
           disabled={isChecking || isTaken || ensName.length < 3 || !isAvailable}
         >
-          Next 
+          Next
         </Button>
       </div>
     </div>

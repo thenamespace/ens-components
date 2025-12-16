@@ -3,12 +3,9 @@ import "./styles/index.css";
 import "@rainbow-me/rainbowkit/styles.css";
 
 function TestApp() {
-
   // This is a test app. Its not bundled as component library!!
 
-  return <div>
-    Namespace Component Library
-  </div>
+  return <div>Namespace Component Library</div>;
 }
 
 const container = document.getElementById("root");

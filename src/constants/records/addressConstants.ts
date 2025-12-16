@@ -157,7 +157,7 @@ export const getSupportedAddressByName = (
 };
 export type TextCategory = "profile" | "social";
 export interface SupportedText {
-  iconUrl: string ;
+  iconUrl: string;
   key: string;
   category: TextCategory;
   label: string;

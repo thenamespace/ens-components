@@ -1,4 +1,4 @@
-import  { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import ninjaLogo from "../../../assets/ninja.png";
 import { ChevronRight } from "lucide-react";
 import { Button, Text, Icon } from "../../atoms";
@@ -8,7 +8,10 @@ import { Modal } from "../../molecules/modal/Modal";
 import { SelectRecordsForm } from "../../select-records-form/SelectRecordsForm";
 import { EnsRecords, EnsAddressRecord } from "@/types";
 import { deepCopy } from "@/utils";
-import { getSupportedAddressByCoin, getSupportedAddressByName } from "@/constants";
+import {
+  getSupportedAddressByCoin,
+  getSupportedAddressByName,
+} from "@/constants";
 import { useAccount } from "wagmi";
 
 interface RegistrationFormProps {
@@ -69,13 +72,19 @@ export function RegistrationForm({
     if (connectedAddress && records.addresses.length === 0) {
       const newAddresses: EnsAddressRecord[] = [];
       if (eth_address) {
-        newAddresses.push({ coinType: eth_address.coinType, value: connectedAddress });
+        newAddresses.push({
+          coinType: eth_address.coinType,
+          value: connectedAddress,
+        });
       }
       if (celo_address) {
-        newAddresses.push({ coinType: celo_address.coinType, value: connectedAddress });
+        newAddresses.push({
+          coinType: celo_address.coinType,
+          value: connectedAddress,
+        });
       }
       if (newAddresses.length > 0) {
-        setRecords((prevRecords) => ({
+        setRecords(prevRecords => ({
           ...prevRecords,
           addresses: newAddresses,
         }));
@@ -86,12 +95,12 @@ export function RegistrationForm({
   // Calculate number of records to add
   const recordsToAdd = useMemo(() => {
     let count = 0;
-    records.texts.forEach((text) => {
+    records.texts.forEach(text => {
       if (text.value.length > 0) {
         count++;
       }
     });
-    records.addresses.forEach((addr) => {
+    records.addresses.forEach(addr => {
       const supportedAddr = getSupportedAddressByCoin(addr.coinType);
       if (supportedAddr) {
         if (addr.value.length > 0 && supportedAddr.validateFunc?.(addr.value)) {
@@ -122,7 +131,6 @@ export function RegistrationForm({
     setIsModalOpen(false);
   };
   const getSearchInputInfo = () => {
-
     if (ensName.length < 3 && ensName.length !== 0) {
       return (
         <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
@@ -135,7 +143,10 @@ export function RegistrationForm({
     }
 
     // Show unavailable if name is taken
-    const isTaken = ensName.length >= 3 && !nameAvailability.isChecking && !nameAvailability.isAvailable;
+    const isTaken =
+      ensName.length >= 3 &&
+      !nameAvailability.isChecking &&
+      !nameAvailability.isAvailable;
     if (isTaken) {
       return (
         <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
@@ -175,8 +186,6 @@ export function RegistrationForm({
             Your about to mint this ENS name
           </Text>
         </div>
-
-
 
         {ensName && (
           <div className="ens-names-register-name-display">
