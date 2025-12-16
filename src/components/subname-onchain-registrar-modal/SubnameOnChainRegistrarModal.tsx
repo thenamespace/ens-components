@@ -13,18 +13,16 @@ import { ListingType, NamespaceListing, ListingSuggestion, ListingNetwork } from
 import { Address, zeroAddress, Hash, parseEther, isAddress, namehash } from "viem";
 import { SupportedNetwork } from "@/types";
 import { sepolia, mainnet } from "viem/chains";
-// import { useProfileFilterCtx } from "../profile-filter.context";
 import { formatFloat } from "@/utils/numbers";
 import { useProfileFilterCtx } from "@/context/profile-filter.context";
 import { useWeb3Clients } from "@/hooks/web3/use-web3-clients";
 import { useWaitForTransaction } from "@/hooks/web3/use-wait-for-transaction";
-import { PendingTransaction, TransactionState } from "@/components/pending-transaction/PendingTransaction";
+import {  TransactionState } from "@/components/pending-transaction/PendingTransaction";
 import { ContenthashType, MintTransactionResponse } from "@namespacesdk/mint-manager";
 import { EnsRecords as MintENSRecords } from "@namespacesdk/mint-manager";
 import { EnsRecords } from "@/types";
-import { useBlockExplorer } from "@/hooks/web3/use-block-explorer";
 import { getChainName } from "@/web3";
-import { Button, Icon } from "@/components/atoms";
+
 
 const randomLabel = `${Math.floor(Math.random() * 1_000_000_000)}`;
 
