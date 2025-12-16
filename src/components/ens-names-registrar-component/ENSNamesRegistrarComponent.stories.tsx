@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import {
-  ENSNamesRegisterComponent,
-  ENSNamesRegisterComponentProps,
-} from "./ENSNamesRegisterComponent";
+  ENSNameRegistrationForm,
+  ENSNameRegistrationFormProps,
+} from "./ENSNameRegistrationForm";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta: Meta<typeof ENSNamesRegisterComponent> = {
+const meta: Meta<typeof ENSNameRegistrationForm> = {
   title: "Components/ENSNamesRegisterComponent",
-  component: ENSNamesRegisterComponent,
+  component: ENSNameRegistrationForm,
   parameters: {
     layout: "centered",
     docs: {
@@ -20,14 +20,14 @@ const meta: Meta<typeof ENSNamesRegisterComponent> = {
 };
 export default meta;
 
-type Story = StoryObj<typeof ENSNamesRegisterComponent>;
+type Story = StoryObj<typeof ENSNameRegistrationForm>;
 
-const Template = (args: Partial<ENSNamesRegisterComponentProps>) => {
+const Template = (args: Partial<ENSNameRegistrationFormProps>) => {
   const [name, setName] = useState(args.name ?? "");
   const [duration, setDuration] = useState(args.duration ?? 1);
 
   return (
-    <ENSNamesRegisterComponent
+    <ENSNameRegistrationForm
       name={name}
       duration={duration}
       onNameChange={setName}

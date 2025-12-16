@@ -136,15 +136,12 @@ export default [
       alias({ entries: aliasEntries }),
       nodeBuiltinsPlugin(),
       nodeResolve(nodeResolveOpts),
-<<<<<<< Updated upstream
-=======
       commonjs({
         esmExternals: true,
         requireReturnsDefault: "auto",
       }),
       json(),
       image(),
->>>>>>> Stashed changes
       esbuild({
         include: /\.[jt]sx?$/,
         target: "es2020",
@@ -205,7 +202,6 @@ export default [
       nodeBuiltinsPlugin(),
       nodeResolve(nodeResolveOpts),
       commonjs({
-<<<<<<< Updated upstream
         exclude: [
           "**/node_modules/viem/**",
           "viem",
@@ -233,10 +229,8 @@ export default [
           "http2",
           "assert",
         ],
-=======
         esmExternals: true,
         requireReturnsDefault: "auto",
->>>>>>> Stashed changes
       }),
       json(),
       image(),

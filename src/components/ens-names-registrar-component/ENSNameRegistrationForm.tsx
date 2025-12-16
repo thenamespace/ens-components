@@ -4,12 +4,6 @@ import { NameSearch } from "./sub-components/NameSearch";
 import { RegistrationForm } from "./sub-components/RegistrationForm";
 import { RegistrationProcess } from "./sub-components/RegistrationProcess";
 import { SuccessScreen } from "./sub-components/SuccessScreen";
-import {
-  EnsRegistrationContext,
-  useEnsContractAddresses,
-  useEthRegistrarController,
-  useMainChain,
-} from "@/hooks";
 
 import { normalise } from "@ensdomains/ensjs/utils";
 import { debounce } from "lodash";
@@ -17,14 +11,12 @@ import {
   EnsRecords,
 } from "@/types";
 
-import { useConnectedPrincipal } from "@/context";
-import { Address, Hash, toHex } from "viem";
-import { getSupportedAddressByName } from "@/constants";
+import { Address, Hash, toHex, zeroAddress } from "viem";
 
 import { NameRegistration , EnsRegistrationSteps } from "@/utils/models";
-import { useAccount, useSwitchChain } from "wagmi";
-import { AppEnv } from "@/environment";
-export interface ENSNamesRegistrarComponentProps {
+import { useAccount } from "wagmi";
+
+export interface ENSNameRegistrationFormProps {
   name?: string;
   duration?: number;
   onNameChange?: (name: string) => void;
@@ -39,7 +31,7 @@ export interface ENSNamesRegistrarComponentProps {
   onViewName?: () => void;
 }
 
-export function ENSNamesRegistrarComponent({
+export function ENSNameRegistrationForm({
   name = "brightwave",
   duration: initialDuration = 1,
   onNameChange,
@@ -52,7 +44,7 @@ export function ENSNamesRegistrarComponent({
   onCompleteRegistration,
   onRegisterAnother,
   onViewName,
-}: ENSNamesRegistrarComponentProps) {
+}: ENSNameRegistrationFormProps) {
   const [duration, setDuration] = useState(initialDuration);
   const [ensName, setEnsName] = useState(name);
   const [currentStep, setCurrentStep] = useState<EnsRegistrationSteps>(EnsRegistrationSteps.SelectNames);
@@ -90,11 +82,11 @@ export function ENSNamesRegistrarComponent({
   // Track the last name and duration for which we fetched price
   const [lastFetchedName, setLastFetchedName] = useState<string>("");
   const [lastFetchedDuration, setLastFetchedDuration] = useState<number>(0);
-  const { isNameAvailable, getRegistrationPrice } = useEthRegistrarController();
-  const { networkId } = useMainChain();
-  const { connectedAddress } = useConnectedPrincipal();
-  const { publicResolver } = useEnsContractAddresses();
-  console.log("connectedAddress:", connectedAddress);
+  // const { isNameAvailable, getRegistrationPrice } = useEthRegistrarController();
+  // const { networkId } = useMainChain();
+  const { address:connectedAddress } = useAccount();
+  // const { publicResolver } = useEnsContractAddresses();
+
   const fetchPrice = useCallback(async (name: string, durationInYears: number) => {
     if (!name || name.trim() === "" || durationInYears <= 0) {
       setFetchedEthPrice(null);
@@ -108,7 +100,10 @@ export function ENSNamesRegistrarComponent({
     try {
       setIsLoadingPrice(true);
       setPriceError(null);
-      const priceResult = await getRegistrationPrice(normalizedName, durationInYears);
+      // const priceResult = await getRegistrationPrice(normalizedName, durationInYears);
+      const priceResult = {
+        ethPrice: 0
+      }
       
       if (priceResult) {
         setFetchedEthPrice(priceResult.ethPrice);
@@ -122,7 +117,7 @@ export function ENSNamesRegistrarComponent({
     } finally {
       setIsLoadingPrice(false);
     }
-  }, [getRegistrationPrice]);
+  }, []);
 
 
   const [recordsPerName, setRecordsPerName] = useState<
@@ -137,7 +132,11 @@ export function ENSNamesRegistrarComponent({
       return;
     }
 
-    const price = await getRegistrationPrice(label, 1);
+    // const price = await getRegistrationPrice(label, 1);
+    const price = {
+      ethPrice: 0,
+      weiPrice: 0n
+    }
     const _registrations = [
       {
         durationInYears: 1,
@@ -246,12 +245,10 @@ export function ENSNamesRegistrarComponent({
   };
 
   const checkAvailable = useCallback(async (label: string) => {
-    console.log("Checking availability for label:", label);
-    console.log("Network ID:", networkId);
-    console.log("Is Testnet:", AppEnv.isTestnet);
     try {
       
-      const available = await isNameAvailable(label);
+      // const available = await isNameAvailable(label);
+      const available = true;
       console.log("Available:", available);
       console.log("Name availability response:", available);
       console.log("Label:", label, "Available:", available);
@@ -265,7 +262,7 @@ export function ENSNamesRegistrarComponent({
       });
       setNameAvailability({ isAvailable: false, isChecking: false });
     }
-  }, [isNameAvailable, networkId]);
+  }, []);
 
   const debouncedCheck = useCallback(
     debounce((label: string) => checkAvailable(label), 300),
@@ -360,8 +357,8 @@ export function ENSNamesRegistrarComponent({
     onOpenWallet?.();
   };
 
-  const prepareRegistrationContext = (): EnsRegistrationContext[] => {
-    if (!ensName || !connectedAddress || !publicResolver) {
+  const prepareRegistrationContext = (): any[] => {
+    if (!ensName || !connectedAddress) {
       return [];
     }
 
@@ -381,7 +378,7 @@ export function ENSNamesRegistrarComponent({
       owner: connectedAddress as Address,
       secret: secret,
       durationInYears: duration,
-      resolver: publicResolver as Address,
+      resolver: zeroAddress,
       reverseRecord: false,
       records: records,
       registrationPrice: price,
@@ -495,4 +492,4 @@ export function ENSNamesRegistrarComponent({
   );
 }
 
-export default ENSNamesRegistrarComponent;
+export default ENSNameRegistrationForm;

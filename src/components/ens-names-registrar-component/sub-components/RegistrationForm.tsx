@@ -9,7 +9,8 @@ import { SelectRecordsForm } from "../../select-records-form/SelectRecordsForm";
 import { EnsRecords, EnsAddressRecord } from "@/types";
 import { deepCopy } from "@/utils";
 import { getSupportedAddressByCoin, getSupportedAddressByName } from "@/constants";
-import { useConnectedPrincipal } from "@/context";
+import { useAccount } from "wagmi";
+
 interface RegistrationFormProps {
   ensName: string;
   duration: number;
@@ -61,7 +62,7 @@ export function RegistrationForm({
     texts: [],
   });
 
-  const { connectedAddress } = useConnectedPrincipal();
+  const { address: connectedAddress } = useAccount();
   const eth_address = getSupportedAddressByName("eth");
   const celo_address = getSupportedAddressByName("celo");
   useEffect(() => {

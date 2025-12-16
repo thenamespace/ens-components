@@ -4,7 +4,6 @@ import {
   EnsRecords,
   EnsTextRecord,
 } from "@/types";
-import { Hash } from "viem";
 
 export interface EnsRecordsDiff {
   textsAdded: EnsTextRecord[];
@@ -18,6 +17,8 @@ export interface EnsRecordsDiff {
   contenthashModified?: EnsContenthashRecord;
 }
 
+// calculates the difference between old and new records
+// needed for performing a resolver update
 export const getEnsRecordsDiff = (
   oldRecords: EnsRecords,
   newRecords: EnsRecords

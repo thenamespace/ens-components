@@ -1,5 +1,3 @@
-import { EnsRegistrationContext } from "@/hooks";
-
 export interface NameRegistration {
   label: string;
   durationInYears: number;
@@ -12,7 +10,7 @@ export interface NameRegistration {
 
 export interface NameRegistrationProcessCache {
     currentStep: number
-    registrations: EnsRegistrationContext[]
+    registrations: any[]
 }
 
 export const formatPrice = (value: number) => {
