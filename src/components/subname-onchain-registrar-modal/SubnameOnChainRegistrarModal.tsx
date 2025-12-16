@@ -4,7 +4,6 @@ import { InitialStep } from "./sub-components/InitialStep";
 import { RegistrationStep } from "./sub-components/RegistrationStep";
 import { OnchainSuccessScreen } from "./sub-components/OnchainSuccessScreen";
 import { useAccount, useBalance } from "wagmi";
-import { normalise } from "@ensdomains/ensjs/utils";
 import { debounce } from "lodash";
 import {
   Address,

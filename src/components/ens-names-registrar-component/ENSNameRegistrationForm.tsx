@@ -4,6 +4,7 @@ import { NameSearch } from "./sub-components/NameSearch";
 import { RegistrationForm } from "./sub-components/RegistrationForm";
 import { RegistrationProcess } from "./sub-components/RegistrationProcess";
 import { SuccessScreen } from "./sub-components/SuccessScreen";
+import { normalize } from "viem/ens";
 
 import { debounce } from "lodash";
 import { EnsRecords } from "@/types";
@@ -97,7 +98,7 @@ export function ENSNameRegistrationForm({
         return;
       }
 
-      // const normalizedName = normalise(name.trim());
+      const normalizedName = normalize(name.trim());
 
       try {
         setIsLoadingPrice(true);
@@ -291,7 +292,7 @@ export function ENSNameRegistrationForm({
     }
 
     try {
-      normalise(_value);
+      normalize(_value);
     } catch (err) {
       return;
     }
@@ -313,7 +314,7 @@ export function ENSNameRegistrationForm({
       _value.length >= 3 &&
       duration > 0
     ) {
-      const normalizedName = normalise(_value.trim());
+      const normalizedName = normalize(_value.trim());
       if (
         normalizedName !== lastFetchedName ||
         duration !== lastFetchedDuration
@@ -331,7 +332,7 @@ export function ENSNameRegistrationForm({
     );
     if (ensName && ensName.length >= 3 && !nameAvailability.isChecking) {
       try {
-        normalise(ensName);
+        normalize(ensName);
         setNameAvailability({ isAvailable: false, isChecking: true });
         checkAvailable(ensName);
       } catch (err) {
@@ -342,7 +343,7 @@ export function ENSNameRegistrationForm({
 
   const handleNameSearchNext = () => {
     if (ensName && ensName.length >= 3 && duration > 0) {
-      const normalizedName = normalise(ensName.trim());
+      const normalizedName = normalize(ensName.trim());
       if (
         normalizedName !== lastFetchedName ||
         duration !== lastFetchedDuration
@@ -400,7 +401,7 @@ export function ENSNameRegistrationForm({
       return [];
     }
 
-    const normalizedName = normalise(ensName.trim());
+    const normalizedName = normalize(ensName.trim());
     const records = recordsPerName[normalizedName] || {
       addresses: [],
       texts: [],
@@ -484,7 +485,7 @@ export function ENSNameRegistrationForm({
       !nameAvailability.isChecking &&
       ensName.length >= 3;
 
-    const normalizedName = normalise(ensName.trim());
+    const normalizedName = normalize(ensName.trim());
 
     const handleRecordsChange = (records: EnsRecords) => {
       setRecordsPerName({
