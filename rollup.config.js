@@ -75,8 +75,6 @@ const cssPlugins = [
     ],
   }),
 ];
-
-// Plugin to replace Node.js built-in modules with empty modules for browser builds
 const nodeBuiltinsPlugin = () => {
   const nodeBuiltins = new Set([
     "zlib",
@@ -106,6 +104,9 @@ const nodeBuiltinsPlugin = () => {
   };
 };
 
+// Process polyfill for browser builds
+const processPolyfill = `if (typeof process === 'undefined') { var process = { env: {}, version: '', versions: {}, platform: 'browser', nextTick: function(fn) { setTimeout(fn, 0); } }; }`;
+
 export default [
   {
     input: "src/index.tsx",
@@ -117,6 +118,7 @@ export default [
       inlineDynamicImports: true,
       interop: "esModule",
       externalLiveBindings: false,
+      banner: processPolyfill,
     },
     plugins: [
       alias({ entries: aliasEntries }),
@@ -147,7 +149,6 @@ export default [
       json(),
       image(),
       postcss({
-        // Extract to a physical CSS file used by consumers:
         extract: "index.css",
         inject: false, // <-- do NOT inject here (we have a separate injected build)
         minimize: false,
