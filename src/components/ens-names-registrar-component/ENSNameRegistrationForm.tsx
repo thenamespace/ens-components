@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import "./ENSNamesRegistrarComponent.css";
 import { NameSearch } from "./sub-components/NameSearch";
 import { RegistrationForm } from "./sub-components/RegistrationForm";
@@ -13,7 +13,7 @@ import { Address, Hash, toHex, zeroAddress } from "viem";
 
 import { NameRegistration, EnsRegistrationSteps } from "@/utils/models";
 import { useAccount } from "wagmi";
-import { Button, Icon, Input, Text } from "../atoms";
+import { Button, Icon, Input, Text, ShurikenSpinner } from "../atoms";
 import ninjaImage from "../../assets/banner.png";
 import shurikenImage from "../../assets/shuriken.svg";
 import { useRegisterENS } from "@/hooks";
@@ -37,15 +37,23 @@ export interface ENSNameRegistrationFormProps {
 
 interface EnsNameRegistrationFormProps {
   name?: string;
-  expiryInYears?: number;
   isTestnet?: boolean;
 }
 
 export const EnsNameRegistrationForm = (
   props: EnsNameRegistrationFormProps
 ) => {
-  const [expiryInYears, setExpiryInYears] = useState(props.expiryInYears || 1);
-  const [nameInput, setNameInput] = useState<string>(props.name || "");
+  const [expiryInYears, setExpiryInYears] = useState(1);
+  const [nameInput, setNameInput] = useState<string>("");
+  const [registrationPrice, setRegistrationPrice] = useState<{
+    isChecking: boolean
+    wei: bigint
+    eth: number
+  }>({
+    isChecking: false,
+    wei: 0n,
+    eth: 0
+  })
   const [ensRecords, setEnsRecords] = useState<EnsRecords>({
     addresses: [],
     texts: [],
@@ -58,9 +66,17 @@ export const EnsNameRegistrationForm = (
     isChecking: false,
     isTaken: false,
   });
-  const { isEnsAvailable } = useRegisterENS({
+  const { isEnsAvailable, getRegistrationPrice } = useRegisterENS({
     isTestnet: props.isTestnet || false,
   });
+
+  useEffect(() => {
+
+    if (props.name && props.name.length >= MIN_ENS_LEN) {
+      handleNameChanged(props.name);
+    }
+
+  },[props.name])
 
   const handleDecrease = () => {
     if (expiryInYears > 1) {
@@ -71,6 +87,37 @@ export const EnsNameRegistrationForm = (
   const handleIncrease = () => {
     setExpiryInYears(expiryInYears + 1);
   };
+
+  const checkAvailability = async (label: string) => {
+    try {
+      const isAvailable = await isEnsAvailable(label);
+      setNameValidation({ isChecking: false, isTaken: !isAvailable });
+    } catch (err) {
+      setNameValidation({
+        isChecking: false,
+        isTaken: false,
+        reason: "Something went wrong",
+      });
+    }
+  };
+
+  const checkRegistrationPrice = async (label: string) => {
+    try {
+      const isAvailable = await isEnsAvailable(label);
+      setNameValidation({ isChecking: false, isTaken: !isAvailable });
+    } catch (err) {
+      setNameValidation({
+        isChecking: false,
+        isTaken: false,
+        reason: "Something went wrong",
+      });
+    }
+  }
+
+  const debouncedCheckAvailability = useCallback(
+    debounce((label: string) => checkAvailability(label), 500),
+    []
+  );
 
   const handleNameChanged = async (value: string) => {
     const _value = value.toLocaleLowerCase().trim();
@@ -91,22 +138,21 @@ export const EnsNameRegistrationForm = (
 
     if (_value.length >= MIN_ENS_LEN) {
       setNameValidation({ isChecking: true, isTaken: false });
-      checkAvailability(_value);
+      debouncedCheckAvailability(_value);
+    } else {
+      setNameValidation({ isChecking: false, isTaken: false });
     }
   };
 
-  const checkAvailability = async (label: string) => {
-    try {
-      const isAvailable = await isEnsAvailable(label);
-      setNameValidation({ isChecking: false, isTaken: isAvailable });
-    } catch (err) {
-      setNameValidation({
-        isChecking: false,
-        isTaken: false,
-        reason: "Something went wrong",
-      });
-    }
-  };
+  const isNameAvailable = useMemo(() => {
+    return (
+      nameInput.length >= MIN_ENS_LEN &&
+      !nameValidation.isChecking &&
+      !nameValidation.isTaken
+    );
+  }, [nameInput.length, nameValidation.isChecking, nameValidation.isTaken]);
+
+  const nextBtnDisabled = nameInput.length < MIN_ENS_LEN || nameValidation.isChecking || nameValidation.isTaken;
 
   return (
     <div className="ens-registration-form-container">
@@ -137,69 +183,103 @@ export const EnsNameRegistrationForm = (
           </Text>
         }
       />
-      {/* RECEIPT */}
-      <div className="ens-registration-pricing mt-2">
-        <div className="ens-expiry-picker d-flex justify-content-between mb-2">
-          <Button disabled={expiryInYears <= 1} onClick={handleDecrease}>
-            -
-          </Button>
-          <Text>
-            {expiryInYears} year{expiryInYears > 1 ? "s" : ""}
-          </Text>
-          <Button onClick={handleIncrease}>+</Button>
+
+      {/* Status Messages */}
+      {nameInput.length == 0 && nameInput.length < MIN_ENS_LEN && (
+        <div className="ns-text-center mt-2">
+          <Text size="xs" color="grey">
+          Minimum ENS name length is 3 characters
+        </Text>
         </div>
-        <div className="d-flex justify-content-between align-items-center mb-1">
+      )}
+
+      {nameInput.length >= MIN_ENS_LEN && nameValidation.isChecking && (
+        <div className="ns-text-center mt-2 d-flex align-items-center justify-content-center" style={{ gap: '8px' }}>
+          <ShurikenSpinner size={18} />
           <Text size="sm" color="grey">
-            Registration Fee
-          </Text>
-          <Text size="sm" color="grey">
-            0.04 ETH
+            Checking availability
           </Text>
         </div>
-        <div className="d-flex justify-content-between align-items-center mb-1">
-          <Text size="sm" color="grey">
-            Est. network fee
+      )}
+
+      {nameInput.length >= MIN_ENS_LEN &&
+        !nameValidation.isChecking &&
+        nameValidation.isTaken && (
+          <div className="ns-text-center mt-2">
+            <Text size="xs" color="grey">
+            {nameInput}.eth is not available
           </Text>
-          <Text size="sm" color="grey">
-            0.04 ETH
-          </Text>
-        </div>
-        <div className="d-flex justify-content-between align-items-center mt-2 total-fee">
-          <Text size="lg" weight="bold">
-            Total
-          </Text>
-          <Text size="lg" weight="bold">
-            0.08 ETH
-          </Text>
-        </div>
-      </div>
-      {/* RECEIPT */}
-      {/* COMPLETE PROFILE */}
-      <div className="ens-profile-selector mt-2">
-        <div className="content-container d-flex justify-content-between align-items-center">
-          <div className="d-flex align-items-center">
-            <div className="shuriken-cont d-flex align-items-center justify-content-center">
-              <img
-                className="shuriken"
-                width={50}
-                src={shurikenImage}
-                alt="shuricken"
-              ></img>
-            </div>
-            <div className="ms-2">
-              <Text size="sm" weight="medium">
-                Complete your profile
+          </div>
+        )}
+
+      {/* RECEIPT - Only show when name is available */}
+      {isNameAvailable && (
+        <>
+          <div className="ens-registration-pricing mt-2">
+            <div className="ens-expiry-picker d-flex justify-content-between mb-2">
+              <Button disabled={expiryInYears <= 1} onClick={handleDecrease}>
+                -
+              </Button>
+              <Text>
+                {expiryInYears} year{expiryInYears > 1 ? "s" : ""}
               </Text>
-              <Text size="xs" color="grey">
-                Make your ENS more discoverable
+              <Button onClick={handleIncrease}>+</Button>
+            </div>
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <Text size="sm" color="grey">
+                Registration Fee
+              </Text>
+              <Text size="sm" color="grey">
+                0.04 ETH
+              </Text>
+            </div>
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <Text size="sm" color="grey">
+                Est. network fee
+              </Text>
+              <Text size="sm" color="grey">
+                0.04 ETH
+              </Text>
+            </div>
+            <div className="d-flex justify-content-between align-items-center mt-2 total-fee">
+              <Text size="lg" weight="bold">
+                Total
+              </Text>
+              <Text size="lg" weight="bold">
+                0.08 ETH
               </Text>
             </div>
           </div>
-          <Button style={{ width: 40, height: 40 }}>{`>`}</Button>
-        </div>
-      </div>
-      {/* COMPLETE PROFILE */}
-      <Button style={{ width: "100%" }} size="lg" className="mt-3">
+          {/* RECEIPT */}
+
+          {/* COMPLETE PROFILE */}
+          <div className="ens-profile-selector mt-2">
+            <div className="content-container d-flex justify-content-between align-items-center">
+              <div className="d-flex align-items-center">
+                <div className="shuriken-cont d-flex align-items-center justify-content-center">
+                  <img
+                    className="shuriken"
+                    width={50}
+                    src={shurikenImage}
+                    alt="shuricken"
+                  ></img>
+                </div>
+                <div className="ms-2">
+                  <Text size="sm" weight="medium">
+                    Complete your profile
+                  </Text>
+                  <Text size="xs" color="grey">
+                    Make your ENS more discoverable
+                  </Text>
+                </div>
+              </div>
+              <Button style={{ width: 40, height: 40 }}>{`>`}</Button>
+            </div>
+          </div>
+          {/* COMPLETE PROFILE */}
+        </>
+      )}
+      <Button style={{ width: "100%" }} size="lg" className="mt-2" disabled={nextBtnDisabled}>
         Next
       </Button>
     </div>

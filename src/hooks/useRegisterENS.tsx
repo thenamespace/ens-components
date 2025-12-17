@@ -3,6 +3,7 @@ import { mainnet, sepolia } from "viem/chains";
 import { usePublicClient, useWalletClient } from "wagmi";
 import { getEnsContracts } from "@thenamespace/addresses"
 import { equalsIgnoreCase } from "@/utils";
+import { ABIS } from "./abis";
 
 const ENS_REGISTRY_ABI = parseAbi([
   'function owner(bytes32) view returns (address)'
@@ -16,7 +17,15 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet: boolean }) => {
     chainId: isTestnet ? sepolia.id : mainnet.id,
   });
 
-  const rentPrice = async (): Promise<bigint> => {
+  const getRegistrationPrice = async (label: string): Promise<bigint> => {
+    
+    const price = await publicClient!.readContract({
+      abi: ABIS.ETH_REGISTRAR_CONTOLLER,
+      functionName: "rentPrice",
+      args: [label],
+      address: getEthController()
+    }) as { base: bigint, premium: bigint }
+
     return 0n;
   };
 
@@ -51,6 +60,7 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet: boolean }) => {
   }
 
   return {
-    isEnsAvailable
+    isEnsAvailable,
+    getRegistrationPrice
   }
 };

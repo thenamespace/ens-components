@@ -1,3 +1,16 @@
+/* Text alignment */
+.ns-text-center {
+  text-align: center;
+}
+
+.ns-text-left {
+  text-align: left;
+}
+
+.ns-text-right {
+  text-align: right;
+}
+
 .ns-me-1 {
   margin-right: 5px;
 }
