@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Hash } from "viem";
+import "./SubComponents.css";
 import { Button, Text } from "../../atoms";
 import { Header } from "./Header";
 import { StepItem } from "./StepItem";

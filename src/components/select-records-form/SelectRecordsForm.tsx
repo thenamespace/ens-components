@@ -26,11 +26,13 @@ enum RecordsSidebarItem {
 export interface SelectRecordsFormProps {
   records: EnsRecords;
   onRecordsUpdated: (records: EnsRecords) => void;
+  actionButtons?: React.ReactNode;
 }
 
 export const SelectRecordsForm = ({
   records,
   onRecordsUpdated,
+  actionButtons,
 }: SelectRecordsFormProps) => {
   const [initialRecords] = useState<EnsRecords>(deepCopy(records));
 
@@ -328,6 +330,9 @@ export const SelectRecordsForm = ({
           </div>
         </div>
       </div>
+      {actionButtons && (
+        <div className="ns-select-records-actions">{actionButtons}</div>
+      )}
     </div>
   );
 };
