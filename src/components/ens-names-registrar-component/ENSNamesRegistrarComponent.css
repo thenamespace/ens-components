@@ -1,3 +1,28 @@
+.ens-registration-form-container {
+  background-color: var(--ns-color-bg-accent);
+  width: 500px;
+  height: fit-content;
+  border: 1px solid red;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.ens-registration-form-container .name-input {
+  padding: 0xp;
+}
+
+.name-input .ns-input__suffix {
+  padding: 0px;
+  border-left: var(--ns-color-bg-accent);
+  background-color: var(--ns-color-bg-accent);
+  height: 37px;
+  right: 1px;
+  padding-right: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+
 /* Container */
 .ens-names-register-container {
   display: flex;

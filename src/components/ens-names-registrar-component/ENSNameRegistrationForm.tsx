@@ -13,6 +13,8 @@ import { Address, Hash, toHex, zeroAddress } from "viem";
 
 import { NameRegistration, EnsRegistrationSteps } from "@/utils/models";
 import { useAccount } from "wagmi";
+import { Icon, Input, Text } from "../atoms";
+import ninjaImage from "../../assets/banner.png";
 
 export interface ENSNameRegistrationFormProps {
   name?: string;
@@ -29,9 +31,21 @@ export interface ENSNameRegistrationFormProps {
   onViewName?: () => void;
 }
 
+interface EnsNameRegistrationFormProps {
+  name: string
+  expiryInYears?: number
+
+}
+
 export const EnsNameRegistrationForm = () => {
 
-  return <div></div>
+  return <div className="ens-registration-form-container">
+    <img style={{width:"100%"}} src={ninjaImage} alt="Ninja Image"></img>
+    <Text>Register ENS Name</Text>
+    <Input wrapperClassName="name-input" prefix={<Icon name="search"/>} suffix={<div style={{borderLeft:"1px solid grey", paddingLeft: 10}}>
+      <Text>.eth</Text>
+    </div>}/>
+  </div>
 }
 
 

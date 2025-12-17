@@ -13,6 +13,7 @@ export interface InputProps
   disabled?: boolean;
   error?: boolean;
   dataTestId?: string;
+  wrapperClassName?: string
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -25,6 +26,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       disabled = false,
       error = false,
       className = "",
+      wrapperClassName = "",
       dataTestId,
       ...rest
     },
@@ -45,7 +47,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       .join(" ");
 
     return (
-      <div className={`ns-input__wrapper ${sizeClass}`}>
+      <div className={`ns-input__wrapper ${sizeClass} ${wrapperClassName}`}>
         {prefix && <div className="ns-input__prefix">{prefix}</div>}
         <input
           ref={ref}
