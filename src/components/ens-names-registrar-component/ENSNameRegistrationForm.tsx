@@ -13,8 +13,12 @@ import { Address, Hash, toHex, zeroAddress } from "viem";
 
 import { NameRegistration, EnsRegistrationSteps } from "@/utils/models";
 import { useAccount } from "wagmi";
-import { Icon, Input, Text } from "../atoms";
+import { Button, Icon, Input, Text } from "../atoms";
 import ninjaImage from "../../assets/banner.png";
+import shurikenImage from "../../assets/shuriken.svg";
+import { useRegisterENS } from "@/hooks";
+
+const MIN_ENS_LEN = 3;
 
 export interface ENSNameRegistrationFormProps {
   name?: string;
@@ -32,22 +36,175 @@ export interface ENSNameRegistrationFormProps {
 }
 
 interface EnsNameRegistrationFormProps {
-  name: string
-  expiryInYears?: number
-
+  name?: string;
+  expiryInYears?: number;
+  isTestnet?: boolean;
 }
 
-export const EnsNameRegistrationForm = () => {
+export const EnsNameRegistrationForm = (
+  props: EnsNameRegistrationFormProps
+) => {
+  const [expiryInYears, setExpiryInYears] = useState(props.expiryInYears || 1);
+  const [nameInput, setNameInput] = useState<string>(props.name || "");
+  const [ensRecords, setEnsRecords] = useState<EnsRecords>({
+    addresses: [],
+    texts: [],
+  });
+  const [nameValidation, setNameValidation] = useState<{
+    isChecking: boolean;
+    isTaken: boolean;
+    reason?: string;
+  }>({
+    isChecking: false,
+    isTaken: false,
+  });
+  const { isEnsAvailable } = useRegisterENS({
+    isTestnet: props.isTestnet || false,
+  });
 
-  return <div className="ens-registration-form-container">
-    <img style={{width:"100%"}} src={ninjaImage} alt="Ninja Image"></img>
-    <Text>Register ENS Name</Text>
-    <Input wrapperClassName="name-input" prefix={<Icon name="search"/>} suffix={<div style={{borderLeft:"1px solid grey", paddingLeft: 10}}>
-      <Text>.eth</Text>
-    </div>}/>
-  </div>
-}
+  const handleDecrease = () => {
+    if (expiryInYears > 1) {
+      setExpiryInYears(expiryInYears - 1);
+    }
+  };
 
+  const handleIncrease = () => {
+    setExpiryInYears(expiryInYears + 1);
+  };
+
+  const handleNameChanged = async (value: string) => {
+    const _value = value.toLocaleLowerCase().trim();
+
+    if (_value.includes(".")) {
+      // We don't allow ".", only label
+      return;
+    }
+
+    try {
+      normalize(_value);
+    } catch (err) {
+      // Name contains an invalid character
+      return;
+    }
+
+    setNameInput(_value);
+
+    if (_value.length >= MIN_ENS_LEN) {
+      setNameValidation({ isChecking: true, isTaken: false });
+      checkAvailability(_value);
+    }
+  };
+
+  const checkAvailability = async (label: string) => {
+    try {
+      const isAvailable = await isEnsAvailable(label);
+      setNameValidation({ isChecking: false, isTaken: isAvailable });
+    } catch (err) {
+      setNameValidation({
+        isChecking: false,
+        isTaken: false,
+        reason: "Something went wrong",
+      });
+    }
+  };
+
+  return (
+    <div className="ens-registration-form-container">
+      <div className="d-flex justify-content-center">
+        <img
+          style={{ width: "250px", margin: "auto" }}
+          src={ninjaImage}
+          alt="Ninja Image"
+        ></img>
+      </div>
+      <div className="text-center mb-3" style={{ textAlign: "center" }}>
+        <Text weight="bold" className="text-align-center" size="lg">
+          ENS Name Registration
+        </Text>
+        <Text color="grey" className="text-align-center" size="sm">
+          Register your ENS name and set a profile
+        </Text>
+      </div>
+      <Input
+        value={nameInput}
+        onChange={e => handleNameChanged(e.target.value)}
+        size="lg"
+        wrapperClassName="ens-name-input"
+        prefix={<Icon color="grey" size={20} name="search" />}
+        suffix={
+          <Text weight="medium" size="sm" color="grey">
+            .eth
+          </Text>
+        }
+      />
+      {/* RECEIPT */}
+      <div className="ens-registration-pricing mt-2">
+        <div className="ens-expiry-picker d-flex justify-content-between mb-2">
+          <Button disabled={expiryInYears <= 1} onClick={handleDecrease}>
+            -
+          </Button>
+          <Text>
+            {expiryInYears} year{expiryInYears > 1 ? "s" : ""}
+          </Text>
+          <Button onClick={handleIncrease}>+</Button>
+        </div>
+        <div className="d-flex justify-content-between align-items-center mb-1">
+          <Text size="sm" color="grey">
+            Registration Fee
+          </Text>
+          <Text size="sm" color="grey">
+            0.04 ETH
+          </Text>
+        </div>
+        <div className="d-flex justify-content-between align-items-center mb-1">
+          <Text size="sm" color="grey">
+            Est. network fee
+          </Text>
+          <Text size="sm" color="grey">
+            0.04 ETH
+          </Text>
+        </div>
+        <div className="d-flex justify-content-between align-items-center mt-2 total-fee">
+          <Text size="lg" weight="bold">
+            Total
+          </Text>
+          <Text size="lg" weight="bold">
+            0.08 ETH
+          </Text>
+        </div>
+      </div>
+      {/* RECEIPT */}
+      {/* COMPLETE PROFILE */}
+      <div className="ens-profile-selector mt-2">
+        <div className="content-container d-flex justify-content-between align-items-center">
+          <div className="d-flex align-items-center">
+            <div className="shuriken-cont d-flex align-items-center justify-content-center">
+              <img
+                className="shuriken"
+                width={50}
+                src={shurikenImage}
+                alt="shuricken"
+              ></img>
+            </div>
+            <div className="ms-2">
+              <Text size="sm" weight="medium">
+                Complete your profile
+              </Text>
+              <Text size="xs" color="grey">
+                Make your ENS more discoverable
+              </Text>
+            </div>
+          </div>
+          <Button style={{ width: 40, height: 40 }}>{`>`}</Button>
+        </div>
+      </div>
+      {/* COMPLETE PROFILE */}
+      <Button style={{ width: "100%" }} size="lg" className="mt-3">
+        Next
+      </Button>
+    </div>
+  );
+};
 
 export function ENSNameRegistrationForm({
   name = "brightwave",

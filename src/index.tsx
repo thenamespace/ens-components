@@ -18,3 +18,5 @@ export * from "./web3";
 
 // Theme
 export * from "./theme/ThemeProvider";
+
+export * from "./hooks";
