@@ -14,7 +14,14 @@ import {
   TimerStep,
   RegistrationStep,
 } from "./registration";
-import { SuccessScreen } from "./sub-components/SuccessScreen";
+
+interface RegistrationSuccessData {
+  expiryInYears: number;
+  registrationCost: string;
+  transactionFees: string;
+  total: string;
+  expiryDate: string;
+}
 
 interface RegistrationProcessProps {
   label: string;
@@ -22,6 +29,7 @@ interface RegistrationProcessProps {
   isTestnet: boolean;
   records: EnsRecords;
   onBack?: (clearState?: boolean) => void;
+  onSuccess?: (data: RegistrationSuccessData) => void;
 }
 export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
   label,
@@ -29,6 +37,7 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
   isTestnet = false,
   records,
   onBack,
+  onSuccess,
 }) => {
   const { chain } = useAccount();
   const { switchChain } = useSwitchChain();
@@ -36,7 +45,6 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
   const expectedChainId = isTestnet ? sepolia.id : mainnet.id;
   const isOnCorrectNetwork = chain?.id === expectedChainId;
   const shouldSwitchNetwork = chain && !isOnCorrectNetwork;
-  const [isSuccess, setIsSuccess] = useState(false);
 
   const [registrationState, setRegistrationState] = useState<RegistrationState>(
     {
@@ -109,13 +117,13 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
         </div>
       )}
 
-      {(isOnCorrectNetwork && !isSuccess) && (
+      {isOnCorrectNetwork && (
         <>
           <div className="mt-2">
             <CommitmentStep
               state={registrationState}
               isTestnet={isTestnet}
-              onStateUpdated={state => setRegistrationState(state)}
+              onStateUpdated={(state) => setRegistrationState(state)}
             />
           </div>
 
@@ -130,24 +138,12 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
             <RegistrationStep
               state={registrationState}
               isTestnet={isTestnet}
-              onStateUpdated={state => setRegistrationState(state)}
-              onSuccess={() => {}}
+              onStateUpdated={(state) => setRegistrationState(state)}
+              onSuccess={onSuccess}
             />
           </div>
         </>
       )}
-      {isSuccess &&  <SuccessScreen
-        ensName={registrationState.label}
-        duration={registrationState.expiryInYears}
-        registrationCost={1}
-        networkFee={10}
-        expiryDate="12"
-        total={10}
-        onViewName={() => {}}
-        onRegisterAnother={() => {
-            onBack?.();
-        }}
-      />}
     </div>
   );
 };

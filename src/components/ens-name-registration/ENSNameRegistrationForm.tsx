@@ -6,7 +6,7 @@ import { EnsRecords } from "@/types";
 import { deepCopy } from "@/utils";
 import { useAccount } from "wagmi";
 import { RegistrationProcess } from "./RegistrationProcess";
-import { ProcessSteps} from "./registration/types";
+import { ProcessSteps, SuccessScreen } from "./registration";
 
 export interface EnsNameRegistrationFormProps {
   name?: string;
@@ -16,6 +16,15 @@ export interface EnsNameRegistrationFormProps {
 enum RegistrationSteps {
   Summary = 0,
   Progress = 1,
+  Success = 2,
+}
+
+interface RegistrationSuccessData {
+  expiryInYears: number;
+  registrationCost: string;
+  transactionFees: string;
+  total: string;
+  expiryDate: string;
 }
 
 export const EnsNameRegistrationForm = (
@@ -58,6 +67,8 @@ export const EnsNameRegistrationForm = (
     addresses: [],
     texts: [],
   });
+
+  const [successData, setSuccessData] = useState<RegistrationSuccessData | null>(null);
 
   const handleSaveRecords = () => {
     setEnsRecords(deepCopy(ensRecordTemplate));
@@ -114,12 +125,30 @@ export const EnsNameRegistrationForm = (
           expiryInYears={years}
           records={ensRecords}
           onBack={(clearState?: boolean) => {
-
             if (clearState) {
               clearInputState();
             }
-
-            setStep(RegistrationSteps.Summary)
+            setStep(RegistrationSteps.Summary);
+          }}
+          onSuccess={(data: RegistrationSuccessData) => {
+            setSuccessData(data);
+            setStep(RegistrationSteps.Success);
+          }}
+        />
+      )}
+      {step === RegistrationSteps.Success && successData && (
+        <SuccessScreen
+          ensName={label}
+          expiryInYears={successData.expiryInYears}
+          registrationCost={successData.registrationCost}
+          transactionFees={successData.transactionFees}
+          total={successData.total}
+          expiryDate={successData.expiryDate}
+          isTestnet={props.isTestnet || false}
+          onRegisterAnother={() => {
+            clearInputState();
+            setSuccessData(null);
+            setStep(RegistrationSteps.Summary);
           }}
         />
       )}

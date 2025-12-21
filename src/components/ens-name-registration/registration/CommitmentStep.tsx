@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useAccount } from "wagmi";
 import { ContractFunctionExecutionError, Hash } from "viem";
 import { Accordion } from "../../molecules/accordion";
-import { Button, Text } from "../../atoms";
+import { Button, Text, Icon } from "../../atoms";
 import { useRegisterENS, useWaitTransaction } from "@/hooks";
 import {
   ContractErrorLabel,
@@ -47,8 +47,8 @@ export const CommitmentStep: React.FC<CommitmentStepProps> = ({
 
   const { isCurrentStep, isCompleted, isPending } = useMemo(() => {
     return {
-      isPending: false,
-      isCurrentStep: state.step <= ProcessSteps.TimerStarted,
+      isPending: state.step <= ProcessSteps.CommitmentSent,
+      isCurrentStep: state.step < ProcessSteps.TimerStarted,
       isCompleted: state.step >= ProcessSteps.TimerStarted,
     };
   }, [state]);
@@ -131,20 +131,26 @@ export const CommitmentStep: React.FC<CommitmentStepProps> = ({
         </div>
       );
     } else if (isCompleted) {
-      return <></>;
+      return (
+        <div className="ns-process-badge ns-process-badge--inactive ns-process-badge--completed me-2">
+          <Icon name="check" size={16} color="#4ade80" />
+        </div>
+      );
     } else {
-      return  <div className="ns-process-badge  ns-process-badge--inactive me-2">
-          <Text color="white" weight="bold" size="sm">
+      return (
+        <div className="ns-process-badge ns-process-badge--inactive me-2">
+          <Text color="primary" weight="bold" size="sm">
             1
           </Text>
-        </div>;
+        </div>
+      );
     }
   };
 
   return (
     <Accordion
       isOpen={isCurrentStep}
-      togglable={isCompleted}
+      togglable={isPending}
       disabled={isCompleted}
       title={
         <div className="d-flex align-items-center">

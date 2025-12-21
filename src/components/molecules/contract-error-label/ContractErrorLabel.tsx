@@ -31,6 +31,40 @@ export const isUserDeniedError = (error: unknown): boolean => {
   );
 };
 
+/**
+ * Checks if an error is a CommitmentTooNew error
+ */
+export const isCommitmentToNewErr = (err: ContractFunctionExecutionError): boolean => {
+  // Check in shortMessage
+  if (err.shortMessage && err.shortMessage.includes("CommitmentTooNew")) {
+    return true;
+  }
+  
+  // Check in message
+  if (err.message && err.message.includes("CommitmentTooNew")) {
+    return true;
+  }
+  
+  // Check in cause if it exists
+  if (err.cause && typeof err.cause === "object") {
+    const causeMessage = 
+      ("shortMessage" in err.cause ? err.cause.shortMessage : null) ||
+      ("message" in err.cause ? err.cause.message : null) ||
+      "";
+    
+    if (typeof causeMessage === "string" && causeMessage.includes("CommitmentTooNew")) {
+      return true;
+    }
+  }
+  
+  // Check error name if available
+  if ("name" in err && err.name === "CommitmentTooNew") {
+    return true;
+  }
+  
+  return false;
+};
+
 export const ContractErrorLabel: React.FC<ContractErrorLabelProps> = ({
   error,
   className = "",
@@ -44,12 +78,22 @@ export const ContractErrorLabel: React.FC<ContractErrorLabelProps> = ({
     return null;
   }
 
-  const errorMessage = error.shortMessage || error.message || "Transaction failed";
+  const getErrorMessage = () => {
+    if (error instanceof ContractFunctionExecutionError) {
+      const err = error as ContractFunctionExecutionError;
+      if (isCommitmentToNewErr(err)) {
+        return "Please wait a couple more seconds before registering.";
+      }
+    }
+
+    const errorMessage = error.shortMessage || error.message || "Something went wrong.";
+    return `${errorMessage} Check console for more info.`;
+  };
 
   return (
     <div className={`mt-2 ns-wd-100 ${className}`} style={{ width: "100%", boxSizing: "border-box" }}>
       <Alert variant="error" className="ns-wd-100">
-        <Text size="sm">{errorMessage} Check console for more info.</Text>
+        <Text size="sm">{getErrorMessage()}</Text>
       </Alert>
     </div>
   );

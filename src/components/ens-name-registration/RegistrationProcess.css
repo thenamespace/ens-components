@@ -43,3 +43,8 @@
 .ens-registration-progress .ns-process-badge--inactive .ns-text--primary {
     color: var(--ns-color-primary);
 }
+
+.ens-registration-progress .ns-process-badge--completed {
+    border: 1px solid #4ade80 !important;
+    background-color: white;
+}
