@@ -73,7 +73,7 @@ export const Modal: React.FC<ModalProps> = ({
         aria-labelledby={title ? titleId || "ns-modal-title" : undefined}
         style={style}
       >
-        {(title || !isDismissDisabled) && (
+        {/* {(title || !isDismissDisabled) && (
           <div className="ns-modal__header">
             {title && (
               <div className="ns-modal__title" id={titleId || "ns-modal-title"}>
@@ -96,7 +96,7 @@ export const Modal: React.FC<ModalProps> = ({
               </button>
             )}
           </div>
-        )}
+        )} */}
 
         <div className="ns-modal__body">{children}</div>
 

@@ -1,0 +1,54 @@
+.ns-accordion {
+  background-color: var(--ns-color-bg);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ns-accordion__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.ns-accordion--not-togglable .ns-accordion__header {
+  cursor: default;
+}
+
+.ns-accordion__header:hover:not(.ns-accordion--disabled .ns-accordion__header):not(.ns-accordion--not-togglable .ns-accordion__header) {
+  background-color: var(--ns-color-bg-hover, rgba(0, 0, 0, 0.02));
+}
+
+.ns-accordion__title {
+  flex: 1;
+}
+
+.ns-accordion__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ns-color-text-secondary);
+  transition: transform 0.3s ease;
+}
+
+.ns-accordion__body {
+  overflow: hidden;
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ns-accordion__body-inner {
+  padding: 20px;
+}
+
+/* Disabled state */
+.ns-accordion--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.ns-accordion--disabled .ns-accordion__header {
+  cursor: not-allowed;
+}

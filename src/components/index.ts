@@ -6,6 +6,6 @@ export {
 } from "./pending-transaction/PendingTransaction";
 export { SubnameOnChainRegistrarModal } from "./subname-onchain-registrar-modal/SubnameOnChainRegistrarModal";
 export { SubnameOffChainRegistrarModal } from "./subname-offchain-registrar-modal/SubnameOffChainRegistrarModal";
-export { ENSNameRegistrationForm } from "./ens-names-registrar-component/ENSNameRegistrationForm";
+export { EnsNameRegistrationForm } from "./ens-name-registration/ENSNameRegistrationForm";
 export * from "./atoms";
 export * from "./molecules";

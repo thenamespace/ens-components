@@ -1,7 +1,7 @@
 .ns-select-records-form {
   background-color: var(--ns-color-bg-accent);
   width: 100%;
-  width: 500px;
+  max-width: 500px;
   border-radius: 15px;
   min-height: 400px;
 }

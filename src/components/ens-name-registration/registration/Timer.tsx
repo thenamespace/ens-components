@@ -1,4 +1,3 @@
-import React from "react";
 import { Text } from "../../atoms";
 
 interface TimerProps {
@@ -48,3 +47,4 @@ export function Timer({ seconds, progress }: TimerProps) {
     </div>
   );
 }
+

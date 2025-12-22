@@ -4,7 +4,7 @@ import { InitialStep } from "./sub-components/InitialStep";
 import { RegistrationStep } from "./sub-components/RegistrationStep";
 import { OnchainSuccessScreen } from "./sub-components/OnchainSuccessScreen";
 import { useAccount, useBalance } from "wagmi";
-import { debounce } from "lodash";
+import { debounce } from "@/utils";
 import {
   Address,
   zeroAddress,

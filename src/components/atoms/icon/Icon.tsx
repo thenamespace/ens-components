@@ -12,6 +12,7 @@ import {
   Book,
   X,
   CheckCircle,
+  Check,
   AlertTriangle,
   Info,
   XCircle,
@@ -57,6 +58,7 @@ export type IconName =
   | "twitter"
   | "circle-alert"
   | "check-circle"
+  | "check"
   | "alert-triangle"
   | "info"
   | "x-circle"
@@ -66,7 +68,10 @@ export type IconName =
   | "copy"
   | "clock"
   | "image"
-  | "xSocial";
+  | "xSocial"
+  | "chevron-up"
+  | "chevron-down"
+  | "chevron-left";
 
 const icons: Record<IconName, IconComponent> = {
   person: User,
@@ -88,6 +93,7 @@ const icons: Record<IconName, IconComponent> = {
   twitter: XIcon,
   "circle-alert": LucideIcons.CircleAlert,
   "check-circle": CheckCircle,
+  "check": Check,
   "alert-triangle": AlertTriangle,
   info: Info,
   "x-circle": XCircle,
@@ -97,6 +103,9 @@ const icons: Record<IconName, IconComponent> = {
   copy: CopyIcon,
   clock: Clock,
   xSocial: XIcon,
+  "chevron-up": LucideIcons.ChevronUp,
+  "chevron-down": LucideIcons.ChevronDown,
+  "chevron-left": LucideIcons.ChevronLeft,
 };
 
 export interface IconProps {

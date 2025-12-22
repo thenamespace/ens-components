@@ -1,0 +1,50 @@
+.ens-registration-progress {
+    padding: 15px;
+    position: relative;
+}
+
+.ens-registration-close-btn {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: white;
+    border: 1px solid var(--ns-color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: background-color 0.2s ease;
+    z-index: 10;
+}
+
+.ens-registration-close-btn:hover {
+    background-color: var(--ns-color-bg-hover, rgba(0, 0, 0, 0.02));
+}
+
+.ens-registration-progress .ns-process-badge {
+    width: 25px;
+    height: 25px;
+    background-color: var(--ns-color-fg);
+    border-radius: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ens-registration-progress .ns-process-badge--inactive {
+    background-color: white;
+    border: 1px solid var(--ns-color-border);
+}
+
+.ens-registration-progress .ns-process-badge--inactive .ns-text--primary {
+    color: var(--ns-color-primary);
+}
+
+.ens-registration-progress .ns-process-badge--completed {
+    border: 1px solid #4ade80 !important;
+    background-color: white;
+}

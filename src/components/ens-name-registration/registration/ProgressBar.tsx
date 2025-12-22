@@ -1,4 +1,3 @@
-import React from "react";
 import starImage from "../../../assets/star.png";
 
 interface ProgressBarProps {

@@ -1,0 +1,103 @@
+.ens-registration-success-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.ens-registration-success-card {
+  border-radius: 20px;
+  padding: 32px;
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  position: relative;
+}
+
+.ens-registration-success-illustration {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ens-registration-success-illustration img {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  object-fit: contain;
+}
+
+.ens-registration-success-title-section {
+  margin-bottom: 24px;
+}
+
+.ens-registration-success-message {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--ns-color-fg, #333333);
+}
+
+.ens-registration-success-name {
+  display: block;
+  line-height: 1.2;
+}
+
+.ens-registration-success-summary {
+  background: white;
+  border: 1px solid var(--ns-color-border, #e5e7eb);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.ens-registration-success-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ens-registration-success-summary-row:last-child {
+  margin-bottom: 0;
+}
+
+.ens-registration-success-total {
+  border-top: 1px solid var(--ns-color-border, #e5e7eb);
+  padding-top: 16px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+.ens-registration-success-expiry {
+  border-top: 1px solid var(--ns-color-border, #e5e7eb);
+  padding-top: 16px;
+  margin-top: 8px;
+}
+
+.ens-registration-success-total-amount {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ens-registration-success-eth-logo {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.ens-registration-success-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.ens-registration-success-register-another-btn {
+  flex: 1;
+}
+
+.ens-registration-success-view-name-btn {
+  flex: 1;
+}
+
