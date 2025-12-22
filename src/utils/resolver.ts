@@ -20,6 +20,7 @@ export const convertToResolverData = (name: string, records: EnsRecords) => {
     addressesRemoved: [],
     contenthashRemoved: false,
     contenthashAdded: records.contenthash,
+    isDifferent: true
   });
 };
 
