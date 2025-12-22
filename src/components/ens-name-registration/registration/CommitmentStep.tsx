@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useAccount } from "wagmi";
-import { ContractFunctionExecutionError, Hash } from "viem";
+import { Address, ContractFunctionExecutionError, Hash } from "viem";
 import { Accordion } from "../../molecules/accordion";
 import { Button, Text, Icon } from "../../atoms";
 import { useRegisterENS, useWaitTransaction } from "@/hooks";
@@ -15,12 +15,14 @@ interface CommitmentStepProps {
   state: RegistrationState;
   isTestnet?: boolean;
   onStateUpdated: (state: RegistrationState) => void;
+  referrer?: Address
 }
 
 export const CommitmentStep: React.FC<CommitmentStepProps> = ({
   state,
   isTestnet,
   onStateUpdated,
+  referrer
 }) => {
   const { sendCommitmentTx } = useRegisterENS({ isTestnet });
   const { waitTx } = useWaitTransaction({ isTestnet });
@@ -58,6 +60,8 @@ export const CommitmentStep: React.FC<CommitmentStepProps> = ({
     setError(null);
     let tx: Hash | null = null;
 
+    console.log("MAking commitment with records", state.records)
+
     try {
       setBtnState({ ...btnState, waitingWallet: true });
 
@@ -67,6 +71,7 @@ export const CommitmentStep: React.FC<CommitmentStepProps> = ({
         expiryInYears: state.expiryInYears,
         secret: state.secret,
         records: state.records,
+        referrer: referrer
       });
       setCommitTxStatus({ sent: true, completed: false, hash: tx });
 
@@ -133,7 +138,7 @@ export const CommitmentStep: React.FC<CommitmentStepProps> = ({
     } else if (isCompleted) {
       return (
         <div className="ns-process-badge ns-process-badge--inactive ns-process-badge--completed me-2">
-          <Icon name="check" size={16} color="#4ade80" />
+          <Icon name="check" size={16} color="black" />
         </div>
       );
     } else {

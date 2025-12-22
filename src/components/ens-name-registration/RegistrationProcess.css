@@ -45,6 +45,8 @@
 }
 
 .ens-registration-progress .ns-process-badge--completed {
-    border: 1px solid #4ade80 !important;
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--ns-color-fg, #000000) !important;
     background-color: white;
 }

@@ -1,4 +1,5 @@
 import starImage from "../../../assets/star.png";
+import "./ProgressBar.css";
 
 interface ProgressBarProps {
   progress: number;

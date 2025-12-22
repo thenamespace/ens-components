@@ -63,6 +63,8 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
     try {
       setBtnState({ ...btnState, waitingWallet: true });
 
+      console.log("Sending tx with records", state.records);
+
       tx = await sendRegisterTx({
         label: state.label,
         owner: address!,
@@ -183,7 +185,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
     } else if (isCompleted) {
       return (
         <div className="ns-process-badge ns-process-badge--inactive ns-process-badge--completed me-2">
-          <Icon name="check-circle" size={16} color="#4ade80" />
+          <Icon name="check" size={16} color="black" />
         </div>
       );
     } else {

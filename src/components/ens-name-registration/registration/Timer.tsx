@@ -1,4 +1,5 @@
 import { Text } from "../../atoms";
+import "./Timer.css";
 
 interface TimerProps {
   seconds: number;

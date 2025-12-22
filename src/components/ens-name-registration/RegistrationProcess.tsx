@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ninjaImage from "../../assets/banner.png";
 import "./RegistrationProcess.css";
-import "./sub-components/SubComponents.css";
 import { Alert } from "../molecules/alert/Alert";
 import { Button, Text, Icon } from "../atoms";
 import { useAccount, useSwitchChain } from "wagmi";
@@ -59,6 +58,13 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
       isTestnet: isTestnet,
     }
   );
+
+  useEffect(() => {
+
+    // TODO: Remove ugly useEffect!
+    setRegistrationState({...registrationState, records})
+
+  },[records])
 
   const handleSwitchNetwork = () => {
     if (switchChain) {

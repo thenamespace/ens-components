@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import "./styles/index.css";
 import "@rainbow-me/rainbowkit/styles.css";
-import { SelectRecordsForm, EnsNameRegistrationForm, Modal, Button } from "./components";
+import { EnsNameRegistrationForm } from "./components";
 import { WalletConnectProvider } from "./web3/wallet-connect";
 import { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -14,7 +14,7 @@ function TestApp() {
     <div>
       <WalletConnectProvider>
         <ConnectButton/>
-      <EnsNameRegistrationForm isTestnet={true} name="21323122312fdsklfds"/>
+      <EnsNameRegistrationForm isTestnet={false} name=""/>
       </WalletConnectProvider>
 
     </div>

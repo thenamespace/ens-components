@@ -44,7 +44,7 @@ export const TimerStep: React.FC<TimerStepProps> = ({
     } else if (isCompleted) {
       return (
         <div className="ns-process-badge ns-process-badge--inactive ns-process-badge--completed me-2">
-          <Icon name="check" size={16} color="#4ade80" />
+          <Icon name="check" size={16} color="black" />
         </div>
       );
     } else {

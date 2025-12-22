@@ -1,7 +1,12 @@
 .ens-registration-form-container {
   background-color: var(--ns-color-bg-accent);
-  width: 450px;
+  width: 100%;
+  max-width: 500px;
   height: fit-content;
-  border: 1px solid red;
   border-radius: 10px;
+  border: 1px solid var(--ns-color-border);
+}
+
+.ens-registration-form-container .no-border {
+  border: none;
 }

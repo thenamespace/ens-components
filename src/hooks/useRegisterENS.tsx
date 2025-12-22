@@ -2,6 +2,7 @@ import {
   Address,
   formatEther,
   Hash,
+  isAddress,
   keccak256,
   namehash,
   parseAbi,
@@ -23,7 +24,6 @@ interface RentPriceResponse {
 }
 
 const NAMESPACE_REFERRER_ADDRESS = "0xb7B18611b8C51B4B3F400BaF09DB49E61e0aF044";
-const ENS_REFERRER = createEnsReferer(NAMESPACE_REFERRER_ADDRESS);
 
 const ENS_REGISTRY_ABI = parseAbi([
   "function owner(bytes32) view returns (address)",
@@ -34,6 +34,7 @@ export interface RegistrationRequest {
   expiryInYears: number;
   secret: string;
   records: EnsRecords;
+  referrer?: Address
 }
 
 interface EnsRegistration {
@@ -95,7 +96,7 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
       resolver: getPublicResolver(),
       data: resolverData,
       reverseRecord: 0,
-      referrer: ENS_REFERRER,
+      referrer: getRegReferrer(request),
     };
 
     return (await publicClient!.readContract({
@@ -136,6 +137,8 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
     const fullName = `${request.label}.eth`;
     const resolverData = convertToResolverData(fullName, request.records);
 
+    console.log("Generating resolver data for name: " + fullName, resolverData);
+
     const registration: EnsRegistration = {
       label: request.label,
       owner: request.owner,
@@ -144,7 +147,7 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
       resolver: getPublicResolver(),
       data: resolverData,
       reverseRecord: 0,
-      referrer: ENS_REFERRER,
+      referrer: getRegReferrer(request),
     };
 
     // Get the price for the registration
@@ -178,6 +181,12 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
   const getPublicResolver = () => {
     return getEnsContracts(isTestnet).publicResolver;
   };
+
+  const getRegReferrer = (request: RegistrationRequest) => {
+
+    const referrerAddress = request.referrer && isAddress(request.referrer) ? request.referrer : NAMESPACE_REFERRER_ADDRESS;
+    return createEnsReferer(referrerAddress);
+  }
 
   return {
     isEnsAvailable,

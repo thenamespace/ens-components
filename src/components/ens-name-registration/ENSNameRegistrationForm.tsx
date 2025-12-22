@@ -6,11 +6,15 @@ import { EnsRecords } from "@/types";
 import { deepCopy } from "@/utils";
 import { useAccount } from "wagmi";
 import { RegistrationProcess } from "./RegistrationProcess";
-import { ProcessSteps, SuccessScreen } from "./registration";
+import { SuccessScreen } from "./registration";
+import { Address } from "viem";
 
 export interface EnsNameRegistrationFormProps {
   name?: string;
   isTestnet?: boolean;
+  referrer?: Address
+  noBorder?: boolean
+  className?: string
 }
 
 enum RegistrationSteps {
@@ -32,10 +36,7 @@ export const EnsNameRegistrationForm = (
 ) => {
   const [label, setLabel] = useState<string>(props.name || "");
   const [step, setStep] = useState<RegistrationSteps>(
-    RegistrationSteps.Progress
-  );
-  const [progressStep, setProgressStep] = useState<ProcessSteps>(
-    ProcessSteps.Start
+    RegistrationSteps.Summary
   );
   const [years, setYears] = useState(1);
   const [price, setPrice] = useState<{
@@ -90,13 +91,13 @@ export const EnsNameRegistrationForm = (
   }
 
   return (
-    <div className="ens-registration-form-container">
+    <div className={`ens-registration-form-container ${props.className || ""} ${props.noBorder ? "no-boder" : ""}`}>
       {step === RegistrationSteps.Summary && (
         <>
           {showProfile && (
             <SetNameRecords
-              records={ensRecords}
-              onRecordsChange={setEnsRecords}
+              records={ensRecordTemplate}
+              onRecordsChange={setEnsRecordsTemplate}
               onCancel={handleCancelRecords}
               onSave={handleSaveRecords}
             />
