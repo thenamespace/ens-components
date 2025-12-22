@@ -48,7 +48,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "build:types": "tsc -p tsconfig.types.json",
-    "build": "npm run clean && npm run build:types && rollup -c"
+    "build": "npm run clean && npm run build:types && rollup -c rollup.config.mjs"
   },
   "keywords": [],
   "author": "",
