@@ -1,4 +1,10 @@
 import {
+  getSupportedAddressByCoin,
+  getSupportedAddressByName,
+  getSupportedChashByProtocol,
+  isContenthashValid,
+} from "@/constants";
+import {
   EnsAddressRecord,
   EnsContenthashRecord,
   EnsRecords,
@@ -15,6 +21,7 @@ export interface EnsRecordsDiff {
   contenthashAdded?: EnsContenthashRecord;
   contenthashRemoved: boolean;
   contenthashModified?: EnsContenthashRecord;
+  isDifferent: boolean;
 }
 
 // calculates the difference between old and new records
@@ -23,14 +30,24 @@ export const getEnsRecordsDiff = (
   oldRecords: EnsRecords,
   newRecords: EnsRecords
 ): EnsRecordsDiff => {
-  const { textsAdded, textsModified, textsRemoved } = getEnsTextDiff(
-    oldRecords.texts,
-    newRecords.texts
-  );
-  const { addressesAdded, addressesModified, addressesRemoved } =
-    getEnsAddressDiff(oldRecords.addresses, newRecords.addresses);
-  const { contenthashAdded, contenthashModified, contenthashRemoved } =
-    getEnsContenthashDiff(oldRecords.contenthash, newRecords.contenthash);
+  const {
+    textsAdded,
+    textsModified,
+    textsRemoved,
+    isDifferent: isTxtDifferent,
+  } = getEnsTextDiff(oldRecords.texts, newRecords.texts);
+  const {
+    addressesAdded,
+    addressesModified,
+    addressesRemoved,
+    isDifferent: isAddrDifferent,
+  } = getEnsAddressDiff(oldRecords.addresses, newRecords.addresses);
+  const {
+    contenthashAdded,
+    contenthashModified,
+    contenthashRemoved,
+    isDifferent: isChashDifferent,
+  } = getEnsContenthashDiff(oldRecords.contenthash, newRecords.contenthash);
 
   return {
     addressesAdded: addressesAdded as EnsAddressRecord[],
@@ -42,6 +59,9 @@ export const getEnsRecordsDiff = (
     contenthashAdded,
     contenthashModified,
     contenthashRemoved: contenthashRemoved as boolean,
+    isDifferent: (isTxtDifferent ||
+      isAddrDifferent ||
+      isChashDifferent) as boolean,
   };
 };
 
@@ -54,9 +74,11 @@ const getEnsTextDiff = (
       textsAdded: newTexts,
       textsModified: [],
       textsRemoved: [],
+      isDifferent: newTexts.length > 0,
     };
   }
 
+  let hasDifferences = false;
   const oldTextMap: Record<string, EnsTextRecord> = {};
   const textsRemoved: EnsTextRecord[] = [];
 
@@ -66,6 +88,7 @@ const getEnsTextDiff = (
     // check to see if text exists in old but not in new
     const existsInNew = newTexts.find(newText => newText.key === text.key);
     if (!existsInNew) {
+      hasDifferences = true;
       textsRemoved.push(text);
     }
   });
@@ -79,8 +102,10 @@ const getEnsTextDiff = (
   newTexts.forEach(newText => {
     const matchingOldText = oldTextMap[newText.key];
     if (!matchingOldText) {
+      hasDifferences = true;
       textsAdded.push(newText);
     } else if (matchingOldText.value !== newText.value) {
+      hasDifferences = true;
       textsModified.push(newText);
     }
   });
@@ -89,6 +114,7 @@ const getEnsTextDiff = (
     textsAdded,
     textsModified,
     textsRemoved,
+    isDifferent: hasDifferences,
   };
 };
 
@@ -101,9 +127,11 @@ const getEnsAddressDiff = (
       addressesAdded: newAddresses,
       addressesModified: [],
       addressesRemoved: [],
+      isDifferent: newAddresses.length > 0,
     };
   }
 
+  let hasDifference = false;
   const oldAddressMap: Record<string, EnsAddressRecord> = {};
   const addressesRemoved: EnsAddressRecord[] = [];
 
@@ -115,6 +143,7 @@ const getEnsAddressDiff = (
       newAddress => newAddress.coinType === address.coinType
     );
     if (!existsInNew) {
+      hasDifference = true;
       addressesRemoved.push(address);
     }
   });
@@ -128,8 +157,10 @@ const getEnsAddressDiff = (
   newAddresses.forEach(newAddress => {
     const matchinOldAddress = oldAddressMap[newAddress.coinType];
     if (!matchinOldAddress) {
+      hasDifference = true;
       addressesAdded.push(newAddress);
     } else if (matchinOldAddress.value !== newAddress.value) {
+      hasDifference = true;
       addressesModified.push(newAddress);
     }
   });
@@ -138,6 +169,7 @@ const getEnsAddressDiff = (
     addressesAdded,
     addressesModified,
     addressesRemoved,
+    isDifferent: hasDifference,
   };
 };
 
@@ -150,6 +182,7 @@ const getEnsContenthashDiff = (
       contenthashRemoved: false,
       contenthashAdded: undefined,
       contenthashModified: undefined,
+      isDifferent: false,
     };
   }
 
@@ -158,6 +191,7 @@ const getEnsContenthashDiff = (
       contenthashRemoved: false,
       contenthashAdded: newRecord,
       contenthashModified: undefined,
+      isDifferent: true,
     };
   }
 
@@ -168,5 +202,74 @@ const getEnsContenthashDiff = (
     contenthashAdded: undefined,
     contenthashModified: isSame ? undefined : newRecord,
     contenthashRemoved: false,
+    isDifferent: !isSame,
+  };
+};
+
+export interface RecordValidationError {
+  type: "address" | "text" | "contenthash";
+  reason: string;
+}
+
+export const validateEnsRecords = (
+  ensRecords: EnsRecords
+): { validationFailed: boolean; errors: RecordValidationError[] } => {
+  const { texts, addresses, contenthash } = ensRecords;
+
+  let validationErrs: RecordValidationError[] = [];
+  let validationFailed = false;
+  if (addresses && addresses.length > 0) {
+    addresses.forEach(addr => {
+      const validator = getSupportedAddressByCoin(addr.coinType);
+      if (addr.value.length === 0) {
+        validationFailed = true;
+        validationErrs.push({
+          type: "address",
+          reason: `${validator ? validator.label : addr.coinType} address cannot be blank.`,
+        });
+        return;
+      }
+
+      if (validator) {
+        if (!validator.validateFunc?.(addr.value)) {
+          validationFailed = true;
+          validationErrs.push({
+            type: "address",
+            reason: `${validator.label} address value is not valid.`,
+          });
+          return;
+        }
+      }
+    });
+  }
+
+  if (texts && texts.length > 0) {
+    texts.forEach(txt => {
+      if (!txt.value || txt.value.length === 0) {
+        validationFailed = true;
+        validationErrs.push({
+          type: "text",
+          reason: `Text -> '${txt.key}' cannot be blank.`,
+        });
+      }
+    });
+  }
+
+  if (contenthash) {
+    const { value, protocol } = contenthash;
+    const validator = getSupportedChashByProtocol(protocol);
+
+    if (value?.trim?.().length == 0 || !isContenthashValid(protocol, value)) {
+      validationFailed = true;
+      validationErrs.push({
+        type: "contenthash",
+        reason: `Contenthash value is invalid for ${validator ? validator.label : protocol} protocol`,
+      });
+    }
+  }
+
+  return {
+    validationFailed: validationFailed,
+    errors: validationErrs,
   };
 };

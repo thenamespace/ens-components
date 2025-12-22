@@ -13,6 +13,7 @@ import {
   TimerStep,
   RegistrationStep,
 } from "./registration";
+import { Address } from "viem";
 
 interface RegistrationSuccessData {
   expiryInYears: number;
@@ -29,6 +30,7 @@ interface RegistrationProcessProps {
   records: EnsRecords;
   onBack?: (clearState?: boolean) => void;
   onSuccess?: (data: RegistrationSuccessData) => void;
+  referrer?: Address
 }
 export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
   label,
@@ -37,6 +39,7 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
   records,
   onBack,
   onSuccess,
+  referrer
 }) => {
   const { chain } = useAccount();
   const { switchChain } = useSwitchChain();
@@ -56,6 +59,7 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
       secret: "0x0",
       records: records,
       isTestnet: isTestnet,
+      referrer: referrer
     }
   );
 

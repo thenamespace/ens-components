@@ -1,1 +1,12 @@
 node_modules
+dist
+storybook-static
+.git
+.github
+.env
+.env.local
+*.log
+.DS_Store
+coverage
+.vscode
+.idea

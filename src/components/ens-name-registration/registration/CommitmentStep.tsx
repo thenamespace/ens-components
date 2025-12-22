@@ -3,7 +3,7 @@ import { useAccount } from "wagmi";
 import { Address, ContractFunctionExecutionError, Hash } from "viem";
 import { Accordion } from "../../molecules/accordion";
 import { Button, Text, Icon } from "../../atoms";
-import { useRegisterENS, useWaitTransaction } from "@/hooks";
+import { RegistrationRequest, useRegisterENS, useWaitTransaction } from "@/hooks";
 import {
   ContractErrorLabel,
   isUserDeniedError,
@@ -21,8 +21,7 @@ interface CommitmentStepProps {
 export const CommitmentStep: React.FC<CommitmentStepProps> = ({
   state,
   isTestnet,
-  onStateUpdated,
-  referrer
+  onStateUpdated
 }) => {
   const { sendCommitmentTx } = useRegisterENS({ isTestnet });
   const { waitTx } = useWaitTransaction({ isTestnet });
@@ -60,19 +59,19 @@ export const CommitmentStep: React.FC<CommitmentStepProps> = ({
     setError(null);
     let tx: Hash | null = null;
 
-    console.log("MAking commitment with records", state.records)
-
     try {
       setBtnState({ ...btnState, waitingWallet: true });
 
-      tx = await sendCommitmentTx({
-        label: state.label,
+      const request: RegistrationRequest = {
+         label: state.label,
         owner: address!,
         expiryInYears: state.expiryInYears,
         secret: state.secret,
         records: state.records,
-        referrer: referrer
-      });
+        referrer: state.referrer
+      }
+
+      tx = await sendCommitmentTx(request);
       setCommitTxStatus({ sent: true, completed: false, hash: tx });
 
       onStateUpdated({

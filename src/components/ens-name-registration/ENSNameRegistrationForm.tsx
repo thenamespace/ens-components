@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import "./ENSNamesRegistrarComponent.css";
 import { RegistrationSummary } from "./RegistrationSummary";
 import { SetNameRecords } from "./SetNameRecords";
 import { EnsRecords } from "@/types";
-import { deepCopy } from "@/utils";
+import { deepCopy, getEnsRecordsDiff } from "@/utils";
 import { useAccount } from "wagmi";
 import { RegistrationProcess } from "./RegistrationProcess";
 import { SuccessScreen } from "./registration";
@@ -12,9 +12,10 @@ import { Address } from "viem";
 export interface EnsNameRegistrationFormProps {
   name?: string;
   isTestnet?: boolean;
-  referrer?: Address
-  noBorder?: boolean
-  className?: string
+  referrer?: Address;
+  noBorder?: boolean;
+  className?: string;
+  onRegistrationSuccess?: () => void
 }
 
 enum RegistrationSteps {
@@ -39,6 +40,19 @@ export const EnsNameRegistrationForm = (
     RegistrationSteps.Summary
   );
   const [years, setYears] = useState(1);
+  // TODO: Implement gas prices, Currently its hardcoded!
+  const [regTxFees, setRegTxFees] = useState<{
+    isChecking: boolean
+    estimatedGas: number
+    price: { wei: bigint, eth: number }
+  }>({
+    estimatedGas: 0,
+    isChecking: false,
+    price: {
+      wei: 0n,
+      eth: 0.0001
+    }
+  })
   const [price, setPrice] = useState<{
     isChecking: boolean;
     wei: bigint;
@@ -69,7 +83,12 @@ export const EnsNameRegistrationForm = (
     texts: [],
   });
 
-  const [successData, setSuccessData] = useState<RegistrationSuccessData | null>(null);
+  const hasRecordsDifference = useMemo(() => {
+    return getEnsRecordsDiff(ensRecords, ensRecordTemplate).isDifferent;
+  }, [ensRecords, ensRecordTemplate]);
+
+  const [successData, setSuccessData] =
+    useState<RegistrationSuccessData | null>(null);
 
   const handleSaveRecords = () => {
     setEnsRecords(deepCopy(ensRecordTemplate));
@@ -83,15 +102,19 @@ export const EnsNameRegistrationForm = (
 
   const clearInputState = () => {
     setLabel("");
-    setYears(0);
-    setEnsRecords({ addresses: [], texts: []})
-    setEnsRecordsTemplate({addresses: [], texts: []})
-    setNameValidation({ isChecking: false, isTaken: false})
-    setPrice({ isChecking: false, wei: 0n, eth: 0})
-  }
+    setYears(1);
+    setEnsRecords({ addresses: [], texts: [] });
+    setEnsRecordsTemplate({ addresses: [], texts: [] });
+    setNameValidation({ isChecking: false, isTaken: false });
+    setPrice({ isChecking: false, wei: 0n, eth: 0 });
+  };
+
+
 
   return (
-    <div className={`ens-registration-form-container ${props.className || ""} ${props.noBorder ? "no-boder" : ""}`}>
+    <div
+      className={`ens-registration-form-container ${props.className || ""} ${props.noBorder ? "no-boder" : ""}`}
+    >
       {step === RegistrationSteps.Summary && (
         <>
           {showProfile && (
@@ -100,6 +123,7 @@ export const EnsNameRegistrationForm = (
               onRecordsChange={setEnsRecordsTemplate}
               onCancel={handleCancelRecords}
               onSave={handleSaveRecords}
+              hasChanges={hasRecordsDifference}
             />
           )}
           {!showProfile && (
@@ -109,6 +133,7 @@ export const EnsNameRegistrationForm = (
               price={price}
               nameValidation={nameValidation}
               isTestnet={props.isTestnet || false}
+              transactionFees={regTxFees}
               onLabelChange={setLabel}
               onYearsChange={setYears}
               onPriceChange={setPrice}

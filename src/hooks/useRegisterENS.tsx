@@ -34,7 +34,7 @@ export interface RegistrationRequest {
   expiryInYears: number;
   secret: string;
   records: EnsRecords;
-  referrer?: Address
+  referrer?: Address;
 }
 
 interface EnsRegistration {
@@ -84,7 +84,9 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
     return equalsIgnoreCase(ownerAddress, zeroAddress);
   };
 
-  const makeCommitment = async (request: RegistrationRequest): Promise<Hash> => {
+  const makeCommitment = async (
+    request: RegistrationRequest
+  ): Promise<Hash> => {
     const fullName = `${request.label}.eth`;
     const resolverData = convertToResolverData(fullName, request.records);
 
@@ -129,15 +131,15 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
     return walletClient.writeContract(contractRequest);
   };
 
-  const sendRegisterTx = async (request: RegistrationRequest): Promise<Hash> => {
+  const sendRegisterTx = async (
+    request: RegistrationRequest
+  ): Promise<{ txHash: Hash; price: RentPriceResponse }> => {
     if (!walletClient || !walletClient.account) {
       throw new Error("Wallet client is not available");
     }
 
     const fullName = `${request.label}.eth`;
     const resolverData = convertToResolverData(fullName, request.records);
-
-    console.log("Generating resolver data for name: " + fullName, resolverData);
 
     const registration: EnsRegistration = {
       label: request.label,
@@ -167,7 +169,11 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
     });
 
     // Send the transaction
-    return walletClient.writeContract(contractRequest);
+    const tx = await walletClient.writeContract(contractRequest);
+    return {
+      txHash: tx,
+      price,
+    };
   };
 
   const getEthController = () => {
@@ -183,15 +189,17 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
   };
 
   const getRegReferrer = (request: RegistrationRequest) => {
-
-    const referrerAddress = request.referrer && isAddress(request.referrer) ? request.referrer : NAMESPACE_REFERRER_ADDRESS;
+    const referrerAddress =
+      request.referrer && isAddress(request.referrer)
+        ? request.referrer
+        : NAMESPACE_REFERRER_ADDRESS;
     return createEnsReferer(referrerAddress);
-  }
+  };
 
   return {
     isEnsAvailable,
     getRegistrationPrice,
     sendCommitmentTx,
-    sendRegisterTx
+    sendRegisterTx,
   };
 };

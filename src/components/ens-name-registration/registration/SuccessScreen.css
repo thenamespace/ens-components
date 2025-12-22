@@ -48,7 +48,7 @@
   border: 1px solid var(--ns-color-border, #e5e7eb);
   border-radius: 12px;
   padding: 20px;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
   text-align: left;
 }
 
@@ -89,7 +89,7 @@
 
 .ens-registration-success-actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
 }
 

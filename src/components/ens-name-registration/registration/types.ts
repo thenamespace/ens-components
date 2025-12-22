@@ -1,4 +1,5 @@
 import { EnsRecords } from "@/types";
+import { Address } from "viem";
 
 export enum ProcessSteps {
   Start = 0,
@@ -20,5 +21,6 @@ export interface RegistrationState {
   secret: string;
   expiryInYears: number;
   records: EnsRecords;
+  referrer?: Address
 }
 

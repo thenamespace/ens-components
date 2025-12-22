@@ -83,10 +83,10 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
         </div>
 
         <div className="ens-registration-success-title-section">
-          <Text size="lg" weight="bold" className="ens-registration-success-message">
+          <Text size="sm" color="grey" className="mb-2">
             Hooray! You've registered
           </Text>
-          <Text size="lg" weight="bold" className="ens-registration-success-name">
+          <Text size="lg" weight="bold">
             {ensName}.eth
           </Text>
         </div>
@@ -125,15 +125,13 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
         <div className="ens-registration-success-actions">
           <Button
             variant="outline"
-            size="lg"
             onClick={onRegisterAnother}
             className="ens-registration-success-register-another-btn"
           >
             Register another
           </Button>
           <Button
-            variant="solid"
-            size="lg"
+            variant="outline"
             onClick={() => {
               if (onViewName) {
                 onViewName();
@@ -146,6 +144,9 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
             View Name
           </Button>
         </div>
+          <Button onClick={() => onClose?.()} size="lg" className="ns-wd-100 mt-2">
+            Great!
+          </Button>
       </div>
     </div>
   );

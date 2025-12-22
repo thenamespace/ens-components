@@ -14,7 +14,7 @@ function TestApp() {
     <div>
       <WalletConnectProvider>
         <ConnectButton/>
-      <EnsNameRegistrationForm isTestnet={false} name=""/>
+      <EnsNameRegistrationForm isTestnet={true} name=""/>
       </WalletConnectProvider>
 
     </div>
