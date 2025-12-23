@@ -127,9 +127,7 @@
 .record-update-summary-actions {
   display: flex;
   gap: 8px;
-  padding: 10px;
-  padding-top: 0;
-  margin-top: 16px;
+  padding-top: 0px;
 }
 
 .record-update-summary-actions button {

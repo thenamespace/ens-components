@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Hash } from "viem";
+import { mainnet, sepolia } from "viem/chains";
 import { Text } from "../../atoms";
-import { ProgressBar } from "./ProgressBar";
+import { ProgressBar } from "../../molecules";
+import { getBlockExplorerTransactionUrl, getBlockExplorerName } from "@/utils";
 
 interface TransactionPendingScreenProps {
   message?: string;
   hash: Hash;
   isCompleted: boolean;
   isTestnet?: boolean;
+  chainId?: number;
 }
 
 export const TransactionPendingScreen: React.FC<TransactionPendingScreenProps> = ({
@@ -15,8 +18,12 @@ export const TransactionPendingScreen: React.FC<TransactionPendingScreenProps> =
   hash,
   isCompleted,
   isTestnet,
+  chainId,
 }) => {
   const [progressStep, setProgressStep] = useState(0);
+  
+  // Derive chainId from isTestnet if not provided
+  const effectiveChainId = chainId ?? (isTestnet ? sepolia.id : mainnet.id);
 
   useEffect(() => {
     if (isCompleted) {
@@ -35,14 +42,6 @@ export const TransactionPendingScreen: React.FC<TransactionPendingScreenProps> =
     return () => clearInterval(int);
   }, [progressStep, isCompleted]);
 
-  // Get etherscan URL based on network
-  const getEtherscanUrl = (hash: string) => {
-    const baseUrl = isTestnet
-      ? "https://sepolia.etherscan.io"
-      : "https://etherscan.io";
-    return `${baseUrl}/tx/${hash}`;
-  };
-
   return (
     <div className="ns-text-center">
       <Text weight="medium">
@@ -52,9 +51,9 @@ export const TransactionPendingScreen: React.FC<TransactionPendingScreenProps> =
         {message || "Your transaction has been sent!"}
       </Text>
       <ProgressBar progress={progressStep} />
-      <a href={getEtherscanUrl(hash)} target="_blank" rel="noopener noreferrer">
+      <a href={getBlockExplorerTransactionUrl(effectiveChainId, hash)} target="_blank" rel="noopener noreferrer">
         <Text className="mt-2" size="xs" color="grey">
-          Check on Etherscan
+          Check on {getBlockExplorerName(effectiveChainId)}
         </Text>
       </a>
     </div>

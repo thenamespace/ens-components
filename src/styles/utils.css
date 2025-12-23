@@ -62,3 +62,11 @@
 .ns-wd-100 {
   width: 100%;
 }
+
+/* Card container - reusable container with white bg, grey border, and padding */
+.ns-card-container {
+  background-color: var(--ns-color-bg);
+  border: 1px solid var(--ns-color-border);
+  border-radius: 10px;
+  padding: 20px;
+}

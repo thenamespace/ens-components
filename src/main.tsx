@@ -11,35 +11,19 @@ function TestApp() {
   // This is a test app. Its not bundled as component library!!
   const [open, setOpen] = useState(false);
 
+  const name = "myrandomname1337.eth"
+
   return (
     <div>
       <WalletConnectProvider>
         <ConnectButton />
+        <EnsNameRegistrationForm isTestnet={true} name={name}/>
         <EnsRecordsForm
-          name="artii.eth"
-          isTestnet={false}
+          name={name}
+          isTestnet={true}
           existingRecords={{
-            addresses: [
-              {
-                coinType: 60,
-                value: zeroAddress
-              },
-              {
-                coinType: 0,
-                value: "0123123123123"
-              }
-            ],
-            texts: [{
-              key: "name",
-              value: "Hellothere"
-            }, {
-              key:"description",
-              value: "avatar1"
-            },
-          {
-              key: "com.twitter",
-              value: "twitterusername"
-            }],
+            addresses: [],
+            texts: []
           }}
         />
       </WalletConnectProvider>

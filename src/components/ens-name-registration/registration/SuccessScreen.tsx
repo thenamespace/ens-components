@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Confetti from "react-confetti";
 import finishLogo from "../../../assets/finish.png";
 import { Button, Text } from "../../atoms";
+import { getEnsAppUrl } from "@/utils";
 import "./SuccessScreen.css";
 
 interface SuccessScreenProps {
@@ -29,12 +30,6 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
   onRegisterAnother,
   onViewName,
 }) => {
-  const getEnsAppUrl = () => {
-    const baseUrl = isTestnet 
-      ? "https://sepolia.app.ens.domains" 
-      : "https://app.ens.domains";
-    return `${baseUrl}/${ensName}.eth`;
-  };
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({
     width: 0,
@@ -136,7 +131,7 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
               if (onViewName) {
                 onViewName();
               } else {
-                window.open(getEnsAppUrl(), "_blank", "noopener,noreferrer");
+                window.open(getEnsAppUrl(`${ensName}.eth`, isTestnet), "_blank", "noopener,noreferrer");
               }
             }}
             className="ens-registration-success-view-name-btn"

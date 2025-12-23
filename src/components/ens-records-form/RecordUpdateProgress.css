@@ -1,0 +1,58 @@
+/* Common screen container styles */
+.record-update-screen-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.record-update-screen-card {
+  border-radius: 20px;
+  padding: 32px;
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  position: relative;
+}
+
+.record-update-screen-title-section {
+  margin-bottom: 24px;
+}
+
+.record-update-screen-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.record-update-screen-view-name-btn,
+.record-update-screen-close-btn,
+.record-update-screen-retry-btn {
+  width: 100%;
+}
+
+/* Success screen specific styles */
+.record-update-success-illustration {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.record-update-success-illustration img {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Failed screen specific styles */
+.record-update-failed-icon {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--ns-color-error, #ef4444);
+}
+

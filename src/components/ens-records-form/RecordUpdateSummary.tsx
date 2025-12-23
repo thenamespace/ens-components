@@ -1,10 +1,17 @@
-import React, { useMemo, useState, useRef, useEffect, useLayoutEffect } from "react";
+import React, {
+  useMemo,
+  useState,
+  useRef,
+  useEffect,
+  useLayoutEffect,
+} from "react";
 import { EnsRecords } from "@/types";
 import { getEnsRecordsDiff, EnsRecordsDiff } from "@/utils";
 import { getSupportedAddressByCoin, getSupportedText } from "@/constants";
-import { Accordion } from "@/components/molecules";
+import { Accordion, ContractErrorLabel } from "@/components/molecules";
 import { Text, Icon, ChainIcon } from "@/components/atoms";
 import { Button } from "@/components/atoms";
+import { ContractFunctionExecutionError } from "viem";
 import ninjaImage from "../../assets/banner.png";
 import "./RecordUpdateSummary.css";
 
@@ -43,7 +50,7 @@ const ExpandableBadge: React.FC<ExpandableBadgeProps> = ({
   children,
   id,
   isExpanded,
-  onToggle,
+  onToggle
 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState<number>(0);
@@ -75,9 +82,9 @@ const ExpandableBadge: React.FC<ExpandableBadgeProps> = ({
           setHeight(contentRef.current.scrollHeight);
         }
       };
-      
+
       updateHeight();
-      
+
       const resizeObserver = new ResizeObserver(updateHeight);
       resizeObserver.observe(contentRef.current);
       return () => resizeObserver.disconnect();
@@ -85,13 +92,15 @@ const ExpandableBadge: React.FC<ExpandableBadgeProps> = ({
   }, [isExpanded, children]);
 
   return (
-    <div className={`record-summary-expandable-badge ${isExpanded ? "record-summary-expandable-badge--expanded" : ""}`}>
+    <div
+      className={`record-summary-expandable-badge ${isExpanded ? "record-summary-expandable-badge--expanded" : ""}`}
+    >
       <div
         className="record-summary-badge-header"
         onClick={onToggle}
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => {
+        onKeyDown={e => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             onToggle();
@@ -104,10 +113,7 @@ const ExpandableBadge: React.FC<ExpandableBadgeProps> = ({
             {label}
           </Text>
         </div>
-        <Icon
-          name={isExpanded ? "chevron-up" : "chevron-down"}
-          size={16}
-        />
+        <Icon name={isExpanded ? "chevron-up" : "chevron-down"} size={16} />
       </div>
       <div
         className="record-summary-badge-content"
@@ -115,9 +121,7 @@ const ExpandableBadge: React.FC<ExpandableBadgeProps> = ({
           height: `${height}px`,
         }}
       >
-        <div ref={contentRef}>
-          {children}
-        </div>
+        <div ref={contentRef}>{children}</div>
       </div>
     </div>
   );
@@ -126,6 +130,11 @@ const ExpandableBadge: React.FC<ExpandableBadgeProps> = ({
 export interface RecordUpdateSummaryProps {
   oldRecords: EnsRecords;
   newRecords: EnsRecords;
+  isUpdating?: {
+    waitingWallet: boolean;
+    waitingTx: boolean;
+  };
+  error?: ContractFunctionExecutionError | null;
   onConfirm?: () => void;
   onCancel?: () => void;
 }
@@ -133,6 +142,8 @@ export interface RecordUpdateSummaryProps {
 export const RecordUpdateSummary: React.FC<RecordUpdateSummaryProps> = ({
   oldRecords,
   newRecords,
+  isUpdating,
+  error,
   onConfirm,
   onCancel,
 }) => {
@@ -206,7 +217,7 @@ export const RecordUpdateSummary: React.FC<RecordUpdateSummaryProps> = ({
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   const toggleItem = (id: string) => {
-    setExpandedItems((prev) => {
+    setExpandedItems(prev => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
         newSet.delete(id);
@@ -216,6 +227,13 @@ export const RecordUpdateSummary: React.FC<RecordUpdateSummaryProps> = ({
       return newSet;
     });
   };
+
+  const btnDisabled = isUpdating?.waitingTx || isUpdating?.waitingWallet;
+  const btnLabel = isUpdating?.waitingWallet 
+    ? "Waiting Wallet..." 
+    : isUpdating?.waitingTx 
+    ? "Updating..." 
+    : "Update";
 
   return (
     <div className="record-update-summary">
@@ -235,7 +253,8 @@ export const RecordUpdateSummary: React.FC<RecordUpdateSummaryProps> = ({
         </Text>
       </div>
 
-      {/* Addresses Section */}
+      <div className="ns-card-container">
+        {/* Addresses Section */}
       {hasAddressChanges && (
         <Accordion
           title={
@@ -244,112 +263,145 @@ export const RecordUpdateSummary: React.FC<RecordUpdateSummaryProps> = ({
                 Address Summary
               </Text>
               <div className="record-summary-badge">
-                <Text size="sm" color="grey" weight="medium">{addressCount}</Text>
+                <Text size="sm" color="grey" weight="medium">
+                  {addressCount}
+                </Text>
               </div>
             </div>
           }
           isOpen={openAccordion === "addresses"}
-          onToggle={(isOpen) => setOpenAccordion(isOpen ? "addresses" : null)}
+          onToggle={isOpen => setOpenAccordion(isOpen ? "addresses" : null)}
           className="record-summary-accordion"
         >
           <div className="record-summary-content">
             {diff.addressesAdded.length > 0 && (
               <div className="record-summary-section">
-                <Text weight="medium" size="sm" color="grey" className="ns-mb-1">
+                <Text
+                  weight="medium"
+                  size="sm"
+                  color="grey"
+                  className="ns-mb-1"
+                >
                   Added ({diff.addressesAdded.length})
                 </Text>
                 <div className="record-summary-badges-container">
                   {diff.addressesAdded.map((addr, idx) => {
-                  const addressInfo = getSupportedAddressByCoin(addr.coinType);
-                  const itemId = `addr-added-${addr.coinType}-${idx}`;
-                  const isExpanded = expandedItems.has(itemId);
-                  return (
-                    <ExpandableBadge
-                      key={idx}
-                      id={itemId}
-                      icon={
-                        addressInfo ? (
-                          <ChainIcon chain={addressInfo.chainName} size={16} />
-                        ) : null
-                      }
-                      label={getAddressLabel(addr.coinType)}
-                      isExpanded={isExpanded}
-                      onToggle={() => toggleItem(itemId)}
-                    >
-                      <Text size="xs" color="grey">
-                        New value → {formatAddress(addr.value)}
-                      </Text>
-                    </ExpandableBadge>
-                  );
-                })}
+                    const addressInfo = getSupportedAddressByCoin(
+                      addr.coinType
+                    );
+                    const itemId = `addr-added-${addr.coinType}-${idx}`;
+                    const isExpanded = expandedItems.has(itemId);
+                    return (
+                      <ExpandableBadge
+                        key={idx}
+                        id={itemId}
+                        icon={
+                          addressInfo ? (
+                            <ChainIcon
+                              chain={addressInfo.chainName}
+                              size={16}
+                            />
+                          ) : null
+                        }
+                        label={getAddressLabel(addr.coinType)}
+                        isExpanded={isExpanded}
+                        onToggle={() => toggleItem(itemId)}
+                      >
+                        <Text size="xs" color="grey">
+                          New value → {formatAddress(addr.value)}
+                        </Text>
+                      </ExpandableBadge>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
             {diff.addressesModified.length > 0 && (
               <div className="record-summary-section">
-                <Text weight="medium" size="sm" color="grey" className="ns-mb-1">
+                <Text
+                  weight="medium"
+                  size="sm"
+                  color="grey"
+                  className="ns-mb-1"
+                >
                   Modified ({diff.addressesModified.length})
                 </Text>
                 <div className="record-summary-badges-container">
                   {diff.addressesModified.map((addr, idx) => {
-                  const addressInfo = getSupportedAddressByCoin(addr.coinType);
-                  const oldAddr = oldRecords.addresses.find(
-                    a => a.coinType === addr.coinType
-                  );
-                  const itemId = `addr-modified-${addr.coinType}-${idx}`;
-                  const isExpanded = expandedItems.has(itemId);
-                  return (
-                    <ExpandableBadge
-                      key={idx}
-                      id={itemId}
-                      icon={
-                        addressInfo ? (
-                          <ChainIcon chain={addressInfo.chainName} size={16} />
-                        ) : null
-                      }
-                      label={getAddressLabel(addr.coinType)}
-                      isExpanded={isExpanded}
-                      onToggle={() => toggleItem(itemId)}
-                    >
-                      <Text size="xs" color="grey">
-                        {oldAddr ? formatAddress(oldAddr.value) : "None"} → {formatAddress(addr.value)}
-                      </Text>
-                    </ExpandableBadge>
-                  );
-                })}
+                    const addressInfo = getSupportedAddressByCoin(
+                      addr.coinType
+                    );
+                    const oldAddr = oldRecords.addresses.find(
+                      a => a.coinType === addr.coinType
+                    );
+                    const itemId = `addr-modified-${addr.coinType}-${idx}`;
+                    const isExpanded = expandedItems.has(itemId);
+                    return (
+                      <ExpandableBadge
+                        key={idx}
+                        id={itemId}
+                        icon={
+                          addressInfo ? (
+                            <ChainIcon
+                              chain={addressInfo.chainName}
+                              size={16}
+                            />
+                          ) : null
+                        }
+                        label={getAddressLabel(addr.coinType)}
+                        isExpanded={isExpanded}
+                        onToggle={() => toggleItem(itemId)}
+                      >
+                        <Text size="xs" color="grey">
+                          {oldAddr ? formatAddress(oldAddr.value) : "None"} →{" "}
+                          {formatAddress(addr.value)}
+                        </Text>
+                      </ExpandableBadge>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
             {diff.addressesRemoved.length > 0 && (
               <div className="record-summary-section">
-                <Text weight="medium" size="sm" color="grey" className="ns-mb-1">
+                <Text
+                  weight="medium"
+                  size="sm"
+                  color="grey"
+                  className="ns-mb-1"
+                >
                   Removed ({diff.addressesRemoved.length})
                 </Text>
                 <div className="record-summary-badges-container">
                   {diff.addressesRemoved.map((addr, idx) => {
-                  const addressInfo = getSupportedAddressByCoin(addr.coinType);
-                  return (
-                    <SimpleBadge
-                      key={idx}
-                      icon={
-                        addressInfo ? (
-                          <ChainIcon chain={addressInfo.chainName} size={16} />
-                        ) : null
-                      }
-                      label={getAddressLabel(addr.coinType)}
-                    />
-                  );
-                })}
+                    const addressInfo = getSupportedAddressByCoin(
+                      addr.coinType
+                    );
+                    return (
+                      <SimpleBadge
+                        key={idx}
+                        icon={
+                          addressInfo ? (
+                            <ChainIcon
+                              chain={addressInfo.chainName}
+                              size={16}
+                            />
+                          ) : null
+                        }
+                        label={getAddressLabel(addr.coinType)}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             )}
           </div>
         </Accordion>
-      )}
+          )}
 
-      {/* Texts Section */}
+          {/* Texts Section */}
       {hasTextChanges && (
         <Accordion
           title={
@@ -358,98 +410,130 @@ export const RecordUpdateSummary: React.FC<RecordUpdateSummaryProps> = ({
                 Texts Summary
               </Text>
               <div className="record-summary-badge">
-                <Text size="sm" color="grey" weight="medium">{textCount}</Text>
+                <Text size="sm" color="grey" weight="medium">
+                  {textCount}
+                </Text>
               </div>
             </div>
           }
           isOpen={openAccordion === "texts"}
-          onToggle={(isOpen) => setOpenAccordion(isOpen ? "texts" : null)}
+          onToggle={isOpen => setOpenAccordion(isOpen ? "texts" : null)}
           className="record-summary-accordion"
         >
           <div className="record-summary-content">
             {diff.textsAdded.length > 0 && (
               <div className="record-summary-section">
-                <Text weight="medium" size="sm" color="grey" className="ns-mb-1">
+                <Text
+                  weight="medium"
+                  size="sm"
+                  color="grey"
+                  className="ns-mb-1"
+                >
                   Added ({diff.textsAdded.length})
                 </Text>
                 <div className="record-summary-badges-container">
                   {diff.textsAdded.map((txt, idx) => {
-                  const textInfo = getSupportedText(txt.key);
-                  const itemId = `text-added-${txt.key}-${idx}`;
-                  const isExpanded = expandedItems.has(itemId);
-                  return (
-                    <ExpandableBadge
-                      key={idx}
-                      id={itemId}
-                      icon={textInfo ? <Icon name={textInfo.icon} size={16} /> : null}
-                      label={getTextLabel(txt.key)}
-                      isExpanded={isExpanded}
-                      onToggle={() => toggleItem(itemId)}
-                    >
-                      <Text size="xs" color="grey">
-                        New value → {formatValue(txt.value)}
-                      </Text>
-                    </ExpandableBadge>
-                  );
-                })}
+                    const textInfo = getSupportedText(txt.key);
+                    const itemId = `text-added-${txt.key}-${idx}`;
+                    const isExpanded = expandedItems.has(itemId);
+                    return (
+                      <ExpandableBadge
+                        key={idx}
+                        id={itemId}
+                        icon={
+                          textInfo ? (
+                            <Icon name={textInfo.icon} size={16} />
+                          ) : null
+                        }
+                        label={getTextLabel(txt.key)}
+                        isExpanded={isExpanded}
+                        onToggle={() => toggleItem(itemId)}
+                      >
+                        <Text size="xs" color="grey">
+                          New value → {formatValue(txt.value)}
+                        </Text>
+                      </ExpandableBadge>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
             {diff.textsModified.length > 0 && (
               <div className="record-summary-section">
-                <Text weight="medium" size="sm" color="grey" className="ns-mb-1">
+                <Text
+                  weight="medium"
+                  size="sm"
+                  color="grey"
+                  className="ns-mb-1"
+                >
                   Modified ({diff.textsModified.length})
                 </Text>
                 <div className="record-summary-badges-container">
                   {diff.textsModified.map((txt, idx) => {
-                  const textInfo = getSupportedText(txt.key);
-                  const oldText = oldRecords.texts.find(t => t.key === txt.key);
-                  const itemId = `text-modified-${txt.key}-${idx}`;
-                  const isExpanded = expandedItems.has(itemId);
-                  return (
-                    <ExpandableBadge
-                      key={idx}
-                      id={itemId}
-                      icon={textInfo ? <Icon name={textInfo.icon} size={16} /> : null}
-                      label={getTextLabel(txt.key)}
-                      isExpanded={isExpanded}
-                      onToggle={() => toggleItem(itemId)}
-                    >
-                      <Text size="xs" color="grey">
-                        {oldText ? formatValue(oldText.value) : "None"} → {formatValue(txt.value)}
-                      </Text>
-                    </ExpandableBadge>
-                  );
-                })}
+                    const textInfo = getSupportedText(txt.key);
+                    const oldText = oldRecords.texts.find(
+                      t => t.key === txt.key
+                    );
+                    const itemId = `text-modified-${txt.key}-${idx}`;
+                    const isExpanded = expandedItems.has(itemId);
+                    return (
+                      <ExpandableBadge
+                        key={idx}
+                        id={itemId}
+                        icon={
+                          textInfo ? (
+                            <Icon name={textInfo.icon} size={16} />
+                          ) : null
+                        }
+                        label={getTextLabel(txt.key)}
+                        isExpanded={isExpanded}
+                        onToggle={() => toggleItem(itemId)}
+                      >
+                        <Text size="xs" color="grey">
+                          {oldText ? formatValue(oldText.value) : "None"} →{" "}
+                          {formatValue(txt.value)}
+                        </Text>
+                      </ExpandableBadge>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
             {diff.textsRemoved.length > 0 && (
               <div className="record-summary-section">
-                <Text weight="medium" size="sm" color="grey" className="ns-mb-1">
+                <Text
+                  weight="medium"
+                  size="sm"
+                  color="grey"
+                  className="ns-mb-1"
+                >
                   Removed ({diff.textsRemoved.length})
                 </Text>
                 <div className="record-summary-badges-container">
                   {diff.textsRemoved.map((txt, idx) => {
-                  const textInfo = getSupportedText(txt.key);
-                  return (
-                    <SimpleBadge
-                      key={idx}
-                      icon={textInfo ? <Icon name={textInfo.icon} size={16} /> : null}
-                      label={getTextLabel(txt.key)}
-                    />
-                  );
-                })}
+                    const textInfo = getSupportedText(txt.key);
+                    return (
+                      <SimpleBadge
+                        key={idx}
+                        icon={
+                          textInfo ? (
+                            <Icon name={textInfo.icon} size={16} />
+                          ) : null
+                        }
+                        label={getTextLabel(txt.key)}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             )}
           </div>
         </Accordion>
-      )}
+          )}
 
-      {/* Contenthash Section */}
+          {/* Contenthash Section */}
       {hasContenthashChanges && (
         <Accordion
           title={
@@ -458,39 +542,51 @@ export const RecordUpdateSummary: React.FC<RecordUpdateSummaryProps> = ({
                 Contenthash Summary
               </Text>
               <div className="record-summary-badge">
-                <Text size="sm" color="grey" weight="medium">{contenthashCount}</Text>
+                <Text size="sm" color="grey" weight="medium">
+                  {contenthashCount}
+                </Text>
               </div>
             </div>
           }
           isOpen={openAccordion === "contenthash"}
-          onToggle={(isOpen) => setOpenAccordion(isOpen ? "contenthash" : null)}
+          onToggle={isOpen => setOpenAccordion(isOpen ? "contenthash" : null)}
           className="record-summary-accordion"
         >
           <div className="record-summary-content">
             {diff.contenthashAdded && (
               <div className="record-summary-section">
-                <Text weight="medium" size="sm" color="grey" className="ns-mb-1">
+                <Text
+                  weight="medium"
+                  size="sm"
+                  color="grey"
+                  className="ns-mb-1"
+                >
                   Added
                 </Text>
                 <div className="record-summary-badges-container">
                   <ExpandableBadge
-                  id="contenthash-added"
-                  icon={<Icon name="globe" size={16} />}
-                  label={`Protocol: ${diff.contenthashAdded.protocol}`}
-                  isExpanded={expandedItems.has("contenthash-added")}
-                  onToggle={() => toggleItem("contenthash-added")}
-                >
-                  <Text size="xs" color="grey">
-                    New value → {formatValue(diff.contenthashAdded.value, 60)}
-                  </Text>
-                </ExpandableBadge>
+                    id="contenthash-added"
+                    icon={<Icon name="globe" size={16} />}
+                    label={`Protocol: ${diff.contenthashAdded.protocol}`}
+                    isExpanded={expandedItems.has("contenthash-added")}
+                    onToggle={() => toggleItem("contenthash-added")}
+                  >
+                    <Text size="xs" color="grey">
+                      New value → {formatValue(diff.contenthashAdded.value, 60)}
+                    </Text>
+                  </ExpandableBadge>
                 </div>
               </div>
             )}
 
             {diff.contenthashModified && (
               <div className="record-summary-section">
-                <Text weight="medium" size="sm" color="grey" className="ns-mb-1">
+                <Text
+                  weight="medium"
+                  size="sm"
+                  color="grey"
+                  className="ns-mb-1"
+                >
                   Modified
                 </Text>
                 <div className="record-summary-badges-container">
@@ -507,7 +603,8 @@ export const RecordUpdateSummary: React.FC<RecordUpdateSummaryProps> = ({
                             oldRecords.contenthash.value,
                             40
                           )}`
-                        : "None"} → {formatValue(diff.contenthashModified.value, 40)}
+                        : "None"}{" "}
+                      → {formatValue(diff.contenthashModified.value, 40)}
                     </Text>
                   </ExpandableBadge>
                 </div>
@@ -516,7 +613,12 @@ export const RecordUpdateSummary: React.FC<RecordUpdateSummaryProps> = ({
 
             {diff.contenthashRemoved && (
               <div className="record-summary-section">
-                <Text weight="medium" size="sm" color="grey" className="ns-mb-1">
+                <Text
+                  weight="medium"
+                  size="sm"
+                  color="grey"
+                  className="ns-mb-1"
+                >
                   Removed
                 </Text>
                 {oldRecords.contenthash && (
@@ -531,20 +633,33 @@ export const RecordUpdateSummary: React.FC<RecordUpdateSummaryProps> = ({
             )}
           </div>
         </Accordion>
-      )}
+          )}
 
-      {/* Action Buttons */}
-      <div className="record-update-summary-actions">
-        <Button variant="outline" size="lg" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button size="lg" onClick={onConfirm}>
-          Confirm Update
-        </Button>
+          {/* Error Display */}
+          <ContractErrorLabel error={error} />
+
+          {/* Action Buttons */}
+          <div className="record-update-summary-actions">
+            <Button 
+              variant="outline" 
+              size="lg" 
+              onClick={onCancel}
+              disabled={btnDisabled}
+            >
+              Cancel
+            </Button>
+            <Button 
+              size="lg" 
+              onClick={onConfirm}
+              disabled={btnDisabled}
+              loading={isUpdating?.waitingTx || isUpdating?.waitingWallet}
+            >
+              {btnLabel}
+            </Button>
+          </div>
       </div>
     </div>
   );
 };
 
 export default RecordUpdateSummary;
-

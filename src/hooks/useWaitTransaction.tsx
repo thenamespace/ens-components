@@ -9,9 +9,10 @@ interface WaitTransactionOptions {
   timeout?: number;
 }
 
-export const useWaitTransaction = ({ isTestnet }: { isTestnet?: boolean }) => {
+export const useWaitTransaction = ({ isTestnet, chainId }: { isTestnet?: boolean, chainId?: number }) => {
+  const txChainId = chainId ? chainId : isTestnet ? sepolia.id : mainnet.id
   const publicClient = usePublicClient({
-    chainId: isTestnet ? sepolia.id : mainnet.id,
+    chainId: txChainId
   });
 
   const waitTx = async (

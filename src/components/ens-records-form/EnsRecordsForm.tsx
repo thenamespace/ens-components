@@ -8,6 +8,7 @@ import { ConnectAndSetChain, Alert } from "@/components/molecules";
 import { ShurikenSpinner } from "@/components/atoms";
 import "./EnsRecordsForm.css";
 import { EnsUpdateRecordsForm } from "./EnsUpdateRecordsForm";
+import { EnsRecordsDiff } from "@/utils";
 
 export interface EnsRecordsFormProps {
   // Optional, if not provided
@@ -40,7 +41,7 @@ export const EnsRecordsForm = ({
   const isConnectedAndOnRequiredChain =
     isConnected && chain?.id === resolverChain;
 
-  const { isResolverSupported, getResolverAddress } = useENSResolver({
+  const { isResolverSupported, getResolverAddress, setUpdateRecordsTx } = useENSResolver({
     resolverChainId: resolverChain,
     isTestnet,
   });
@@ -65,7 +66,7 @@ export const EnsRecordsForm = ({
       isChecking: true,
       error: undefined,
     });
-    
+
     try {
       let currentResolverAddress = resolverAddress;
       if (currentResolverAddress === undefined) {
@@ -108,28 +109,38 @@ export const EnsRecordsForm = ({
         currentChainID={chain?.id}
         requiredChainID={resolverChain}
       />
-      
+
       {resolverState.isChecking && (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "40px" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "40px",
+          }}
+        >
           <ShurikenSpinner size={40} />
         </div>
       )}
 
       {!resolverState.isChecking && resolverState.error && (
-        <Alert variant="error">
-          {resolverState.error}
-        </Alert>
+        <Alert variant="error">{resolverState.error}</Alert>
       )}
 
-      {!resolverState.isChecking && !resolverState.error && isConnectedAndOnRequiredChain && (
-        <EnsUpdateRecordsForm
-          existingRecords={existingRecords}
-          name={name}
-          resolverAddress={resolverState.address}
-          resolverChainId={resolverChain}
-          onRecordsUpdated={() => {}}
-        />
-      )}
+      {!resolverState.isChecking &&
+        !resolverState.error &&
+        isConnectedAndOnRequiredChain && (
+          <EnsUpdateRecordsForm
+            existingRecords={existingRecords}
+            name={name}
+            isTestnet={isTestnet}
+            resolverAddress={resolverState.address!}
+            resolverChainId={resolverChain}
+            onRecordsUpdated={(recordsDiff: EnsRecordsDiff) => {
+              console.log("records updated")
+            }}
+          />
+        )}
     </div>
   );
 };
