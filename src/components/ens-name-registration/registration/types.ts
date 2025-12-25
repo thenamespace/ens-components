@@ -22,5 +22,6 @@ export interface RegistrationState {
   expiryInYears: number;
   records: EnsRecords;
   referrer?: Address
+  isLoading?: boolean
 }
 

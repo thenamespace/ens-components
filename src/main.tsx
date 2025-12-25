@@ -5,6 +5,7 @@ import { EnsNameRegistrationForm } from "./components";
 import { WalletConnectProvider } from "./web3/wallet-connect";
 import { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ProgressBar } from "./components/ens-name-registration/registration/ProgressBar";
 
 function TestApp() {
   // This is a test app. Its not bundled as component library!!
@@ -14,7 +15,10 @@ function TestApp() {
     <div>
       <WalletConnectProvider>
         <ConnectButton/>
-      <EnsNameRegistrationForm isTestnet={true} name=""/>
+        <ProgressBar progress={50}/>
+      <EnsNameRegistrationForm isTestnet={true} name="" onRegistrationSuccess={(data) => {
+        console.log("Registration successfull", data);
+      }}/>
       </WalletConnectProvider>
 
     </div>

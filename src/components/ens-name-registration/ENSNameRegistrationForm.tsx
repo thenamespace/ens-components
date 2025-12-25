@@ -7,7 +7,7 @@ import { deepCopy, getEnsRecordsDiff } from "@/utils";
 import { useAccount } from "wagmi";
 import { RegistrationProcess } from "./RegistrationProcess";
 import { SuccessScreen } from "./registration";
-import { Address } from "viem";
+import { Address, Hash } from "viem";
 
 export interface EnsNameRegistrationFormProps {
   name?: string;
@@ -15,7 +15,8 @@ export interface EnsNameRegistrationFormProps {
   referrer?: Address;
   noBorder?: boolean;
   className?: string;
-  onRegistrationSuccess?: () => void
+  onRegistrationSuccess?: (result: RegistrationSuccessData) => void
+  onClose?: (isSuccess: boolean) => void
 }
 
 enum RegistrationSteps {
@@ -32,10 +33,22 @@ interface RegistrationSuccessData {
   expiryDate: string;
 }
 
+const getLabel = (name?: string) => {
+
+  if (!name) {
+    return "";
+  }
+
+  if (name.split(".").length !== 1) {
+    return name.split(".")[0]
+  }
+  return name;
+}
+
 export const EnsNameRegistrationForm = (
   props: EnsNameRegistrationFormProps
 ) => {
-  const [label, setLabel] = useState<string>(props.name || "");
+  const [label, setLabel] = useState<string>(getLabel(props.name));
   const [step, setStep] = useState<RegistrationSteps>(
     RegistrationSteps.Summary
   );
@@ -158,6 +171,7 @@ export const EnsNameRegistrationForm = (
           }}
           onSuccess={(data: RegistrationSuccessData) => {
             setSuccessData(data);
+            props.onRegistrationSuccess?.(data);
             setStep(RegistrationSteps.Success);
           }}
         />
@@ -171,6 +185,7 @@ export const EnsNameRegistrationForm = (
           total={successData.total}
           expiryDate={successData.expiryDate}
           isTestnet={props.isTestnet || false}
+          onGreat={() => props.onClose?.(true)}
           onRegisterAnother={() => {
             clearInputState();
             setSuccessData(null);

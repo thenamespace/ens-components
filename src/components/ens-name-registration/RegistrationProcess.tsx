@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ninjaImage from "../../assets/banner.png";
 import "./RegistrationProcess.css";
 import { Alert } from "../molecules/alert/Alert";
+import { Modal } from "../molecules/modal/Modal";
 import { Button, Text, Icon } from "../atoms";
 import { useAccount, useSwitchChain } from "wagmi";
 import { mainnet, sepolia } from "viem/chains";
@@ -13,6 +14,7 @@ import {
   TimerStep,
   RegistrationStep,
 } from "./registration";
+import { generateEnsRegistrationSecret } from "./ensRegistrationUtils";
 import { Address } from "viem";
 
 interface RegistrationSuccessData {
@@ -30,8 +32,31 @@ interface RegistrationProcessProps {
   records: EnsRecords;
   onBack?: (clearState?: boolean) => void;
   onSuccess?: (data: RegistrationSuccessData) => void;
-  referrer?: Address
+  referrer?: Address;
 }
+
+const getBlankRegistrationState = (
+  label: string,
+  exiryInYears: number,
+  records: EnsRecords,
+  isTestnet: boolean,
+  referrer?: Address
+) => {
+  const blankRegistrationState: RegistrationState = {
+    step: ProcessSteps.Start,
+    label: label,
+    commitment: { completed: false, time: 0 },
+    registration: { completed: false },
+    timerStartedAt: 0,
+    expiryInYears: exiryInYears,
+    secret: generateEnsRegistrationSecret(),
+    records: records,
+    isTestnet: isTestnet,
+    referrer: referrer,
+  };
+  return blankRegistrationState;
+};
+
 export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
   label,
   expiryInYears,
@@ -39,7 +64,7 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
   records,
   onBack,
   onSuccess,
-  referrer
+  referrer,
 }) => {
   const { chain } = useAccount();
   const { switchChain } = useSwitchChain();
@@ -47,28 +72,21 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
   const expectedChainId = isTestnet ? sepolia.id : mainnet.id;
   const isOnCorrectNetwork = chain?.id === expectedChainId;
   const shouldSwitchNetwork = chain && !isOnCorrectNetwork;
-
   const [registrationState, setRegistrationState] = useState<RegistrationState>(
-    {
-      step: ProcessSteps.Start,
-      label: label,
-      commitment: { completed: false, time: 0 },
-      registration: { completed: false },
-      timerStartedAt: 0,
-      expiryInYears: expiryInYears,
-      secret: "0x0",
-      records: records,
-      isTestnet: isTestnet,
-      referrer: referrer
-    }
+    getBlankRegistrationState(
+      label,
+      expiryInYears,
+      records,
+      isTestnet,
+      referrer
+    )
   );
+  const [showConfirmClose, setShowConfirmClose] = useState(false);
 
   useEffect(() => {
-
     // TODO: Remove ugly useEffect!
-    setRegistrationState({...registrationState, records})
-
-  },[records])
+    setRegistrationState({ ...registrationState, records });
+  }, [records]);
 
   const handleSwitchNetwork = () => {
     if (switchChain) {
@@ -77,19 +95,40 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
   };
 
   const handleTimerPassed = () => {
-    setRegistrationState({
+    const newState = {
       ...registrationState,
       step: ProcessSteps.TimerCompleted,
-    });
+    };
+    setRegistrationState(newState);
   };
 
   const networkName = isTestnet ? "Sepolia" : "Mainnet";
+
+  const handleCloseClick = () => {
+    if (
+      registrationState.step > ProcessSteps.Start &&
+      registrationState.step < ProcessSteps.RegistrationCompleted
+    ) {
+      setShowConfirmClose(true);
+    } else {
+      onBack?.();
+    }
+  };
+
+  const handleConfirmClose = () => {
+    setShowConfirmClose(false);
+    onBack?.(true);
+  };
+
+  const handleCancelClose = () => {
+    setShowConfirmClose(false);
+  };
 
   return (
     <div className="ens-registration-progress">
       <button
         className="ens-registration-close-btn"
-        onClick={() => onBack?.()}
+        onClick={handleCloseClick}
         type="button"
         aria-label="Close"
       >
@@ -133,14 +172,18 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
             <CommitmentStep
               state={registrationState}
               isTestnet={isTestnet}
-              onStateUpdated={(state) => setRegistrationState(state)}
+              onStateUpdated={state => {
+                setRegistrationState(state);
+              }}
             />
           </div>
 
           <div className="mt-2">
             <TimerStep
               state={registrationState}
-              onTimerCompleted={handleTimerPassed}
+              onTimerCompleted={() => {
+                handleTimerPassed();
+              }}
             />
           </div>
 
@@ -148,12 +191,44 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
             <RegistrationStep
               state={registrationState}
               isTestnet={isTestnet}
-              onStateUpdated={(state) => setRegistrationState(state)}
+              onStateUpdated={state => {
+                setRegistrationState(state);
+              }}
               onSuccess={onSuccess}
             />
           </div>
         </>
       )}
+
+      <Modal
+        isOpen={showConfirmClose}
+        onClose={handleCancelClose}
+        title="Leave Registration?"
+        size="sm"
+        footer={
+          <div style={{ display: "flex", gap: 8, width: "100%" }}>
+            <Button
+              variant="outline"
+              onClick={handleCancelClose}
+              style={{ flex: 1 }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmClose}
+              style={{ flex: 1 }}
+            >
+              Leave
+            </Button>
+          </div>
+        }
+      >
+        <Text size="sm">
+          If you leave now, you will lose all your registration progress. Are
+          you sure you want to continue?
+        </Text>
+      </Modal>
     </div>
   );
 };

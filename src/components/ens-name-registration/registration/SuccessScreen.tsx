@@ -12,7 +12,7 @@ interface SuccessScreenProps {
   total: string; // ETH value as string
   expiryDate: string;
   isTestnet?: boolean;
-  onClose?: () => void;
+  onGreat?: () => void;
   onRegisterAnother: () => void;
   onViewName?: () => void;
 }
@@ -25,7 +25,7 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
   total,
   expiryDate,
   isTestnet = false,
-  onClose,
+  onGreat,
   onRegisterAnother,
   onViewName,
 }) => {
@@ -144,7 +144,7 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
             View Name
           </Button>
         </div>
-          <Button onClick={() => onClose?.()} size="lg" className="ns-wd-100 mt-2">
+          <Button onClick={() => onGreat?.()} size="lg" className="ns-wd-100 mt-2">
             Great!
           </Button>
       </div>

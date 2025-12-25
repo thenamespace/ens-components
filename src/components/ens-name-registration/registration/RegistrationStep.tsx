@@ -15,13 +15,17 @@ import {
 import { useAccount } from "wagmi";
 import { TransactionPendingScreen } from "./TransactionPendingScreen";
 import { formatFloat } from "@/utils";
+import { EnsRecords } from "@/types";
 
-interface RegistrationSuccessData {
+export interface RegistrationSuccessData {
   expiryInYears: number;
   registrationCost: string; // ETH as string
   transactionFees: string; // ETH as string
   total: string; // ETH as string
   expiryDate: string;
+  thHash: string
+  name: string
+  records: EnsRecords
 }
 
 interface RegistrationStepProps {
@@ -151,6 +155,9 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
           transactionFees: transactionFeesEth,
           total: totalCost,
           expiryDate: formattedExpiryDate,
+          thHash: tx,
+          name: `${state.label}.eth`,
+          records: state.records
         });
       }, 1000);
     } catch (err) {

@@ -64,8 +64,7 @@ export const TimerStep: React.FC<TimerStepProps> = ({
     }
     const int = setInterval(() => {
       setSecondsToWait(prev => {
-        if (prev <= 0) {
-          onTimerCompleted?.();
+        if (prev <= 1) {
           return 0;
         }
         return prev - 1;
@@ -73,7 +72,13 @@ export const TimerStep: React.FC<TimerStepProps> = ({
     }, 1000);
 
     return () => clearInterval(int);
-  }, [onTimerCompleted, shouldStartTimer]);
+  }, [shouldStartTimer]);
+
+  useEffect(() => {
+    if (secondsToWait === 0 && shouldStartTimer) {
+      onTimerCompleted?.();
+    }
+  }, [secondsToWait, shouldStartTimer, onTimerCompleted]);
 
   // Calculate progress: 60 seconds = 0%, 0 seconds = 100%
   const progress = Math.ceil(

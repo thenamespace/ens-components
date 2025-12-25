@@ -17,7 +17,7 @@
 }
 
 .ens-names-register-progress-fill {
-  height: 100%;
+  height: 24px;
   background-color: #ffffff;
   border-radius: 0 12px 12px 0;
   transition: width 0.1s linear;
@@ -34,10 +34,10 @@
   align-items: center;
   justify-content: center;
   position: absolute;
-  right: 2;
+  right: 5px;
   top: 0;
-  height: 100%;
-  width: 25px;
+  height: 23px;
+  width: 23px;
   pointer-events: none;
 }
 
