@@ -7,7 +7,7 @@ import { deepCopy, getEnsRecordsDiff } from "@/utils";
 import { useAccount } from "wagmi";
 import { RegistrationProcess } from "./RegistrationProcess";
 import { SuccessScreen } from "./registration";
-import { Address, Hash } from "viem";
+import { Address } from "viem";
 
 export interface EnsNameRegistrationFormProps {
   name?: string;
@@ -17,6 +17,7 @@ export interface EnsNameRegistrationFormProps {
   className?: string;
   onRegistrationSuccess?: (result: RegistrationSuccessData) => void
   onClose?: (isSuccess: boolean) => void
+  onRegistrationStart?: (name: string) => void
 }
 
 enum RegistrationSteps {
@@ -126,7 +127,7 @@ export const EnsNameRegistrationForm = (
 
   return (
     <div
-      className={`ens-registration-form-container ${props.className || ""} ${props.noBorder ? "no-boder" : ""}`}
+      className={`ens-registration-form-container ${props.className || ""} ${props.noBorder ? "no-border" : ""}`}
     >
       {step === RegistrationSteps.Summary && (
         <>
@@ -169,6 +170,7 @@ export const EnsNameRegistrationForm = (
             }
             setStep(RegistrationSteps.Summary);
           }}
+          onStart={props.onRegistrationStart}
           onSuccess={(data: RegistrationSuccessData) => {
             setSuccessData(data);
             props.onRegistrationSuccess?.(data);

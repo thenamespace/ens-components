@@ -32,6 +32,7 @@ interface RegistrationProcessProps {
   records: EnsRecords;
   onBack?: (clearState?: boolean) => void;
   onSuccess?: (data: RegistrationSuccessData) => void;
+  onStart?: (hash: string) => void;
   referrer?: Address;
 }
 
@@ -64,6 +65,7 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
   records,
   onBack,
   onSuccess,
+  onStart,
   referrer,
 }) => {
   const { chain } = useAccount();
@@ -173,6 +175,11 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
               state={registrationState}
               isTestnet={isTestnet}
               onStateUpdated={state => {
+
+                if (state.step === ProcessSteps.CommitmentSent) {
+                  onStart?.(`${state.label}.eth`);
+                }
+
                 setRegistrationState(state);
               }}
             />

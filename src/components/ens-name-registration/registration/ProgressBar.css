@@ -4,21 +4,22 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  height: 24px !important;
+  height: 26px !important;
 }
 
 .ens-names-register-progress-bar {
   width: 100%;
-  height: 24px !important;
+  height: 26px !important;
   background-color: #000000;
   border-radius: 4px;
   padding: 4px;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .ens-names-register-progress-fill {
-  height: 24px;
+  height: 100%;
   background-color: #ffffff;
   border-radius: 0 12px 12px 0;
   transition: width 0.1s linear;
@@ -26,8 +27,9 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding-right: 8px;
+  padding: 0 8px 0 4px;
   overflow: visible;
+  box-sizing: border-box;
 }
 
 .ens-names-register-progress-star-wrapper {
@@ -36,9 +38,10 @@
   justify-content: center;
   position: absolute;
   right: 5px;
-  top: 0;
-  height: 23px;
-  width: 23px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 18px;
+  width: 18px;
   pointer-events: none;
 }
 

@@ -16,7 +16,9 @@ function TestApp() {
       <WalletConnectProvider>
         <ConnectButton/>
         <ProgressBar progress={50}/>
-      <EnsNameRegistrationForm isTestnet={true} name="" onRegistrationSuccess={(data) => {
+      <EnsNameRegistrationForm noBorder={true} onRegistrationStart={(hash) => {
+        console.log("Registration started", hash)
+      }} isTestnet={true} name="" onRegistrationSuccess={(data) => {
         console.log("Registration successfull", data);
       }}/>
       </WalletConnectProvider>
