@@ -6,7 +6,7 @@ import {
   useRegisterENS,
   useWaitTransaction,
 } from "@/hooks";
-import { Address, ContractFunctionExecutionError, Hash, formatEther } from "viem";
+import { ContractFunctionExecutionError, Hash, formatEther } from "viem";
 import {
   ContractErrorLabel,
   Accordion,
