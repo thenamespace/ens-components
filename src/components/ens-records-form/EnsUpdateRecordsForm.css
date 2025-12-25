@@ -1,0 +1,21 @@
+.ens-update-records-form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.ens-update-records-form-actions button {
+  flex: 1;
+  max-width: 50%;
+}
+
+@media screen and (max-width: 600px) {
+  .ens-update-records-form-actions {
+    flex-direction: column;
+  }
+
+  .ens-update-records-form-actions button {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+

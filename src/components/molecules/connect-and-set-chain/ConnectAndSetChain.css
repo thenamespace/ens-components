@@ -1,0 +1,36 @@
+.ns-connect-and-set-chain {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background-color: var(--ns-color-bg-accent, #f4f4f4);
+  border-radius: var(--ns-radius-md, 8px);
+  border: 1px solid var(--ns-color-border, #e5e7eb);
+}
+
+.ns-connect-and-set-chain-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.ns-connect-and-set-chain-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ns-connect-and-set-chain-message {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ns-connect-and-set-chain-button {
+  width: 100%;
+}
+

@@ -1,10 +1,13 @@
-.ns-edit-records-form {
+.ens-records-form-container {
   background-color: var(--ns-color-bg-accent);
-  width: 500px;
+  width: 100%;
+  max-width: 500px;
+  height: fit-content;
+  border-radius: 10px;
+  border: 1px solid var(--ns-color-border);
 }
 
-@media screen and (max-width: 600px) {
-  .ns-edit-records-form {
-    width: 100%;
-  }
+.ens-records-form-container .no-border {
+  border: none;
 }
+

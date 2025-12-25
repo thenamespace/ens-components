@@ -17,31 +17,31 @@ const WalletContent = ({
   const { isConnected } = useAccount();
 
   return (
-    <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
-      <div style={{ marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Text weight="bold" size="lg">
-          ENS Name Registration
-        </Text>
-        <ConnectButton />
-      </div>
-      
-      {!isConnected ? (
-        <div style={{ 
-          textAlign: "center", 
-          padding: "40px 20px",
-          background: "var(--ns-color-bg-accent, #f4f4f4)",
-          borderRadius: "12px",
-          border: "1px solid var(--ns-color-border, #e5e7eb)"
-        }}>
-          <Text size="md" color="grey" style={{ marginBottom: "16px" }}>
-            Please connect your wallet to register an ENS name
+      <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
+        <div style={{ marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Text weight="bold" size="lg">
+            ENS Name Registration
           </Text>
           <ConnectButton />
         </div>
-      ) : (
-        children
-      )}
-    </div>
+        
+        {!isConnected ? (
+          <div style={{ 
+            textAlign: "center", 
+            padding: "40px 20px",
+            background: "var(--ns-color-bg-accent, #f4f4f4)",
+            borderRadius: "12px",
+            border: "1px solid var(--ns-color-border, #e5e7eb)"
+          }}>
+            <Text size="md" color="grey" style={{ marginBottom: "16px" }}>
+              Please connect your wallet to register an ENS name
+            </Text>
+            <ConnectButton />
+          </div>
+        ) : (
+          children
+        )}
+      </div>
   );
 };
 

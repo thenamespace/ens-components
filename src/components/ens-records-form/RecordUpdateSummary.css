@@ -1,0 +1,156 @@
+.record-update-summary {
+  padding: 15px;
+  background-color: var(--ns-color-bg-accent);
+  border-radius: 15px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.record-update-summary .text-center {
+  text-align: center;
+}
+
+.record-summary-accordion {
+  margin-bottom: 12px;
+  background-color: var(--ns-color-bg);
+  border-radius: 10px;
+  border: 1px solid var(--ns-color-border);
+}
+
+.record-summary-accordion .ns-accordion__body-inner {
+  padding-top: 0;
+}
+
+
+.record-summary-section {
+  margin-bottom: 16px;
+}
+
+.record-summary-section:last-child {
+  margin-bottom: 0;
+}
+
+.record-summary-badges-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.record-summary-expandable-badge {
+  flex: 0 0 auto;
+  min-width: 0;
+  position: relative;
+}
+
+.record-summary-expandable-badge--expanded {
+  flex-basis: 100%;
+  width: 100%;
+  min-width: 100%;
+}
+
+.record-summary-badge-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: var(--ns-color-bg-accent);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.record-summary-expandable-badge--expanded .record-summary-badge-header {
+  border-radius: 8px 8px 0 0;
+}
+
+.record-summary-badge-header:hover {
+  opacity: 0.9;
+}
+
+.record-summary-badge-content {
+  padding: 0 12px;
+  background-color: var(--ns-color-bg-accent);
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.record-summary-expandable-badge:not(.record-summary-expandable-badge--expanded) .record-summary-badge-content {
+  max-width: 0;
+  min-width: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.record-summary-badge-content > div {
+  padding: 8px 0;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.record-summary-simple-badge {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.record-summary-simple-badge .record-summary-badge-header {
+  cursor: default;
+}
+
+@media screen and (max-width: 600px) {
+  .record-summary-simple-badge {
+    flex-basis: 100%;
+    width: 100%;
+    min-width: 100%;
+  }
+}
+
+.record-summary-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 3px;
+  background-color: var(--ns-color-bg-accent, #f4f4f4);
+  color: var(--ns-color-fg, #000);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  min-width: 20px;
+  text-align: center;
+}
+
+.record-update-summary-actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  padding-top: 0;
+  margin-top: 16px;
+}
+
+.record-update-summary-actions button {
+  flex: 1;
+  max-width: 50%;
+}
+
+@media screen and (max-width: 600px) {
+  .record-summary-expandable-badge {
+    flex-basis: 100%;
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .record-update-summary-actions {
+    flex-direction: column;
+  }
+
+  .record-update-summary-actions button {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+

@@ -1,265 +1,135 @@
+import { useENSResolver } from "@/hooks";
 import { EnsRecords } from "@/types";
-import { useEffect, useMemo, useState } from "react";
-import { SelectRecordsForm } from "../select-records-form/SelectRecordsForm";
-import { Button, Icon, Tooltip } from "../atoms";
+import { useEffect, useState } from "react";
+import { Address, zeroAddress } from "viem";
+import { mainnet, sepolia } from "viem/chains";
+import { useAccount } from "wagmi";
+import { ConnectAndSetChain, Alert } from "@/components/molecules";
+import { ShurikenSpinner } from "@/components/atoms";
 import "./EnsRecordsForm.css";
-import { convertToMulticallResolverData } from "@/utils/resolver";
-import { deepCopy, getEnsRecordsDiff } from "@/utils";
-import {
-  useAccount,
-  usePublicClient,
-  useSwitchChain,
-  useWalletClient,
-} from "wagmi";
-import { mainnet } from "viem/chains";
-import { ENS_RESOLVER_ABI } from "@/web3";
-import { Address, ContractFunctionExecutionError, Hash } from "viem";
-import { getSupportedAddressMap, isContenthashValid } from "@/constants";
+import { EnsUpdateRecordsForm } from "./EnsUpdateRecordsForm";
 
-interface EditRecordsFormProps {
-  initialRecords?: EnsRecords;
-  resolverAddress: Address;
+export interface EnsRecordsFormProps {
+  // Optional, if not provided
+  // the resolver chain will be decided based upon "isTestnet" parameter
+  resolverChainId?: number;
+  // Optional, if not provided
+  // the form will query ens registry
+  resolverAddress?: Address;
+  isTestnet?: boolean;
+  // Full ens name
   name: string;
-  chainId?: number;
-  onCancel?: () => void;
-  onSuccess?: (txHash: Hash) => void;
+  existingRecords: EnsRecords;
+  noBorder?: boolean;
+  className?: string;
 }
-
-const addressMapByCoin = getSupportedAddressMap();
 
 export const EnsRecordsForm = ({
   name,
-  initialRecords,
-  chainId,
+  existingRecords,
+  resolverChainId,
+  isTestnet,
   resolverAddress,
-  onCancel,
-  onSuccess,
-}: EditRecordsFormProps) => {
-  const [records, setRecords] = useState<EnsRecords>(
-    initialRecords ? deepCopy(initialRecords) : { texts: [], addresses: [] }
-  );
+  noBorder,
+  className,
+}: EnsRecordsFormProps) => {
+  const mainnetChainId = isTestnet ? sepolia.id : mainnet.id;
+  const resolverChain = resolverChainId ? resolverChainId : mainnetChainId;
+  const { chain, isConnected } = useAccount();
 
-  const currentChainId = chainId || mainnet.id;
-  const publicClient = usePublicClient({ chainId: currentChainId });
-  const { data: walletClient } = useWalletClient({ chainId: currentChainId });
-  const { address, chain, isConnected } = useAccount();
-  const { switchChain } = useSwitchChain();
-  const [contractError, setContractError] = useState<string | null>(null);
-  const [generalError, setGeneralError] = useState<{
-    title: string;
-    subtitle: string;
-  } | null>(null);
-  const [txIndicator, setTxIndicator] = useState<{
-    isWaitingForWallet: boolean;
-    isWaitingForTx: boolean;
+  const isConnectedAndOnRequiredChain =
+    isConnected && chain?.id === resolverChain;
+
+  const { isResolverSupported, getResolverAddress } = useENSResolver({
+    resolverChainId: resolverChain,
+    isTestnet,
+  });
+  const [resolverState, setResolverState] = useState<{
+    address?: Address;
+    isSupported: boolean;
+    isChecking: boolean;
+    error?: string;
   }>({
-    isWaitingForTx: false,
-    isWaitingForWallet: false,
+    address: resolverAddress || zeroAddress,
+    isSupported: false,
+    isChecking: true,
   });
 
-  const shouldSwitchNetwork = chain && chain.id !== currentChainId;
   useEffect(() => {
-    if (!address) {
-      setGeneralError({
-        title: "Not connected",
-        subtitle: "Connect wallet to continue",
-      });
-    } else {
-      setGeneralError(null);
-    }
-  }, [address, publicClient, walletClient]);
+    checkResolver();
+  }, [resolverAddress, resolverChain]);
 
-  const areValidAddresses = useMemo(() => {
-    for (const addr of records.addresses) {
-      const validateFuc = addressMapByCoin[addr.coinType].validateFunc;
-
-      if (!validateFuc) {
-        throw Error("Validate function not present for coin:" + addr.coinType);
-      }
-
-      if (addr.value?.length === 0 || !validateFuc(addr.value)) {
-        return false;
-      }
-    }
-    return true;
-  }, [records.addresses]);
-
-  const areValidTexts = useMemo(() => {
-    for (const text of records.texts) {
-      if (text.value.length === 0) {
-        return false;
-      }
-    }
-
-    return true;
-  }, [records.texts]);
-
-  const isChashValid = useMemo(() => {
-    if (!records.contenthash) {
-      return true;
-    }
-
-    return isContenthashValid(
-      records.contenthash.protocol,
-      records.contenthash.value
-    );
-  }, [records.contenthash]);
-
-  const getInitalRecords = (): EnsRecords => {
-    return initialRecords ? initialRecords : { texts: [], addresses: [] };
-  };
-
-  const isDiffPresent = useMemo(() => {
-    const diff = getEnsRecordsDiff(getInitalRecords(), records);
-
-    const {
-      addressesAdded,
-      addressesModified,
-      addressesRemoved,
-      textsAdded,
-      textsModified,
-      textsRemoved,
-      contenthashRemoved,
-      contenthashAdded,
-      contenthashModified,
-    } = diff;
-
-    return (
-      addressesAdded.length > 0 ||
-      addressesModified.length > 0 ||
-      addressesRemoved.length ||
-      textsAdded.length > 0 ||
-      textsRemoved.length > 0 ||
-      textsModified.length > 0 ||
-      contenthashRemoved === true ||
-      contenthashModified !== undefined ||
-      contenthashAdded !== undefined
-    );
-  }, [records, initialRecords]);
-
-  const handleUpdateRecords = async () => {
+  const checkResolver = async () => {
+    setResolverState({
+      ...resolverState,
+      isChecking: true,
+      error: undefined,
+    });
+    
     try {
-      const old: EnsRecords = initialRecords
-        ? initialRecords
-        : { texts: [], addresses: [] };
-      const diff = getEnsRecordsDiff(old, records);
-      const resolverData = convertToMulticallResolverData(name, diff);
+      let currentResolverAddress = resolverAddress;
+      if (currentResolverAddress === undefined) {
+        currentResolverAddress = await getResolverAddress(name);
+      }
 
-      setTxIndicator({ ...txIndicator, isWaitingForWallet: true });
+      if (!currentResolverAddress || currentResolverAddress === zeroAddress) {
+        setResolverState({
+          address: undefined,
+          isSupported: false,
+          isChecking: false,
+          error: "Cannot find resolver address for provided name",
+        });
+        return;
+      }
 
-      const { request } = await publicClient!.simulateContract({
-        abi: ENS_RESOLVER_ABI,
-        args: [resolverData],
-        functionName: "multicall",
-        address: resolverAddress,
-        account: address,
+      const isSupported = await isResolverSupported(currentResolverAddress);
+      setResolverState({
+        isChecking: false,
+        isSupported,
+        address: currentResolverAddress,
+        error: undefined,
       });
-
-      const tx = await walletClient!.writeContract(request);
-
-      setTxIndicator({ isWaitingForTx: true, isWaitingForWallet: false });
-      await publicClient!.waitForTransactionReceipt({ hash: tx });
-      onSuccess?.(tx);
     } catch (err) {
       console.error(err);
-      if (err instanceof ContractFunctionExecutionError) {
-        const _err = err as ContractFunctionExecutionError;
-        setContractError(_err.details);
-      } else {
-        setContractError("Transaction failed for unknown reason!");
-      }
-    } finally {
-      setTxIndicator({ isWaitingForTx: false, isWaitingForWallet: false });
-    }
-  };
-
-  const getActionButton = () => {
-    const areInputsValue =
-      areValidAddresses && areValidTexts && isContenthashValid;
-    const style = { width: "100%" };
-    if (!isConnected) {
-      return (
-        <Button
-          style={style}
-          size="lg"
-          disabled={true}
-          prefix={<Icon name="alert-triangle" />}
-        >
-          Connect Wallet
-        </Button>
-      );
-    } else if (shouldSwitchNetwork) {
-      return (
-        <Button
-          style={style}
-          size="lg"
-          onClick={() => switchChain({ chainId: currentChainId })}
-        >
-          Switch Network
-        </Button>
-      );
-    } else if (!areInputsValue) {
-      return (
-        <Tooltip content="Invalid inputs" position="top">
-          <Button style={style} size="lg" disabled={true}>
-            Update
-          </Button>
-        </Tooltip>
-      );
-    } else if (!isDiffPresent) {
-      return (
-        <Tooltip content="No Records updated" position="top">
-          <Button style={style} size="lg" disabled={true}>
-            Update
-          </Button>
-        </Tooltip>
-      );
-    } else {
-      const updateBtnLoading =
-        txIndicator.isWaitingForTx || txIndicator.isWaitingForWallet;
-      return (
-        <Button
-          style={style}
-          size="lg"
-          disabled={updateBtnLoading}
-          loading={updateBtnLoading}
-          onClick={() => handleUpdateRecords()}
-        >
-          Update
-        </Button>
-      );
+      setResolverState({
+        address: undefined,
+        isSupported: false,
+        isChecking: false,
+        error: "Something went wrong!",
+      });
     }
   };
 
   return (
-    <div className="ns-edit-records-form">
-      <SelectRecordsForm
-        records={records}
-        onRecordsUpdated={records => setRecords(records)}
+    <div
+      className={`ens-records-form-container ${className || ""} ${noBorder ? "no-boder" : ""}`}
+    >
+      <ConnectAndSetChain
+        currentChainID={chain?.id}
+        requiredChainID={resolverChain}
       />
-      <div style={{ padding: 15, paddingTop: 0 }}>
-        <div className="d-flex align-items-center" style={{ gap: "8px" }}>
-          <Button
-            onClick={() => onCancel?.()}
-            size="lg"
-            style={{ width: "100%" }}
-            variant="outline"
-          >
-            Cancel
-          </Button>
-          {/* <Button
-            loading={updateBtnLoading}
-            disabled={!isFormValid || updateBtnLoading}
-            onClick={() => handleUpdateRecords()}
-            size="lg"
-            style={{ width: "100%" }}
-          >
-              <Icon name="alert-triangle" size={20} />
-            Update
-          </Button> */}
-          {getActionButton()}
+      
+      {resolverState.isChecking && (
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "40px" }}>
+          <ShurikenSpinner size={40} />
         </div>
-      </div>
+      )}
+
+      {!resolverState.isChecking && resolverState.error && (
+        <Alert variant="error">
+          {resolverState.error}
+        </Alert>
+      )}
+
+      {!resolverState.isChecking && !resolverState.error && isConnectedAndOnRequiredChain && (
+        <EnsUpdateRecordsForm
+          existingRecords={existingRecords}
+          name={name}
+          resolverAddress={resolverState.address}
+          resolverChainId={resolverChain}
+          onRecordsUpdated={() => {}}
+        />
+      )}
     </div>
   );
 };

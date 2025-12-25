@@ -150,6 +150,12 @@ export const getSupportedAddressByName = (
 ): SupportedEnsAddress | undefined => {
   return supportedAddresses.find(addr => addr.chainName === name);
 };
+
+export const getSupportedAddressByChainId = (
+  chainId: number
+): SupportedEnsAddress | undefined => {
+  return supportedAddresses.find(addr => addr.chainId === chainId);
+};
 export type TextCategory = "profile" | "social";
 export interface SupportedText {
   iconUrl: string;
