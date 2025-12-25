@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import "./Button.css";
 
-export type ButtonVariant = "solid" | "outline" | "ghost";
+export type ButtonVariant = "solid" | "outline" | "ghost" | "destructive";
 export type ButtonSize = "sm" | "md" | "lg";
 
 export interface ButtonProps

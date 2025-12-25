@@ -77,6 +77,18 @@
   background-color: color-mix(in srgb, var(--ns-color-fg) 7%, transparent);
 }
 
+.ns-btn--destructive {
+  --btn-bg: #dc2626;
+  --btn-fg: #ffffff;
+  --btn-border: #dc2626;
+  background-color: var(--btn-bg);
+  color: var(--btn-fg);
+  border-color: var(--btn-border);
+}
+.ns-btn--destructive:hover:not(:disabled) {
+  filter: brightness(0.9);
+}
+
 /* Loading state */
 .ns-btn--loading .ns-btn__label {
   opacity: 0.85;

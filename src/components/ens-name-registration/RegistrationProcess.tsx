@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ninjaImage from "../../assets/banner.png";
 import "./RegistrationProcess.css";
 import { Alert } from "../molecules/alert/Alert";
+import { Modal } from "../molecules/modal/Modal";
 import { Button, Text, Icon } from "../atoms";
 import { useAccount, useSwitchChain } from "wagmi";
 import { mainnet, sepolia } from "viem/chains";
@@ -80,6 +81,7 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
       referrer
     )
   );
+  const [showConfirmClose, setShowConfirmClose] = useState(false);
 
   useEffect(() => {
     // TODO: Remove ugly useEffect!
@@ -102,11 +104,31 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
 
   const networkName = isTestnet ? "Sepolia" : "Mainnet";
 
+  const handleCloseClick = () => {
+    if (
+      registrationState.step > ProcessSteps.Start &&
+      registrationState.step < ProcessSteps.RegistrationCompleted
+    ) {
+      setShowConfirmClose(true);
+    } else {
+      onBack?.();
+    }
+  };
+
+  const handleConfirmClose = () => {
+    setShowConfirmClose(false);
+    onBack?.(true);
+  };
+
+  const handleCancelClose = () => {
+    setShowConfirmClose(false);
+  };
+
   return (
     <div className="ens-registration-progress">
       <button
         className="ens-registration-close-btn"
-        onClick={() => onBack?.()}
+        onClick={handleCloseClick}
         type="button"
         aria-label="Close"
       >
@@ -177,6 +199,36 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
           </div>
         </>
       )}
+
+      <Modal
+        isOpen={showConfirmClose}
+        onClose={handleCancelClose}
+        title="Leave Registration?"
+        size="sm"
+        footer={
+          <div style={{ display: "flex", gap: 8, width: "100%" }}>
+            <Button
+              variant="outline"
+              onClick={handleCancelClose}
+              style={{ flex: 1 }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmClose}
+              style={{ flex: 1 }}
+            >
+              Leave
+            </Button>
+          </div>
+        }
+      >
+        <Text size="sm">
+          If you leave now, you will lose all your registration progress. Are
+          you sure you want to continue?
+        </Text>
+      </Modal>
     </div>
   );
 };
