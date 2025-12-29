@@ -636,7 +636,7 @@ export const RecordUpdateSummary: React.FC<RecordUpdateSummaryProps> = ({
           )}
 
           {/* Error Display */}
-          <ContractErrorLabel error={error} />
+          {error && <ContractErrorLabel error={error} />}
 
           {/* Action Buttons */}
           <div className="record-update-summary-actions">
