@@ -58,7 +58,11 @@ export default [
         extensions: [".mjs", ".js", ".ts", ".tsx", ".json"],
         preferBuiltins: false,
       }),
-      commonjs(),
+      commonjs({
+        // Properly handle ESM/CJS interop for viem which has no default export
+        esmExternals: true,
+        requireReturnsDefault: 'namespace',
+      }),
       json(),
       image(),
       esbuild({
@@ -93,7 +97,11 @@ export default [
         extensions: [".mjs", ".js", ".ts", ".tsx", ".json"],
         preferBuiltins: false,
       }),
-      commonjs(),
+      commonjs({
+        // Properly handle ESM/CJS interop for viem which has no default export
+        esmExternals: true,
+        requireReturnsDefault: 'namespace',
+      }),
       json(),
       image(),
       esbuild({
