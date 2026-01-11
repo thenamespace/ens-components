@@ -1,0 +1,27 @@
+.ens-registration-pricing {
+  border-radius: 15px;
+  background-color: var(--ns-color-bg);
+  border: 1px solid var(--ns-color-border);
+  padding: 15px;
+}
+
+.ens-registration-pricing .total-fee {
+  border-top: 1px solid var(--ns-color-border);
+  padding-top: 8px;
+}
+
+.ens-expiry-picker {
+  padding: 10px;
+  border: 1px solid var(--ns-color-border);
+  border-radius: 10px;
+}
+
+.ens-expiry-picker .ns-btn {
+  padding: 12px;
+  width: 10px;
+  height: 10px;
+  border-radius: 7px;
+}
+
+
+

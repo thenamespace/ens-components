@@ -1,0 +1,85 @@
+.ns-subname-mint-form {
+    border: 1px solid var(--ns-color-border);
+    border-radius: 15px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.ns-subname-mint-input input {
+    border-radius: 13px;
+}
+
+.ns-subname-mint-input .ns-input__prefix {
+    left: 13px;
+}
+
+.ns-subname-mint-input .ns-input__suffix {
+    padding: 0px;
+    border-left: 1px solid var(--ns-color-border);
+    background-color: var(--ns-color-bg-accent);
+    height: 45px;
+    right: 1px;
+    padding-right: 20px;
+    padding-left: 20px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.ens-update-records-form-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.ens-update-records-form-actions button {
+    flex: 1;
+    max-width: 50%;
+}
+
+.ens-update-records-form-actions .ns-mint-action-tooltip {
+    flex: 1;
+    max-width: 50%;
+}
+
+.ens-update-records-form-actions .ns-mint-action-tooltip button {
+    width: 100%;
+    max-width: 100%;
+}
+
+@media screen and (max-width: 600px) {
+    .ens-update-records-form-actions {
+        flex-direction: column;
+    }
+
+    .ens-update-records-form-actions button {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .ens-update-records-form-actions .ns-mint-action-tooltip {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+
+.ens-profile-selector {
+    border: 3px dashed var(--ns-color-border);
+    border-radius: 10px;
+    padding: 15px;
+    background-color: var(--ns-color-bg);
+}
+
+.ens-profile-selector .shuriken-cont {
+    width: 55px;
+    height: 55px;
+    border-radius: 10px;
+    background-color: var(--ns-color-border);
+}
+
+.ens-profile-selector .shuriken {
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.ens-profile-selector .shuriken:hover {
+    transform: rotate(150deg);
+}

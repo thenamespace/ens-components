@@ -56,7 +56,7 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
     <div
       ref={containerRef}
       className="ens-registration-success-container"
-      style={{ position: "relative", overflow: "hidden" }}
+      style={{ position: "relative", overflow: "hidden", padding:"10px" }}
     >
       {containerSize.width > 0 && containerSize.height > 0 && (
         <Confetti

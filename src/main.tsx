@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import "./styles/index.css";
 import "@rainbow-me/rainbowkit/styles.css";
-import { EnsNameRegistrationForm, EnsRecordsForm } from "./components";
+import { EnsNameRegistrationForm, EnsRecordsForm, SubnameMintForm } from "./components";
 import { WalletConnectProvider } from "./web3/wallet-connect";
 import { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -11,21 +11,12 @@ function TestApp() {
   // This is a test app. Its not bundled as component library!!
   const [open, setOpen] = useState(false);
 
-  const name = "myrandomname1337.eth"
-
   return (
     <div>
       <WalletConnectProvider>
         <ConnectButton />
-        <EnsNameRegistrationForm isTestnet={true} name={name}/>
-        <EnsRecordsForm
-          name={name}
-          isTestnet={true}
-          existingRecords={{
-            addresses: [],
-            texts: []
-          }}
-        />
+          <EnsNameRegistrationForm />
+         <SubnameMintForm parentName="thenamespace.eth" label="hello"/>
       </WalletConnectProvider>
     </div>
   );

@@ -4,6 +4,7 @@ import { normalize } from "viem/ens";
 
 import { debounce, formatFloat } from "@/utils";
 import { Button, Icon, Input, Text, ShurikenSpinner } from "@/components";
+import { PricingDisplay } from "@/components/molecules";
 import ninjaImage from "../../assets/banner.png";
 import shurikenImage from "../../assets/shuriken.svg";
 import { useRegisterENS } from "@/hooks";
@@ -243,58 +244,26 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
       {/* RECEIPT - Only show when name is available */}
       {isNameAvailable && (
         <>
-          <div className="ens-registration-pricing mt-2">
-            <div className="ens-expiry-picker d-flex justify-content-between mb-2">
-              <Button
-                disabled={years <= 1}
-                onClick={() => handleYearsChange(years - 1)}
-              >
-                -
-              </Button>
-              <Text>
-                {years} year{years > 1 ? "s" : ""}
-              </Text>
-              <Button onClick={() => handleYearsChange(years + 1)}>
-                +
-              </Button>
-            </div>
-            <div className="d-flex justify-content-between align-items-center mb-1">
-              <Text size="sm" color="grey">
-                Registration Fee
-              </Text>
-              {price.isChecking ? (
-                <ShurikenSpinner size={16} />
-              ) : (
-                <Text size="sm" color="grey">
-                  {regPrice} ETH
-                </Text>
-              )}
-            </div>
-            <div className="d-flex justify-content-between align-items-center mb-1">
-              <Text size="sm" color="grey">
-                Est. network fees
-              </Text>
-              {transactionFeesLoading ? (
-                <ShurikenSpinner size={16} />
-              ) : (
-                <Text size="sm" color="grey">
-                  {regFees} ETH
-                </Text>
-              )}
-            </div>
-            <div className="d-flex justify-content-between align-items-center mt-2 total-fee">
-              <Text size="lg" weight="bold">
-                Total
-              </Text>
-               {totalPriceLoading ? (
-                <ShurikenSpinner size={20} />
-              ) : (
-                <Text size="lg" weight="bold">
-                  {regTotal} ETH
-                </Text>
-              )}
-            </div>
-          </div>
+          <PricingDisplay
+            className="mt-2"
+            primaryFee={{
+              label: "Registration Fee",
+              amount: regPrice,
+              isChecking: price.isChecking,
+            }}
+            networkFees={{
+              amount: regFees,
+              isChecking: transactionFeesLoading,
+            }}
+            total={{
+              amount: regTotal,
+              isChecking: totalPriceLoading,
+            }}
+            expiryPicker={{
+              years,
+              onYearsChange: handleYearsChange,
+            }}
+          />
 
           {/* COMPLETE PROFILE */}
           <div

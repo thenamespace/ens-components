@@ -3,9 +3,11 @@ import { Icon, IconName } from "@/components/atoms/icon/Icon";
 import "./Alert.css";
 
 export type AlertVariant = "error" | "warning" | "info" | "success";
+export type AlertPosition = "vertical" | "horizontal";
 
 export interface AlertProps {
   variant?: AlertVariant;
+  position?: AlertPosition;
   children: React.ReactNode;
   className?: string;
   onClose?: () => void;
@@ -25,6 +27,7 @@ const variantConfig: Record<
 
 export const Alert: React.FC<AlertProps> = ({
   variant = "info",
+  position = "horizontal",
   children,
   className = "",
   onClose,
@@ -32,12 +35,14 @@ export const Alert: React.FC<AlertProps> = ({
   title,
 }) => {
   const config = variantConfig[variant];
+  const isVertical = position === "vertical";
+  const iconSize = isVertical ? 32 : 20;
 
   return (
-    <div className={`ns-alert ${config.colorClass} ${className}`} role="alert">
-      <div className="ns-alert-content">
-        <div className="ns-alert-icon">
-          <Icon name={config.icon} size={20} />
+    <div className={`ns-alert ${config.colorClass} ${isVertical ? "ns-alert-vertical" : ""} ${className}`} role="alert">
+      <div className={`ns-alert-content ${isVertical ? "ns-alert-content-vertical" : ""}`}>
+        <div className={`ns-alert-icon ${isVertical ? "ns-alert-icon-vertical" : ""}`}>
+          <Icon name={config.icon} size={iconSize} />
         </div>
         <div className="ns-alert-message">
           {title && <div className="ns-alert-title">{title}</div>}

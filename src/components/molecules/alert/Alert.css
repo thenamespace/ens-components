@@ -21,12 +21,23 @@
   gap: 12px;
 }
 
+.ns-alert-content-vertical {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+}
+
 .ns-alert-icon {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   margin-top: 2px;
+}
+
+.ns-alert-icon-vertical {
+  margin-top: 0;
 }
 
 .ns-alert-message {
