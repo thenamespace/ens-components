@@ -1,0 +1,27 @@
+.ns-offchain-subname-form {
+    border: 1px solid var(--ns-color-border);
+    border-radius: 15px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.ns-offchain-subname-input input,
+.ns-offchain-owner-input input {
+    border-radius: 13px;
+}
+
+.ns-offchain-subname-input .ns-input__prefix {
+    left: 13px;
+}
+
+.ns-offchain-subname-input .ns-input__suffix {
+    padding: 0px;
+    border-left: 1px solid var(--ns-color-border);
+    background-color: var(--ns-color-bg-accent);
+    height: 45px;
+    right: 1px;
+    padding-right: 20px;
+    padding-left: 20px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
