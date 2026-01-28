@@ -38,6 +38,7 @@ interface OffchainSubnameFormProps {
   label?: string;
   hideTitle?: boolean;
   onCancel?: () => void;
+  isTestnet?: boolean
   onSuccess?: (data: OffchainSubnameCreatedData) => void;
 }
 
@@ -48,10 +49,11 @@ export const OffchainSubnameForm = ({
   name,
   label: propLabel,
   hideTitle = false,
+  isTestnet,
   onCancel,
   onSuccess,
 }: OffchainSubnameFormProps) => {
-  const client = useOffchainManager(name, apiKeyOrToken);
+  const client = useOffchainManager(name, apiKeyOrToken, isTestnet);
 
   const [label, setLabel] = useState<string>(propLabel || "");
   const [showProfile, setShowProfile] = useState(false);
