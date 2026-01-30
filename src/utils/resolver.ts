@@ -55,14 +55,15 @@ const convertTextData = (
     resolverData.push(data);
   });
 
-  diff.textsModified.forEach(text => {
-    const data = encodeFunctionData({
+  if (diff.textsRemoved?.length > 0) {
+    diff.textsRemoved.forEach(key => {
+       resolverData.push(encodeFunctionData({
       functionName: "setText",
       abi: parseAbi([SET_TEXT_FUNC]),
-      args: [node, text.key, ""],
-    });
-    resolverData.push(data);
-  });
+      args: [node, key.key, ""]
+    }))
+    })
+  }
 };
 
 const convertAddressData = (
