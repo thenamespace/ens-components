@@ -1,6 +1,7 @@
 import { Hash, TransactionReceipt } from "viem";
 import { mainnet, sepolia } from "viem/chains";
 import { usePublicClient } from "wagmi";
+import { wait } from "@/utils";
 
 interface WaitTransactionOptions {
   hash: Hash;
@@ -29,6 +30,7 @@ export const useWaitTransaction = ({ isTestnet, chainId }: { isTestnet?: boolean
 
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
+        const startTime = Date.now();
         // Create a promise that will timeout if transaction takes too long
         const receiptPromise = publicClient!.waitForTransactionReceipt({
           hash,
@@ -43,6 +45,18 @@ export const useWaitTransaction = ({ isTestnet, chainId }: { isTestnet?: boolean
         // Race between receipt and timeout
         const receipt = await Promise.race([receiptPromise, timeoutPromise]);
 
+        // Ensure minimum 5 seconds of loading time
+        // We introduce an artificial delay, since
+        // some of the rpc ( especially l2 ) are too quick
+        const elapsedTime = Date.now() - startTime;
+        const minLoadingTime = 5000;
+        if (elapsedTime < minLoadingTime) {
+          await wait(minLoadingTime - elapsedTime);
+        }
+
+        // Add 2 second delay after receipt is fetched
+        await wait(2000);
+
         return receipt;
       } catch (err: any) {
         lastError = err;
@@ -54,7 +68,7 @@ export const useWaitTransaction = ({ isTestnet, chainId }: { isTestnet?: boolean
 
         // Wait before retrying (exponential backoff)
         const delay = retryDelay * Math.pow(2, attempt);
-        await new Promise((resolve) => setTimeout(resolve, delay));
+        await wait(delay);
       }
     }
 
