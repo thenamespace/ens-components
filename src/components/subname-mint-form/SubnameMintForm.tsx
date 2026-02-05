@@ -68,6 +68,7 @@ interface SubnameMintFormProps {
   onCancel?: () => void;
   onSuccess?: (data: MintSuccessData) => void;
   onSubnameMinted?: (data: SubnameMintedData) => void;
+  txConfirmations?: number
 }
 
 const MIN_ENS_LEN = 1;
@@ -79,6 +80,7 @@ export const SubnameMintForm = ({
   onCancel,
   onSuccess,
   onSubnameMinted,
+  txConfirmations
 }: SubnameMintFormProps) => {
   const { getListingDetails } = useMintManager({ isTestnet });
 
@@ -200,6 +202,7 @@ const SubnameMintFormContent = ({
   onCancel,
   onSuccess,
   onSubnameMinted,
+  txConfirmations
 }: SubnameMintContentProps) => {
   const { address: connectedAddress, chain: currentChain } = useAccount();
   const { switchChain, isPending: isSwitchingChain } = useSwitchChain();
@@ -635,7 +638,7 @@ const SubnameMintFormContent = ({
     }
 
     try {
-      const receipt = await waitTx({ hash: tx });
+      const receipt = await waitTx({ hash: tx, txConfirmations: txConfirmations || 1 });
 
       // Calculate gas fees
       const gasUsed = receipt.gasUsed;

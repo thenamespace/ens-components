@@ -4,7 +4,6 @@ import { Address, ContractFunctionExecutionError, Hash, zeroHash } from "viem";
 import { useMemo, useState } from "react";
 import {
   deepCopy,
-  diffToEnsRecords,
   EnsRecordsDiff,
   getEnsRecordsDiff,
   validateEnsRecords,
@@ -29,6 +28,7 @@ interface EnsUpdateRecordsForm {
   onRecordsUpdated?: (diff: EnsRecordsDiff) => void;
   onGreat?: () => void;
   onTransactionSent?: (hash: Hash) => void;
+  txConfirmations?: number
 }
 
 enum UpdateSteps {
@@ -47,6 +47,7 @@ export const EnsUpdateRecordsForm = ({
   onRecordsUpdated,
   onCancel,
   onTransactionSent,
+  txConfirmations
 }: EnsUpdateRecordsForm) => {
   const [recordsTemplate, setRecordsTemplate] = useState<EnsRecords>(
     deepCopy(existingRecords)
@@ -141,7 +142,7 @@ export const EnsUpdateRecordsForm = ({
 
     try {
       onTransactionSent?.(tx);
-      await waitTx({ hash: tx });
+      await waitTx({ hash: tx, txConfirmations: txConfirmations || 1 });
       setUpdateTx({ hash: tx, status: TxProgress.Success });
       setIsUpdating({ waitingWallet: false, waitingTx: false });
       onRecordsUpdated?.(diff);
