@@ -27,6 +27,7 @@ export interface EnsRecordsFormProps {
   onRecordsUpdated?: (newRecords: EnsRecordsDiff) => void
   onGreat?: () => void
   onTransactionSent?: (hash: Hash) => void
+  txConfirmations?: number
 }
 
 export const EnsRecordsForm = ({
@@ -40,7 +41,8 @@ export const EnsRecordsForm = ({
   onCancel,
   onGreat,
   onRecordsUpdated,
-  onTransactionSent
+  onTransactionSent,
+  txConfirmations
 }: EnsRecordsFormProps) => {
   const mainnetChainId = isTestnet ? sepolia.id : mainnet.id;
   const resolverChain = resolverChainId ? resolverChainId : mainnetChainId;
@@ -150,6 +152,7 @@ export const EnsRecordsForm = ({
             onGreat={onGreat}
             onCancel={onCancel}
             onTransactionSent={onTransactionSent}
+            txConfirmations={txConfirmations}
           />
         )}
     </div>
