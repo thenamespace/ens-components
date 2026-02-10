@@ -31,7 +31,7 @@ export const useMintManager = ({ isTestnet }: UseMintManagerParams) => {
         `${getListManagerApi()}/api/v1/listing/network/${getListingNetwork()}/name/${name}`
       ).then((res) => res.json());
     },
-    [getListManagerApi, getListingNetwork]
+    [getListManagerApi, getListingNetwork, isTestnet]
   );
 
   return {

@@ -90,6 +90,7 @@ export const SubnameMintForm = ({
     listingChainId: number;
     isL2: boolean;
     isExpirable?: boolean;
+    error?: string;
   }>({
     isChecking: true,
     isListingValid: false,
@@ -123,6 +124,7 @@ export const SubnameMintForm = ({
           isListingValid: false,
           listingChainId: 0,
           isL2: false,
+          error: e?.message || "Failed to load listing details. Please try again later.",
         });
       });
   }, [getListingDetails, parentName]);
@@ -140,6 +142,17 @@ export const SubnameMintForm = ({
             Checking listing configuration...
           </Text>
         </div>
+      </div>
+    );
+  }
+
+  // Show error if fetching listing details failed
+  if (initState.error) {
+    return (
+      <div className="ns-subname-mint-form">
+        <Alert variant="error" position="vertical">
+          <Text size="sm">{initState.error}</Text>
+        </Alert>
       </div>
     );
   }
@@ -170,6 +183,7 @@ export const SubnameMintForm = ({
         onCancel={onCancel}
         onSuccess={onSuccess}
         onSubnameMinted={onSubnameMinted}
+        txConfirmations={txConfirmations}
       />
     </div>
   );
