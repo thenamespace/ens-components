@@ -76,7 +76,7 @@ const MIN_ENS_LEN = 1;
 export const SubnameMintForm = ({
   parentName,
   label,
-  isTestnet = false,
+  isTestnet,
   onCancel,
   onSuccess,
   onSubnameMinted,
