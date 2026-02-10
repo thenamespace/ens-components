@@ -310,6 +310,7 @@ const SubnameMintFormContent = ({
       minterAddress: minter,
       parentName: parentNameToCheck,
       label: labelToCheck,
+      isTestnet: isTestnet
     });
     setMintDetails({ isChecking: false, details: details });
   };
