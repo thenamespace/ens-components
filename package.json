@@ -103,6 +103,7 @@
     "@namespacesdk/addresses": "^1.0.15",
     "@namespacesdk/indexer": "^1.0.1",
     "@thenamespace/addresses": "^1.1.0",
+    "@thenamespace/avatar": "^1.0.0",
     "@thenamespace/mint-manager": "^1.1.1",
     "@thenamespace/offchain-manager": "^1.0.10",
     "lodash": "^4.17.21",

@@ -7,6 +7,7 @@ import {
   EnsTextRecord,
 } from "@/types";
 import { Icon, Input, Text } from "../atoms";
+import { Alert } from "../molecules";
 import { TextRecords } from "./text-records/TextRecords";
 import { AddressRecords } from "./address-record/AddressRecords";
 import { ContenthashRecord } from "./contenthash-records/ContenthashRecord";
@@ -15,6 +16,7 @@ import { RecordsAddedParams } from "./records-selector/RecordsSelector";
 import { ImageRecords } from "./image-records/ImageRecords";
 import { deepCopy } from "@/utils";
 import { TextRecordCategory } from "@/constants";
+import { AvatarUploadModal } from "./avatar-upload/AvatarUploadModal";
 
 enum RecordsSidebarItem {
   General = "General",
@@ -23,18 +25,38 @@ enum RecordsSidebarItem {
   Website = "Website",
 }
 
+const appendPreviewVersion = (url: string, version: string) => {
+  return `${url}${url.includes("?") ? "&" : "?"}v=${encodeURIComponent(version)}`;
+};
+
+export interface AvatarUploadContext {
+  ensName: string;
+  isTestnet?: boolean;
+  siweDomain?: string;
+}
+
 export interface SelectRecordsFormProps {
   records: EnsRecords;
   onRecordsUpdated: (records: EnsRecords) => void;
   actionButtons?: React.ReactNode;
+  avatarUpload?: AvatarUploadContext;
 }
 
 export const SelectRecordsForm = ({
   records,
   onRecordsUpdated,
   actionButtons,
+  avatarUpload,
 }: SelectRecordsFormProps) => {
   const [initialRecords] = useState<EnsRecords>(deepCopy(records));
+  const [isAvatarUploadOpen, setIsAvatarUploadOpen] = useState(false);
+  const [avatarUploadFeedback, setAvatarUploadFeedback] = useState<
+    string | null
+  >(null);
+  const [avatarPreviewVersion, setAvatarPreviewVersion] = useState<{
+    url: string;
+    version: string;
+  } | null>(null);
 
   const generalCategoryRef = useRef<HTMLDivElement | null>(null);
   const socialCategoryRef = useRef<HTMLDivElement | null>(null);
@@ -105,6 +127,17 @@ export const SelectRecordsForm = ({
   }, []);
 
   const handleTextsUpdated = (texts: EnsTextRecord[]) => {
+    const previousAvatar = records.texts.find(r => r.key === "avatar")?.value;
+    const nextAvatar = texts.find(r => r.key === "avatar")?.value;
+
+    if (avatarPreviewVersion && nextAvatar !== avatarPreviewVersion.url) {
+      setAvatarPreviewVersion(null);
+    }
+
+    if (avatarUploadFeedback && previousAvatar !== nextAvatar) {
+      setAvatarUploadFeedback(null);
+    }
+
     onRecordsUpdated({ ...records, texts });
   };
 
@@ -204,11 +237,19 @@ export const SelectRecordsForm = ({
   };
 
   const { avatar, header } = useMemo(() => {
+    const avatarRaw = records.texts.find(r => r.key === "avatar")?.value;
+    const avatarWithVersion =
+      avatarRaw &&
+      avatarPreviewVersion &&
+      avatarPreviewVersion.url === avatarRaw
+        ? appendPreviewVersion(avatarRaw, avatarPreviewVersion.version)
+        : avatarRaw;
+
     return {
-      avatar: records.texts.find(r => r.key === "avatar")?.value,
+      avatar: avatarWithVersion,
       header: records.texts.find(r => r.key === "header")?.value,
     };
-  }, [records.texts]);
+  }, [records.texts, avatarPreviewVersion]);
 
   const handleContenthashUpdated = (contenthash: EnsContenthashRecord) => {
     onRecordsUpdated({ ...records, contenthash });
@@ -222,7 +263,10 @@ export const SelectRecordsForm = ({
 
   const handleImageRecordAdded = (
     record: "avatar" | "header",
-    value: string
+    value: string,
+    opts?: {
+      scrollToGeneral?: boolean;
+    }
   ) => {
     const _texts = records.texts.filter(text => text.key !== record);
 
@@ -236,7 +280,34 @@ export const SelectRecordsForm = ({
       ...records,
       texts: [..._texts, { key: record, value: _value }],
     });
-    scrollToCategory(RecordsSidebarItem.General);
+
+    if (opts?.scrollToGeneral !== false) {
+      scrollToCategory(RecordsSidebarItem.General);
+    }
+  };
+
+  const handleAvatarUploaded = (data: { url: string; uploadedAt: string }) => {
+    const uploadedAtMs = new Date(data.uploadedAt).getTime();
+    const safeVersion = Number.isFinite(uploadedAtMs)
+      ? uploadedAtMs.toString()
+      : Date.now().toString();
+
+    handleImageRecordAdded("avatar", data.url, {
+      scrollToGeneral: false,
+    });
+    setAvatarPreviewVersion({
+      url: data.url,
+      version: safeVersion,
+    });
+    setAvatarUploadFeedback("Avatar uploaded. Avatar text record updated.");
+  };
+
+  const handleAvatarImageClick = () => {
+    if (!avatarUpload) {
+      return;
+    }
+    setAvatarUploadFeedback(null);
+    setIsAvatarUploadOpen(true);
   };
 
   return (
@@ -252,7 +323,17 @@ export const SelectRecordsForm = ({
           onHeaderAdded={(value: string) =>
             handleImageRecordAdded("header", value)
           }
+          onAvatarImageClick={avatarUpload ? handleAvatarImageClick : undefined}
         />
+        {avatarUploadFeedback && (
+          <Alert
+            variant="success"
+            dismissible
+            onClose={() => setAvatarUploadFeedback(null)}
+          >
+            <Text size="sm">{avatarUploadFeedback}</Text>
+          </Alert>
+        )}
       </div>
       {/* Search Input */}
       <div className="ns-records-content-wrapper">
@@ -332,6 +413,18 @@ export const SelectRecordsForm = ({
       </div>
       {actionButtons && (
         <div className="ns-select-records-actions">{actionButtons}</div>
+      )}
+
+      {avatarUpload && (
+        <AvatarUploadModal
+          isOpen={isAvatarUploadOpen}
+          ensName={avatarUpload.ensName}
+          isTestnet={avatarUpload.isTestnet}
+          siweDomain={avatarUpload.siweDomain}
+          onClose={() => setIsAvatarUploadOpen(false)}
+          onUseManualUrl={() => handleImageRecordAdded("avatar", "")}
+          onUploaded={handleAvatarUploaded}
+        />
       )}
     </div>
   );

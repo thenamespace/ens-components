@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import "./ImageRecords.css";
 import { Icon } from "@/components/atoms";
 
@@ -7,6 +6,7 @@ interface ImageRecordProps {
   header?: string;
   onAvatarAdded: (value: string) => void;
   onHeaderAdded: (value: string) => void;
+  onAvatarImageClick?: () => void;
 }
 
 const commonBgStyles = {
@@ -19,10 +19,8 @@ export const ImageRecords = ({
   header,
   onAvatarAdded,
   onHeaderAdded,
+  onAvatarImageClick,
 }: ImageRecordProps) => {
-  // load avatar here
-  useEffect(() => {}, [avatar]);
-
   let avatarStyles = {};
   if (avatar && avatar.length > 0) {
     avatarStyles = {
@@ -41,6 +39,7 @@ export const ImageRecords = ({
 
   let headerRecordSet = header !== undefined;
   let avatarRecordSet = avatar !== undefined;
+  const canUploadAvatar = !!onAvatarImageClick;
 
   return (
     <div className="ns-image-records">
@@ -92,7 +91,23 @@ export const ImageRecords = ({
           //   </div>
           // </Dropdown>
         )}
-        <div style={avatarStyles} className="ns-avatar-record-cont">
+        <div
+          style={avatarStyles}
+          className={`ns-avatar-record-cont ${canUploadAvatar ? "ns-avatar-record-cont--clickable" : ""}`}
+          onClick={() => onAvatarImageClick?.()}
+        >
+          {canUploadAvatar && (
+            <div
+              className="ns-avatar-upload-handle"
+              onClick={e => {
+                e.stopPropagation();
+                onAvatarImageClick?.();
+              }}
+              title="Upload avatar"
+            >
+              <Icon color="grey" name="edit" size={16} />
+            </div>
+          )}
           {!avatarRecordSet && (
             <div
               style={{ zIndex: 10 }}
@@ -103,6 +118,7 @@ export const ImageRecords = ({
                 }
               }}
               className="ns-image-handle"
+              title="Add avatar record manually"
             >
               <Icon color="grey" name="rotate-circle"></Icon>
             </div>

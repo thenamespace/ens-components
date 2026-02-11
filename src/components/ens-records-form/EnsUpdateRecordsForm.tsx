@@ -1,5 +1,8 @@
 import { EnsRecords, TxProgress } from "@/types";
-import { SelectRecordsForm } from "../select-records-form/SelectRecordsForm";
+import {
+  AvatarUploadContext,
+  SelectRecordsForm,
+} from "../select-records-form/SelectRecordsForm";
 import { Address, ContractFunctionExecutionError, Hash, zeroHash } from "viem";
 import { useMemo, useState } from "react";
 import {
@@ -28,7 +31,8 @@ interface EnsUpdateRecordsForm {
   onRecordsUpdated?: (diff: EnsRecordsDiff) => void;
   onGreat?: () => void;
   onTransactionSent?: (hash: Hash) => void;
-  txConfirmations?: number
+  txConfirmations?: number;
+  avatarUpload?: AvatarUploadContext;
 }
 
 enum UpdateSteps {
@@ -47,7 +51,8 @@ export const EnsUpdateRecordsForm = ({
   onRecordsUpdated,
   onCancel,
   onTransactionSent,
-  txConfirmations
+  txConfirmations,
+  avatarUpload,
 }: EnsUpdateRecordsForm) => {
   const [recordsTemplate, setRecordsTemplate] = useState<EnsRecords>(
     deepCopy(existingRecords)
@@ -159,6 +164,7 @@ export const EnsUpdateRecordsForm = ({
         <SelectRecordsForm
           records={recordsTemplate}
           onRecordsUpdated={records => setRecordsTemplate(records)}
+          avatarUpload={avatarUpload}
           actionButtons={
             <div style={{ padding: 10, paddingTop: 0 }}>
               {validationError && (

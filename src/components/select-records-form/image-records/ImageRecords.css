@@ -39,6 +39,14 @@
   justify-content: center;
 }
 
+.ns-image-records .ns-avatar-record-cont--clickable {
+  cursor: pointer;
+}
+
+.ns-image-records .ns-avatar-record-cont--clickable:hover {
+  transform: translateX(-50%) scale(1.02);
+}
+
 .ns-image-records .ns-image-handle {
   width: 50px;
   height: 50px;
@@ -53,6 +61,24 @@
 
 .ns-image-records .ns-image-handle:hover {
   background-color: var(--ns-color-bg-accent-hover);
+  transform: scale(1.05);
+}
+
+.ns-image-records .ns-avatar-upload-handle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease-in-out;
+}
+
+.ns-image-records .ns-avatar-upload-handle:hover {
   transform: scale(1.05);
 }
 
