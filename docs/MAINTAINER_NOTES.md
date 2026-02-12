@@ -187,8 +187,7 @@ Internal utilities:
 
 ## 5) Known implementation caveats
 
-1. `README.md` was previously empty; docs were mainly implicit in code/stories.
-2. Registration timer is fixed to 60s in UI.
+1. Registration timer is fixed to 60s in UI.
 3. Resolver support check currently returns `true` (placeholder logic).
 4. Several local-storage caches are used; SSR environments need guards.
 5. No automated tests in scripts (`npm test` is placeholder).
@@ -206,7 +205,19 @@ Consumers are expected to provide:
 5. For production: handling of callbacks like `onSuccess`, `onRecordsUpdated`,
    `onTransactionSent` to persist app state
 
-## 7) Useful local commands
+## 7) Debugging image uploads
+
+1. Run `npm run test-app`
+2. Open browser DevTools console
+3. Trigger an avatar or header upload from the records editor
+4. Check logs:
+   - `[ImageUploadModal] sign+upload started` / `cropped file ready` / `upload result`
+   - `[ImageUpload] starting` / `raw result` / `normalized result`
+   - Error paths: `[ImageUpload] failed` / `[ImageUploadModal] upload error`
+
+Each log includes `imageType` (`avatar` or `header`) for filtering.
+
+## 8) Useful local commands
 
 ```bash
 npm run dev

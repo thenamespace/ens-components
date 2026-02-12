@@ -43,12 +43,30 @@ src/components/
 
 ### Key Directories
 
-- `src/hooks/` - Web3/ENS hooks: useRegisterENS, useWaitTransaction, useENSResolver, useMintSubname
+- `src/hooks/` - Web3/ENS hooks: useRegisterENS, useWaitTransaction, useENSResolver, useMintSubname, useAvatarClient
 - `src/utils/` - Helpers by domain: strings, coins, records, numbers, resolver, ens, blockExplorer
 - `src/web3/` - Resolver ABI, wallet-connect config
 - `src/providers/` - React context (TransactionProvider)
 - `src/theme/` - ThemeProvider for styling
 - `src/types/` - TypeScript definitions for records, transactions, listings, chains
+
+### Image Upload Architecture
+
+Avatar and header image uploads use SIWE (Sign-In with Ethereum) via
+`@thenamespace/avatar`. The flow is:
+
+1. `SelectRecordsForm` manages an `ImageUploadModal` keyed by image type (`avatar` | `header`)
+2. `ImageUploadModal` handles: file select → crop → review → sign & upload
+3. `useAvatarClient` hook wraps `@thenamespace/avatar` SDK with `uploadAvatar()` and `uploadHeader()`
+4. Upload results are written back to the corresponding ENS text record
+
+Key files:
+
+- `src/components/select-records-form/image-upload/ImageUploadModal.tsx` - Shared upload modal
+- `src/components/select-records-form/image-records/ImageRecords.tsx` - Avatar/header UI with dropdown menus
+- `src/components/select-records-form/avatar-upload/AvatarUploadModal.tsx` - Thin wrapper (avatar)
+- `src/components/select-records-form/header-upload/HeaderUploadModal.tsx` - Thin wrapper (header)
+- `src/hooks/useAvatarClient.tsx` - SDK hook with response normalization
 
 ### Path Aliases
 
@@ -75,6 +93,14 @@ src/components/
 ## Code Style
 
 Prettier enforced: double quotes, semicolons, trailing commas (ES5), 80 char line width, 2-space indent.
+
+## Modal Component
+
+The `Modal` molecule supports two presentation modes:
+
+- `presentation="dialog"` (default) - centered overlay
+- `presentation="drawer"` - bottom sheet for mobile
+- `responsivePresentation` prop switches between dialog/drawer based on viewport width
 
 ## Package Exports
 

@@ -96,41 +96,23 @@ import {
 - Components: `EnsNameRegistrationForm`, `EnsRecordsForm`,
   `SubnameMintForm`, `OffchainSubnameForm`, atoms, molecules
 - Hooks: `useRegisterENS`, `useENSResolver`, `useMintManager`,
-  `useMintSubname`, `useOffchainManager`, `useWaitTransaction`
+  `useMintSubname`, `useOffchainManager`, `useWaitTransaction`,
+  `useAvatarClient`
 - Types: `EnsRecords`, `EnsAddressRecord`, `EnsTextRecord`,
   `EnsContenthashRecord`, listing and tx types
 - Utils: resolver payload builders, records diff/validation, chain/coin helpers
 
-## Recent updates (test app + avatar/header upload)
+## Avatar and header upload
 
-- Test app now includes `OffchainSubnameForm` configured for offchain subname
-  testing under `pushx.eth` (see `/src/main.tsx`).
-- Avatar and header upload are available inside the shared records editor used by:
-  - `EnsRecordsForm`
-  - `OffchainSubnameForm` (create and update flows)
-- Offchain records editing now supports:
-  - Upload avatar image (SIWE-authenticated via `@thenamespace/avatar`)
-  - Upload header image (SIWE-authenticated via `@thenamespace/avatar`)
-  - Add avatar/header via manual URL
-- File validation limits are now type-aware:
-  - Avatar max size: 2MB
-  - Header max size: 5MB
-- Added defensive handling for upload responses that may not return fields in a
-  single shape; the client now normalizes common nested payload patterns.
-- Added upload debug logging in the browser console:
-  - `[ImageUploadModal] ...` (UI/modal step logs, includes `imageType`)
-  - `[ImageUpload] ...` (SDK call + response normalization logs, includes `imageType`)
+The records editor (`SelectRecordsForm`) supports uploading avatar and header
+images via SIWE-authenticated upload through `@thenamespace/avatar`.
 
-### How to debug image upload quickly
+- **Avatar upload** - crop to 1:1, max 2 MB
+- **Header upload** - rectangular crop, max 5 MB
+- **Manual URL** - enter an avatar or header URL directly
 
-1. Run `npm run test-app`
-2. Open browser DevTools console
-3. Trigger an avatar or header upload from the records editor
-4. Check logs:
-   - `[ImageUploadModal] sign+upload started`
-   - `[ImageUpload] raw result`
-   - `[ImageUpload] normalized result`
-   - `[ImageUploadModal] upload result`
+Both upload paths are available in `EnsRecordsForm`, `OffchainSubnameForm`,
+and `SubnameMintForm` wherever the records editor is used.
 
 ## Expected data model
 
