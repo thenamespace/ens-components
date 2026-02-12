@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import "./ImageRecords.css";
-import { Button, Icon, Text } from "@/components/atoms";
-import { Dropdown, Modal } from "@/components/molecules";
+import { Icon } from "@/components/atoms";
+import { Dropdown } from "@/components/molecules";
 
 type ImageRecordType = "avatar" | "header";
 
@@ -21,8 +21,6 @@ interface ImageRecordProps {
   onHeaderUploadRequested?: () => void;
   onHeaderManualUrlRequested?: () => void;
 }
-
-const MOBILE_BREAKPOINT_QUERY = "(max-width: 600px)";
 
 const commonBgStyles = {
   backgroundSize: "cover",
@@ -44,29 +42,6 @@ export const ImageRecords = ({
   onHeaderUploadRequested,
   onHeaderManualUrlRequested,
 }: ImageRecordProps) => {
-  const [isMobile, setIsMobile] = useState(false);
-  const [mobileActions, setMobileActions] = useState<{
-    record: ImageRecordType;
-    actions: ImageActionItem[];
-  } | null>(null);
-
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) {
-      return;
-    }
-
-    const mediaQuery = window.matchMedia(MOBILE_BREAKPOINT_QUERY);
-    const updateMobileState = () => {
-      setIsMobile(mediaQuery.matches);
-    };
-
-    updateMobileState();
-    mediaQuery.addEventListener("change", updateMobileState);
-    return () => {
-      mediaQuery.removeEventListener("change", updateMobileState);
-    };
-  }, []);
-
   const avatarStyles = avatar
     ? {
         backgroundImage: `url(${avatar})`,
@@ -144,51 +119,25 @@ export const ImageRecords = ({
     headerRecordSet,
   ]);
 
-  const openMobileActions = (
-    record: ImageRecordType,
-    actions: ImageActionItem[]
-  ) => {
-    if (actions.length === 0) {
-      return;
-    }
-    setMobileActions({ record, actions });
-  };
-
-  const handleActionSelected = (action: ImageActionItem) => {
-    action.onSelect();
-    setMobileActions(null);
-  };
-
   const renderActionTrigger = (
     record: ImageRecordType,
     recordSet: boolean,
     actions: ImageActionItem[]
   ) => {
     const title = recordSet ? `Change ${record}` : `Add ${record}`;
-
-    if (isMobile) {
-      return (
-        <button
-          type="button"
-          className={`ns-image-action-plus ${recordSet ? "ns-image-action-plus--set" : ""}`}
-          title={title}
-          aria-label={title}
-          onClick={() => openMobileActions(record, actions)}
-        >
-          <Icon name="plus" size={16} />
-        </button>
-      );
-    }
+    const hasActions = actions.length > 0;
 
     return (
       <Dropdown
-        placement="top"
+        placement="bottom"
         align="end"
+        disabled={!hasActions}
         trigger={
           <div
-            className={`ns-image-action-plus ${recordSet ? "ns-image-action-plus--set" : ""}`}
+            className={`ns-image-action-plus ${recordSet ? "ns-image-action-plus--set" : ""} ${!hasActions ? "ns-image-action-plus--disabled" : ""}`}
             title={title}
             aria-label={title}
+            aria-disabled={!hasActions}
           >
             <Icon name="plus" size={16} />
           </div>
@@ -242,39 +191,6 @@ export const ImageRecords = ({
         </div>
       </div>
 
-      <Modal
-        isOpen={!!mobileActions}
-        onClose={() => setMobileActions(null)}
-        size="sm"
-        className="ns-image-actions-sheet"
-        footer={
-          <Button
-            variant="outline"
-            className="ns-image-actions-sheet__close-btn"
-            onClick={() => setMobileActions(null)}
-          >
-            Close
-          </Button>
-        }
-      >
-        <div className="ns-image-actions-sheet__content">
-          <Text size="sm" weight="medium">
-            {mobileActions?.record === "avatar" ? "Avatar image" : "Header image"}
-          </Text>
-          <div className="ns-image-actions-sheet__list">
-            {mobileActions?.actions.map(action => (
-              <button
-                key={`mobile-${mobileActions.record}-${action.id}`}
-                type="button"
-                className="ns-image-actions-sheet__item"
-                onClick={() => handleActionSelected(action)}
-              >
-                {action.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 };

@@ -92,3 +92,51 @@ export const WithCustomFooter: Story = {
   },
   args: { isOpen: true, size: "sm" },
 };
+
+export const Drawer: Story = {
+  render: args => {
+    const [open, setOpen] = useState(true);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Open drawer</Button>
+        <Modal
+          {...args}
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          presentation="drawer"
+        >
+          <Text>
+            This modal renders as a bottom drawer. It slides up from the bottom
+            and is full-width with top-only border radius.
+          </Text>
+        </Modal>
+      </>
+    );
+  },
+  args: { isOpen: true, size: "md" },
+};
+
+export const ResponsiveDrawer: Story = {
+  render: args => {
+    const [open, setOpen] = useState(true);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Open responsive modal</Button>
+        <Modal
+          {...args}
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          presentation="dialog"
+          responsivePresentation={{ mobile: "drawer", breakpointPx: 600 }}
+        >
+          <Text>
+            This modal renders as a centered dialog on desktop and a bottom
+            drawer on mobile viewports (below 600px). Resize the viewport to see
+            it switch.
+          </Text>
+        </Modal>
+      </>
+    );
+  },
+  args: { isOpen: true, size: "md" },
+};

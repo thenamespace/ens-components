@@ -132,6 +132,12 @@ button.ns-image-action-plus {
   background: color-mix(in srgb, var(--ns-color-primary) 9%, var(--ns-color-bg));
 }
 
+.ns-image-action-plus--disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .ns-image-action-plus:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--ns-color-primary) 35%, transparent);
   outline-offset: 2px;
@@ -139,6 +145,7 @@ button.ns-image-action-plus {
 
 .ns-image-actions-menu {
   min-width: 148px;
+  max-width: min(260px, calc(100vw - 20px));
   padding: 4px;
 }
 
@@ -169,51 +176,6 @@ button.ns-image-action-plus {
   outline-offset: 1px;
 }
 
-.ns-image-actions-sheet.ns-modal {
-  width: calc(100% - 16px);
-}
-
-.ns-image-actions-sheet__content {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.ns-image-actions-sheet__list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.ns-image-actions-sheet__item {
-  width: 100%;
-  border: 1px solid var(--ns-color-border);
-  border-radius: 10px;
-  background: var(--ns-color-bg);
-  text-align: left;
-  padding: 10px 11px;
-  font-family: var(--ns-font-family);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ns-color-fg);
-  cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
-}
-
-.ns-image-actions-sheet__item:hover {
-  background: var(--ns-color-bg-accent);
-  border-color: color-mix(in srgb, var(--ns-color-primary) 30%, var(--ns-color-border));
-  color: var(--ns-color-primary);
-}
-
-.ns-image-actions-sheet__close-btn {
-  width: 100%;
-  justify-content: center;
-}
-
 @media screen and (max-width: 600px) {
   .ns-image-records {
     margin-bottom: 22px;
@@ -234,20 +196,12 @@ button.ns-image-action-plus {
     top: 8px;
   }
 
-  .ns-image-actions-sheet.ns-modal {
-    max-width: calc(100vw - 10px);
-    align-self: flex-end;
-    margin-bottom: 8px;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
+  .ns-image-actions-menu {
+    min-width: 164px;
+    max-width: min(280px, calc(100vw - 14px));
   }
 
-  .ns-image-actions-sheet .ns-modal__body {
-    padding: 10px 10px 6px;
-  }
-
-  .ns-image-actions-sheet .ns-modal__footer {
-    padding: 8px 10px 10px;
+  .ns-image-actions-menu-item {
+    white-space: normal;
   }
 }
-

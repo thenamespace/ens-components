@@ -185,7 +185,10 @@ export const ImageUploadModal = ({
     });
 
     try {
-      const croppedFile = await getCroppedImageFile(selectedFile, croppedAreaPixels);
+      const croppedFile = await getCroppedImageFile(
+        selectedFile,
+        croppedAreaPixels
+      );
       console.info(`${IMAGE_UPLOAD_MODAL_LOG_PREFIX} cropped file ready`, {
         imageType,
         name: croppedFile.name,
@@ -196,7 +199,7 @@ export const ImageUploadModal = ({
       const result = await uploadImage({
         ensName,
         file: croppedFile,
-        onProgress: (progress) => {
+        onProgress: progress => {
           setUploadState("uploading");
           setUploadProgress(Math.max(0, Math.min(100, Math.round(progress))));
         },
@@ -301,6 +304,8 @@ export const ImageUploadModal = ({
       isDismissDisabled={isBusy}
       footer={footer}
       className="ns-image-upload-modal-wrapper"
+      presentation="dialog"
+      responsivePresentation={{ mobile: "drawer", breakpointPx: 600 }}
     >
       <div className="ns-image-upload-modal">
         <div className="ns-image-upload-modal__heading">
@@ -370,7 +375,11 @@ export const ImageUploadModal = ({
 
             {!isReviewStep && (
               <>
-                <Button variant="outline" onClick={openFilePicker} disabled={isBusy}>
+                <Button
+                  variant="outline"
+                  onClick={openFilePicker}
+                  disabled={isBusy}
+                >
                   {selectedFile ? "Replace image" : "Choose image"}
                 </Button>
 
@@ -398,7 +407,8 @@ export const ImageUploadModal = ({
             {isReviewStep && (
               <div className="ns-image-upload-modal__review-note">
                 <Text size="sm" color="grey">
-                  Ready to sign a wallet message and upload this {imageConfig.label}.
+                  Ready to sign a wallet message and upload this{" "}
+                  {imageConfig.label}.
                 </Text>
               </div>
             )}

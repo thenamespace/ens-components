@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Dropdown } from "./Dropdown";
 import { Button } from "@/components/atoms";
+import { Icon } from "@/components/atoms";
 
 const meta: Meta<typeof Dropdown> = {
   title: "Molecules/Dropdown",
@@ -53,6 +54,67 @@ export const CustomTrigger: Story = {
         }}
       >
         Custom Trigger
+      </div>
+    ),
+  },
+};
+
+export const ImageActionMenu: Story = {
+  args: {
+    placement: "top",
+    align: "end",
+    trigger: (
+      <div
+        style={{
+          width: 34,
+          height: 34,
+          borderRadius: "999px",
+          border: "1px solid var(--ns-color-border)",
+          background: "var(--ns-color-bg)",
+          color: "var(--ns-color-primary)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+        }}
+      >
+        <Icon name="plus" size={16} />
+      </div>
+    ),
+    children: (
+      <div style={{ minWidth: 148, padding: 4 }}>
+        <button
+          type="button"
+          style={{
+            width: "100%",
+            border: 0,
+            borderRadius: 8,
+            background: "transparent",
+            textAlign: "left",
+            padding: "8px 9px",
+            fontSize: 12,
+            fontWeight: 500,
+            cursor: "pointer",
+          }}
+        >
+          Upload image
+        </button>
+        <button
+          type="button"
+          style={{
+            width: "100%",
+            border: 0,
+            borderRadius: 8,
+            background: "transparent",
+            textAlign: "left",
+            padding: "8px 9px",
+            fontSize: 12,
+            fontWeight: 500,
+            cursor: "pointer",
+          }}
+        >
+          Enter URL
+        </button>
       </div>
     ),
   },
