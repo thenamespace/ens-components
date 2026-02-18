@@ -1,24 +1,48 @@
 import { createRoot } from "react-dom/client";
 import "./styles/index.css";
 import "@rainbow-me/rainbowkit/styles.css";
-import { EnsNameRegistrationForm, EnsRecordsForm, OffchainSubnameForm, SubnameMintForm } from "./components";
+import { EnsRecordsForm, OffchainSubnameForm } from "./components";
 import { WalletConnectProvider } from "./web3/wallet-connect";
-import { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { zeroAddress } from "viem";
+
+const PUSHX_PARENT_NAME = "pushx.eth";
+const PUSHX_API_KEY = "";
 
 function TestApp() {
-  // This is a test app. Its not bundled as component library!!
-  const [open, setOpen] = useState(false);
-
   return (
-    <div>
-      <WalletConnectProvider>
-        <ConnectButton />
-          <EnsNameRegistrationForm />
-          <OffchainSubnameForm name="devname.eth" label="test" apiKeyOrToken="ns-32bda1ab-ff72-4004-9c98-e274e7df3577"/>
-      </WalletConnectProvider>
-    </div>
+    <WalletConnectProvider>
+      <div style={{ maxWidth: 720, margin: "20px auto", padding: "0 12px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+          <strong>ENS Records Form (Avatar Upload)</strong>
+          <ConnectButton />
+        </div>
+
+        <EnsRecordsForm
+          name="devname.eth"
+          isTestnet={false}
+          resolverAddress={"0x231b0Ee14048e9dCcD1d247744d114a4Eb5E8E63"}
+          avatarUploadDomain="localhost"
+          existingRecords={{
+            addresses: [],
+            texts: [
+              { key: "description", value: "I am an alien from outer space" },
+              { key: "location", value: "e.g. Jupiter" },
+            ],
+          }}
+        />
+
+        <div style={{ display: "flex", justifyContent: "space-between", margin: "24px 0 12px" }}>
+          <strong>Offchain Subname Form</strong>
+        </div>
+
+        <OffchainSubnameForm
+          name={PUSHX_PARENT_NAME}
+          apiKeyOrToken={PUSHX_API_KEY}
+          isTestnet={false}
+          avatarUploadDomain="localhost"
+        />
+      </div>
+    </WalletConnectProvider>
   );
 }
 

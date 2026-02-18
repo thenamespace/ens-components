@@ -38,7 +38,8 @@ interface OffchainSubnameFormProps {
   label?: string;
   hideTitle?: boolean;
   onCancel?: () => void;
-  isTestnet?: boolean
+  isTestnet?: boolean;
+  avatarUploadDomain?: string;
   onSuccess?: (data: OffchainSubnameCreatedData) => void;
 }
 
@@ -50,6 +51,7 @@ export const OffchainSubnameForm = ({
   label: propLabel,
   hideTitle = false,
   isTestnet,
+  avatarUploadDomain,
   onCancel,
   onSuccess,
 }: OffchainSubnameFormProps) => {
@@ -331,6 +333,11 @@ export const OffchainSubnameForm = ({
         onCancel={handleCancelRecords}
         onSave={handleSaveRecords}
         hasChanges={hasRecordsDifference}
+        avatarUpload={{
+          ensName: `${label}.${name}`,
+          isTestnet,
+          siweDomain: avatarUploadDomain,
+        }}
       />
     );
   }

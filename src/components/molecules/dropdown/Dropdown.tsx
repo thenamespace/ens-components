@@ -18,39 +18,65 @@ export const Dropdown: React.FC<DropdownProps> = ({
   align = "start",
   disabled = false,
   dataTestId,
+  closeCallback,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const triggerRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const closeDropdown = useCallback(() => {
+    setIsOpen(false);
+    closeCallback?.();
+  }, [closeCallback]);
+
   const handleToggle = useCallback(() => {
     if (!disabled) {
-      setIsOpen(prev => !prev);
-    }
-  }, [disabled]);
-
-  const handleClickOutside = useCallback((event: MouseEvent) => {
-    if (
-      triggerRef.current &&
-      !triggerRef.current.contains(event.target as Node) &&
-      dropdownRef.current &&
-      !dropdownRef.current.contains(event.target as Node)
-    ) {
-      setIsOpen(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("keydown", e => {
-        if (e.key === "Escape") setIsOpen(false);
+      setIsOpen(prev => {
+        const next = !prev;
+        if (!next) {
+          closeCallback?.();
+        }
+        return next;
       });
     }
+  }, [disabled, closeCallback]);
+
+  const handleClickOutside = useCallback(
+    (event: MouseEvent) => {
+      if (
+        triggerRef.current &&
+        !triggerRef.current.contains(event.target as Node) &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        closeDropdown();
+      }
+    },
+    [closeDropdown]
+  );
+
+  const handleEscapeKey = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeDropdown();
+      }
+    },
+    [closeDropdown]
+  );
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscapeKey);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscapeKey);
     };
-  }, [isOpen, handleClickOutside]);
+  }, [isOpen, handleClickOutside, handleEscapeKey]);
 
   const getPlacementClasses = () => {
     const placementClass = `ns-dropdown--${placement}`;
@@ -83,6 +109,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
           className={`ns-dropdown__menu ${getPlacementClasses()}`}
           role="menu"
           aria-orientation="vertical"
+          onClick={() => closeDropdown()}
         >
           {children}
         </div>

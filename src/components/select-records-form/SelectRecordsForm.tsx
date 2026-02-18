@@ -7,6 +7,7 @@ import {
   EnsTextRecord,
 } from "@/types";
 import { Icon, Input, Text } from "../atoms";
+import { Alert } from "../molecules";
 import { TextRecords } from "./text-records/TextRecords";
 import { AddressRecords } from "./address-record/AddressRecords";
 import { ContenthashRecord } from "./contenthash-records/ContenthashRecord";
@@ -15,6 +16,7 @@ import { RecordsAddedParams } from "./records-selector/RecordsSelector";
 import { ImageRecords } from "./image-records/ImageRecords";
 import { deepCopy } from "@/utils";
 import { TextRecordCategory } from "@/constants";
+import { ImageUploadModal } from "./image-upload/ImageUploadModal";
 
 enum RecordsSidebarItem {
   General = "General",
@@ -23,18 +25,52 @@ enum RecordsSidebarItem {
   Website = "Website",
 }
 
+type ImageRecordType = "avatar" | "header";
+
+const IMAGE_RECORD_LABELS: Record<ImageRecordType, string> = {
+  avatar: "Avatar",
+  header: "Header",
+};
+
+const appendPreviewVersion = (url: string, version: string) => {
+  return `${url}${url.includes("?") ? "&" : "?"}v=${encodeURIComponent(version)}`;
+};
+
+export interface AvatarUploadContext {
+  ensName: string;
+  isTestnet?: boolean;
+  siweDomain?: string;
+}
+
 export interface SelectRecordsFormProps {
   records: EnsRecords;
   onRecordsUpdated: (records: EnsRecords) => void;
   actionButtons?: React.ReactNode;
+  avatarUpload?: AvatarUploadContext;
 }
 
 export const SelectRecordsForm = ({
   records,
   onRecordsUpdated,
   actionButtons,
+  avatarUpload,
 }: SelectRecordsFormProps) => {
   const [initialRecords] = useState<EnsRecords>(deepCopy(records));
+  const [activeUploadTarget, setActiveUploadTarget] = useState<ImageRecordType | null>(
+    null
+  );
+  const [imageUploadFeedback, setImageUploadFeedback] = useState<{
+    record: ImageRecordType;
+    message: string;
+    variant: "success" | "error";
+  } | null>(null);
+  const [imagePreviewVersions, setImagePreviewVersions] = useState<
+    Partial<Record<ImageRecordType, { url: string; version: string }>>
+  >({});
+  const [imageManualFocus, setImageManualFocus] = useState<{
+    record: ImageRecordType;
+    trigger: number;
+  } | null>(null);
 
   const generalCategoryRef = useRef<HTMLDivElement | null>(null);
   const socialCategoryRef = useRef<HTMLDivElement | null>(null);
@@ -105,6 +141,36 @@ export const SelectRecordsForm = ({
   }, []);
 
   const handleTextsUpdated = (texts: EnsTextRecord[]) => {
+    const previousByRecord: Record<ImageRecordType, string | undefined> = {
+      avatar: records.texts.find(r => r.key === "avatar")?.value,
+      header: records.texts.find(r => r.key === "header")?.value,
+    };
+    const nextByRecord: Record<ImageRecordType, string | undefined> = {
+      avatar: texts.find(r => r.key === "avatar")?.value,
+      header: texts.find(r => r.key === "header")?.value,
+    };
+
+    setImagePreviewVersions(prev => {
+      let didChange = false;
+      const next = { ...prev };
+      (["avatar", "header"] as const).forEach(record => {
+        const previewVersion = prev[record];
+        if (previewVersion && nextByRecord[record] !== previewVersion.url) {
+          delete next[record];
+          didChange = true;
+        }
+      });
+      return didChange ? next : prev;
+    });
+
+    if (
+      imageUploadFeedback &&
+      previousByRecord[imageUploadFeedback.record] !==
+        nextByRecord[imageUploadFeedback.record]
+    ) {
+      setImageUploadFeedback(null);
+    }
+
     onRecordsUpdated({ ...records, texts });
   };
 
@@ -204,11 +270,25 @@ export const SelectRecordsForm = ({
   };
 
   const { avatar, header } = useMemo(() => {
-    return {
-      avatar: records.texts.find(r => r.key === "avatar")?.value,
-      header: records.texts.find(r => r.key === "header")?.value,
+    const avatarRaw = records.texts.find(r => r.key === "avatar")?.value;
+    const headerRaw = records.texts.find(r => r.key === "header")?.value;
+
+    const withVersion = (
+      record: ImageRecordType,
+      rawValue: string | undefined
+    ): string | undefined => {
+      const previewVersion = imagePreviewVersions[record];
+      if (!rawValue || !previewVersion || previewVersion.url !== rawValue) {
+        return rawValue;
+      }
+      return appendPreviewVersion(rawValue, previewVersion.version);
     };
-  }, [records.texts]);
+
+    return {
+      avatar: withVersion("avatar", avatarRaw),
+      header: withVersion("header", headerRaw),
+    };
+  }, [records.texts, imagePreviewVersions]);
 
   const handleContenthashUpdated = (contenthash: EnsContenthashRecord) => {
     onRecordsUpdated({ ...records, contenthash });
@@ -222,21 +302,95 @@ export const SelectRecordsForm = ({
 
   const handleImageRecordAdded = (
     record: "avatar" | "header",
-    value: string
+    value: string,
+    opts?: {
+      scrollToGeneral?: boolean;
+    }
   ) => {
     const _texts = records.texts.filter(text => text.key !== record);
 
-    let _value = value;
+    let _value = typeof value === "string" ? value : "";
     if (_value.length === 0) {
       const initialValue = initialRecords.texts.find(txt => txt.key === record);
-      _value = initialValue ? initialValue.value : value;
+      _value = initialValue ? initialValue.value : "";
     }
 
     onRecordsUpdated({
       ...records,
       texts: [..._texts, { key: record, value: _value }],
     });
-    scrollToCategory(RecordsSidebarItem.General);
+
+    if (opts?.scrollToGeneral !== false) {
+      scrollToCategory(RecordsSidebarItem.General);
+    }
+  };
+
+  const ensureImageRecordExists = (record: "avatar" | "header") => {
+    const alreadyAdded = records.texts.some(text => text.key === record);
+    if (alreadyAdded) {
+      return;
+    }
+
+    const initialValue = initialRecords.texts.find(txt => txt.key === record);
+    onRecordsUpdated({
+      ...records,
+      texts: [...records.texts, { key: record, value: initialValue?.value || "" }],
+    });
+  };
+
+  const handleImageUploaded = (
+    record: ImageRecordType,
+    data: { url: string; uploadedAt: string }
+  ) => {
+    const uploadedUrl = data?.url?.trim();
+    const label = IMAGE_RECORD_LABELS[record];
+
+    if (!uploadedUrl) {
+      setImageUploadFeedback({
+        record,
+        message: `No ${label.toLowerCase()} URL returned. Please try again.`,
+        variant: "error",
+      });
+      return;
+    }
+
+    const currentUrl = records.texts.find(r => r.key === record)?.value?.trim();
+    const isSameUrl = currentUrl === uploadedUrl;
+    const safeVersion = Date.now().toString();
+
+    handleImageRecordAdded(record, uploadedUrl, {
+      scrollToGeneral: false,
+    });
+    setImagePreviewVersions(prev => ({
+      ...prev,
+      [record]: {
+        url: uploadedUrl,
+        version: safeVersion,
+      },
+    }));
+    setImageUploadFeedback({
+      record,
+      message: isSameUrl ? `${label} refreshed.` : `${label} updated.`,
+      variant: "success",
+    });
+  };
+
+  const handleImageUploadRequested = (record: ImageRecordType) => {
+    if (!avatarUpload) {
+      return;
+    }
+    setImageUploadFeedback(null);
+    setActiveUploadTarget(record);
+  };
+
+  const handleImageManualUrlRequested = (record: ImageRecordType) => {
+    setImageUploadFeedback(null);
+    ensureImageRecordExists(record);
+    handleSidebarChange(RecordsSidebarItem.General);
+    setImageManualFocus(prev => ({
+      record,
+      trigger: (prev?.trigger || 0) + 1,
+    }));
   };
 
   return (
@@ -252,7 +406,24 @@ export const SelectRecordsForm = ({
           onHeaderAdded={(value: string) =>
             handleImageRecordAdded("header", value)
           }
+          onAvatarUploadRequested={
+            avatarUpload ? () => handleImageUploadRequested("avatar") : undefined
+          }
+          onAvatarManualUrlRequested={() => handleImageManualUrlRequested("avatar")}
+          onHeaderUploadRequested={
+            avatarUpload ? () => handleImageUploadRequested("header") : undefined
+          }
+          onHeaderManualUrlRequested={() => handleImageManualUrlRequested("header")}
         />
+        {imageUploadFeedback && (
+          <Alert
+            variant={imageUploadFeedback.variant}
+            dismissible
+            onClose={() => setImageUploadFeedback(null)}
+          >
+            <Text size="sm">{imageUploadFeedback.message}</Text>
+          </Alert>
+        )}
       </div>
       {/* Search Input */}
       <div className="ns-records-content-wrapper">
@@ -296,6 +467,8 @@ export const SelectRecordsForm = ({
                 onTextsChanged={handleTextsUpdated}
                 category={TextRecordCategory.General}
                 searchFilter={searchFilter}
+                focusRecordKey={imageManualFocus?.record}
+                focusTrigger={imageManualFocus?.trigger}
               />
             </div>
             {/* Social Records Records */}
@@ -332,6 +505,18 @@ export const SelectRecordsForm = ({
       </div>
       {actionButtons && (
         <div className="ns-select-records-actions">{actionButtons}</div>
+      )}
+
+      {avatarUpload && activeUploadTarget && (
+        <ImageUploadModal
+          isOpen={true}
+          imageType={activeUploadTarget}
+          ensName={avatarUpload.ensName}
+          isTestnet={avatarUpload.isTestnet}
+          siweDomain={avatarUpload.siweDomain}
+          onClose={() => setActiveUploadTarget(null)}
+          onUploaded={data => handleImageUploaded(activeUploadTarget, data)}
+        />
       )}
     </div>
   );

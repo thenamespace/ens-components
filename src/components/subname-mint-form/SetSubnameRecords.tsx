@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { EnsRecords } from "@/types";
-import { SelectRecordsForm } from "../select-records-form/SelectRecordsForm";
+import {
+  AvatarUploadContext,
+  SelectRecordsForm,
+} from "../select-records-form/SelectRecordsForm";
 import { Button } from "../atoms";
 import { Alert } from "../molecules";
 import { validateEnsRecords } from "@/utils";
@@ -11,6 +14,7 @@ export interface SetSubnameRecordsProps {
   onCancel: () => void;
   onSave: () => void;
   hasChanges?: boolean;
+  avatarUpload?: AvatarUploadContext;
 }
 
 export const SetSubnameRecords: React.FC<SetSubnameRecordsProps> = ({
@@ -19,6 +23,7 @@ export const SetSubnameRecords: React.FC<SetSubnameRecordsProps> = ({
   onCancel,
   onSave,
   hasChanges,
+  avatarUpload,
 }) => {
   const [error, setError] = useState<string | null>();
 
@@ -42,6 +47,7 @@ export const SetSubnameRecords: React.FC<SetSubnameRecordsProps> = ({
     <SelectRecordsForm
       records={records}
       onRecordsUpdated={onRecordsChange}
+      avatarUpload={avatarUpload}
       actionButtons={
         <div style={{ padding: 15, paddingTop: 0 }}>
           {error && <Alert variant="error">{error}</Alert>}
@@ -71,6 +77,5 @@ export const SetSubnameRecords: React.FC<SetSubnameRecordsProps> = ({
     />
   );
 };
-
 
 

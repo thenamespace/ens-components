@@ -14,6 +14,8 @@ interface TextRecordsProps {
   onTextsChanged: (texts: EnsTextRecord[]) => void;
   category: TextRecordCategory;
   searchFilter?: string;
+  focusRecordKey?: string;
+  focusTrigger?: number;
 }
 
 export const TextRecords = ({
@@ -22,6 +24,8 @@ export const TextRecords = ({
   category,
   initialTexts,
   searchFilter,
+  focusRecordKey,
+  focusTrigger,
 }: TextRecordsProps) => {
   const existingTextsMap = useMemo(() => {
     const map: Record<string, EnsTextRecord> = {};
@@ -46,6 +50,35 @@ export const TextRecords = ({
       setLastAddedKey(null);
     }
   }, [texts, lastAddedKey]);
+
+  const [pendingExternalFocus, setPendingExternalFocus] = useState<
+    string | null
+  >(null);
+
+  useEffect(() => {
+    if (!focusRecordKey || focusTrigger === undefined) {
+      return;
+    }
+    setPendingExternalFocus(focusRecordKey);
+  }, [focusRecordKey, focusTrigger]);
+
+  useEffect(() => {
+    if (!pendingExternalFocus) {
+      return;
+    }
+
+    const inputToFocus = inputRefs.current[pendingExternalFocus];
+    if (!inputToFocus) {
+      return;
+    }
+
+    inputToFocus.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+    inputToFocus.focus();
+    setPendingExternalFocus(null);
+  }, [texts, pendingExternalFocus]);
 
   const handleTextChanged = (key: string, value: string) => {
     const _texts = [...texts];

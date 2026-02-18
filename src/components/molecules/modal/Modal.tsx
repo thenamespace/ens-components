@@ -3,6 +3,12 @@ import "./Modal.css";
 import { Button, Text } from "@/components/atoms"; // alias imports [[memory:7847985]]
 
 export type ModalSize = "sm" | "md" | "lg";
+export type ModalPresentation = "dialog" | "drawer";
+
+export interface ModalResponsivePresentation {
+  mobile?: ModalPresentation;
+  breakpointPx?: number;
+}
 
 export interface ModalProps {
   isOpen: boolean;
@@ -21,6 +27,10 @@ export interface ModalProps {
   className?: string;
   /** Optional styles for the dialog container */
   style?: React.CSSProperties;
+  /** Visual presentation mode */
+  presentation?: ModalPresentation;
+  /** Optional responsive presentation overrides */
+  responsivePresentation?: ModalResponsivePresentation;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -34,9 +44,37 @@ export const Modal: React.FC<ModalProps> = ({
   titleId,
   className = "",
   style,
+  presentation = "dialog",
+  responsivePresentation,
 }) => {
   const overlayRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+  const [isMobileViewport, setIsMobileViewport] = React.useState(false);
+
+  useEffect(() => {
+    if (
+      typeof window === "undefined" ||
+      !window.matchMedia ||
+      !responsivePresentation?.mobile
+    ) {
+      setIsMobileViewport(false);
+      return;
+    }
+
+    const breakpointPx = responsivePresentation.breakpointPx ?? 600;
+    const mediaQuery = window.matchMedia(`(max-width: ${breakpointPx}px)`);
+    const update = () => setIsMobileViewport(mediaQuery.matches);
+
+    update();
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener("change", update);
+      return () => mediaQuery.removeEventListener("change", update);
+    }
+
+    mediaQuery.addListener(update);
+    return () => mediaQuery.removeListener(update);
+  }, [responsivePresentation?.mobile, responsivePresentation?.breakpointPx]);
 
   // Close on Escape
   useEffect(() => {
@@ -55,13 +93,26 @@ export const Modal: React.FC<ModalProps> = ({
 
   if (!isOpen) return null;
 
+  const effectivePresentation =
+    responsivePresentation?.mobile && isMobileViewport
+      ? responsivePresentation.mobile
+      : presentation;
   const sizeClass = `ns-modal--${size}`;
-  const classes = ["ns-modal", className, sizeClass].filter(Boolean).join(" ");
+  const presentationClass = `ns-modal--${effectivePresentation}`;
+  const classes = ["ns-modal", className, sizeClass, presentationClass]
+    .filter(Boolean)
+    .join(" ");
+  const overlayClasses = [
+    "ns-modal-overlay",
+    `ns-modal-overlay--${effectivePresentation}`,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <div
       ref={overlayRef}
-      className="ns-modal-overlay"
+      className={overlayClasses}
       onMouseDown={handleOverlayClick}
       aria-hidden={!isOpen}
     >

@@ -23,6 +23,7 @@ export interface EnsRecordsFormProps {
   existingRecords: EnsRecords;
   noBorder?: boolean;
   className?: string;
+  avatarUploadDomain?: string;
   onCancel?: () => void
   onRecordsUpdated?: (newRecords: EnsRecordsDiff) => void
   onGreat?: () => void
@@ -38,6 +39,7 @@ export const EnsRecordsForm = ({
   resolverAddress,
   noBorder,
   className,
+  avatarUploadDomain,
   onCancel,
   onGreat,
   onRecordsUpdated,
@@ -146,6 +148,11 @@ export const EnsRecordsForm = ({
             isTestnet={isTestnet}
             resolverAddress={resolverState.address!}
             resolverChainId={resolverChain}
+            avatarUpload={{
+              ensName: name,
+              isTestnet,
+              siweDomain: avatarUploadDomain,
+            }}
             onRecordsUpdated={(records: EnsRecordsDiff) => {
               onRecordsUpdated?.(records)
             }}
