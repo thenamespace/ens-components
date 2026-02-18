@@ -8,6 +8,13 @@ const config: StorybookConfig = {
   addons: ["@storybook/addon-essentials", "@storybook/addon-interactions"],
   viteFinal: async viteConfig => {
     viteConfig.plugins = [...(viteConfig.plugins || []), tsconfigPaths()];
+    viteConfig.optimizeDeps = {
+      ...viteConfig.optimizeDeps,
+      exclude: [
+        ...(viteConfig.optimizeDeps?.exclude ?? []),
+        "@thenamespace/ens-components",
+      ],
+    };
     return viteConfig;
   },
 };

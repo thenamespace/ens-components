@@ -2,11 +2,12 @@
   "name": "@thenamespace/ui-monorepo",
   "private": true,
   "version": "0.0.0",
+  "packageManager": "pnpm@10.13.1",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "storybook": "pnpm --filter storybook dev",
-    "landing": "pnpm --filter landing dev",
+    "storybook": "turbo run dev --filter=storybook",
+    "landing": "turbo run dev --filter=landing",
     "lint": "turbo run lint",
     "format": "prettier --write .",
     "format:check": "turbo run format:check"
