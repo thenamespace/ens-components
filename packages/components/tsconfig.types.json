@@ -1,0 +1,32 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationMap": false,
+    "sourceMap": false,
+    "stripInternal": true,
+    "outDir": "dist/types"
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": [
+    // test & story files
+    "src/**/*.stories.*",
+    "src/**/*.test.*",
+    "src/**/*.spec.*",
+    "src/**/__tests__/**",
+    "src/**/__mocks__/**",
+    // local demos / sandboxes
+    "src/**/demo/**",
+    "src/**/examples/**",
+    "src/main.tsx",
+    "src/wallet-connect.tsx",
+    "src/web3/wallet-connect.tsx",
+    // build/dev tooling
+    ".storybook",
+    "storybook-static",
+    "test-app",
+    "scripts",
+    "**/*.mdx"
+  ]
+}

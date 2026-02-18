@@ -1,0 +1,93 @@
+{
+  "name": "@thenamespace/ens-components",
+  "version": "0.37.0",
+  "description": "",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "peerDependencies": {
+    "react": ">=19",
+    "react-dom": ">=19",
+    "viem": "^2.38.4",
+    "wagmi": "^2.18.2"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./styles": {
+      "import": "./dist/styles.js",
+      "require": "./dist/styles.cjs"
+    },
+    "./styles.css": {
+      "import": "./dist/index.css",
+      "require": "./dist/index.css"
+    },
+    "./index.css": {
+      "import": "./dist/index.css",
+      "require": "./dist/index.css"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "lint": "eslint .",
+    "format:check": "prettier --check .",
+    "build:types": "tsc -p tsconfig.types.json",
+    "build": "npm run clean && npm run build:types && rollup -c rollup.config.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@rollup/plugin-alias": "^5.1.1",
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-image": "^3.0.3",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-typescript": "^12.1.4",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "autoprefixer": "^10.4.21",
+    "axios": "^1.11.0",
+    "cssnano": "^7.1.1",
+    "postcss-import": "^16.1.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-easy-crop": "^5.5.6",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.50.1",
+    "rollup-plugin-dts": "^6.2.3",
+    "rollup-plugin-esbuild": "^6.2.1",
+    "rollup-plugin-postcss": "^4.0.2",
+    "typescript": "^5.9.2",
+    "viem": "^2.38.4",
+    "wagmi": "^2.18.2"
+  },
+  "dependencies": {
+    "@adraffy/ens-normalize": "^1.11.1",
+    "@ensdomains/address-encoder": "1.1.4",
+    "@ensdomains/content-hash": "^3.1.0-rc.1",
+    "@namespacesdk/addresses": "^1.0.15",
+    "@namespacesdk/indexer": "^1.0.1",
+    "@thenamespace/addresses": "^1.1.0",
+    "@thenamespace/avatar": "^1.0.0",
+    "@thenamespace/mint-manager": "^1.1.1",
+    "@thenamespace/offchain-manager": "^1.0.10",
+    "lodash": "^4.17.21",
+    "lucide-react": ">=0.525.0",
+    "react-confetti": "^6.4.0"
+  }
+}

@@ -22,19 +22,26 @@ jobs:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Build package
-        run: npm run build
+        run: pnpm --filter @thenamespace/ens-components build
 
       - name: Bump version
+        working-directory: packages/components
         run: |
           npm version minor --preid=alpha --no-git-tag-version
           NEW_VERSION=$(node -p "require('./package.json').version")
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Publish to npm
+        working-directory: packages/components
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -43,6 +50,6 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add package.json package-lock.json
+          git add packages/components/package.json
           git commit -m "chore: bump version to $NEW_VERSION [skip ci]"
           git push

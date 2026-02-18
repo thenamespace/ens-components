@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@/components": ["src/components/index"],
+      "@/atoms": ["src/components/atoms/index"],
+      "@/molecules": ["src/components/molecules/index"],
+      "@/constants": ["src/constants/index"],
+      "@/utils": ["src/utils/index"],
+      "@/types": ["src/types/index"],
+      "@/web3": ["src/web3/index"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["src/**/*.stories.*", "src/web3/wallet-connect.tsx", "node_modules", "dist"]
+}
