@@ -15,6 +15,11 @@ export interface EnsNameRegistrationFormProps {
   referrer?: Address;
   noBorder?: boolean;
   className?: string;
+  title?: string;
+  subtitle?: string;
+  bannerImage?: string;
+  hideBanner?: boolean;
+  bannerWidth?: number;
   onRegistrationSuccess?: (result: RegistrationSuccessData) => void
   onClose?: (isSuccess: boolean) => void
   onRegistrationStart?: (name: string) => void
@@ -47,7 +52,7 @@ const getLabel = (name?: string) => {
 }
 
 export const EnsNameRegistrationForm = (
-  props: EnsNameRegistrationFormProps
+  props: EnsNameRegistrationFormProps,
 ) => {
   const [label, setLabel] = useState<string>(getLabel(props.name));
   const [step, setStep] = useState<RegistrationSteps>(
@@ -148,6 +153,11 @@ export const EnsNameRegistrationForm = (
               nameValidation={nameValidation}
               isTestnet={props.isTestnet || false}
               transactionFees={regTxFees}
+              title={props.title}
+              subtitle={props.subtitle}
+              bannerImage={props.bannerImage}
+              hideBanner={props.hideBanner}
+              bannerWidth={props.bannerWidth}
               onLabelChange={setLabel}
               onYearsChange={setYears}
               onPriceChange={setPrice}

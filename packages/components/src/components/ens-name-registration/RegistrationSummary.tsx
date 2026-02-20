@@ -33,6 +33,11 @@ export interface RegistrationSummaryProps {
     reason?: string;
   };
   isTestnet?: boolean;
+  title?: string;
+  subtitle?: string;
+  bannerImage?: string;
+  hideBanner?: boolean;
+  bannerWidth?: number;
   onLabelChange: (label: string) => void;
   onYearsChange: (years: number) => void;
   onPriceChange: (price: { isChecking: boolean; wei: bigint; eth: number }) => void;
@@ -48,12 +53,17 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
   nameValidation,
   transactionFees,
   isTestnet = false,
+  title,
+  subtitle,
+  bannerImage,
+  hideBanner = false,
+  bannerWidth = 250,
   onLabelChange,
   onYearsChange,
   onPriceChange,
   onNameValidationChange,
   onSetProfile,
-  onStart
+  onStart,
 }) => {
   const { isEnsAvailable, getRegistrationPrice } = useRegisterENS({
     isTestnet,
@@ -182,19 +192,21 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
 
   return (
     <div className="ens-registration-summary">
-      <div className="d-flex justify-content-center">
-        <img
-          style={{ width: "250px", margin: "auto" }}
-          src={ninjaImage}
-          alt="Ninja Image"
-        ></img>
-      </div>
+      {!hideBanner && (
+        <div className="d-flex justify-content-center">
+          <img
+            style={{ width: `${bannerWidth}px`, margin: "auto" }}
+            src={bannerImage || ninjaImage}
+            alt="Banner"
+          />
+        </div>
+      )}
       <div className="text-center mb-3" style={{ textAlign: "center" }}>
         <Text weight="bold" className="text-align-center" size="lg">
-          ENS Name Registration
+          {title || "ENS Name Registration"}
         </Text>
         <Text color="grey" className="text-align-center" size="sm">
-          Register your ENS name and set a profile
+          {subtitle || "Register your ENS name and set a profile"}
         </Text>
       </div>
       <Input
