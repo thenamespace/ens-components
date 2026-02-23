@@ -116,6 +116,37 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); -web
 .tok-fn  { color: #FFFFFF; }
 .tok-tag { color: #0080BC; }
 
+/* ENS LOOKUP FORM */
+.ens-lookup-wrap {
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 32px 24px; align-items: stretch;
+}
+.ens-lookup-title { font-size: 16px; font-weight: 700; color: var(--text); margin: 0; }
+.ens-lookup-sub { font-size: 13px; color: var(--text-muted); margin: 0; }
+.ens-lookup-input {
+  width: 100%; padding: 10px 14px; font-size: 14px;
+  border: 1px solid var(--border); border-radius: 9px;
+  background: var(--bg); color: var(--text); font-family: var(--font);
+  outline: none; transition: border-color 0.15s; box-sizing: border-box;
+}
+.ens-lookup-input:focus { border-color: var(--accent); }
+.ens-lookup-btn {
+  padding: 11px 20px; font-size: 14px; font-weight: 600;
+  background: var(--accent); color: #fff; border: none;
+  border-radius: 9px; cursor: pointer; font-family: var(--font);
+  transition: background 0.15s;
+}
+.ens-lookup-btn:hover:not(:disabled) { background: var(--accent-hover); }
+.ens-lookup-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ens-lookup-error { font-size: 12px; color: #e05252; margin: 0; }
+.ens-lookup-back {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 500; color: var(--accent);
+  background: none; border: none; cursor: pointer; padding: 12px 18px 4px;
+  font-family: var(--font);
+}
+.ens-lookup-back:hover { text-decoration: underline; }
+
 /* DEMO PANEL */
 .demo-panel { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
 .demo-panel-header { padding: 13px 18px; border-bottom: 1px solid var(--border); background: var(--bg-card); }
@@ -184,6 +215,9 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); -web
 
 /* Required marker */
 .prop-required { color: var(--accent); font-size: 12px; font-weight: 700; line-height: 1; }
+
+/* Readonly value */
+.prop-readonly-val { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); font-style: italic; }
 
 /* Prop input */
 .prop-input {

@@ -1,12 +1,16 @@
 import React, { useState } from "react";
+import { useAccount, usePublicClient } from "wagmi";
+import { namehash } from "viem/ens";
 import ninjaBanner from "./assets/ninja-banner.png";
 import { ConnectButton, useConnectModal } from "@rainbow-me/rainbowkit";
 import {
   EnsNameRegistrationForm,
   EnsRecordsForm,
   OffchainSubnameForm,
+  SelectRecordsForm,
   SubnameMintForm,
 } from "@thenamespace/ens-components";
+import type { EnsRecords } from "@thenamespace/ens-components";
 import {
   AtSign,
   Pencil,
@@ -15,14 +19,15 @@ import {
   Code2,
   Rocket,
   ChevronDown,
+  Database,
 } from "lucide-react";
 import "./landing.css";
 
 // ─── Prop editor types ────────────────────────────────────────────────────────
 
-type BoolProp = { key: string; type: "boolean"; default: boolean; tip?: string; required?: boolean };
-type StrProp  = { key: string; type: "string";  default: string;  tip?: string; placeholder?: string; required?: boolean };
-type NumProp  = { key: string; type: "number";  default: number;  tip?: string; required?: boolean };
+type BoolProp = { key: string; type: "boolean"; default: boolean; tip?: string; required?: boolean; readonly?: boolean };
+type StrProp  = { key: string; type: "string";  default: string;  tip?: string; placeholder?: string; required?: boolean; readonly?: boolean };
+type NumProp  = { key: string; type: "number";  default: number;  tip?: string; required?: boolean; readonly?: boolean };
 type PropDef  = BoolProp | StrProp | NumProp;
 
 // ─── Dynamic code generation ──────────────────────────────────────────────────
@@ -35,6 +40,7 @@ function generateCode(
 ): string {
   const propLines: string[] = [];
   for (const def of defs) {
+    if (def.readonly) continue;
     const val = values[def.key];
     if (def.type === "boolean") {
       propLines.push(`  ${def.key}={${val}}`);
@@ -102,7 +108,11 @@ function PropsEditor({
                   <span className={`prop-type-badge type-${def.type}`}>{def.type}</span>
                 </td>
                 <td className="prop-value-cell">
-                  {def.type === "boolean" ? (
+                  {def.readonly ? (
+                    <span className="prop-readonly-val">
+                      {String(values[def.key] ?? "—")}
+                    </span>
+                  ) : def.type === "boolean" ? (
                     <button
                       className={`prop-toggle ${values[def.key] ? "on" : "off"}`}
                       onClick={() => onChange(def.key, !values[def.key])}
@@ -320,23 +330,127 @@ function EnsRegistrationSection() {
 
 // ─── ENS Records ──────────────────────────────────────────────────────────────
 
+const RESOLVIO = "https://resolvio.namespace.ninja";
+
+async function fetchEnsProfile(name: string) {
+  const res = await fetch(`${RESOLVIO}/ens/v1/profile/${encodeURIComponent(name)}`);
+  if (!res.ok) throw new Error("ENS name not found or has no records");
+  const data = await res.json();
+  return {
+    addresses: (data.addresses || []).map((a: any) => ({
+      coinType: a.coin,
+      value: a.address,
+    })),
+    texts: (data.texts || []).map((t: any) => ({
+      key: t.key,
+      value: t.value,
+    })),
+  };
+}
+
+const ENS_REGISTRY = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e" as const;
+const NAME_WRAPPER  = "0xD4416b13d2b3a9aBae7AcD5D6C2BbDBE25686401" as const;
+
+const REGISTRY_ABI = [{
+  name: "owner", type: "function", stateMutability: "view",
+  inputs: [{ name: "node", type: "bytes32" }],
+  outputs: [{ name: "", type: "address" }],
+}] as const;
+
+const WRAPPER_ABI = [{
+  name: "ownerOf", type: "function", stateMutability: "view",
+  inputs: [{ name: "id", type: "uint256" }],
+  outputs: [{ name: "", type: "address" }],
+}] as const;
+
 const ENS_RECORDS_DEFS: PropDef[] = [
-  { key: "isTestnet",       type: "boolean", default: false,                                      tip: "Use Sepolia testnet instead of Ethereum mainnet" },
-  { key: "resolverAddress", type: "string",  default: "0x231b0Ee14048e9dCcD1d247744d114a4Eb5E8E63", tip: "ENS Public Resolver contract address on-chain", placeholder: "0x…" },
-  { key: "resolverChainId", type: "number",  default: 1,                                          tip: "Chain ID where the resolver contract is deployed" },
-  { key: "noBorder",        type: "boolean", default: false,                                      tip: "Remove the card border and shadow wrapper" },
-  { key: "txConfirmations", type: "number",  default: 1,                                          tip: "Number of block confirmations to wait after a transaction" },
+  { key: "name",            type: "string",  default: "yourname.eth",         required: true, readonly: true, tip: "Full ENS name whose records will be edited" },
+  { key: "existingRecords", type: "string",  default: "Existing name records", required: true, readonly: true, tip: "Current on-chain records pre-loaded from the ENS resolver" },
+  { key: "isTestnet",       type: "boolean", default: false,                   tip: "Use Sepolia testnet instead of Ethereum mainnet" },
+  { key: "noBorder",        type: "boolean", default: false,                   tip: "Remove the card border and shadow wrapper" },
+  { key: "txConfirmations", type: "number",  default: 1,                       tip: "Number of block confirmations to wait after a transaction" },
+  { key: "resolverAddress", type: "string",  default: "",  readonly: true,     tip: "Optional — auto-detected from the ENS registry if not provided" },
+  { key: "resolverChainId", type: "number",  default: 1,   readonly: true,     tip: "Optional — inferred from isTestnet if not provided" },
 ];
 
 function EnsRecordsSection() {
+  const { isConnected, address } = useAccount();
+  const { openConnectModal } = useConnectModal();
+  const pc = usePublicClient({ chainId: 1 });
   const [values, setValues] = useState<Record<string, any>>(() =>
     Object.fromEntries(ENS_RECORDS_DEFS.map((d) => [d.key, d.default])),
   );
+  const [ensName, setEnsName] = useState("");
+  const [submittedName, setSubmittedName] = useState("");
+  const [existingRecords, setExistingRecords] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [lookupError, setLookupError] = useState("");
+
   const onChange = (key: string, val: any) =>
     setValues((prev) => ({ ...prev, [key]: val }));
-  const code = generateCode("EnsRecordsForm", ENS_RECORDS_DEFS, values, [
-    'name="yourname.eth"',
-    'existingRecords={{ addresses: [], texts: [] }}',
+
+  const displayValues = {
+    ...values,
+    name: submittedName || "yourname.eth",
+    existingRecords: submittedName ? "{ addresses: [...], texts: [...] }" : "(fetched via Resolvio)",
+    resolverAddress: "",
+    resolverChainId: 0,
+  };
+
+  const lookupOwner = async (name: string): Promise<string> => {
+    const node = namehash(name);
+    const registryOwner = await pc!.readContract({
+      address: ENS_REGISTRY,
+      abi: REGISTRY_ABI,
+      functionName: "owner",
+      args: [node],
+    });
+    if (registryOwner.toLowerCase() === NAME_WRAPPER.toLowerCase()) {
+      const tokenId = BigInt(node);
+      const wrapperOwner = await pc!.readContract({
+        address: NAME_WRAPPER,
+        abi: WRAPPER_ABI,
+        functionName: "ownerOf",
+        args: [tokenId],
+      });
+      return (wrapperOwner as string).toLowerCase();
+    }
+    return (registryOwner as string).toLowerCase();
+  };
+
+  const handleLookup = async () => {
+    const name = ensName.trim();
+    if (!name) return;
+    setLoading(true);
+    setLookupError("");
+    try {
+      const owner = await lookupOwner(name);
+      if (owner !== address?.toLowerCase()) {
+        setLookupError("You are not permitted to edit records, try adding a name you own");
+        return;
+      }
+      const records = await fetchEnsProfile(name);
+      setExistingRecords(records);
+      setSubmittedName(name);
+    } catch (err: any) {
+      if (!lookupError) {
+        setLookupError(err.message || "Failed to fetch records");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    setSubmittedName("");
+    setExistingRecords(null);
+    setEnsName("");
+    setLookupError("");
+  };
+
+  const code = generateCode("EnsRecordsForm", ENS_RECORDS_DEFS, displayValues, [
+    `name="${submittedName || "yourname.eth"}"`,
+    "existingRecords={existingRecords}",
   ]);
 
   return (
@@ -349,21 +463,88 @@ function EnsRecordsSection() {
       />
       <div className="component-grid">
         <DemoPanel>
-          <EnsRecordsForm
-            key={`${values.isTestnet}-${values.resolverAddress}`}
-            name="yourname.eth"
-            isTestnet={values.isTestnet}
-            resolverAddress={values.resolverAddress || undefined}
-            resolverChainId={values.resolverChainId || undefined}
-            noBorder={values.noBorder}
-            txConfirmations={values.txConfirmations || undefined}
-            existingRecords={{ addresses: [], texts: [] }}
-          />
+          {!submittedName ? (
+            <div className="ens-lookup-wrap">
+              <p className="ens-lookup-title">Enter your ENS name</p>
+              <p className="ens-lookup-sub">Load your current records to edit them</p>
+              <input
+                className="ens-lookup-input"
+                type="text"
+                value={ensName}
+                placeholder="yourname.eth"
+                onChange={(e) => setEnsName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && isConnected && !loading && handleLookup()}
+              />
+              {lookupError && <p className="ens-lookup-error">{lookupError}</p>}
+              {!isConnected ? (
+                <button className="ens-lookup-btn" onClick={openConnectModal}>
+                  Connect Wallet
+                </button>
+              ) : (
+                <button
+                  className="ens-lookup-btn"
+                  onClick={handleLookup}
+                  disabled={!ensName.trim() || loading}
+                >
+                  {loading ? "Loading…" : "Update Records"}
+                </button>
+              )}
+            </div>
+          ) : (
+            <div style={{ position: "relative" }}>
+              <EnsRecordsForm
+                key={`${submittedName}-${values.isTestnet}-${values.resolverAddress}`}
+                name={submittedName}
+                isTestnet={values.isTestnet}
+                resolverAddress={values.resolverAddress || undefined}
+                resolverChainId={values.resolverChainId || undefined}
+                noBorder={values.noBorder}
+                txConfirmations={values.txConfirmations || undefined}
+                existingRecords={existingRecords}
+                onCancel={handleReset}
+              />
+            </div>
+          )}
         </DemoPanel>
         <div className="code-col">
           <CodePanel title="EnsRecordsForm.tsx" code={code} />
           <PropsEditor defs={ENS_RECORDS_DEFS} values={values} onChange={onChange} />
         </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Select Records ───────────────────────────────────────────────────────────
+
+const SELECT_RECORDS_CODE = `import { SelectRecordsForm } from "@thenamespace/ens-components";
+import { useState } from "react";
+
+const [records, setRecords] = useState({ addresses: [], texts: [] });
+
+<SelectRecordsForm
+  records={records}
+  onRecordsUpdated={setRecords}
+/>`;
+
+function SelectRecordsSection() {
+  const [records, setRecords] = useState<EnsRecords>({ addresses: [], texts: [] });
+
+  return (
+    <section className="section" id="select-records">
+      <SectionHeader
+        icon={Database}
+        name="Record Selector"
+        title="Select ENS Records"
+        desc="Standalone record editor — no wallet or transaction required. Let users compose text records, addresses, and contenthash before submitting them to any form."
+      />
+      <div className="component-grid">
+        <div className="code-col">
+          <CodePanel title="SelectRecordsForm.tsx" code={SELECT_RECORDS_CODE} />
+        </div>
+        <DemoPanel>
+          <SelectRecordsForm records={records} onRecordsUpdated={setRecords} />
+        </DemoPanel>
       </div>
     </section>
   );
@@ -419,15 +600,17 @@ function OffchainSubnameSection() {
 // ─── Onchain Subnames ─────────────────────────────────────────────────────────
 
 const MINT_DEFS: PropDef[] = [
-  { key: "parentName",      type: "string",  default: "nerdynation.eth", tip: "The ENS name users will mint subnames under", placeholder: "yourname.eth", required: true },
+  { key: "parentName",      type: "string",  default: "filepay.eth", tip: "The ENS name users will mint subnames under", placeholder: "yourname.eth", required: true, readonly: true },
   { key: "isTestnet",       type: "boolean", default: false,             tip: "Use Sepolia testnet instead of Ethereum mainnet" },
   { key: "txConfirmations", type: "number",  default: 1,                 tip: "Number of block confirmations to wait after the mint transaction" },
 ];
 
 function SubnameMintSection() {
+  const { openConnectModal } = useConnectModal();
   const [values, setValues] = useState<Record<string, any>>(() =>
     Object.fromEntries(MINT_DEFS.map((d) => [d.key, d.default])),
   );
+  const [mountKey, setMountKey] = useState(0);
   const onChange = (key: string, val: any) =>
     setValues((prev) => ({ ...prev, [key]: val }));
   const code = generateCode("SubnameMintForm", MINT_DEFS, values);
@@ -443,10 +626,12 @@ function SubnameMintSection() {
       <div className="component-grid">
         <DemoPanel>
           <SubnameMintForm
-            key={`${values.parentName}-${values.isTestnet}`}
-            parentName={values.parentName}
+            key={`${values.isTestnet}-${mountKey}`}
+            parentName="filepay.eth"
             isTestnet={values.isTestnet}
             txConfirmations={values.txConfirmations || undefined}
+            onConnectWallet={openConnectModal}
+            onCancel={() => setMountKey((k) => k + 1)}
           />
         </DemoPanel>
         <div className="code-col">
@@ -474,6 +659,7 @@ export function App() {
         <div className="nav-links">
           <a className="nav-link" href="#ens-registration">Registration</a>
           <a className="nav-link" href="#ens-records">Records</a>
+          <a className="nav-link" href="#select-records">Select Records</a>
           <a className="nav-link" href="#offchain-subname">Offchain</a>
           <a className="nav-link" href="#subname-mint">Mint</a>
           <div className="nav-sep" />
@@ -504,6 +690,8 @@ export function App() {
         <EnsRegistrationSection />
         <div className="section-divider" />
         <EnsRecordsSection />
+        <div className="section-divider" />
+        <SelectRecordsSection />
         <div className="section-divider" />
         <OffchainSubnameSection />
         <div className="section-divider" />
