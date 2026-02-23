@@ -1,8 +1,13 @@
-import React, { useState } from "react";
-import { useAccount, usePublicClient } from "wagmi";
+import React, { useEffect, useRef, useState } from "react";
+import { useAccount, useDisconnect, usePublicClient } from "wagmi";
 import { namehash } from "viem/ens";
 import ninjaBanner from "./assets/ninja-banner.png";
-import { ConnectButton, useConnectModal } from "@rainbow-me/rainbowkit";
+import logoFull from "./assets/logo-full.png";
+import logoIcon from "./assets/logo-icon.png";
+import ensSvg from "./assets/ens.svg";
+import shurikenSvg from "./assets/shuriken.svg";
+import ninjaSvg from "./assets/ninja.svg";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 import {
   EnsNameRegistrationForm,
   EnsRecordsForm,
@@ -12,14 +17,11 @@ import {
 } from "@thenamespace/ens-components";
 import type { EnsRecords } from "@thenamespace/ens-components";
 import {
-  AtSign,
-  Pencil,
-  Zap,
-  Layers,
-  Code2,
-  Rocket,
   ChevronDown,
-  Database,
+  LogOut,
+  GitBranch,
+  Send,
+  Rocket,
 } from "lucide-react";
 import "./landing.css";
 
@@ -110,7 +112,7 @@ function PropsEditor({
                 <td className="prop-value-cell">
                   {def.readonly ? (
                     <span className="prop-readonly-val">
-                      {String(values[def.key] ?? "—")}
+                      {String(values[def.key] ?? "-")}
                     </span>
                   ) : def.type === "boolean" ? (
                     <button
@@ -194,24 +196,51 @@ function DemoPanel({ children }: { children: React.ReactNode }) {
   );
 }
 
-type LucideIcon = typeof AtSign;
+type LucideIcon = typeof ChevronDown;
+type SectionIcon = LucideIcon | string;
 
 function SectionHeader({
-  icon: Icon,
+  icon,
   name,
   title,
   desc,
 }: {
-  icon: LucideIcon;
+  icon: SectionIcon;
   name: string;
   title: string;
   desc: string;
 }) {
+  const isImg = typeof icon === "string";
+  const isShuriken = icon === shurikenSvg;
+  const Icon = isImg ? null : icon as LucideIcon;
+  const badgeRef = useRef<HTMLDivElement>(null);
+  const [spin, setSpin] = useState(false);
+
+  useEffect(() => {
+    if (!isShuriken) return;
+    const el = badgeRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setSpin(entry.isIntersecting);
+      },
+      { threshold: 0.5 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isShuriken]);
+
   return (
     <>
       <div className="section-icon-row">
-        <div className="section-icon-badge">
-          <Icon size={20} strokeWidth={2.2} />
+        <div
+          ref={badgeRef}
+          className={`section-icon-badge${isImg ? " section-icon-badge-img" : ""}`}
+        >
+          {isImg
+            ? <img src={icon as string} alt="" className={`section-icon-img${spin ? " section-icon-spin" : ""}`} />
+            : Icon && <Icon size={20} strokeWidth={2.2} />
+          }
         </div>
         <span className="section-icon-name">{name}</span>
       </div>
@@ -225,25 +254,54 @@ function SectionHeader({
 
 // ─── Quick Start ──────────────────────────────────────────────────────────────
 
+const WAGMI_SETUP_CODE = `import { WagmiProvider, createConfig, http } from "wagmi";
+import { mainnet, sepolia } from "wagmi/chains";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const config = createConfig({
+  chains: [mainnet, sepolia],
+  transports: {
+    [mainnet.id]: http(),
+    [sepolia.id]: http(),
+  },
+});
+
+const queryClient = new QueryClient();
+
+export function App() {
+  return (
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        {/* ENS components go here */}
+      </QueryClientProvider>
+    </WagmiProvider>
+  );
+}`;
+
 function QuickStartSection() {
+  const [activeStep, setActiveStep] = useState<"01" | "02">("01");
+
   const steps = [
     {
       num: "01",
       dark: true,
+      selectable: true,
       title: "Install the package",
-      desc: "Add to your project with npm, pnpm, or yarn alongside wagmi and rainbowkit.",
+      desc: "Add the library alongside its peer dependencies: wagmi and viem.",
     },
     {
       num: "02",
       dark: false,
-      title: "Import & render",
-      desc: "Drop a component into your app — no extra config, no boilerplate.",
+      selectable: true,
+      title: "Wrap with WagmiProvider",
+      desc: "Configure wagmi once at your app root. All ENS components share the same wallet connection automatically.",
     },
     {
       num: "03",
       dark: false,
-      title: "Connect & ship",
-      desc: "Users connect their wallet and interact onchain immediately.",
+      selectable: false,
+      title: "Import and go live",
+      desc: "Drop in any component with a few props. Your users can register ENS names, update records, and mint subnames onchain. No extra setup required.",
     },
   ];
 
@@ -257,7 +315,15 @@ function QuickStartSection() {
       </div>
       <div className="steps-grid">
         {steps.map((s) => (
-          <div key={s.num} className="step-card">
+          <div
+            key={s.num}
+            className={[
+              "step-card",
+              s.selectable ? "step-card-selectable" : "",
+              s.selectable && activeStep === s.num ? "step-card-active" : "",
+            ].filter(Boolean).join(" ")}
+            onClick={s.selectable ? () => setActiveStep(s.num as "01" | "02") : undefined}
+          >
             <div className={`step-num ${s.dark ? "step-num-dark" : "step-num-light"}`}>
               {s.num}
             </div>
@@ -266,9 +332,15 @@ function QuickStartSection() {
           </div>
         ))}
       </div>
-      <div className="install-block">
-        <span className="install-prompt">$</span>
-        <code>npm install @thenamespace/ens-components wagmi viem @tanstack/react-query</code>
+      <div className="qs-code-blocks">
+        {activeStep === "01" ? (
+          <div className="install-block">
+            <span className="install-prompt">$</span>
+            <code>npm install @thenamespace/ens-components wagmi viem @tanstack/react-query</code>
+          </div>
+        ) : (
+          <CodePanel title="providers.tsx" code={WAGMI_SETUP_CODE} />
+        )}
       </div>
     </section>
   );
@@ -299,10 +371,10 @@ function EnsRegistrationSection() {
   return (
     <section className="section" id="ens-registration">
       <SectionHeader
-        icon={AtSign}
+        icon={ensSvg}
         name="ENS Registration"
         title="Register ENS Names"
-        desc="Drop-in form that guides users through searching, selecting, and registering .eth names — including the full commit/register flow."
+        desc="Drop-in form that guides users through searching, selecting, and registering .eth names. Includes the full commit/register flow."
       />
       <div className="component-grid">
         <div className="code-col">
@@ -369,8 +441,8 @@ const ENS_RECORDS_DEFS: PropDef[] = [
   { key: "isTestnet",       type: "boolean", default: false,                   tip: "Use Sepolia testnet instead of Ethereum mainnet" },
   { key: "noBorder",        type: "boolean", default: false,                   tip: "Remove the card border and shadow wrapper" },
   { key: "txConfirmations", type: "number",  default: 1,                       tip: "Number of block confirmations to wait after a transaction" },
-  { key: "resolverAddress", type: "string",  default: "",  readonly: true,     tip: "Optional — auto-detected from the ENS registry if not provided" },
-  { key: "resolverChainId", type: "number",  default: 1,   readonly: true,     tip: "Optional — inferred from isTestnet if not provided" },
+  { key: "resolverAddress", type: "string",  default: "",  readonly: true,     tip: "Optional. Auto-detected from the ENS registry if not provided" },
+  { key: "resolverChainId", type: "number",  default: 1,   readonly: true,     tip: "Optional. Inferred from isTestnet if not provided" },
 ];
 
 function EnsRecordsSection() {
@@ -456,7 +528,7 @@ function EnsRecordsSection() {
   return (
     <section className="section" id="ens-records">
       <SectionHeader
-        icon={Pencil}
+        icon={shurikenSvg}
         name="ENS Records"
         title="Edit Profile Records"
         desc="Full-featured editor for text records, addresses, contenthash, and avatar uploads. Reads existing records and writes them back via a resolver transaction."
@@ -533,10 +605,10 @@ function SelectRecordsSection() {
   return (
     <section className="section" id="select-records">
       <SectionHeader
-        icon={Database}
+        icon={shurikenSvg}
         name="Record Selector"
         title="Select ENS Records"
-        desc="Standalone record editor — no wallet or transaction required. Let users compose text records, addresses, and contenthash before submitting them to any form."
+        desc="Standalone record editor. No wallet or transaction required. Let users compose text records, addresses, and contenthash before submitting them to any form."
       />
       <div className="component-grid">
         <div className="code-col">
@@ -572,10 +644,10 @@ function OffchainSubnameSection() {
   return (
     <section className="section" id="offchain-subname">
       <SectionHeader
-        icon={Zap}
+        icon={shurikenSvg}
         name="Offchain Subnames"
         title="Create Offchain Subnames"
-        desc="Let users claim subnames instantly via the Namespace API — no gas, no on-chain transaction. Just a parent ENS name and an API key."
+        desc="Let users claim subnames instantly via the Namespace API. No gas, no on-chain transaction. Just a parent ENS name and an API key."
       />
       <div className="component-grid">
         <div className="code-col">
@@ -618,10 +690,10 @@ function SubnameMintSection() {
   return (
     <section className="section" id="subname-mint">
       <SectionHeader
-        icon={Layers}
+        icon={shurikenSvg}
         name="Onchain Subnames"
         title="Mint Onchain Subnames"
-        desc="Full minting flow for onchain subnames — price lookup, profile records, and the mint transaction. Works with any ENS name using the Namespace L2 resolver."
+        desc="Full minting flow for onchain subnames: price lookup, profile records, and the mint transaction. Works with any ENS name using the Namespace L2 resolver."
       />
       <div className="component-grid">
         <DemoPanel>
@@ -643,6 +715,129 @@ function SubnameMintSection() {
   );
 }
 
+// ─── Report a Bug ─────────────────────────────────────────────────────────────
+
+function ReportBugSection() {
+  return (
+    <section className="section" id="report-bug">
+      <SectionHeader
+        icon={ninjaSvg}
+        name="Community"
+        title="Get Help & Report Issues"
+        desc="Found a bug or need support? Reach out in the Namespace Builders Telegram group or open an issue on GitHub."
+      />
+      <div className="community-grid">
+        <a
+          className="community-card"
+          href="https://t.me/+u2X1_QbR-CVmMGIy"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <div className="community-card-icon community-card-icon-tg">
+            <Send size={22} strokeWidth={2} />
+          </div>
+          <div className="community-card-body">
+            <h3 className="community-card-title">Namespace Builders</h3>
+            <p className="community-card-desc">Join our Telegram group for questions, feedback, and release announcements.</p>
+          </div>
+        </a>
+        <a
+          className="community-card"
+          href="https://github.com/thenamespace/uikit"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <div className="community-card-icon community-card-icon-gh">
+            <GitBranch size={22} strokeWidth={2} />
+          </div>
+          <div className="community-card-body">
+            <h3 className="community-card-title">GitHub Repository</h3>
+            <p className="community-card-desc">Browse source code, open issues, and contribute to the project.</p>
+          </div>
+        </a>
+      </div>
+    </section>
+  );
+}
+
+// ─── Nav components ───────────────────────────────────────────────────────────
+
+const COMPONENT_LINKS = [
+  { label: "ENS Registration",  href: "#ens-registration" },
+  { label: "ENS Records",       href: "#ens-records" },
+  { label: "Select Records",    href: "#select-records" },
+  { label: "Offchain Subnames", href: "#offchain-subname" },
+  { label: "Onchain Subnames",  href: "#subname-mint" },
+];
+
+function ComponentsDropdown() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="nav-dropdown">
+      <button
+        className={`nav-link nav-dropdown-trigger${open ? " active" : ""}`}
+        onClick={() => setOpen((o) => !o)}
+      >
+        Components
+        <ChevronDown size={12} className={`nav-dropdown-chevron${open ? " open" : ""}`} />
+      </button>
+      {open && (
+        <div className="nav-dropdown-menu">
+          {COMPONENT_LINKS.map((item) => (
+            <a
+              key={item.href}
+              className="nav-dropdown-item"
+              href={item.href}
+              onClick={() => setOpen(false)}
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NavWalletButton() {
+  const { address, isConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
+  const { disconnect } = useDisconnect();
+
+  if (isConnected && address) {
+    const short = `${address.slice(0, 6)}...${address.slice(-4)}`;
+    return (
+      <div className="nav-wallet-connected">
+        <span className="nav-wallet-addr">{short}</span>
+        <button
+          className="nav-wallet-disconnect"
+          onClick={() => disconnect()}
+          title="Disconnect"
+        >
+          <LogOut size={14} />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button className="nav-wallet-btn" onClick={openConnectModal}>
+      Connect Wallet
+    </button>
+  );
+}
+
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export function App() {
@@ -651,23 +846,19 @@ export function App() {
       {/* NAV */}
       <nav className="nav">
         <a className="nav-logo" href="#">
-          <div className="nav-logo-dot">
-            <Code2 size={15} color="white" strokeWidth={2.5} />
-          </div>
-          ENS Components
+          <img src={logoFull} alt="Namespace" className="nav-logo-full" />
+          <img src={logoIcon} alt="Namespace" className="nav-logo-icon" />
         </a>
         <div className="nav-links">
-          <a className="nav-link" href="#ens-registration">Registration</a>
-          <a className="nav-link" href="#ens-records">Records</a>
-          <a className="nav-link" href="#select-records">Select Records</a>
-          <a className="nav-link" href="#offchain-subname">Offchain</a>
-          <a className="nav-link" href="#subname-mint">Mint</a>
+          <a className="nav-link" href="#quickstart">Quick Start</a>
+          <ComponentsDropdown />
+          <a className="nav-link" href="#report-bug">Report a bug</a>
           <div className="nav-sep" />
-          <ConnectButton />
+          <NavWalletButton />
         </div>
       </nav>
 
-      {/* HERO + SECTIONS — single grid-wrapper for connected border */}
+      {/* HERO + SECTIONS */}
       <div className="grid-wrapper">
         <div className="hero">
           <div className="hero-text">
@@ -676,7 +867,7 @@ export function App() {
               for <em>any</em> React app
             </h1>
             <p className="hero-subtitle">
-              Production-ready components for ENS name registration, record editing,
+              Components for ENS name registration, record editing,
               and subname issuance. Drop them in, connect a wallet, ship.
             </p>
           </div>
@@ -697,14 +888,21 @@ export function App() {
         <div className="section-divider" />
         <SubnameMintSection />
         <div className="section-divider" />
+        <ReportBugSection />
+        <div className="section-divider" />
       </div>
 
       {/* FOOTER */}
       <footer className="footer">
-        Built by{" "}
-        <a href="https://namespace.ninja" target="_blank" rel="noreferrer">Namespace</a>
-        {" · "}
-        <a href="https://github.com/thenamespace/ui-components" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="https://namespace.ninja" target="_blank" rel="noreferrer" className="footer-logo-link">
+          <img src={logoFull} alt="Namespace" className="footer-logo" />
+        </a>
+        <div className="footer-links">
+          Built by{" "}
+          <a href="https://namespace.ninja" target="_blank" rel="noreferrer">Namespace</a>
+          {" · "}
+          <a href="https://github.com/thenamespace/ui-components" target="_blank" rel="noreferrer">GitHub</a>
+        </div>
       </footer>
     </>
   );
