@@ -1,28 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useAccount, useDisconnect, usePublicClient } from "wagmi";
+import { namehash } from "viem/ens";
 import ninjaBanner from "./assets/ninja-banner.png";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import logoFull from "./assets/logo-full.png";
+import logoIcon from "./assets/logo-icon.png";
+import ensSvg from "./assets/ens.svg";
+import shurikenSvg from "./assets/shuriken.svg";
+import ninjaSvg from "./assets/ninja.svg";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 import {
   EnsNameRegistrationForm,
   EnsRecordsForm,
   OffchainSubnameForm,
+  SelectRecordsForm,
   SubnameMintForm,
 } from "@thenamespace/ens-components";
+import type { EnsRecords } from "@thenamespace/ens-components";
 import {
-  AtSign,
-  Pencil,
-  Zap,
-  Layers,
-  Code2,
-  Rocket,
   ChevronDown,
+  LogOut,
+  GitBranch,
+  Send,
+  Rocket,
 } from "lucide-react";
 import "./landing.css";
 
 // ─── Prop editor types ────────────────────────────────────────────────────────
 
-type BoolProp = { key: string; type: "boolean"; default: boolean; tip?: string; required?: boolean };
-type StrProp  = { key: string; type: "string";  default: string;  tip?: string; placeholder?: string; required?: boolean };
-type NumProp  = { key: string; type: "number";  default: number;  tip?: string; required?: boolean };
+type BoolProp = { key: string; type: "boolean"; default: boolean; tip?: string; required?: boolean; readonly?: boolean };
+type StrProp  = { key: string; type: "string";  default: string;  tip?: string; placeholder?: string; required?: boolean; readonly?: boolean };
+type NumProp  = { key: string; type: "number";  default: number;  tip?: string; required?: boolean; readonly?: boolean };
 type PropDef  = BoolProp | StrProp | NumProp;
 
 // ─── Dynamic code generation ──────────────────────────────────────────────────
@@ -35,6 +42,7 @@ function generateCode(
 ): string {
   const propLines: string[] = [];
   for (const def of defs) {
+    if (def.readonly) continue;
     const val = values[def.key];
     if (def.type === "boolean") {
       propLines.push(`  ${def.key}={${val}}`);
@@ -102,7 +110,11 @@ function PropsEditor({
                   <span className={`prop-type-badge type-${def.type}`}>{def.type}</span>
                 </td>
                 <td className="prop-value-cell">
-                  {def.type === "boolean" ? (
+                  {def.readonly ? (
+                    <span className="prop-readonly-val">
+                      {String(values[def.key] ?? "-")}
+                    </span>
+                  ) : def.type === "boolean" ? (
                     <button
                       className={`prop-toggle ${values[def.key] ? "on" : "off"}`}
                       onClick={() => onChange(def.key, !values[def.key])}
@@ -184,24 +196,51 @@ function DemoPanel({ children }: { children: React.ReactNode }) {
   );
 }
 
-type LucideIcon = typeof AtSign;
+type LucideIcon = typeof ChevronDown;
+type SectionIcon = LucideIcon | string;
 
 function SectionHeader({
-  icon: Icon,
+  icon,
   name,
   title,
   desc,
 }: {
-  icon: LucideIcon;
+  icon: SectionIcon;
   name: string;
   title: string;
   desc: string;
 }) {
+  const isImg = typeof icon === "string";
+  const isShuriken = icon === shurikenSvg;
+  const Icon = isImg ? null : icon as LucideIcon;
+  const badgeRef = useRef<HTMLDivElement>(null);
+  const [spin, setSpin] = useState(false);
+
+  useEffect(() => {
+    if (!isShuriken) return;
+    const el = badgeRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setSpin(entry.isIntersecting);
+      },
+      { threshold: 0.5 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isShuriken]);
+
   return (
     <>
       <div className="section-icon-row">
-        <div className="section-icon-badge">
-          <Icon size={20} strokeWidth={2.2} />
+        <div
+          ref={badgeRef}
+          className={`section-icon-badge${isImg ? " section-icon-badge-img" : ""}`}
+        >
+          {isImg
+            ? <img src={icon as string} alt="" className={`section-icon-img${spin ? " section-icon-spin" : ""}`} />
+            : Icon && <Icon size={20} strokeWidth={2.2} />
+          }
         </div>
         <span className="section-icon-name">{name}</span>
       </div>
@@ -215,25 +254,55 @@ function SectionHeader({
 
 // ─── Quick Start ──────────────────────────────────────────────────────────────
 
+const WAGMI_SETUP_CODE = `import "@thenamespace/ens-components/styles";
+import { WagmiProvider, createConfig, http } from "wagmi";
+import { mainnet, sepolia } from "wagmi/chains";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const config = createConfig({
+  chains: [mainnet, sepolia],
+  transports: {
+    [mainnet.id]: http(),
+    [sepolia.id]: http(),
+  },
+});
+
+const queryClient = new QueryClient();
+
+export function App() {
+  return (
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        {/* ENS components go here */}
+      </QueryClientProvider>
+    </WagmiProvider>
+  );
+}`;
+
 function QuickStartSection() {
+  const [activeStep, setActiveStep] = useState<"01" | "02">("01");
+
   const steps = [
     {
       num: "01",
       dark: true,
+      selectable: true,
       title: "Install the package",
-      desc: "Add to your project with npm, pnpm, or yarn alongside wagmi and rainbowkit.",
+      desc: "Add the library alongside its peer dependencies: wagmi and viem.",
     },
     {
       num: "02",
       dark: false,
-      title: "Import & render",
-      desc: "Drop a component into your app — no extra config, no boilerplate.",
+      selectable: true,
+      title: "Wrap with WagmiProvider",
+      desc: "Configure wagmi once at your app root and add styles.",
     },
     {
       num: "03",
       dark: false,
-      title: "Connect & ship",
-      desc: "Users connect their wallet and interact onchain immediately.",
+      selectable: false,
+      title: "Import and go live",
+      desc: "Drop in any component with a few props.",
     },
   ];
 
@@ -247,7 +316,15 @@ function QuickStartSection() {
       </div>
       <div className="steps-grid">
         {steps.map((s) => (
-          <div key={s.num} className="step-card">
+          <div
+            key={s.num}
+            className={[
+              "step-card",
+              s.selectable ? "step-card-selectable" : "",
+              s.selectable && activeStep === s.num ? "step-card-active" : "",
+            ].filter(Boolean).join(" ")}
+            onClick={s.selectable ? () => setActiveStep(s.num as "01" | "02") : undefined}
+          >
             <div className={`step-num ${s.dark ? "step-num-dark" : "step-num-light"}`}>
               {s.num}
             </div>
@@ -256,9 +333,15 @@ function QuickStartSection() {
           </div>
         ))}
       </div>
-      <div className="install-block">
-        <span className="install-prompt">$</span>
-        <code>npm install @thenamespace/ens-components wagmi viem @tanstack/react-query</code>
+      <div className="qs-code-blocks">
+        {activeStep === "01" ? (
+          <div className="install-block">
+            <span className="install-prompt">$</span>
+            <code>npm install @thenamespace/ens-components wagmi viem @tanstack/react-query</code>
+          </div>
+        ) : (
+          <CodePanel title="providers.tsx" code={WAGMI_SETUP_CODE} />
+        )}
       </div>
     </section>
   );
@@ -278,6 +361,7 @@ const ENS_REG_DEFS: PropDef[] = [
 ];
 
 function EnsRegistrationSection() {
+  const { openConnectModal } = useConnectModal();
   const [values, setValues] = useState<Record<string, any>>(() =>
     Object.fromEntries(ENS_REG_DEFS.map((d) => [d.key, d.default])),
   );
@@ -288,10 +372,10 @@ function EnsRegistrationSection() {
   return (
     <section className="section" id="ens-registration">
       <SectionHeader
-        icon={AtSign}
+        icon={ensSvg}
         name="ENS Registration"
         title="Register ENS Names"
-        desc="Drop-in form that guides users through searching, selecting, and registering .eth names — including the full commit/register flow."
+        desc="Drop-in form that guides users through searching, selecting, and registering .eth names. Includes the full commit/register flow."
       />
       <div className="component-grid">
         <div className="code-col">
@@ -309,6 +393,7 @@ function EnsRegistrationSection() {
             bannerImage={values.bannerImage || undefined}
             hideBanner={values.hideBanner}
             bannerWidth={values.bannerWidth || undefined}
+            onConnectWallet={openConnectModal}
           />
         </DemoPanel>
       </div>
@@ -318,50 +403,221 @@ function EnsRegistrationSection() {
 
 // ─── ENS Records ──────────────────────────────────────────────────────────────
 
+const RESOLVIO = "https://resolvio.namespace.ninja";
+
+async function fetchEnsProfile(name: string) {
+  const res = await fetch(`${RESOLVIO}/ens/v1/profile/${encodeURIComponent(name)}`);
+  if (!res.ok) throw new Error("ENS name not found or has no records");
+  const data = await res.json();
+  return {
+    addresses: (data.addresses || []).map((a: any) => ({
+      coinType: a.coin,
+      value: a.address,
+    })),
+    texts: (data.texts || []).map((t: any) => ({
+      key: t.key,
+      value: t.value,
+    })),
+  };
+}
+
+const ENS_REGISTRY = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e" as const;
+const NAME_WRAPPER  = "0xD4416b13d2b3a9aBae7AcD5D6C2BbDBE25686401" as const;
+
+const REGISTRY_ABI = [{
+  name: "owner", type: "function", stateMutability: "view",
+  inputs: [{ name: "node", type: "bytes32" }],
+  outputs: [{ name: "", type: "address" }],
+}] as const;
+
+const WRAPPER_ABI = [{
+  name: "ownerOf", type: "function", stateMutability: "view",
+  inputs: [{ name: "id", type: "uint256" }],
+  outputs: [{ name: "", type: "address" }],
+}] as const;
+
 const ENS_RECORDS_DEFS: PropDef[] = [
-  { key: "isTestnet",       type: "boolean", default: false,                                      tip: "Use Sepolia testnet instead of Ethereum mainnet" },
-  { key: "resolverAddress", type: "string",  default: "0x231b0Ee14048e9dCcD1d247744d114a4Eb5E8E63", tip: "ENS Public Resolver contract address on-chain", placeholder: "0x…" },
-  { key: "resolverChainId", type: "number",  default: 1,                                          tip: "Chain ID where the resolver contract is deployed" },
-  { key: "noBorder",        type: "boolean", default: false,                                      tip: "Remove the card border and shadow wrapper" },
-  { key: "txConfirmations", type: "number",  default: 1,                                          tip: "Number of block confirmations to wait after a transaction" },
+  { key: "name",            type: "string",  default: "yourname.eth",         required: true, readonly: true, tip: "Full ENS name whose records will be edited" },
+  { key: "existingRecords", type: "string",  default: "Existing name records", required: true, readonly: true, tip: "Current on-chain records pre-loaded from the ENS resolver" },
+  { key: "isTestnet",       type: "boolean", default: false,                   tip: "Use Sepolia testnet instead of Ethereum mainnet" },
+  { key: "noBorder",        type: "boolean", default: false,                   tip: "Remove the card border and shadow wrapper" },
+  { key: "txConfirmations", type: "number",  default: 1,                       tip: "Number of block confirmations to wait after a transaction" },
+  { key: "resolverAddress", type: "string",  default: "",  readonly: true,     tip: "Optional. Auto-detected from the ENS registry if not provided" },
+  { key: "resolverChainId", type: "number",  default: 1,   readonly: true,     tip: "Optional. Inferred from isTestnet if not provided" },
 ];
 
 function EnsRecordsSection() {
+  const { isConnected, address } = useAccount();
+  const { openConnectModal } = useConnectModal();
+  const pc = usePublicClient({ chainId: 1 });
   const [values, setValues] = useState<Record<string, any>>(() =>
     Object.fromEntries(ENS_RECORDS_DEFS.map((d) => [d.key, d.default])),
   );
+  const [ensName, setEnsName] = useState("");
+  const [submittedName, setSubmittedName] = useState("");
+  const [existingRecords, setExistingRecords] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [lookupError, setLookupError] = useState("");
+
   const onChange = (key: string, val: any) =>
     setValues((prev) => ({ ...prev, [key]: val }));
-  const code = generateCode("EnsRecordsForm", ENS_RECORDS_DEFS, values, [
-    'name="yourname.eth"',
-    'existingRecords={{ addresses: [], texts: [] }}',
+
+  const displayValues = {
+    ...values,
+    name: submittedName || "yourname.eth",
+    existingRecords: submittedName ? "{ addresses: [...], texts: [...] }" : "(fetched via Resolvio)",
+    resolverAddress: "",
+    resolverChainId: 0,
+  };
+
+  const lookupOwner = async (name: string): Promise<string> => {
+    const node = namehash(name);
+    const registryOwner = await pc!.readContract({
+      address: ENS_REGISTRY,
+      abi: REGISTRY_ABI,
+      functionName: "owner",
+      args: [node],
+    });
+    if (registryOwner.toLowerCase() === NAME_WRAPPER.toLowerCase()) {
+      const tokenId = BigInt(node);
+      const wrapperOwner = await pc!.readContract({
+        address: NAME_WRAPPER,
+        abi: WRAPPER_ABI,
+        functionName: "ownerOf",
+        args: [tokenId],
+      });
+      return (wrapperOwner as string).toLowerCase();
+    }
+    return (registryOwner as string).toLowerCase();
+  };
+
+  const handleLookup = async () => {
+    const name = ensName.trim();
+    if (!name) return;
+    setLoading(true);
+    setLookupError("");
+    try {
+      const owner = await lookupOwner(name);
+      if (owner !== address?.toLowerCase()) {
+        setLookupError("You are not permitted to edit records, try adding a name you own");
+        return;
+      }
+      const records = await fetchEnsProfile(name);
+      setExistingRecords(records);
+      setSubmittedName(name);
+    } catch (err: any) {
+      if (!lookupError) {
+        setLookupError(err.message || "Failed to fetch records");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    setSubmittedName("");
+    setExistingRecords(null);
+    setEnsName("");
+    setLookupError("");
+  };
+
+  const code = generateCode("EnsRecordsForm", ENS_RECORDS_DEFS, displayValues, [
+    `name="${submittedName || "yourname.eth"}"`,
+    "existingRecords={existingRecords}",
   ]);
 
   return (
     <section className="section" id="ens-records">
       <SectionHeader
-        icon={Pencil}
+        icon={shurikenSvg}
         name="ENS Records"
         title="Edit Profile Records"
         desc="Full-featured editor for text records, addresses, contenthash, and avatar uploads. Reads existing records and writes them back via a resolver transaction."
       />
       <div className="component-grid">
         <DemoPanel>
-          <EnsRecordsForm
-            key={`${values.isTestnet}-${values.resolverAddress}`}
-            name="yourname.eth"
-            isTestnet={values.isTestnet}
-            resolverAddress={values.resolverAddress || undefined}
-            resolverChainId={values.resolverChainId || undefined}
-            noBorder={values.noBorder}
-            txConfirmations={values.txConfirmations || undefined}
-            existingRecords={{ addresses: [], texts: [] }}
-          />
+          {!submittedName ? (
+            <div className="ens-lookup-wrap">
+              <p className="ens-lookup-title">Enter your ENS name</p>
+              <p className="ens-lookup-sub">Load your current records to edit them</p>
+              <input
+                className="ens-lookup-input"
+                type="text"
+                value={ensName}
+                placeholder="yourname.eth"
+                onChange={(e) => setEnsName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && isConnected && !loading && handleLookup()}
+              />
+              {lookupError && <p className="ens-lookup-error">{lookupError}</p>}
+              {!isConnected ? (
+                <button className="ens-lookup-btn" onClick={openConnectModal}>
+                  Connect Wallet
+                </button>
+              ) : (
+                <button
+                  className="ens-lookup-btn"
+                  onClick={handleLookup}
+                  disabled={!ensName.trim() || loading}
+                >
+                  {loading ? "Loading…" : "Update Records"}
+                </button>
+              )}
+            </div>
+          ) : (
+            <div style={{ position: "relative" }}>
+              <EnsRecordsForm
+                key={`${submittedName}-${values.isTestnet}-${values.resolverAddress}`}
+                name={submittedName}
+                isTestnet={values.isTestnet}
+                resolverAddress={values.resolverAddress || undefined}
+                resolverChainId={values.resolverChainId || undefined}
+                noBorder={values.noBorder}
+                txConfirmations={values.txConfirmations || undefined}
+                existingRecords={existingRecords}
+                onCancel={handleReset}
+              />
+            </div>
+          )}
         </DemoPanel>
         <div className="code-col">
           <CodePanel title="EnsRecordsForm.tsx" code={code} />
           <PropsEditor defs={ENS_RECORDS_DEFS} values={values} onChange={onChange} />
         </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Select Records ───────────────────────────────────────────────────────────
+
+const SELECT_RECORDS_CODE = `import { SelectRecordsForm } from "@thenamespace/ens-components";
+import { useState } from "react";
+
+const [records, setRecords] = useState({ addresses: [], texts: [] });
+
+<SelectRecordsForm
+  records={records}
+  onRecordsUpdated={setRecords}
+/>`;
+
+function SelectRecordsSection() {
+  const [records, setRecords] = useState<EnsRecords>({ addresses: [], texts: [] });
+
+  return (
+    <section className="section" id="select-records">
+      <SectionHeader
+        icon={shurikenSvg}
+        name="Record Selector"
+        title="Select ENS Records"
+        desc="Standalone record editor. No wallet or transaction required. Let users compose text records, addresses, and contenthash before submitting them to any form."
+      />
+      <div className="component-grid">
+        <div className="code-col">
+          <CodePanel title="SelectRecordsForm.tsx" code={SELECT_RECORDS_CODE} />
+        </div>
+        <DemoPanel>
+          <SelectRecordsForm records={records} onRecordsUpdated={setRecords} />
+        </DemoPanel>
       </div>
     </section>
   );
@@ -389,10 +645,10 @@ function OffchainSubnameSection() {
   return (
     <section className="section" id="offchain-subname">
       <SectionHeader
-        icon={Zap}
+        icon={shurikenSvg}
         name="Offchain Subnames"
         title="Create Offchain Subnames"
-        desc="Let users claim subnames instantly via the Namespace API — no gas, no on-chain transaction. Just a parent ENS name and an API key."
+        desc="Let users claim subnames instantly via the Namespace API. No gas, no on-chain transaction. Just a parent ENS name and an API key."
       />
       <div className="component-grid">
         <div className="code-col">
@@ -417,15 +673,17 @@ function OffchainSubnameSection() {
 // ─── Onchain Subnames ─────────────────────────────────────────────────────────
 
 const MINT_DEFS: PropDef[] = [
-  { key: "parentName",      type: "string",  default: "nerdynation.eth", tip: "The ENS name users will mint subnames under", placeholder: "yourname.eth", required: true },
+  { key: "parentName",      type: "string",  default: "filepay.eth", tip: "The ENS name users will mint subnames under", placeholder: "yourname.eth", required: true, readonly: true },
   { key: "isTestnet",       type: "boolean", default: false,             tip: "Use Sepolia testnet instead of Ethereum mainnet" },
   { key: "txConfirmations", type: "number",  default: 1,                 tip: "Number of block confirmations to wait after the mint transaction" },
 ];
 
 function SubnameMintSection() {
+  const { openConnectModal } = useConnectModal();
   const [values, setValues] = useState<Record<string, any>>(() =>
     Object.fromEntries(MINT_DEFS.map((d) => [d.key, d.default])),
   );
+  const [mountKey, setMountKey] = useState(0);
   const onChange = (key: string, val: any) =>
     setValues((prev) => ({ ...prev, [key]: val }));
   const code = generateCode("SubnameMintForm", MINT_DEFS, values);
@@ -433,18 +691,20 @@ function SubnameMintSection() {
   return (
     <section className="section" id="subname-mint">
       <SectionHeader
-        icon={Layers}
+        icon={shurikenSvg}
         name="Onchain Subnames"
         title="Mint Onchain Subnames"
-        desc="Full minting flow for onchain subnames — price lookup, profile records, and the mint transaction. Works with any ENS name using the Namespace L2 resolver."
+        desc="Full minting flow for onchain subnames: price lookup, profile records, and the mint transaction. Works with any ENS name using the Namespace L2 resolver."
       />
       <div className="component-grid">
         <DemoPanel>
           <SubnameMintForm
-            key={`${values.parentName}-${values.isTestnet}`}
-            parentName={values.parentName}
+            key={`${values.isTestnet}-${mountKey}`}
+            parentName="filepay.eth"
             isTestnet={values.isTestnet}
             txConfirmations={values.txConfirmations || undefined}
+            onConnectWallet={openConnectModal}
+            onCancel={() => setMountKey((k) => k + 1)}
           />
         </DemoPanel>
         <div className="code-col">
@@ -456,6 +716,130 @@ function SubnameMintSection() {
   );
 }
 
+// ─── Report a Bug ─────────────────────────────────────────────────────────────
+
+function ReportBugSection() {
+  return (
+    <section className="section" id="report-bug">
+      <SectionHeader
+        icon={ninjaSvg}
+        name="Community"
+        title="Get Help & Report Issues"
+        desc="Found a bug or need support? Reach out in the Namespace Builders Telegram group or open an issue on GitHub."
+      />
+      <div className="community-grid">
+        <a
+          className="community-card"
+          href="https://t.me/+u2X1_QbR-CVmMGIy"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <div className="community-card-icon community-card-icon-tg">
+            <Send size={22} strokeWidth={2} />
+          </div>
+          <div className="community-card-body">
+            <h3 className="community-card-title">Namespace Builders</h3>
+            <p className="community-card-desc">Join our Telegram group for questions, feedback, and release announcements.</p>
+          </div>
+        </a>
+        <a
+          className="community-card"
+          href="https://github.com/thenamespace/uikit"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <div className="community-card-icon community-card-icon-gh">
+            <GitBranch size={22} strokeWidth={2} />
+          </div>
+          <div className="community-card-body">
+            <h3 className="community-card-title">GitHub Repository</h3>
+            <p className="community-card-desc">Browse source code, open issues, and contribute to the project.</p>
+          </div>
+        </a>
+      </div>
+    </section>
+  );
+}
+
+// ─── Nav components ───────────────────────────────────────────────────────────
+
+const COMPONENT_LINKS = [
+  { label: "ENS Registration",  href: "#ens-registration" },
+  { label: "ENS Records",       href: "#ens-records" },
+  { label: "Select Records",    href: "#select-records" },
+  { label: "Offchain Subnames", href: "#offchain-subname" },
+  { label: "Onchain Subnames",  href: "#subname-mint" },
+];
+
+function ComponentsDropdown() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="nav-dropdown">
+      <button
+        className={`nav-link nav-dropdown-trigger${open ? " active" : ""}`}
+        onClick={() => setOpen((o) => !o)}
+      >
+        Components
+        <ChevronDown size={12} className={`nav-dropdown-chevron${open ? " open" : ""}`} />
+      </button>
+      {open && (
+        <div className="nav-dropdown-menu">
+          {COMPONENT_LINKS.map((item) => (
+            <a
+              key={item.href}
+              className="nav-dropdown-item"
+              href={item.href}
+              onClick={() => setOpen(false)}
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NavWalletButton() {
+  const { address, isConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
+  const { disconnect } = useDisconnect();
+
+  if (isConnected && address) {
+    const short = `${address.slice(0, 6)}...${address.slice(-4)}`;
+    return (
+      <div className="nav-wallet-connected">
+        <span className="nav-wallet-addr">{short}</span>
+        <button
+          className="nav-wallet-disconnect"
+          onClick={() => disconnect()}
+          title="Disconnect"
+        >
+          <LogOut size={14} />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button className="nav-wallet-btn" onClick={openConnectModal}>
+      Connect Wallet
+    </button>
+  );
+}
+
+
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export function App() {
@@ -464,22 +848,22 @@ export function App() {
       {/* NAV */}
       <nav className="nav">
         <a className="nav-logo" href="#">
-          <div className="nav-logo-dot">
-            <Code2 size={15} color="white" strokeWidth={2.5} />
-          </div>
-          ENS Components
+          <span className="nav-logo-stack">
+            <img src={logoFull} alt="Namespace" className="nav-logo-full" />
+            <span className="nav-logo-sub">ENS Components</span>
+          </span>
+          <img src={logoIcon} alt="Namespace" className="nav-logo-icon" />
         </a>
         <div className="nav-links">
-          <a className="nav-link" href="#ens-registration">Registration</a>
-          <a className="nav-link" href="#ens-records">Records</a>
-          <a className="nav-link" href="#offchain-subname">Offchain</a>
-          <a className="nav-link" href="#subname-mint">Mint</a>
+          <a className="nav-link" href="#quickstart">Quick Start</a>
+          <ComponentsDropdown />
+          <a className="nav-link" href="#report-bug">Report a bug</a>
           <div className="nav-sep" />
-          <ConnectButton />
+          <NavWalletButton />
         </div>
       </nav>
 
-      {/* HERO + SECTIONS — single grid-wrapper for connected border */}
+      {/* HERO + SECTIONS */}
       <div className="grid-wrapper">
         <div className="hero">
           <div className="hero-text">
@@ -488,7 +872,7 @@ export function App() {
               for <em>any</em> React app
             </h1>
             <p className="hero-subtitle">
-              Production-ready components for ENS name registration, record editing,
+              Components for ENS name registration, record editing,
               and subname issuance. Drop them in, connect a wallet, ship.
             </p>
           </div>
@@ -503,18 +887,30 @@ export function App() {
         <div className="section-divider" />
         <EnsRecordsSection />
         <div className="section-divider" />
+        <SelectRecordsSection />
+        <div className="section-divider" />
         <OffchainSubnameSection />
         <div className="section-divider" />
         <SubnameMintSection />
+        <div className="section-divider" />
+        <ReportBugSection />
         <div className="section-divider" />
       </div>
 
       {/* FOOTER */}
       <footer className="footer">
-        Built by{" "}
-        <a href="https://namespace.ninja" target="_blank" rel="noreferrer">Namespace</a>
-        {" · "}
-        <a href="https://github.com/thenamespace/ui-components" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="https://namespace.ninja" target="_blank" rel="noreferrer" className="footer-logo-link">
+          <span className="footer-logo-stack">
+            <img src={logoFull} alt="Namespace" className="footer-logo" />
+            <span className="footer-logo-sub">ENS Components</span>
+          </span>
+        </a>
+        <div className="footer-links">
+          Built by{" "}
+          <a href="https://namespace.ninja" target="_blank" rel="noreferrer">Namespace</a>
+          {" · "}
+          <a href="https://github.com/thenamespace/ui-components" target="_blank" rel="noreferrer">GitHub</a>
+        </div>
       </footer>
     </>
   );

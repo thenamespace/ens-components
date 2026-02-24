@@ -84,8 +84,9 @@
 
 .ns-avatar-action-anchor {
   position: absolute;
-  right: -7px;
-  bottom: -7px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 6;
 }
 
@@ -187,8 +188,9 @@ button.ns-image-action-plus {
   }
 
   .ns-avatar-action-anchor {
-    right: -8px;
-    bottom: -8px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 
   .ns-header-action-anchor {

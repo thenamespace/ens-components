@@ -3,8 +3,6 @@ import "./ImageRecords.css";
 import { Icon } from "@/components/atoms";
 import { Dropdown } from "@/components/molecules";
 
-type ImageRecordType = "avatar" | "header";
-
 interface ImageActionItem {
   id: string;
   label: string;
@@ -28,10 +26,6 @@ const commonBgStyles = {
   backgroundPosition: "center",
 };
 
-const getManualActionLabel = (isSet: boolean): string => {
-  return isSet ? "Edit URL" : "Enter URL";
-};
-
 export const ImageRecords = ({
   avatar,
   header,
@@ -43,17 +37,11 @@ export const ImageRecords = ({
   onHeaderManualUrlRequested,
 }: ImageRecordProps) => {
   const avatarStyles = avatar
-    ? {
-        backgroundImage: `url(${avatar})`,
-        ...commonBgStyles,
-      }
+    ? { backgroundImage: `url(${avatar})`, ...commonBgStyles }
     : {};
 
   const headerStyles = header
-    ? {
-        backgroundImage: `url(${header})`,
-        ...commonBgStyles,
-      }
+    ? { backgroundImage: `url(${header})`, ...commonBgStyles }
     : {};
 
   const headerRecordSet = header !== undefined;
@@ -86,16 +74,11 @@ export const ImageRecords = ({
     }
     actions.push({
       id: "manual-url",
-      label: getManualActionLabel(avatarRecordSet),
+      label: "Enter URL",
       onSelect: requestAvatarManualUrl,
     });
     return actions;
-  }, [
-    onAvatarUploadRequested,
-    onAvatarManualUrlRequested,
-    onAvatarAdded,
-    avatarRecordSet,
-  ]);
+  }, [onAvatarUploadRequested, onAvatarManualUrlRequested, onAvatarAdded]);
 
   const headerActions = useMemo<ImageActionItem[]>(() => {
     const actions: ImageActionItem[] = [];
@@ -108,56 +91,11 @@ export const ImageRecords = ({
     }
     actions.push({
       id: "manual-url",
-      label: getManualActionLabel(headerRecordSet),
+      label: "Enter URL",
       onSelect: requestHeaderManualUrl,
     });
     return actions;
-  }, [
-    onHeaderUploadRequested,
-    onHeaderManualUrlRequested,
-    onHeaderAdded,
-    headerRecordSet,
-  ]);
-
-  const renderActionTrigger = (
-    record: ImageRecordType,
-    recordSet: boolean,
-    actions: ImageActionItem[]
-  ) => {
-    const title = recordSet ? `Change ${record}` : `Add ${record}`;
-    const hasActions = actions.length > 0;
-
-    return (
-      <Dropdown
-        placement="bottom"
-        align="end"
-        disabled={!hasActions}
-        trigger={
-          <div
-            className={`ns-image-action-plus ${recordSet ? "ns-image-action-plus--set" : ""} ${!hasActions ? "ns-image-action-plus--disabled" : ""}`}
-            title={title}
-            aria-label={title}
-            aria-disabled={!hasActions}
-          >
-            <Icon name="plus" size={16} />
-          </div>
-        }
-      >
-        <div className="ns-image-actions-menu">
-          {actions.map(action => (
-            <button
-              key={`${record}-${action.id}`}
-              type="button"
-              className="ns-image-actions-menu-item"
-              onClick={() => action.onSelect()}
-            >
-              {action.label}
-            </button>
-          ))}
-        </div>
-      </Dropdown>
-    );
-  };
+  }, [onHeaderUploadRequested, onHeaderManualUrlRequested, onHeaderAdded]);
 
   return (
     <div className="ns-image-records">
@@ -166,31 +104,66 @@ export const ImageRecords = ({
         <div className="ns-bot-grad"></div>
 
         {!headerRecordSet && (
-          <div className="ns-header-record-placeholder" aria-hidden="true">
-            <Icon color="white" name="image" size={22} />
+          <div className="ns-header-record-placeholder">
+            <Dropdown
+              placement="bottom"
+              align="end"
+              disabled={headerActions.length === 0}
+              trigger={
+                <div title="Add header" aria-label="Add header">
+                  <Icon color="white" name="plus" size={22} />
+                </div>
+              }
+            >
+              <div className="ns-image-actions-menu">
+                {headerActions.map(action => (
+                  <button
+                    key={`header-${action.id}`}
+                    type="button"
+                    className="ns-image-actions-menu-item"
+                    onClick={() => action.onSelect()}
+                  >
+                    {action.label}
+                  </button>
+                ))}
+              </div>
+            </Dropdown>
           </div>
         )}
-
-        <div className="ns-header-action-anchor">
-          {renderActionTrigger("header", headerRecordSet, headerActions)}
-        </div>
 
         <div
           style={avatarStyles}
           className={`ns-avatar-record-cont ${avatarRecordSet ? "ns-avatar-record-cont--set" : ""}`}
         >
           {!avatarRecordSet && (
-            <div className="ns-avatar-record-placeholder" aria-hidden="true">
-              <Icon color="grey" name="image" size={28} />
+            <div className="ns-avatar-record-placeholder">
+            <Dropdown
+              placement="bottom"
+              align="end"
+              disabled={avatarActions.length === 0}
+              trigger={
+                <div title="Add avatar" aria-label="Add avatar">
+                  <Icon color="grey" name="plus" size={28} />
+                </div>
+              }
+            >
+              <div className="ns-image-actions-menu">
+                {avatarActions.map(action => (
+                  <button
+                    key={`avatar-${action.id}`}
+                    type="button"
+                    className="ns-image-actions-menu-item"
+                    onClick={() => action.onSelect()}
+                  >
+                    {action.label}
+                  </button>
+                ))}
+              </div>
+            </Dropdown>
             </div>
           )}
-
-          <div className="ns-avatar-action-anchor">
-            {renderActionTrigger("avatar", avatarRecordSet, avatarActions)}
-          </div>
         </div>
       </div>
-
     </div>
   );
 };

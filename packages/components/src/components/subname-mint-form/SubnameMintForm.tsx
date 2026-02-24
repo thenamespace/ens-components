@@ -68,7 +68,8 @@ interface SubnameMintFormProps {
   onCancel?: () => void;
   onSuccess?: (data: MintSuccessData) => void;
   onSubnameMinted?: (data: SubnameMintedData) => void;
-  txConfirmations?: number
+  txConfirmations?: number;
+  onConnectWallet?: () => void;
 }
 
 const MIN_ENS_LEN = 1;
@@ -80,7 +81,8 @@ export const SubnameMintForm = ({
   onCancel,
   onSuccess,
   onSubnameMinted,
-  txConfirmations
+  txConfirmations,
+  onConnectWallet,
 }: SubnameMintFormProps) => {
   const { getListingDetails } = useMintManager({ isTestnet });
 
@@ -184,6 +186,7 @@ export const SubnameMintForm = ({
         onSuccess={onSuccess}
         onSubnameMinted={onSubnameMinted}
         txConfirmations={txConfirmations}
+        onConnectWallet={onConnectWallet}
       />
     </div>
   );
@@ -216,7 +219,8 @@ const SubnameMintFormContent = ({
   onCancel,
   onSuccess,
   onSubnameMinted,
-  txConfirmations
+  txConfirmations,
+  onConnectWallet,
 }: SubnameMintContentProps) => {
   const { address: connectedAddress, chain: currentChain } = useAccount();
   const { switchChain, isPending: isSwitchingChain } = useSwitchChain();
@@ -856,6 +860,8 @@ const SubnameMintFormContent = ({
         chainName={requiredChainName}
         onSwitchChain={handleSwitchChain}
         isSwitchingChain={isSwitchingChain}
+        isConnected={!!connectedAddress}
+        onConnectWallet={onConnectWallet}
       />
     </div>
   );

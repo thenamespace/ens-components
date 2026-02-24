@@ -8,6 +8,7 @@ import { PricingDisplay } from "@/components/molecules";
 import ninjaImage from "../../assets/banner.png";
 import shurikenImage from "../../assets/shuriken.svg";
 import { useRegisterENS } from "@/hooks";
+import { useAccount } from "wagmi";
 
 const MIN_ENS_LEN = 3;
 
@@ -44,6 +45,7 @@ export interface RegistrationSummaryProps {
   onNameValidationChange: (validation: { isChecking: boolean; isTaken: boolean; reason?: string }) => void;
   onSetProfile?: () => void;
   onStart?: () => void;
+  onConnectWallet?: () => void;
 }
 
 export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
@@ -64,7 +66,9 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
   onNameValidationChange,
   onSetProfile,
   onStart,
+  onConnectWallet,
 }) => {
+  const { isConnected } = useAccount();
   const { isEnsAvailable, getRegistrationPrice } = useRegisterENS({
     isTestnet,
   });
@@ -307,15 +311,26 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
           </div>
         </>
       )}
-      <Button
-        style={{ width: "100%" }}
-        size="lg"
-        className="mt-2"
-        disabled={nextBtnDisabled}
-        onClick={() => onStart?.()}
-      >
-        Next
-      </Button>
+      {!isConnected && onConnectWallet ? (
+        <Button
+          style={{ width: "100%" }}
+          size="lg"
+          className="mt-2"
+          onClick={onConnectWallet}
+        >
+          Connect Wallet
+        </Button>
+      ) : (
+        <Button
+          style={{ width: "100%" }}
+          size="lg"
+          className="mt-2"
+          disabled={nextBtnDisabled}
+          onClick={() => onStart?.()}
+        >
+          Next
+        </Button>
+      )}
     </div>
   );
 };

@@ -9,6 +9,8 @@ export interface MintFormActionsProps {
   chainName?: string;
   onSwitchChain?: () => void;
   isSwitchingChain?: boolean;
+  isConnected?: boolean;
+  onConnectWallet?: () => void;
 }
 
 export const MintFormActions = ({
@@ -20,8 +22,14 @@ export const MintFormActions = ({
   chainName = "",
   onSwitchChain,
   isSwitchingChain = false,
+  isConnected = true,
+  onConnectWallet,
 }: MintFormActionsProps) => {
   const handlePrimaryClick = () => {
+    if (!isConnected) {
+      onConnectWallet?.();
+      return;
+    }
     if (needsChainSwitch && onSwitchChain) {
       onSwitchChain();
     } else {
@@ -30,12 +38,14 @@ export const MintFormActions = ({
   };
 
   const getButtonLabel = () => {
+    if (!isConnected) return "Connect Wallet";
     if (isWaitingWallet) return "Waiting for wallet...";
     if (needsChainSwitch) return `Switch to ${chainName}`;
     return "Mint";
   };
 
   const isDisabled = () => {
+    if (!isConnected) return false;
     if (isWaitingWallet) return true;
     if (needsChainSwitch) return isSwitchingChain;
     return isMintDisabled;

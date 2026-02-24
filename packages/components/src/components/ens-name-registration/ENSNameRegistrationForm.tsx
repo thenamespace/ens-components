@@ -23,6 +23,7 @@ export interface EnsNameRegistrationFormProps {
   onRegistrationSuccess?: (result: RegistrationSuccessData) => void
   onClose?: (isSuccess: boolean) => void
   onRegistrationStart?: (name: string) => void
+  onConnectWallet?: () => void
 }
 
 enum RegistrationSteps {
@@ -164,6 +165,7 @@ export const EnsNameRegistrationForm = (
               onNameValidationChange={setNameValidation}
               onSetProfile={() => setShowProfile(true)}
               onStart={() => setStep(RegistrationSteps.Progress)}
+              onConnectWallet={props.onConnectWallet}
             />
           )}
         </>
