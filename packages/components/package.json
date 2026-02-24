@@ -1,6 +1,6 @@
 {
   "name": "@thenamespace/ens-components",
-  "version": "0.38.0-alpha",
+  "version": "1.0.0",
   "description": "",
   "main": "dist/index.cjs",
   "module": "dist/index.js",

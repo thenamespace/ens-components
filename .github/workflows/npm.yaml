@@ -35,14 +35,12 @@ jobs:
         working-directory: packages/components
         run: |
           npm version minor --no-git-tag-version
-          BASE_VERSION=$(node -p "require('./package.json').version")
-          NEW_VERSION="${BASE_VERSION}-alpha"
-          npm version "$NEW_VERSION" --no-git-tag-version
+          NEW_VERSION=$(node -p "require('./package.json').version")
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Publish to npm
         working-directory: packages/components
-        run: npm publish --access public --tag alpha
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
