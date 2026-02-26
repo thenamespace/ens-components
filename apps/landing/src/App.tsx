@@ -350,14 +350,15 @@ function QuickStartSection() {
 // ─── ENS Registration ─────────────────────────────────────────────────────────
 
 const ENS_REG_DEFS: PropDef[] = [
-  { key: "isTestnet",   type: "boolean", default: false, tip: "Use Sepolia testnet instead of Ethereum mainnet" },
-  { key: "referrer",    type: "string",  default: "",    tip: "Wallet address that receives a referral fee on registration", placeholder: "0x… referral wallet" },
-  { key: "noBorder",   type: "boolean", default: false, tip: "Remove the card border and shadow wrapper" },
-  { key: "title",      type: "string",  default: "",    tip: "Override the form title text", placeholder: "title..." },
-  { key: "subtitle",   type: "string",  default: "",    tip: "Override the subtitle below the title", placeholder: "subtitle..." },
-  { key: "bannerImage", type: "string",  default: "",    tip: "URL of a custom banner image to replace the default", placeholder: "https://…/image.png" },
-  { key: "hideBanner",  type: "boolean", default: false, tip: "Hide the banner image entirely" },
-  { key: "bannerWidth", type: "number",  default: 250,   tip: "Width of the banner image in pixels" },
+  { key: "isTestnet",          type: "boolean", default: false, tip: "Use Sepolia testnet instead of Ethereum mainnet" },
+  { key: "referrer",           type: "string",  default: "",    tip: "Wallet address that receives a referral fee on registration", placeholder: "0x… referral wallet" },
+  { key: "noBorder",           type: "boolean", default: false, tip: "Remove the card border and shadow wrapper" },
+  { key: "title",              type: "string",  default: "",    tip: "Override the form title text", placeholder: "title..." },
+  { key: "subtitle",           type: "string",  default: "",    tip: "Override the subtitle below the title", placeholder: "subtitle..." },
+  { key: "bannerImage",        type: "string",  default: "",    tip: "URL of a custom banner image to replace the default", placeholder: "https://…/image.png" },
+  { key: "hideBanner",         type: "boolean", default: false, tip: "Hide the banner image entirely" },
+  { key: "bannerWidth",        type: "number",  default: 250,   tip: "Width of the banner image in pixels" },
+  { key: "avatarUploadDomain", type: "string",  default: "",    tip: "Domain used for SIWE message signing during avatar upload", placeholder: "yourdomain.com" },
 ];
 
 function EnsRegistrationSection() {
@@ -393,6 +394,7 @@ function EnsRegistrationSection() {
             bannerImage={values.bannerImage || undefined}
             hideBanner={values.hideBanner}
             bannerWidth={values.bannerWidth || undefined}
+            avatarUploadDomain={values.avatarUploadDomain || undefined}
             onConnectWallet={openConnectModal}
           />
         </DemoPanel>
@@ -437,13 +439,14 @@ const WRAPPER_ABI = [{
 }] as const;
 
 const ENS_RECORDS_DEFS: PropDef[] = [
-  { key: "name",            type: "string",  default: "yourname.eth",         required: true, readonly: true, tip: "Full ENS name whose records will be edited" },
-  { key: "existingRecords", type: "string",  default: "Existing name records", required: true, readonly: true, tip: "Current on-chain records pre-loaded from the ENS resolver" },
-  { key: "isTestnet",       type: "boolean", default: false,                   tip: "Use Sepolia testnet instead of Ethereum mainnet" },
-  { key: "noBorder",        type: "boolean", default: false,                   tip: "Remove the card border and shadow wrapper" },
-  { key: "txConfirmations", type: "number",  default: 1,                       tip: "Number of block confirmations to wait after a transaction" },
-  { key: "resolverAddress", type: "string",  default: "",  readonly: true,     tip: "Optional. Auto-detected from the ENS registry if not provided" },
-  { key: "resolverChainId", type: "number",  default: 1,   readonly: true,     tip: "Optional. Inferred from isTestnet if not provided" },
+  { key: "name",              type: "string",  default: "yourname.eth",         required: true, readonly: true, tip: "Full ENS name whose records will be edited" },
+  { key: "existingRecords",   type: "string",  default: "Existing name records", required: true, readonly: true, tip: "Current on-chain records pre-loaded from the ENS resolver" },
+  { key: "isTestnet",         type: "boolean", default: false,                   tip: "Use Sepolia testnet instead of Ethereum mainnet" },
+  { key: "noBorder",          type: "boolean", default: false,                   tip: "Remove the card border and shadow wrapper" },
+  { key: "txConfirmations",   type: "number",  default: 1,                       tip: "Number of block confirmations to wait after a transaction" },
+  { key: "avatarUploadDomain", type: "string", default: "",                      tip: "Domain used for SIWE message signing during avatar upload", placeholder: "yourdomain.com" },
+  { key: "resolverAddress",   type: "string",  default: "",  readonly: true,     tip: "Optional. Auto-detected from the ENS registry if not provided" },
+  { key: "resolverChainId",   type: "number",  default: 1,   readonly: true,     tip: "Optional. Inferred from isTestnet if not provided" },
 ];
 
 function EnsRecordsSection() {
@@ -468,6 +471,7 @@ function EnsRecordsSection() {
     existingRecords: submittedName ? "{ addresses: [...], texts: [...] }" : "(fetched via Resolvio)",
     resolverAddress: "",
     resolverChainId: 0,
+    avatarUploadDomain: values.avatarUploadDomain || "",
   };
 
   const lookupOwner = async (name: string): Promise<string> => {
@@ -573,6 +577,7 @@ function EnsRecordsSection() {
                 resolverChainId={values.resolverChainId || undefined}
                 noBorder={values.noBorder}
                 txConfirmations={values.txConfirmations || undefined}
+                avatarUploadDomain={values.avatarUploadDomain || undefined}
                 existingRecords={existingRecords}
                 onCancel={handleReset}
               />
@@ -673,9 +678,10 @@ function OffchainSubnameSection() {
 // ─── Onchain Subnames ─────────────────────────────────────────────────────────
 
 const MINT_DEFS: PropDef[] = [
-  { key: "parentName",      type: "string",  default: "filepay.eth", tip: "The ENS name users will mint subnames under", placeholder: "yourname.eth", required: true, readonly: true },
-  { key: "isTestnet",       type: "boolean", default: false,             tip: "Use Sepolia testnet instead of Ethereum mainnet" },
-  { key: "txConfirmations", type: "number",  default: 1,                 tip: "Number of block confirmations to wait after the mint transaction" },
+  { key: "parentName",        type: "string",  default: "filepay.eth", tip: "The ENS name users will mint subnames under", placeholder: "yourname.eth", required: true, readonly: true },
+  { key: "isTestnet",         type: "boolean", default: false,             tip: "Use Sepolia testnet instead of Ethereum mainnet" },
+  { key: "txConfirmations",   type: "number",  default: 1,                 tip: "Number of block confirmations to wait after the mint transaction" },
+  { key: "avatarUploadDomain", type: "string", default: "",                tip: "Domain used for SIWE message signing during avatar upload", placeholder: "yourdomain.com" },
 ];
 
 function SubnameMintSection() {
@@ -703,6 +709,7 @@ function SubnameMintSection() {
             parentName="filepay.eth"
             isTestnet={values.isTestnet}
             txConfirmations={values.txConfirmations || undefined}
+            avatarUploadDomain={values.avatarUploadDomain || undefined}
             onConnectWallet={openConnectModal}
             onCancel={() => setMountKey((k) => k + 1)}
           />

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { EnsRecords } from "@/types";
-import { SelectRecordsForm } from "../select-records-form/SelectRecordsForm";
+import { AvatarUploadContext, SelectRecordsForm } from "../select-records-form/SelectRecordsForm";
 import { Button } from "../atoms";
 import { Alert } from "../molecules";
 import { validateEnsRecords } from "@/utils";
@@ -10,7 +10,8 @@ export interface SetNameRecordsProps {
   onRecordsChange: (records: EnsRecords) => void;
   onCancel: () => void;
   onSave: () => void;
-  hasChanges?: boolean
+  hasChanges?: boolean;
+  avatarUpload?: AvatarUploadContext;
 }
 
 export const SetNameRecords: React.FC<SetNameRecordsProps> = ({
@@ -18,7 +19,8 @@ export const SetNameRecords: React.FC<SetNameRecordsProps> = ({
   onRecordsChange,
   onCancel,
   onSave,
-  hasChanges
+  hasChanges,
+  avatarUpload,
 }) => {
 
   const [error, setError] = useState<string | null>()
@@ -39,6 +41,7 @@ export const SetNameRecords: React.FC<SetNameRecordsProps> = ({
     <SelectRecordsForm
       records={records}
       onRecordsUpdated={onRecordsChange}
+      avatarUpload={avatarUpload}
       actionButtons={
         <div style={{ padding: 15, paddingTop: 0 }}>
           {error && (

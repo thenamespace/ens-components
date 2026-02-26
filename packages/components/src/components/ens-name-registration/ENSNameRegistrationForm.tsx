@@ -20,6 +20,7 @@ export interface EnsNameRegistrationFormProps {
   bannerImage?: string;
   hideBanner?: boolean;
   bannerWidth?: number;
+  avatarUploadDomain?: string;
   onRegistrationSuccess?: (result: RegistrationSuccessData) => void
   onClose?: (isSuccess: boolean) => void
   onRegistrationStart?: (name: string) => void
@@ -144,6 +145,11 @@ export const EnsNameRegistrationForm = (
               onCancel={handleCancelRecords}
               onSave={handleSaveRecords}
               hasChanges={hasRecordsDifference}
+              avatarUpload={label ? {
+                ensName: `${label}.eth`,
+                isTestnet: props.isTestnet,
+                siweDomain: props.avatarUploadDomain,
+              } : undefined}
             />
           )}
           {!showProfile && (

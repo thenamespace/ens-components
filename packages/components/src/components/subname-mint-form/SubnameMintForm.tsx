@@ -65,6 +65,7 @@ interface SubnameMintFormProps {
   parentName: string;
   label?: string;
   isTestnet?: boolean;
+  avatarUploadDomain?: string;
   onCancel?: () => void;
   onSuccess?: (data: MintSuccessData) => void;
   onSubnameMinted?: (data: SubnameMintedData) => void;
@@ -78,6 +79,7 @@ export const SubnameMintForm = ({
   parentName,
   label,
   isTestnet,
+  avatarUploadDomain,
   onCancel,
   onSuccess,
   onSubnameMinted,
@@ -182,6 +184,7 @@ export const SubnameMintForm = ({
         isTestnet={isTestnet}
         isL2={initState.isL2}
         isExpirable={initState.isExpirable || false}
+        avatarUploadDomain={avatarUploadDomain}
         onCancel={onCancel}
         onSuccess={onSuccess}
         onSubnameMinted={onSubnameMinted}
@@ -216,6 +219,7 @@ const SubnameMintFormContent = ({
   isTestnet = false,
   isL2,
   isExpirable = false,
+  avatarUploadDomain,
   onCancel,
   onSuccess,
   onSubnameMinted,
@@ -772,6 +776,11 @@ const SubnameMintFormContent = ({
         onCancel={handleCancelRecords}
         onSave={handleSaveRecords}
         hasChanges={hasRecordsDifference}
+        avatarUpload={label ? {
+          ensName: `${label}.${parentName}`,
+          isTestnet,
+          siweDomain: avatarUploadDomain,
+        } : undefined}
       />
     );
   }
