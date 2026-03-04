@@ -24,8 +24,8 @@
     "react-dom": "^18.3.1",
     "storybook": "^8.6.14",
     "typescript": "^5.9.2",
-    "viem": "^2.38.4",
+    "viem": "^2.46.3",
     "vite-tsconfig-paths": "^5.1.4",
-    "wagmi": "^2.18.2"
+    "wagmi": "^2.19.5"
   }
 }
