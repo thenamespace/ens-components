@@ -4,5 +4,7 @@ export { EnsNameRegistrationForm } from "./ens-name-registration/ENSNameRegistra
 export { EnsRecordsForm } from "./ens-records-form/EnsRecordsForm";
 export { SubnameMintForm } from "./subname-mint-form/SubnameMintForm";
 export { OffchainSubnameForm } from "./offchain-subname-form/OffchainSubnameForm";
+export type { OffchainSubnameCreatedData } from "./offchain-subname-form/OffchainSubnameForm";
 export * from "./atoms";
 export * from "./molecules";
+export { TransactionPendingScreen } from "./ens-name-registration/registration/TransactionPendingScreen";

@@ -3,12 +3,10 @@ import { Text, Button } from "@/components/atoms";
 import { Alert } from "@/components/molecules";
 import { normalize } from "viem/ens";
 import { debounce, deepCopy, getEnsRecordsDiff, validateEnsRecords } from "@/utils";
-import { useOffchainManager } from "@/hooks";
 import { EnsRecords } from "@/types";
 import { SetSubnameRecords } from "../subname-mint-form/SetSubnameRecords";
 import { ProfileSelector } from "../subname-mint-form/ProfileSelector";
-import { CreateSubnameRequest } from "@thenamespace/offchain-manager";
-import { offchainRecordsToEnsRecords } from "./utils";
+import { ChainName, OffchainClient } from "@thenamespace/offchain-manager";
 import { SuccessScreen } from "./SuccessScreen";
 import { FormHeader } from "./FormHeader";
 import { SubnameInput } from "./SubnameInput";
@@ -28,34 +26,41 @@ export interface OffchainSubnameCreatedData {
   label: string;
   parentName: string;
   fullSubname: string;
-  records: EnsRecords;
-  ownerAddress?: string;
+  addresses: Array<{ chain: ChainName; value: string }>;
+  texts: Array<{ key: string; value: string }>;
+  owner?: string;
 }
 
 interface OffchainSubnameFormProps {
-  apiKeyOrToken: string;
-  name: string; 
+  offchainManager: OffchainClient;
+  name: string;
   label?: string;
+  title?: string;
+  subtitle?: string;
   hideTitle?: boolean;
   onCancel?: () => void;
   isTestnet?: boolean;
   avatarUploadDomain?: string;
-  onSuccess?: (data: OffchainSubnameCreatedData) => void;
+  onSubnameCreated?: (data: OffchainSubnameCreatedData) => Promise<void> | void;
+  onSubnameUpdated?: (data: OffchainSubnameCreatedData) => Promise<void> | void;
 }
 
 const MIN_ENS_LEN = 1;
 
 export const OffchainSubnameForm = ({
-  apiKeyOrToken,
+  offchainManager,
   name,
   label: propLabel,
+  title,
+  subtitle,
   hideTitle = false,
   isTestnet,
   avatarUploadDomain,
   onCancel,
-  onSuccess,
+  onSubnameCreated,
+  onSubnameUpdated,
 }: OffchainSubnameFormProps) => {
-  const client = useOffchainManager(name, apiKeyOrToken, isTestnet);
+  const client = offchainManager;
 
   const [label, setLabel] = useState<string>(propLabel || "");
   const [showProfile, setShowProfile] = useState(false);
@@ -225,63 +230,30 @@ export const OffchainSubnameForm = ({
         }
       }
 
-      // Build request using helper function
       const requestData = buildSubnameRequest(ensRecords, ownerAddress);
+      const data: OffchainSubnameCreatedData = {
+        label,
+        parentName: name,
+        fullSubname: `${label}.${name}`,
+        addresses: requestData.addresses,
+        texts: requestData.texts,
+        owner: requestData.owner,
+      };
 
-      // Create or Update subname
       if (isUpdateMode) {
-        const fullSubname = `${label}.${name}`;
-        await client.updateSubname(fullSubname, requestData);
+        await onSubnameUpdated?.(data);
       } else {
-        const createRequest: CreateSubnameRequest = {
-          parentName: name,
-          label,
-          ...requestData,
-        };
-        await client.createSubname(createRequest);
+        await onSubnameCreated?.(data);
       }
 
-      // Fetch the created/updated subname to get the latest data
-      await refreshSubnameData();
+      setSuccessData(data);
+      setCreateStep(CreateStep.Success);
     } catch (err: any) {
       console.error("Create/Update error:", err);
       setCreateError(err?.message || `Failed to ${isUpdateMode ? 'update' : 'create'} subname`);
     } finally {
       setIsCreating(false);
     }
-  };
-
-  // Refresh subname data after create/update
-  const refreshSubnameData = async () => {
-    const fullSubname = `${label}.${name}`;
-    const updatedSubname = await client.getSingleSubname(fullSubname);
-    
-    const latestRecords = updatedSubname 
-      ? offchainRecordsToEnsRecords(updatedSubname)
-      : ensRecords;
-
-    // Update all record states
-    setBaselineRecords(deepCopy(latestRecords));
-    setEnsRecords(latestRecords);
-    setEnsRecordsTemplate(deepCopy(latestRecords));
-    
-    // Update owner
-    const latestOwner = updatedSubname?.owner || (ownerAddress && ownerAddress.trim() !== "" ? ownerAddress : "");
-    setInitialOwner(latestOwner);
-    setOwnerAddress(latestOwner);
-
-    // Prepare success data
-    const data: OffchainSubnameCreatedData = {
-      label,
-      parentName: name,
-      fullSubname: `${label}.${name}`,
-      records: latestRecords,
-      ownerAddress: latestOwner || undefined,
-    };
-
-    setSuccessData(data);
-    setCreateStep(CreateStep.Success);
-    onSuccess?.(data);
   };
 
   const handleCreateAnother = () => {
@@ -367,6 +339,8 @@ export const OffchainSubnameForm = ({
             label={label}
             parentName={name}
             showFullName={showFullName}
+            title={title}
+            subtitle={subtitle}
           />
         )}
 

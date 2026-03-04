@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@thenamespace/ens-components": "workspace:*",
+    "@thenamespace/offchain-manager": "^1.0.10",
     "@rainbow-me/rainbowkit": "^2.2.8",
     "@tanstack/react-query": "^5.0.0",
     "lucide-react": "^0.511.0",

@@ -21,6 +21,7 @@ const externals = [
   /^@tanstack\/react-query($|\/)/,
   /^wagmi($|\/)/,
   /^viem($|\/)/,
+  /^@thenamespace\/offchain-manager($|\/)/,
 ];
 
 const aliasEntries = [
@@ -122,7 +123,7 @@ export default [
   {
     input: "dist/types/index.d.ts",
     output: { file: "dist/index.d.ts", format: "es" },
-    external: [/\.css$/, ...externals],
+    external: [/\.css$/, /^@thenamespace\/offchain-manager($|\/)/, ...externals],
     plugins: [
       dts({
         respectExternal: true,

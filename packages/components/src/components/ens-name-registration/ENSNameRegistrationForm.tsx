@@ -21,10 +21,10 @@ export interface EnsNameRegistrationFormProps {
   hideBanner?: boolean;
   bannerWidth?: number;
   avatarUploadDomain?: string;
-  onRegistrationSuccess?: (result: RegistrationSuccessData) => void
-  onClose?: (isSuccess: boolean) => void
-  onRegistrationStart?: (name: string) => void
-  onConnectWallet?: () => void
+  onRegistrationSuccess?: (result: RegistrationSuccessData) => void;
+  onClose?: (isSuccess: boolean) => void;
+  onRegistrationStart?: (name: string) => void;
+  onConnectWallet?: () => void;
 }
 
 enum RegistrationSteps {
@@ -42,19 +42,18 @@ interface RegistrationSuccessData {
 }
 
 const getLabel = (name?: string) => {
-
   if (!name) {
     return "";
   }
 
   if (name.split(".").length !== 1) {
-    return name.split(".")[0]
+    return name.split(".")[0];
   }
   return name;
-}
+};
 
 export const EnsNameRegistrationForm = (
-  props: EnsNameRegistrationFormProps,
+  props: EnsNameRegistrationFormProps
 ) => {
   const [label, setLabel] = useState<string>(getLabel(props.name));
   const [step, setStep] = useState<RegistrationSteps>(
@@ -63,17 +62,17 @@ export const EnsNameRegistrationForm = (
   const [years, setYears] = useState(1);
   // TODO: Implement gas prices, Currently its hardcoded!
   const [regTxFees, setRegTxFees] = useState<{
-    isChecking: boolean
-    estimatedGas: number
-    price: { wei: bigint, eth: number }
+    isChecking: boolean;
+    estimatedGas: number;
+    price: { wei: bigint; eth: number };
   }>({
     estimatedGas: 0,
     isChecking: false,
     price: {
       wei: 0n,
-      eth: 0.0001
-    }
-  })
+      eth: 0.0001,
+    },
+  });
   const [price, setPrice] = useState<{
     isChecking: boolean;
     wei: bigint;
@@ -92,7 +91,6 @@ export const EnsNameRegistrationForm = (
     isTaken: false,
   });
   const [showProfile, setShowProfile] = useState(false);
-  const { address } = useAccount();
 
   const [ensRecordTemplate, setEnsRecordsTemplate] = useState<EnsRecords>({
     addresses: [],
@@ -109,7 +107,7 @@ export const EnsNameRegistrationForm = (
   }, [ensRecords, ensRecordTemplate]);
 
   const [successData, setSuccessData] =
-    useState<RegistrationSuccessData | null>(null);
+    useState<RegistrationSuccessData | null>();
 
   const handleSaveRecords = () => {
     setEnsRecords(deepCopy(ensRecordTemplate));
@@ -130,8 +128,6 @@ export const EnsNameRegistrationForm = (
     setPrice({ isChecking: false, wei: 0n, eth: 0 });
   };
 
-
-
   return (
     <div
       className={`ens-registration-form-container ${props.className || ""} ${props.noBorder ? "no-border" : ""}`}
@@ -145,11 +141,15 @@ export const EnsNameRegistrationForm = (
               onCancel={handleCancelRecords}
               onSave={handleSaveRecords}
               hasChanges={hasRecordsDifference}
-              avatarUpload={label ? {
-                ensName: `${label}.eth`,
-                isTestnet: props.isTestnet,
-                siweDomain: props.avatarUploadDomain,
-              } : undefined}
+              avatarUpload={
+                label
+                  ? {
+                      ensName: `${label}.eth`,
+                      isTestnet: props.isTestnet,
+                      siweDomain: props.avatarUploadDomain,
+                    }
+                  : undefined
+              }
             />
           )}
           {!showProfile && (

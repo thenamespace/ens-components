@@ -5,19 +5,26 @@ interface FormHeaderProps {
   label: string;
   parentName: string;
   showFullName: boolean;
+  title?: string;
+  subtitle?: string;
 }
 
-export const FormHeader = ({ isUpdateMode, label, parentName, showFullName }: FormHeaderProps) => {
-  const smallTitle = isUpdateMode ? "Update subname" : "Create subname";
+export const FormHeader = ({ isUpdateMode, label, parentName, showFullName, title, subtitle }: FormHeaderProps) => {
+  const defaultTitle = isUpdateMode ? "Update subname" : "Create subname";
 
   return (
     <div className="ns-text-center mb-3">
       <Text size="sm" color="grey" className="mb-1">
-        {smallTitle}
+        {title ?? defaultTitle}
       </Text>
       {showFullName && (
         <Text size="lg" weight="bold">
           {label}.{parentName}
+        </Text>
+      )}
+      {subtitle && (
+        <Text size="xs" color="grey" className="mt-1">
+          {subtitle}
         </Text>
       )}
     </div>
