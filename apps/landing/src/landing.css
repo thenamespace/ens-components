@@ -209,6 +209,15 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); -web
 }
 .ens-lookup-back:hover { text-decoration: underline; }
 
+/* OFFCHAIN GATE */
+.offchain-gate { display: flex; flex-direction: column; gap: 10px; }
+.offchain-gate-fields { display: flex; gap: 10px; }
+.offchain-gate-field { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.offchain-gate-label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.offchain-gate-hint { font-size: 12px; color: var(--text-muted); margin: 0; }
+.offchain-gate-hint a { color: var(--accent); text-decoration: none; }
+.offchain-gate-hint a:hover { text-decoration: underline; }
+
 /* DEMO PANEL */
 .demo-panel { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
 .demo-panel-header { padding: 13px 18px; border-bottom: 1px solid var(--border); background: var(--bg-card); }

@@ -72,7 +72,8 @@ export type IconName =
   | "xSocial"
   | "chevron-up"
   | "chevron-down"
-  | "chevron-left";
+  | "chevron-left"
+  | "circle-help";
 
 const icons: Record<IconName, IconComponent> = {
   person: User,
@@ -108,6 +109,7 @@ const icons: Record<IconName, IconComponent> = {
   "chevron-up": LucideIcons.ChevronUp,
   "chevron-down": LucideIcons.ChevronDown,
   "chevron-left": LucideIcons.ChevronLeft,
+  "circle-help": LucideIcons.CircleHelp,
 };
 
 export interface IconProps {

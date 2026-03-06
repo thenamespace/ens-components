@@ -359,7 +359,6 @@ const ENS_REG_DEFS: PropDef[] = [
   { key: "bannerImage",        type: "string",  default: "",    tip: "URL of a custom banner image to replace the default", placeholder: "https://…/image.png" },
   { key: "hideBanner",         type: "boolean", default: false, tip: "Hide the banner image entirely" },
   { key: "bannerWidth",        type: "number",  default: 250,   tip: "Width of the banner image in pixels" },
-  { key: "avatarUploadDomain", type: "string",  default: "",    tip: "Domain used for SIWE message signing during avatar upload", placeholder: "yourdomain.com" },
 ];
 
 function EnsRegistrationSection({ isTestnet, onIsTestnetChange }: { isTestnet: boolean; onIsTestnetChange: (v: boolean) => void }) {
@@ -454,7 +453,6 @@ const ENS_RECORDS_DEFS: PropDef[] = [
   { key: "isTestnet",         type: "boolean", default: false,                   tip: "Use Sepolia testnet instead of Ethereum mainnet" },
   { key: "noBorder",          type: "boolean", default: false,                   tip: "Remove the card border and shadow wrapper" },
   { key: "txConfirmations",   type: "number",  default: 1,                       tip: "Number of block confirmations to wait after a transaction" },
-  { key: "avatarUploadDomain", type: "string", default: "",                      tip: "Domain used for SIWE message signing during avatar upload", placeholder: "yourdomain.com" },
   { key: "resolverAddress",   type: "string",  default: "",  readonly: true,     tip: "Optional. Auto-detected from the ENS registry if not provided" },
   { key: "resolverChainId",   type: "number",  default: 1,   readonly: true,     tip: "Optional. Inferred from isTestnet if not provided" },
 ];
@@ -488,7 +486,6 @@ function EnsRecordsSection({ isTestnet, onIsTestnetChange }: { isTestnet: boolea
     existingRecords: submittedName ? "{ addresses: [...], texts: [...] }" : "(fetched via Resolvio)",
     resolverAddress: "",
     resolverChainId: 0,
-    avatarUploadDomain: values.avatarUploadDomain || "",
   };
 
   const lookupOwner = async (name: string): Promise<string> => {
@@ -676,19 +673,10 @@ const offchainManager = createOffchainClient({
   name="yourname.eth"
   offchainManager={offchainManager}${extraProps}
   onSubnameCreated={async (data) => {
-    await offchainManager.createSubname({
-      parentName: data.parentName,
-      label: data.label,
-      addresses: data.addresses,
-      texts: data.texts,
-      owner: data.owner,
-    });
+    await offchainManager.createSubname(data);
   }}
   onSubnameUpdated={async (data) => {
-    await offchainManager.updateSubname(data.fullSubname, {
-      addresses: data.addresses,
-      texts: data.texts,
-    });
+    await offchainManager.updateSubname(data.fullSubname, data);
   }}
 />`;
 }
@@ -698,6 +686,9 @@ function OffchainSubnameSection({ isTestnet, onIsTestnetChange }: { isTestnet: b
     ...Object.fromEntries(OFFCHAIN_DEFS.map((d) => [d.key, d.default])),
     isTestnet,
   }));
+  const [ensName, setEnsName] = useState("");
+  const [apiKey, setApiKey] = useState("");
+
   const onChange = (key: string, val: any) => {
     setValues((prev) => ({ ...prev, [key]: val }));
     if (key === "isTestnet") onIsTestnetChange(val);
@@ -707,10 +698,14 @@ function OffchainSubnameSection({ isTestnet, onIsTestnetChange }: { isTestnet: b
     setValues((prev) => ({ ...prev, isTestnet }));
   }, [isTestnet]);
 
+  const isNameValid = ensName.endsWith(".eth") && ensName.slice(0, -4).length >= 3;
+  const isApiKeyValid = /^ns-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(apiKey.trim());
+  const isReady = isNameValid && isApiKeyValid;
+
   const offchainManager = useMemo(() => createOffchainClient({
-    domainApiKeys: { "yourname.eth": "" },
+    domainApiKeys: { [ensName || "yourname.eth"]: apiKey },
     mode: isTestnet ? "sepolia" : "mainnet",
-  }), [isTestnet]);
+  }), [isTestnet, ensName, apiKey]);
 
   const code = generateOffchainCode(values, isTestnet);
 
@@ -728,31 +723,64 @@ function OffchainSubnameSection({ isTestnet, onIsTestnetChange }: { isTestnet: b
           <PropsEditor defs={OFFCHAIN_DEFS} values={values} onChange={onChange} />
         </div>
         <DemoPanel>
-          <OffchainSubnameForm
-            key={`${String(isTestnet)}-${values.label}`}
-            name="yourname.eth"
-            offchainManager={offchainManager}
-            isTestnet={isTestnet}
-            label={values.label || undefined}
-            title={values.title || undefined}
-            subtitle={values.subtitle || undefined}
-            hideTitle={values.hideTitle}
-            onSubnameCreated={async (data) => {
-              await offchainManager.createSubname({
-                parentName: data.parentName,
-                label: data.label,
-                addresses: data.addresses,
-                texts: data.texts,
-                owner: data.owner,
-              });
-            }}
-            onSubnameUpdated={async (data) => {
-              await offchainManager.updateSubname(data.fullSubname, {
-                addresses: data.addresses,
-                texts: data.texts,
-              });
-            }}
-          />
+          <div className="offchain-gate">
+            <div className="offchain-gate-fields">
+              <div className="offchain-gate-field">
+                <label className="offchain-gate-label">ENS Name</label>
+                <input
+                  className="ens-lookup-input"
+                  type="text"
+                  value={ensName}
+                  placeholder="yourname.eth"
+                  onChange={(e) => setEnsName(e.target.value.trim())}
+                />
+              </div>
+              <div className="offchain-gate-field">
+                <label className="offchain-gate-label">API Key</label>
+                <input
+                  className="ens-lookup-input"
+                  type="text"
+                  value={apiKey}
+                  placeholder="your-api-key"
+                  onChange={(e) => setApiKey(e.target.value.trim())}
+                />
+              </div>
+            </div>
+            <p className="offchain-gate-hint" style={{marginBottom: 10}}>
+              Navigate to{" "}
+              <a href="https://dev.namespace.ninja" target="_blank" rel="noreferrer">
+                dev.namespace.ninja
+              </a>{" "}
+              (Dev Portal) and generate an API key for your name.
+            </p>
+          </div>
+          <div style={isReady ? undefined : { opacity: 0.4, pointerEvents: "none" }}>
+            <OffchainSubnameForm
+              key={`${String(isTestnet)}-${values.label}-${ensName}`}
+              name={ensName || "yourname.eth"}
+              offchainManager={offchainManager}
+              isTestnet={isTestnet}
+              label={values.label || undefined}
+              title={values.title || undefined}
+              subtitle={values.subtitle || undefined}
+              hideTitle={values.hideTitle}
+              onSubnameCreated={async (data) => {
+                await offchainManager.createSubname({
+                  parentName: data.parentName,
+                  label: data.label,
+                  addresses: data.addresses,
+                  texts: data.texts,
+                  owner: data.owner,
+                });
+              }}
+              onSubnameUpdated={async (data) => {
+                await offchainManager.updateSubname(data.fullSubname, {
+                  addresses: data.addresses,
+                  texts: data.texts,
+                });
+              }}
+            />
+          </div>
         </DemoPanel>
       </div>
     </section>
@@ -762,10 +790,10 @@ function OffchainSubnameSection({ isTestnet, onIsTestnetChange }: { isTestnet: b
 // ─── Onchain Subnames ─────────────────────────────────────────────────────────
 
 const MINT_DEFS: PropDef[] = [
-  { key: "parentName",        type: "string",  default: "artii.eth", tip: "The ENS name users will mint subnames under", placeholder: "yourname.eth", required: true, readonly: true },
-  { key: "isTestnet",         type: "boolean", default: false,             tip: "Use Sepolia testnet instead of Ethereum mainnet" },
-  { key: "txConfirmations",   type: "number",  default: 1,                 tip: "Number of block confirmations to wait after the mint transaction" },
-  { key: "avatarUploadDomain", type: "string", default: "",                tip: "Domain used for SIWE message signing during avatar upload", placeholder: "yourdomain.com" },
+  { key: "name",              type: "string",  default: "artii.eth", tip: "The ENS name users will mint subnames under", required: true, readonly: true },
+  { key: "isTestnet",         type: "boolean", default: false,       tip: "Use Sepolia testnet instead of Ethereum mainnet" },
+  { key: "title",             type: "string",  default: "",          tip: "Override the form title text", placeholder: "title..." },
+  { key: "subtitle",          type: "string",  default: "",          tip: "Optional subtitle shown below the title", placeholder: "subtitle..." },
 ];
 
 function SubnameMintSection({ isTestnet, onIsTestnetChange }: { isTestnet: boolean; onIsTestnetChange: (v: boolean) => void }) {
@@ -774,7 +802,7 @@ function SubnameMintSection({ isTestnet, onIsTestnetChange }: { isTestnet: boole
   const [values, setValues] = useState<Record<string, any>>(() => ({
     ...Object.fromEntries(MINT_DEFS.map((d) => [d.key, d.default])),
     isTestnet,
-    parentName,
+    name: parentName,
   }));
   const [mountKey, setMountKey] = useState(0);
   const onChange = (key: string, val: any) => {
@@ -783,9 +811,11 @@ function SubnameMintSection({ isTestnet, onIsTestnetChange }: { isTestnet: boole
   };
 
   useEffect(() => {
-    setValues((prev) => ({ ...prev, isTestnet, parentName }));
+    setValues((prev) => ({ ...prev, isTestnet, name: parentName }));
   }, [isTestnet, parentName]);
-  const code = generateCode("SubnameMintForm", MINT_DEFS, values);
+  const code = generateCode("SubnameMintForm", MINT_DEFS, values, [
+    `parentName="${parentName}"`,
+  ]);
 
   return (
     <section className="section" id="subname-mint">
@@ -801,8 +831,8 @@ function SubnameMintSection({ isTestnet, onIsTestnetChange }: { isTestnet: boole
             key={`${String(isTestnet)}-${mountKey}`}
             parentName={parentName}
             isTestnet={isTestnet}
-            txConfirmations={values.txConfirmations || undefined}
-            avatarUploadDomain={values.avatarUploadDomain || undefined}
+            title={values.title || undefined}
+            subtitle={values.subtitle || undefined}
             onConnectWallet={openConnectModal}
             onCancel={() => setMountKey((k) => k + 1)}
           />

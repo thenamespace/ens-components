@@ -66,6 +66,8 @@ interface SubnameMintFormProps {
   label?: string;
   isTestnet?: boolean;
   avatarUploadDomain?: string;
+  title?: string;
+  subtitle?: string;
   onCancel?: () => void;
   onSuccess?: (data: MintSuccessData) => void;
   onSubnameMinted?: (data: SubnameMintedData) => void;
@@ -80,6 +82,8 @@ export const SubnameMintForm = ({
   label,
   isTestnet,
   avatarUploadDomain,
+  title,
+  subtitle,
   onCancel,
   onSuccess,
   onSubnameMinted,
@@ -185,6 +189,8 @@ export const SubnameMintForm = ({
         isL2={initState.isL2}
         isExpirable={initState.isExpirable || false}
         avatarUploadDomain={avatarUploadDomain}
+        title={title}
+        subtitle={subtitle}
         onCancel={onCancel}
         onSuccess={onSuccess}
         onSubnameMinted={onSubnameMinted}
@@ -220,6 +226,8 @@ const SubnameMintFormContent = ({
   isL2,
   isExpirable = false,
   avatarUploadDomain,
+  title,
+  subtitle,
   onCancel,
   onSuccess,
   onSubnameMinted,
@@ -787,9 +795,16 @@ const SubnameMintFormContent = ({
 
   return (
     <div style={{padding: 15}}>
-      <Text className="ns-text-center" weight="bold">
-        Get Your Web3 Username
-      </Text>
+      <div className="ns-text-center mb-3">
+        <Text weight="bold" size="lg">
+          {title || "Get Your Web3 Username"}
+        </Text>
+        {subtitle && (
+          <Text color="grey" size="sm" className="mt-1">
+            {subtitle}
+          </Text>
+        )}
+      </div>
 
       <div className="mt-3">
         <NameAvailabilityInput

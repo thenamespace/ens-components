@@ -196,19 +196,10 @@ const offchainManager = createOffchainClient({
   name="yourname.eth"
   offchainManager={offchainManager}
   onSubnameCreated={async (data) => {
-    await offchainManager.createSubname({
-      parentName: data.parentName,
-      label: data.label,
-      addresses: data.addresses,
-      texts: data.texts,
-      owner: data.owner,
-    });
+    await offchainManager.createSubname(data);
   }}
   onSubnameUpdated={async (data) => {
-    await offchainManager.updateSubname(data.fullSubname, {
-      addresses: data.addresses,
-      texts: data.texts,
-    });
+    await offchainManager.updateSubname(data.fullSubname, data);
   }}
 />
 ```
