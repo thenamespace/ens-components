@@ -27,6 +27,8 @@ import {
   Unlink,
   Anvil,
   Megaphone,
+  Check,
+  Copy,
 } from "lucide-react";
 import "./landing.css";
 
@@ -172,7 +174,22 @@ function highlight(code: string) {
     .join("");
 }
 
-function CodePanel({ title, code }: { title: string; code: string }) {
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  };
+  return (
+    <button className="copy-btn" onClick={handleCopy} title="Copy">
+      {copied ? <Check size={13} /> : <Copy size={13} />}
+    </button>
+  );
+}
+
+function CodePanel({ title, code, showCopy }: { title: string; code: string; showCopy?: boolean }) {
   return (
     <div className="code-panel">
       <div className="code-panel-header">
@@ -183,7 +200,12 @@ function CodePanel({ title, code }: { title: string; code: string }) {
           <span className="code-panel-dot" style={{ background: "#28C840" }} />
         </div>
       </div>
-      <div className="code-panel-body">
+      <div className="code-panel-body" style={{ position: "relative" }}>
+        {showCopy && (
+          <div style={{ position: "absolute", top: 10, right: 10 }}>
+            <CopyButton text={code} />
+          </div>
+        )}
         <pre dangerouslySetInnerHTML={{ __html: highlight(code) }} />
       </div>
     </div>
@@ -340,12 +362,15 @@ function QuickStartSection() {
       </div>
       <div className="qs-code-blocks">
         {activeStep === "01" ? (
-          <div className="install-block">
+          <div className="install-block" style={{ position: "relative" }}>
             <span className="install-prompt">$</span>
             <code>npm install @thenamespace/ens-components wagmi viem @tanstack/react-query</code>
+            <div style={{ position: "absolute", top: 10, right: 10 }}>
+              <CopyButton text="npm install @thenamespace/ens-components wagmi viem @tanstack/react-query" />
+            </div>
           </div>
         ) : (
-          <CodePanel title="providers.tsx" code={WAGMI_SETUP_CODE} />
+          <CodePanel title="providers.tsx" code={WAGMI_SETUP_CODE} showCopy />
         )}
       </div>
     </section>
@@ -458,7 +483,6 @@ const ENS_RECORDS_DEFS: PropDef[] = [
   { key: "existingRecords",   type: "string",  default: "Existing name records", required: true, readonly: true, tip: "Current on-chain records pre-loaded from the ENS resolver" },
   { key: "isTestnet",         type: "boolean", default: false,                   tip: "Use Sepolia testnet instead of Ethereum mainnet" },
   { key: "noBorder",          type: "boolean", default: false,                   tip: "Remove the card border and shadow wrapper" },
-  { key: "txConfirmations",   type: "number",  default: 1,                       tip: "Number of block confirmations to wait after a transaction" },
   { key: "resolverAddress",   type: "string",  default: "",  readonly: true,     tip: "Optional. Auto-detected from the ENS registry if not provided" },
   { key: "resolverChainId",   type: "number",  default: 1,   readonly: true,     tip: "Optional. Inferred from isTestnet if not provided" },
 ];
@@ -957,12 +981,38 @@ function NavWalletButton() {
   const { address, isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
   const { disconnect } = useDisconnect();
+  const publicClient = usePublicClient();
+  const [ensName, setEnsName] = useState<string | null>(null);
+  const [ensAvatar, setEnsAvatar] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!address || !publicClient) {
+      setEnsName(null);
+      setEnsAvatar(null);
+      return;
+    }
+    publicClient.getEnsName({ address }).then(name => {
+      setEnsName(name);
+      if (name) {
+        publicClient.getEnsAvatar({ name }).then(setEnsAvatar).catch(() => setEnsAvatar(null));
+      } else {
+        setEnsAvatar(null);
+      }
+    }).catch(() => { setEnsName(null); setEnsAvatar(null); });
+  }, [address, publicClient]);
 
   if (isConnected && address) {
     const short = `${address.slice(0, 6)}...${address.slice(-4)}`;
     return (
       <div className="nav-wallet-connected">
-        <span className="nav-wallet-addr">{short}</span>
+        <div className="nav-wallet-avatar">
+          {ensAvatar ? (
+            <img src={ensAvatar} alt="avatar" className="nav-wallet-avatar-img" />
+          ) : (
+            <div className="nav-wallet-avatar-placeholder" />
+          )}
+        </div>
+        <span className="nav-wallet-addr">{ensName ?? short}</span>
         <button
           className="nav-wallet-disconnect"
           onClick={() => disconnect()}
@@ -1019,6 +1069,9 @@ export function App() {
               Components for ENS name registration, record editing,
               and subname issuance. Drop them in, connect a wallet, ship.
             </p>
+            <div className="hero-actions">
+              <a className="hero-cta" href="#quickstart">Get Started</a>
+            </div>
           </div>
           <div className="hero-image">
             <img src={ninjaBanner} alt="Namespace ninja" />
