@@ -59,7 +59,7 @@ export const supportedTexts: SupportedTextRecord[] = [
   },
   {
     icon: "mail",
-    key: "mail",
+    key: "email",
     category: TextRecordCategory.General,
     label: "E-Mail",
     placeholder: "e.g. example@email.com",
