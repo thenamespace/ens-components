@@ -1,0 +1,10 @@
+---
+name: Build and Push Uikit Container
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    name: test
+    run: echo 'Hello World'
