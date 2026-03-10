@@ -11,6 +11,7 @@ import { SelectRecordsSection } from "./sections/SelectRecordsSection";
 import { OffchainSubnameSection } from "./sections/OffchainSubnameSection";
 import { SubnameMintSection } from "./sections/SubnameMintSection";
 import { ReportBugSection } from "./sections/ReportBugSection";
+import { SwitchChainModal } from "./components/SwitchChainModal";
 import "./landing.css";
 
 export function App() {
@@ -35,6 +36,8 @@ export function App() {
           <NavWalletButton />
         </div>
       </nav>
+
+      <SwitchChainModal isTestnet={isTestnet} />
 
       {/* HERO + SECTIONS */}
       <div className="grid-wrapper">

@@ -371,6 +371,34 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); -web
 .community-card-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
 .community-card-desc { font-size: 13.5px; color: var(--text-muted); line-height: 1.55; }
 
+/* SWITCH CHAIN MODAL */
+.switch-chain-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.switch-chain-modal {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 16px; padding: 36px 32px;
+  max-width: 380px; width: 90%; text-align: center;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.switch-chain-icon { display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 14px; background: var(--bg-card); border: 1px solid var(--border); color: var(--accent); }
+.switch-chain-title { font-size: 20px; font-weight: 700; color: var(--text); }
+.switch-chain-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+.switch-chain-desc strong { color: var(--text); }
+.switch-chain-btn {
+  margin-top: 8px; width: 100%;
+  padding: 12px 24px; border-radius: 10px; border: none; cursor: pointer;
+  background: var(--accent); color: #fff;
+  font-size: 14px; font-weight: 700; font-family: var(--font);
+  transition: opacity 0.15s;
+}
+.switch-chain-btn:hover:not(:disabled) { opacity: 0.85; }
+.switch-chain-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
 /* FOOTER */
 .footer { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 48px 24px; color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--border); }
 .footer-logo-link { display: inline-flex; }
