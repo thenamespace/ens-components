@@ -13,7 +13,7 @@
 
 ## Live demo
 
-**[uikit.namespace.ninja](https://uikit.namespace.ninja)** — interactive playground for all components with live prop editing and generated code snippets.
+**[uikit.namespace.ninja](https://enscomponents.com)** — interactive playground for all components with live prop editing and generated code snippets.
 
 ---
 
