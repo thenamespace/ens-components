@@ -29,5 +29,5 @@ ENS Components (https://enscomponents.com) is the official interactive documenta
 ## Package
 
 npm: @thenamespace/ens-components
-GitHub: https://github.com/thenamespace/uikit
+GitHub: https://github.com/thenamespace/ens-components
 Developer portal: https://dev.namespace.ninja

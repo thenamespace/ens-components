@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ninjaBanner from "./assets/ninja-banner.png";
-import logoFull from "./assets/logo-full.png";
+import logoFull from "./assets/logo-full.jpeg";
 import logoIcon from "./assets/logo-icon.png";
 import { NavWalletButton } from "./nav/NavWalletButton";
 import { ComponentsDropdown } from "./nav/ComponentsDropdown";
@@ -66,7 +66,6 @@ export function App() {
         <a className="nav-logo" href="#">
           <span className="nav-logo-stack">
             <img src={logoFull} alt="Namespace" className="nav-logo-full" />
-            <span className="nav-logo-sub">ENS Components</span>
           </span>
           <img src={logoIcon} alt="Namespace" className="nav-logo-icon" />
         </a>
@@ -127,14 +126,13 @@ export function App() {
         <a href="https://namespace.ninja" target="_blank" rel="noreferrer" className="footer-logo-link">
           <span className="footer-logo-stack">
             <img src={logoFull} alt="Namespace" className="footer-logo" />
-            <span className="footer-logo-sub">ENS Components</span>
           </span>
         </a>
         <div className="footer-links">
           Built by{" "}
           <a href="https://namespace.ninja" target="_blank" rel="noreferrer">Namespace</a>
           {" · "}
-          <a href="https://github.com/thenamespace/uikit" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="https://github.com/thenamespace/ens-components" target="_blank" rel="noreferrer">GitHub</a>
         </div>
       </footer>
     </>

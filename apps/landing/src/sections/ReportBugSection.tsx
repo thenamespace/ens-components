@@ -27,7 +27,7 @@ export function ReportBugSection() {
         </a>
         <a
           className="community-card"
-          href="https://github.com/thenamespace/uikit"
+          href="https://github.com/thenamespace/ens-components"
           target="_blank"
           rel="noreferrer"
         >

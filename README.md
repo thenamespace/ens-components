@@ -1,4 +1,4 @@
-<img src="apps/landing/src/assets/logo-full.png" alt="Namespace" height="36" />
+<img src="apps/landing/src/assets/logo-full.jpeg" alt="Namespace" height="36" />
 
 # ENS Components
 

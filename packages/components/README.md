@@ -196,5 +196,5 @@ Components use CSS variables that can be overridden:
 
 - [Namespace](https://namespace.ninja) — subname issuance platform
 - [ENS](https://ens.domains) — Ethereum Name Service
-- [Source](https://github.com/thenamespace/ui-components)
+- [Source](https://github.com/thenamespace/ens-components)
 - [npm](https://www.npmjs.com/package/@thenamespace/ens-components)

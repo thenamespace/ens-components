@@ -50,7 +50,7 @@ const FAQ_ITEMS = [
   {
     question: "Is the library open source?",
     answer:
-      "Yes. The source is available on GitHub at github.com/thenamespace/uikit under an open-source licence.",
+      "Yes. The source is available on GitHub at github.com/thenamespace/ens-components under an open-source licence.",
   },
 ];
 
