@@ -142,8 +142,8 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); -web
   flex-shrink: 0;
 }
 .section-icon-name { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
-.section-icon-badge-img { background: var(--bg-card) !important; border: 1px solid var(--border); }
-.section-icon-img { width: 26px; height: 26px; object-fit: contain; }
+.section-icon-badge-img { background: var(--accent) !important; border: none; }
+.section-icon-img { width: 26px; height: 26px; object-fit: contain; filter: brightness(0) invert(1); }
 @keyframes shuriken-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .section-icon-spin { animation: shuriken-spin 0.8s ease-in-out infinite; }
 .section-desc-block { margin-bottom: 40px; }
@@ -398,6 +398,28 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); -web
 }
 .switch-chain-btn:hover:not(:disabled) { opacity: 0.85; }
 .switch-chain-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* FAQ */
+.faq-list { display: flex; flex-direction: column; margin: 0; padding: 0; border-top: 1px solid var(--border); }
+.faq-item { border-bottom: 1px solid var(--border); }
+.faq-question {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 18px 0; background: none; border: none; cursor: pointer; text-align: left;
+  font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.4;
+  font-family: var(--font); transition: color 0.15s;
+}
+.faq-question:hover { color: var(--accent); }
+.faq-item-open .faq-question { color: var(--accent); }
+.faq-chevron { flex-shrink: 0; color: var(--text-muted); transition: transform 0.25s ease-in-out; }
+.faq-chevron-open { transform: rotate(180deg); }
+.faq-answer {
+  display: grid; grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease-in-out;
+  margin: 0;
+}
+.faq-answer-open { grid-template-rows: 1fr; }
+.faq-answer-inner { overflow: hidden; }
+.faq-answer-inner p { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin: 0; padding-bottom: 18px; }
 
 /* FOOTER */
 .footer { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 48px 24px; color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--border); }

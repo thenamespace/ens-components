@@ -11,16 +11,58 @@ import { SelectRecordsSection } from "./sections/SelectRecordsSection";
 import { OffchainSubnameSection } from "./sections/OffchainSubnameSection";
 import { SubnameMintSection } from "./sections/SubnameMintSection";
 import { ReportBugSection } from "./sections/ReportBugSection";
+import { FAQSection } from "./sections/FAQSection";
 import { SwitchChainModal } from "./components/SwitchChainModal";
+import { SEO, SITE_URL } from "./components/SEO";
+import { StructuredData } from "./components/StructuredData";
 import "./landing.css";
+
+const ORG_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Namespace",
+  url: "https://namespace.ninja",
+  sameAs: [
+    "https://github.com/thenamespace",
+    "https://x.com/namespace_eth",
+  ],
+};
+
+const PRODUCT_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "@thenamespace/ens-components",
+  applicationCategory: "DeveloperApplication",
+  operatingSystem: "Web",
+  description:
+    "Production-ready React components for ENS name registration, record editing, and subname issuance.",
+  url: SITE_URL,
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+  },
+  author: {
+    "@type": "Organization",
+    name: "Namespace",
+    url: "https://namespace.ninja",
+  },
+  codeRepository: "https://github.com/thenamespace/uikit",
+  programmingLanguage: ["TypeScript", "React"],
+  keywords: "ENS, Ethereum Name Service, React, subnames, Web3, wagmi",
+};
 
 export function App() {
   const [isTestnet, setIsTestnet] = useState(false);
 
   return (
     <>
+      <SEO />
+      <StructuredData schema={ORG_SCHEMA} />
+      <StructuredData schema={PRODUCT_SCHEMA} />
+
       {/* NAV */}
-      <nav className="nav">
+      <nav className="nav" aria-label="Main navigation">
         <a className="nav-logo" href="#">
           <span className="nav-logo-stack">
             <img src={logoFull} alt="Namespace" className="nav-logo-full" />
@@ -41,7 +83,7 @@ export function App() {
 
       {/* HERO + SECTIONS */}
       <div className="grid-wrapper">
-        <div className="hero">
+        <header className="hero">
           <div className="hero-text">
             <h1 className="hero-title">
               ENS UI Components<br />
@@ -56,23 +98,28 @@ export function App() {
             </div>
           </div>
           <div className="hero-image">
-            <img src={ninjaBanner} alt="Namespace ninja" />
+            <img src={ninjaBanner} alt="Namespace ninja mascot" />
           </div>
-        </div>
-        <div className="section-divider" />
-        <QuickStartSection />
-        <div className="section-divider" />
-        <EnsRegistrationSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} />
-        <div className="section-divider" />
-        <EnsRecordsSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} />
-        <div className="section-divider" />
-        <SelectRecordsSection />
-        <div className="section-divider" />
-        <OffchainSubnameSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} />
-        <div className="section-divider" />
-        <SubnameMintSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} />
-        <div className="section-divider" />
-        <ReportBugSection />
+        </header>
+
+        <main>
+          <div className="section-divider" />
+          <QuickStartSection />
+          <div className="section-divider" />
+          <EnsRegistrationSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} />
+          <div className="section-divider" />
+          <EnsRecordsSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} />
+          <div className="section-divider" />
+          <SelectRecordsSection />
+          <div className="section-divider" />
+          <OffchainSubnameSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} />
+          <div className="section-divider" />
+          <SubnameMintSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} />
+          <div className="section-divider" />
+          <FAQSection />
+          <div className="section-divider" />
+          <ReportBugSection />
+        </main>
       </div>
 
       {/* FOOTER */}
@@ -87,7 +134,7 @@ export function App() {
           Built by{" "}
           <a href="https://namespace.ninja" target="_blank" rel="noreferrer">Namespace</a>
           {" · "}
-          <a href="https://github.com/thenamespace/ui-components" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="https://github.com/thenamespace/uikit" target="_blank" rel="noreferrer">GitHub</a>
         </div>
       </footer>
     </>

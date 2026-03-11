@@ -1,0 +1,33 @@
+# ENS Components by Namespace
+# https://enscomponents.com
+
+User-agent: *
+Allow: /
+AI-Training: allowed
+AI-Retrieval: allowed
+
+## About this site
+
+ENS Components (https://enscomponents.com) is the official interactive documentation and live playground for @thenamespace/ens-components — a production-ready React component library for building ENS (Ethereum Name Service) experiences.
+
+## What this site contains
+
+- Live interactive demos of each component
+- Copy-paste code examples
+- Prop editor for every component
+- Quick-start installation guide
+- FAQ covering common integration questions
+
+## Key components documented here
+
+1. EnsNameRegistrationForm — Full .eth name registration flow (search, commit, register)
+2. EnsRecordsForm — Profile record editor (text records, addresses, avatar, contenthash)
+3. SelectRecordsForm — Standalone record selector with no wallet required
+4. OffchainSubnameForm — Gasless offchain subname creation via the Namespace API
+5. SubnameMintForm — Onchain subname minting with price lookup and wallet transaction
+
+## Package
+
+npm: @thenamespace/ens-components
+GitHub: https://github.com/thenamespace/uikit
+Developer portal: https://dev.namespace.ninja
