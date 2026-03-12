@@ -32,6 +32,10 @@ export function SEO({
       <meta property="og:url" content={canonical} />
       <meta property="og:image" content={ogImage} />
       <meta property="og:type" content={ogType} />
+      <meta property="og:image:width" content="2398" />
+      <meta property="og:image:height" content="1300" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:site" content="@namespace_eth" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />
