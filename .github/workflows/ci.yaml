@@ -13,7 +13,6 @@ jobs:
     with:
       project_id: ${{ vars.GCP_PROJECT_ID }}
       region: ${{ vars.GCP_REGION }}
-      repository: uikit
     secrets:
       WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
 
