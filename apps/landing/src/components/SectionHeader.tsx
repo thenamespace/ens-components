@@ -37,21 +37,19 @@ export function SectionHeader({
 
   return (
     <>
-      <div className="section-icon-row">
+      <div className="agent-qs-header">
         <div
           ref={badgeRef}
-          className={`section-icon-badge${isImg ? " section-icon-badge-img" : ""}`}
+          className={`agent-qs-badge${isImg ? " agent-qs-badge-img" : ""}`}
         >
           {isImg
             ? <img src={icon as string} alt="" className={`section-icon-img${spin ? " section-icon-spin" : ""}`} />
-            : Icon && <Icon size={20} strokeWidth={2.2} />
+            : Icon && <Icon size={13} strokeWidth={2.5} />
           }
+          {name}
         </div>
-        <span className="section-icon-name">{name}</span>
-      </div>
-      <div className="section-desc-block">
-        <h2>{title}</h2>
-        <p>{desc}</p>
+        <h2 className="agent-qs-title">{title}</h2>
+        <p className="agent-qs-subtitle">{desc}</p>
       </div>
     </>
   );
