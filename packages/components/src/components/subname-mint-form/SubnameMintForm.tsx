@@ -14,10 +14,6 @@ import { normalize } from "viem/ens";
 import { debounce, deepCopy, getEnsRecordsDiff } from "@/utils";
 import "./SubnameMintForm.css";
 import { useMintManager, useMintSubname, useWaitTransaction, useEthDollarValue } from "@/hooks";
-// Note: gas estimation via estimateContractGas is intentionally avoided here.
-// getMintDetails already returns estimatedFeeEth (protocol fee) and estimatedPriceEth from
-// the API, which is sufficient for display. On-chain simulation via estimateContractGas
-// would fail when the owner address is a contract that doesn't implement ERC1155Receiver.
 import { getChainIdForListingNetwork, ListingType, EnsRecords } from "@/types";
 import {
   MintDetailsResponse,
@@ -502,7 +498,6 @@ const SubnameMintFormContent = ({
 
   const fetchGasEstimate = async (labelToEstimate: string, recordsToEstimate: EnsRecords) => {
     if (!connectedAddress) return;
-    console.log("[SubnameMintForm] fetchGasEstimate minterAddress:", connectedAddress);
     setTransactionFees((prev) => ({ ...prev, isChecking: true, failed: false }));
     try {
       const ensMintRecords: EnsMintRecords = {

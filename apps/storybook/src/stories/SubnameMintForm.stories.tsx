@@ -49,7 +49,7 @@ type Story = StoryObj<typeof SubnameMintForm>;
 
 export const Default: Story = {
   args: {
-    parentName: "artii.eth",
+    parentName: "ninjabase.eth",
     isTestnet: false,
   },
   parameters: {
@@ -63,7 +63,7 @@ export const Default: Story = {
 
 export const Testnet: Story = {
   args: {
-    parentName: "artii.eth",
+    parentName: "ninjabase.eth",
     isTestnet: true,
   },
   parameters: {
@@ -75,7 +75,7 @@ export const Testnet: Story = {
 
 export const PrefilledLabel: Story = {
   args: {
-    parentName: "artii.eth",
+    parentName: "ninjabase.eth",
     isTestnet: false,
     label: "alice",
   },

@@ -10,7 +10,7 @@ import { generateCode } from "../components/generateCode";
 import type { PropDef } from "../components/types";
 
 const MINT_DEFS: PropDef[] = [
-  { key: "name",      type: "string",  default: "artii.eth", tip: "The ENS name users will mint subnames under", required: true, readonly: true },
+  { key: "name",      type: "string",  default: "ninjabase.eth", tip: "The ENS name users will mint subnames under", required: true, readonly: true },
   { key: "isTestnet", type: "boolean", default: false,        tip: "Use Sepolia testnet instead of Ethereum mainnet" },
   { key: "title",     type: "string",  default: "",           tip: "Override the form title text", placeholder: "title..." },
   { key: "subtitle",  type: "string",  default: "",           tip: "Optional subtitle shown below the title", placeholder: "subtitle..." },
@@ -18,7 +18,7 @@ const MINT_DEFS: PropDef[] = [
 
 export function SubnameMintSection({ isTestnet, onIsTestnetChange }: { isTestnet: boolean; onIsTestnetChange: (v: boolean) => void }) {
   const { openConnectModal } = useConnectModal();
-  const parentName = isTestnet ? "unicorn.eth" : "artii.eth";
+  const parentName = isTestnet ? "unicorn.eth" : "ninjabase.eth";
   const [values, setValues] = useState<Record<string, any>>(() => ({
     ...Object.fromEntries(MINT_DEFS.map((d) => [d.key, d.default])),
     isTestnet,
