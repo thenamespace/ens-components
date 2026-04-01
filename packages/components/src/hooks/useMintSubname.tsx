@@ -76,8 +76,22 @@ export const useMintSubname = ({ chainId }: { chainId: number }) => {
         value: mintTx.value,
       });
 
-      // Get gas price (returned in gwei, convert to wei)
-      let gasPriceWei = await publicClient.getGasPrice();
+      // Compute maxFeePerGas matching typical wallet behaviour:
+      // maxFeePerGas = 2 * baseFeePerGas + priorityFee
+      // where priorityFee is at least 1.5 Gwei (MetaMask "medium" floor).
+      let gasPriceWei: bigint;
+      try {
+        const [block, priorityFee] = await Promise.all([
+          publicClient.getBlock({ blockTag: "latest" }),
+          publicClient.estimateMaxPriorityFeePerGas().catch(() => 0n),
+        ]);
+        const baseFee = block.baseFeePerGas ?? (await publicClient.getGasPrice());
+        const minPriorityFee = 1_500_000_000n; // 1.5 Gwei floor
+        const effectivePriorityFee = priorityFee > minPriorityFee ? priorityFee : minPriorityFee;
+        gasPriceWei = baseFee * 2n + effectivePriorityFee;
+      } catch {
+        gasPriceWei = await publicClient.getGasPrice();
+      }
 
       // Calculate total fee
       const totalFeeWei = gasEstimate * gasPriceWei;
