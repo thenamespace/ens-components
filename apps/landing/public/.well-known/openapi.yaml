@@ -1,0 +1,218 @@
+openapi: 3.1.0
+info:
+  title: ENS Components Documentation API
+  description: >
+    Machine-readable documentation resources for @thenamespace/ens-components.
+    This API exposes the LLM-friendly reference files and metadata for the
+    ENS Components React library. Use these endpoints to retrieve full prop
+    tables, TypeScript types, integration recipes, and package metadata.
+  version: 1.1.6
+  contact:
+    url: https://namespace.ninja
+  license:
+    name: MIT
+    url: https://github.com/thenamespace/ens-components/blob/main/LICENSE
+  x-llms-txt: https://enscomponents.com/llms.txt
+  x-llms-full-txt: https://enscomponents.com/llms-full.txt
+
+servers:
+  - url: https://enscomponents.com
+    description: Production
+
+paths:
+  /llms.txt:
+    get:
+      operationId: getLlmsSummary
+      summary: LLM summary reference
+      description: >
+        Concise summary of the @thenamespace/ens-components library for LLMs.
+        Includes installation, all five component names with key props,
+        core TypeScript types, CSS custom properties, and framework compatibility.
+        Fetch this first for a quick orientation.
+      responses:
+        "200":
+          description: Plain-text LLM summary
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /llms-full.txt:
+    get:
+      operationId: getLlmsFullReference
+      summary: Full LLM API reference
+      description: >
+        Complete API reference for @thenamespace/ens-components.
+        Contains full prop tables with types and defaults for all five components
+        (EnsNameRegistrationForm, EnsRecordsForm, SelectRecordsForm,
+        OffchainSubnameForm, SubnameMintForm), all exported TypeScript interfaces
+        and enums, exported hooks with accurate signatures, complete CSS custom
+        property listing with light and dark theme values, error handling table,
+        framework-specific integration recipes (Next.js App Router, Remix, Vite),
+        and common ENS text record keys. Use this when generating integration code.
+      responses:
+        "200":
+          description: Plain-text full API reference
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /.well-known/ai-plugin.json:
+    get:
+      operationId: getAiPluginManifest
+      summary: AI plugin manifest
+      description: >
+        Capability manifest for AI agent discovery. Describes the library,
+        provides pointers to llms.txt and llms-full.txt, and lists package
+        metadata (npm name, GitHub repository, license).
+      responses:
+        "200":
+          description: AI plugin manifest JSON
+          content:
+            application/json:
+              schema:
+                type: object
+
+components:
+  schemas:
+    EnsRecords:
+      type: object
+      description: ENS profile records object used across all components
+      required:
+        - addresses
+        - texts
+      properties:
+        addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnsAddressRecord"
+        texts:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnsTextRecord"
+        contenthash:
+          $ref: "#/components/schemas/EnsContenthashRecord"
+
+    EnsTextRecord:
+      type: object
+      required:
+        - key
+        - value
+      properties:
+        key:
+          type: string
+          description: >
+            ENS text record key. Common keys: avatar, description, url, email,
+            com.twitter, com.github, com.discord, com.telegram, org.telegram,
+            com.reddit, com.linkedin
+        value:
+          type: string
+
+    EnsAddressRecord:
+      type: object
+      required:
+        - coinType
+        - value
+      properties:
+        coinType:
+          type: integer
+          description: SLIP-44 coin type. Common values: 60 (ETH), 0 (BTC), 501 (SOL)
+        value:
+          type: string
+          description: Address string for the given coin type
+
+    EnsContenthashRecord:
+      type: object
+      required:
+        - protocol
+        - value
+      properties:
+        protocol:
+          type: string
+          enum:
+            - ipfs
+            - onion3
+            - arweave
+            - skynet
+            - swarm
+        value:
+          type: string
+          description: CID or protocol-specific content identifier
+
+    RegistrationSuccessData:
+      type: object
+      properties:
+        expiryInYears:
+          type: integer
+        registrationCost:
+          type: string
+          description: Formatted ETH string
+        transactionFees:
+          type: string
+          description: Formatted ETH string
+        total:
+          type: string
+          description: Formatted ETH string
+        expiryDate:
+          type: string
+          description: ISO date string
+
+    OffchainSubnameCreatedData:
+      type: object
+      properties:
+        label:
+          type: string
+          description: Subname label (e.g. "alice")
+        parentName:
+          type: string
+          description: Parent ENS name (e.g. "myname.eth")
+        fullSubname:
+          type: string
+          description: Full subname (e.g. "alice.myname.eth")
+        addresses:
+          type: array
+          items:
+            type: object
+            properties:
+              chain:
+                type: string
+                enum: [eth, arb, base, bitcoin, matic, op, sol, zora, celo]
+              value:
+                type: string
+        texts:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+              value:
+                type: string
+        owner:
+          type: string
+          description: Owner address if set
+
+    SubnameMintedData:
+      type: object
+      properties:
+        label:
+          type: string
+        parentName:
+          type: string
+        fullSubname:
+          type: string
+        records:
+          $ref: "#/components/schemas/EnsRecords"
+        price:
+          type: string
+          description: Formatted ETH string
+        transactionFees:
+          type: string
+          description: Formatted ETH string
+        ownerAddress:
+          type: string
+        txHash:
+          type: string
+        chainId:
+          type: integer

@@ -1,6 +1,7 @@
 import { CircleHelp } from "lucide-react";
 import { SectionHeader } from "../components/SectionHeader";
 import { FAQ } from "../components/FAQ";
+import { StructuredData } from "../components/StructuredData";
 
 const FAQ_ITEMS = [
   {
@@ -54,9 +55,27 @@ const FAQ_ITEMS = [
   },
 ];
 
+const FAQ_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQ_ITEMS.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: "schemaAnswer" in item
+        ? item.schemaAnswer
+        : typeof item.answer === "string"
+          ? item.answer
+          : item.question,
+    },
+  })),
+};
+
 export function FAQSection() {
   return (
     <section className="section" id="faq" aria-labelledby="faq-heading">
+      <StructuredData schema={FAQ_SCHEMA} />
       <SectionHeader
         icon={CircleHelp}
         name="FAQ"

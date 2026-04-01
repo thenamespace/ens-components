@@ -1,6 +1,8 @@
 # @thenamespace/ens-components — Full API Reference
 # https://enscomponents.com/llms-full.txt
 # Summary version: https://enscomponents.com/llms.txt
+# Last-Updated: 2026-04-02
+# Package version: 1.1.6
 
 User-agent: *
 Allow: /
@@ -147,13 +149,14 @@ submits a multicall transaction to update changed records.
 
 ```tsx
 import { EnsRecordsForm } from "@thenamespace/ens-components";
-import { useENSResolver } from "@thenamespace/ens-components";
 
-const { records } = useENSResolver({ name: "alice.eth" });
+// existingRecords must be fetched externally (e.g. via viem or your own resolver query)
+// and passed in. EnsRecordsForm does not fetch records itself.
+const existingRecords = { addresses: [], texts: [] }; // replace with your fetched records
 
 <EnsRecordsForm
   name="alice.eth"
-  existingRecords={records}
+  existingRecords={existingRecords}
   onRecordsUpdated={(diff) => console.log("Updated", diff)}
 />
 ```
@@ -229,9 +232,12 @@ Requires a `OffchainClient` instance from `@thenamespace/offchain-manager`.
 
 ```tsx
 import { OffchainSubnameForm } from "@thenamespace/ens-components";
-import { OffchainClient } from "@thenamespace/offchain-manager";
+import { createOffchainClient } from "@thenamespace/offchain-manager";
 
-const client = new OffchainClient({ apiKey: "YOUR_API_KEY" });
+const client = createOffchainClient({
+  domainApiKeys: { "myname.eth": "YOUR_API_KEY" },
+  mode: "mainnet", // or "sepolia"
+});
 
 <OffchainSubnameForm
   offchainManager={client}
@@ -345,9 +351,24 @@ interface EnsRecords {
 }
 
 interface EnsTextRecord {
-  key: string;   // e.g. "com.twitter", "url", "description", "email"
+  key: string;   // see common keys below
   value: string;
 }
+
+// Common ENS text record keys:
+// "avatar"          — profile image URL or IPFS URI
+// "description"     — short bio
+// "url"             — website URL
+// "email"           — email address
+// "com.twitter"     — Twitter/X handle (without @)
+// "com.github"      — GitHub username
+// "com.discord"     — Discord username
+// "com.telegram"    — Telegram handle
+// "org.telegram"    — Telegram handle (alternative key)
+// "com.reddit"      — Reddit username
+// "com.linkedin"    — LinkedIn profile slug
+// "header"          — banner/header image URL
+// "display"         — preferred display name
 
 interface EnsAddressRecord {
   coinType: number;  // SLIP-44 coin type, e.g. 60 = ETH, 0 = BTC
@@ -410,25 +431,62 @@ enum TxProgress { Pending = 0, Success = 1, Failed = 2 }
 ## Exported Hooks
 
 ```ts
-// Resolve current on-chain records for an ENS name
-useENSResolver(options: { name: string; isTestnet?: boolean })
-  → { records: EnsRecords; isLoading: boolean; error: Error | null; ... }
+// Low-level ENS resolver utilities (used internally by EnsRecordsForm)
+// NOTE: does NOT fetch records — use existingRecords prop on EnsRecordsForm instead
+useENSResolver(options: { resolverChainId: number; isTestnet?: boolean })
+  → {
+      getResolverAddress(name: string): Promise<Address>;
+      isResolverSupported(resolverAddress: Address): Promise<boolean>;
+      setUpdateRecordsTx(update: {
+        name: string;
+        resolver: Address;
+        diff: EnsRecordsDiff;
+      }): Promise<Hash>;
+    }
+
+// Create an offchain client and memoize it
+useOffchainManager(
+  name: string,           // parent ENS name, e.g. "myname.eth"
+  apiKeyOrToken: string,  // API key from dev.namespace.ninja
+  isTestnet?: boolean
+) → OffchainClient  // createOffchainClient result, ready to pass to OffchainSubnameForm
+
+// Wait for a transaction receipt with retries and timeout
+useWaitTransaction(options: { isTestnet?: boolean; chainId?: number })
+  → {
+      waitTx(options: {
+        hash: Hash;
+        retries?: number;       // default: 3
+        retryDelay?: number;    // default: 2000ms
+        timeout?: number;       // default: 60000ms
+        txConfirmations?: number; // default: 1
+      }): Promise<TransactionReceipt>;
+    }
+
+// Onchain subname mint — looks up listing details from the Namespace API
+useMintManager(options: { isTestnet?: boolean })
+  → {
+      mintClient: MintClient;
+      getListingDetails(name: string): Promise<NameListing>;
+    }
+
+// Execute an onchain subname mint transaction
+useMintSubname(options: { chainId: number })
+  → {
+      mintSubname(mintTx: MintTransactionResponse): Promise<{ txHash: Hash; price: bigint }>;
+      estimateTransactionFees(params: { mintTx: MintTransactionResponse; account: Address }): Promise<EstimatedFees | null>;
+    }
+
+// ENS avatar and header image upload via SIWE
+useAvatarClient(options: { isTestnet?: boolean; domain?: string })
+  → {
+      uploadAvatar(params: { ensName: string; file: File; onProgress?: (progress: number) => void }): Promise<UploadResult>;
+      uploadHeader(params: { ensName: string; file: File; onProgress?: (progress: number) => void }): Promise<UploadResult>;
+      getErrorMessage(err: unknown, imageType?: "avatar" | "header"): string;
+    }
 
 // Full ENS registration flow (used internally by EnsNameRegistrationForm)
-useRegisterENS(options)
-
-// Wait for a transaction to confirm
-useWaitTransaction(hash: Hash, confirmations?: number)
-
-// Offchain subname management
-useOffchainManager(client: OffchainClient)
-
-// Onchain subname mint management
-useMintManager(options)
-useMintSubname(options)
-
-// ENS avatar upload
-useAvatarClient(options)
+useRegisterENS(options: { isTestnet?: boolean })
 ```
 
 ---
@@ -565,12 +623,13 @@ export function EnsRegistration() {
 ### Read & Edit Records
 
 ```tsx
-import { useENSResolver, EnsRecordsForm } from "@thenamespace/ens-components";
+import { EnsRecordsForm, EnsRecords } from "@thenamespace/ens-components";
+import { useState } from "react";
 
+// Fetch existing records from your own source (e.g. viem getEnsText/getEnsAddress calls,
+// or the Namespace API) and pass them into EnsRecordsForm via existingRecords.
 function EditRecords({ name }: { name: string }) {
-  const { records, isLoading } = useENSResolver({ name });
-
-  if (isLoading) return <p>Loading…</p>;
+  const [records] = useState<EnsRecords>({ addresses: [], texts: [] });
 
   return (
     <EnsRecordsForm
@@ -585,10 +644,13 @@ function EditRecords({ name }: { name: string }) {
 ### Offchain Subnames with API Key
 
 ```tsx
-import { OffchainClient } from "@thenamespace/offchain-manager";
+import { createOffchainClient } from "@thenamespace/offchain-manager";
 import { OffchainSubnameForm } from "@thenamespace/ens-components";
 
-const client = new OffchainClient({ apiKey: process.env.NEXT_PUBLIC_NS_API_KEY });
+const client = createOffchainClient({
+  domainApiKeys: { "myname.eth": process.env.NEXT_PUBLIC_NS_API_KEY! },
+  mode: "mainnet",
+});
 
 function SubnameForm() {
   return (
