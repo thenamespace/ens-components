@@ -1,4 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Component, type ReactNode } from "react";
+
+class ErrorBoundary extends Component<{ onReset: () => void; children: ReactNode }, { error: Error | null }> {
+  state = { error: null };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  render() {
+    if (this.state.error)
+      return (
+        <div className="ens-lookup-wrap">
+          <p className="ens-lookup-error">Something went wrong loading the form.</p>
+          <button className="ens-lookup-btn" onClick={() => { this.setState({ error: null }); this.props.onReset(); }}>Try again</button>
+        </div>
+      );
+    return this.props.children;
+  }
+}
 import { useAccount } from "wagmi";
 import { usePublicClient } from "wagmi";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
@@ -15,12 +30,12 @@ import type { PropDef } from "../components/types";
 const RESOLVIO = "https://resolvio.namespace.ninja";
 
 async function fetchEnsProfile(name: string) {
-  const res = await fetch(`${RESOLVIO}/ens/v1/profile/${encodeURIComponent(name)}`);
+  const res = await fetch(`${RESOLVIO}/ens/v2/profile/${encodeURIComponent(name)}`);
   if (!res.ok) throw new Error("ENS name not found or has no records");
   const data = await res.json();
   return {
-    addresses: (data.addresses || []).map((a: any) => ({ coinType: a.coin, value: a.address })),
-    texts: (data.texts || []).map((t: any) => ({ key: t.key, value: t.value })),
+    addresses: (data.addresses || []).filter((a: any) => a.exists).map((a: any) => ({ coinType: a.coin, value: a.value })),
+    texts: (data.texts || []).filter((t: any) => t.exists).map((t: any) => ({ key: t.key, value: t.value })),
   };
 }
 
@@ -173,21 +188,23 @@ export function EnsRecordsSection({ isTestnet, onIsTestnetChange }: { isTestnet:
               )}
             </div>
           ) : (
-            <div style={{ position: "relative" }}>
-              <EnsRecordsForm
-                key={`${submittedName}-${String(isTestnet)}-${values.resolverAddress}`}
-                name={submittedName}
-                isTestnet={isTestnet}
-                resolverAddress={values.resolverAddress || undefined}
-                resolverChainId={values.resolverChainId || undefined}
-                noBorder={values.noBorder}
-                txConfirmations={values.txConfirmations || undefined}
-                avatarUploadDomain={values.avatarUploadDomain || undefined}
-                existingRecords={existingRecords}
-                onCancel={handleReset}
-                onGreat={handleReset}
-              />
-            </div>
+            <ErrorBoundary onReset={handleReset}>
+              <div style={{ position: "relative" }}>
+                <EnsRecordsForm
+                  key={`${submittedName}-${String(isTestnet)}-${values.resolverAddress}`}
+                  name={submittedName}
+                  isTestnet={isTestnet}
+                  resolverAddress={values.resolverAddress || undefined}
+                  resolverChainId={values.resolverChainId || undefined}
+                  noBorder={values.noBorder}
+                  txConfirmations={values.txConfirmations || undefined}
+                  avatarUploadDomain={values.avatarUploadDomain || undefined}
+                  existingRecords={existingRecords}
+                  onCancel={handleReset}
+                  onGreat={handleReset}
+                />
+              </div>
+            </ErrorBoundary>
           )}
         </DemoPanel>
         <div className="code-col">
