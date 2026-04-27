@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useAccount } from "wagmi";
-import { Address, ContractFunctionExecutionError, Hash } from "viem";
+import { ContractFunctionExecutionError, Hash } from "viem";
 import { Accordion } from "../../molecules/accordion";
 import { Button, Text, Icon } from "../../atoms";
 import { RegistrationRequest, useRegisterENS, useWaitTransaction } from "@/hooks";
@@ -15,7 +15,6 @@ interface CommitmentStepProps {
   state: RegistrationState;
   isTestnet?: boolean;
   onStateUpdated: (state: RegistrationState) => void;
-  referrer?: Address
 }
 
 export const CommitmentStep: React.FC<CommitmentStepProps> = ({

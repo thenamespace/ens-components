@@ -182,6 +182,7 @@ export const EnsNameRegistrationForm = (
           label={label}
           expiryInYears={years}
           records={ensRecords}
+          referrer={props.referrer}
           onBack={(clearState?: boolean) => {
             if (clearState) {
               clearInputState();
