@@ -19,9 +19,8 @@ export interface RegistrationState {
   label: string;
   isTestnet?: boolean;
   secret: string;
-  expiryInYears: number;
+  durationInSeconds: number;
   records: EnsRecords;
-  referrer?: Address
-  isLoading?: boolean
+  referrer?: Address;
+  isLoading?: boolean;
 }
-
