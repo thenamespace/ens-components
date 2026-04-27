@@ -6,3 +6,4 @@ export * from "./resolver";
 export * from "./ens";
 export * from "./blockExplorer";
 export * from "./async";
+export * from "./date";
