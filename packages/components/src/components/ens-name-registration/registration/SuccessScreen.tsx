@@ -7,7 +7,7 @@ import "./SuccessScreen.css";
 
 interface SuccessScreenProps {
   ensName: string;
-  expiryInYears: number;
+  durationLabel: string;
   registrationCost: string; // ETH value as string
   transactionFees: string; // ETH value as string
   total: string; // ETH value as string
@@ -20,7 +20,7 @@ interface SuccessScreenProps {
 
 export const SuccessScreen: React.FC<SuccessScreenProps> = ({
   ensName,
-  expiryInYears,
+  durationLabel,
   registrationCost,
   transactionFees,
   total,
@@ -88,7 +88,7 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
 
         <div className="ens-registration-success-summary">
           <div className="ens-registration-success-summary-row">
-            <Text size="sm" color="grey">{expiryInYears} year registration</Text>
+            <Text size="sm" color="grey">{durationLabel} registration</Text>
             <Text size="sm" color="grey">
               {parseFloat(registrationCost).toFixed(4)} ETH
             </Text>

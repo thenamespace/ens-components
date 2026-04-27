@@ -15,17 +15,18 @@ import {
 import { useAccount } from "wagmi";
 import { TransactionPendingScreen } from "./TransactionPendingScreen";
 import { formatFloat } from "@/utils";
+import { formatDurationSummary } from "@/utils/date";
 import { EnsRecords } from "@/types";
 
 export interface RegistrationSuccessData {
-  expiryInYears: number;
-  registrationCost: string; // ETH as string
-  transactionFees: string; // ETH as string
-  total: string; // ETH as string
+  durationLabel: string;
+  registrationCost: string;
+  transactionFees: string;
+  total: string;
   expiryDate: string;
-  thHash: string
-  name: string
-  records: EnsRecords
+  thHash: string;
+  name: string;
+  records: EnsRecords;
 }
 
 interface RegistrationStepProps {
@@ -39,46 +40,28 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
   state,
   isTestnet,
   onStateUpdated,
-  onSuccess
+  onSuccess,
 }) => {
-  const [btnState, setBtnState] = useState<{
-    waitingWallet: boolean;
-    waitingTx: boolean;
-  }>({
-    waitingTx: false,
-    waitingWallet: false,
-  });
+  const [btnState, setBtnState] = useState({ waitingWallet: false, waitingTx: false });
   const { address } = useAccount();
   const { waitTx } = useWaitTransaction({ isTestnet });
-  const [error, setError] = useState<ContractFunctionExecutionError | null>(
-    null
-  );
-  const [commitTxStatus, setCommitTxStatus] = useState<{
-    sent: boolean;
-    completed: boolean;
-    hash: string;
-  }>({
-    sent: false,
-    completed: false,
-    hash: "",
-  });
+  const [error, setError] = useState<ContractFunctionExecutionError | null>(null);
+  const [commitTxStatus, setCommitTxStatus] = useState({ sent: false, completed: false, hash: "" });
 
-  const { sendRegisterTx, getRegistrationPrice } = useRegisterENS({
-    isTestnet,
-  });
+  const { sendRegisterTx } = useRegisterENS({ isTestnet });
 
   const handleRegistration = async () => {
     setError(null);
     let tx: Hash | null = null;
-    let registrationPrice: number = 0;
+    let registrationPrice = 0;
 
     try {
-      setBtnState({ ...btnState, waitingWallet: true });
+      setBtnState({ waitingWallet: true, waitingTx: false });
 
       const request: RegistrationRequest = {
         label: state.label,
         owner: address!,
-        expiryInYears: state.expiryInYears,
+        durationInSeconds: state.durationInSeconds,
         secret: state.secret,
         records: state.records,
         referrer: state.referrer,
@@ -92,50 +75,36 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
       onStateUpdated({
         ...state,
         step: ProcessSteps.RegistrationSent,
-        commitment: { tx: tx, completed: false, time: 0 },
+        commitment: { tx, completed: false, time: 0 },
       });
 
       setBtnState({ waitingTx: true, waitingWallet: false });
     } catch (err: any) {
       console.error(err);
-      if (
-        err instanceof ContractFunctionExecutionError &&
-        !isUserDeniedError(err)
-      ) {
+      if (err instanceof ContractFunctionExecutionError && !isUserDeniedError(err)) {
         setError(err);
       } else if (!isUserDeniedError(err)) {
-        const genericError = new Error(
-          err?.shortMessage || err?.message || "Transaction failed"
+        setError(
+          new Error(err?.shortMessage || err?.message || "Transaction failed") as ContractFunctionExecutionError
         );
-        setError(genericError as ContractFunctionExecutionError);
       }
     } finally {
       setBtnState({ waitingTx: false, waitingWallet: false });
     }
 
-    if (!tx) {
-      return;
-    }
+    if (!tx) return;
 
     try {
-      // Wait for transaction with retry
       const receipt = await waitTx({ hash: tx });
 
       setCommitTxStatus({ sent: true, completed: true, hash: tx });
-      // Calculate gas fees (gasUsed * gasPrice)
+
       const gasUsed = receipt.gasUsed;
       const gasPrice = receipt.effectiveGasPrice || BigInt(0);
-      const transactionFees = gasUsed * gasPrice;
-      const transactionFeesEth = formatEther(transactionFees);
+      const transactionFeesEth = formatEther(gasUsed * gasPrice);
+      const totalCost = (registrationPrice + parseFloat(transactionFeesEth)).toString();
 
-      // Calculate total cost
-      const totalCost = (
-        registrationPrice + parseFloat(transactionFeesEth)
-      ).toString();
-
-      // Calculate expiry date (current date + expiryInYears)
-      const expiryDate = new Date();
-      expiryDate.setFullYear(expiryDate.getFullYear() + state.expiryInYears);
+      const expiryDate = new Date(Date.now() + state.durationInSeconds * 1000);
       const formattedExpiryDate = expiryDate.toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
@@ -146,18 +115,18 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
         onStateUpdated({
           ...state,
           step: ProcessSteps.RegistrationCompleted,
-          commitment: { tx: tx, completed: true, time: new Date().getTime() },
+          commitment: { tx, completed: true, time: Date.now() },
         });
         setCommitTxStatus({ sent: false, completed: false, hash: "" });
         onSuccess?.({
-          expiryInYears: state.expiryInYears,
+          durationLabel: formatDurationSummary(state.durationInSeconds),
           registrationCost: registrationPrice.toString(),
           transactionFees: transactionFeesEth,
           total: totalCost,
           expiryDate: formattedExpiryDate,
-          thHash: tx,
+          thHash: tx!,
           name: `${state.label}.eth`,
-          records: state.records
+          records: state.records,
         });
       }, 1000);
     } catch (err) {
@@ -173,21 +142,14 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
       state.step < ProcessSteps.RegistrationCompleted;
     const isCompleted = state.step >= ProcessSteps.RegistrationCompleted;
     const isDisabled = state.step < ProcessSteps.TimerCompleted;
-    return {
-      isCurrentStep,
-      isDisabled,
-      isPending,
-      isCompleted,
-    };
+    return { isCurrentStep, isDisabled, isPending, isCompleted };
   }, [state]);
 
   const getProgressStatusBadge = () => {
     if (isCurrentStep) {
       return (
         <div className="ns-process-badge me-2">
-          <Text color="white" weight="bold" size="sm">
-            3
-          </Text>
+          <Text color="white" weight="bold" size="sm">3</Text>
         </div>
       );
     } else if (isCompleted) {
@@ -196,15 +158,12 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
           <Icon name="check" size={16} color="black" />
         </div>
       );
-    } else {
-      return (
-        <div className="ns-process-badge ns-process-badge--inactive me-2">
-          <Text color="primary" weight="bold" size="sm">
-            3
-          </Text>
-        </div>
-      );
     }
+    return (
+      <div className="ns-process-badge ns-process-badge--inactive me-2">
+        <Text color="primary" weight="bold" size="sm">3</Text>
+      </div>
+    );
   };
 
   const btnDisabled = btnState.waitingTx || btnState.waitingWallet;
@@ -218,26 +177,18 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
       title={
         <div className="d-flex align-items-center">
           {getProgressStatusBadge()}
-          <Text size="sm" weight="medium">
-            Complete Registration
-          </Text>
+          <Text size="sm" weight="medium">Complete Registration</Text>
         </div>
       }
     >
       {!commitTxStatus.sent && (
         <div className="ns-text-center">
-          <Text weight="medium" className="mb-2">
-            Register Name
-          </Text>
+          <Text weight="medium" className="mb-2">Register Name</Text>
           <Text size="xs" color="grey">
-            Your name is not registered until you've completed the second
-            transaction. You have 23 hours remaining to complete it.
+            Your name is not registered until you've completed the second transaction. You have 23
+            hours remaining to complete it.
           </Text>
-          <Button
-            disabled={btnDisabled}
-            onClick={() => handleRegistration()}
-            className="mt-3 ns-wd-100"
-          >
+          <Button disabled={btnDisabled} onClick={handleRegistration} className="mt-3 ns-wd-100">
             {btnLabel}
           </Button>
           <ContractErrorLabel error={error} />

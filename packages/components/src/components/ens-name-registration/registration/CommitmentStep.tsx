@@ -63,13 +63,13 @@ export const CommitmentStep: React.FC<CommitmentStepProps> = ({
       setBtnState({ ...btnState, waitingWallet: true });
 
       const request: RegistrationRequest = {
-         label: state.label,
+        label: state.label,
         owner: address!,
-        expiryInYears: state.expiryInYears,
+        durationInSeconds: state.durationInSeconds,
         secret: state.secret,
         records: state.records,
-        referrer: state.referrer
-      }
+        referrer: state.referrer,
+      };
 
       tx = await sendCommitmentTx(request);
       setCommitTxStatus({ sent: true, completed: false, hash: tx });
