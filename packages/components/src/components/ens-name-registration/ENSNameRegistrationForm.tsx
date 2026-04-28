@@ -1,13 +1,17 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./ENSNamesRegistrarComponent.css";
 import { RegistrationSummary } from "./RegistrationSummary";
 import { SetNameRecords } from "./SetNameRecords";
 import { EnsRecords } from "@/types";
-import { deepCopy, getEnsRecordsDiff } from "@/utils";
+import { debounce, deepCopy, getEnsRecordsDiff } from "@/utils";
 import { secondsFromYears } from "@/utils/date";
 import { RegistrationProcess } from "./RegistrationProcess";
 import { SuccessScreen } from "./registration";
 import { Address } from "viem";
+import { useAccount } from "wagmi";
+import { useRegisterENS } from "@/hooks";
+
+const REG_SECRET_PLACEHOLDER = "0x0000000000000000000000000000000000000000000000000000000000000001";
 
 export interface EnsNameRegistrationFormProps {
   name?: string;
@@ -48,17 +52,22 @@ const getLabel = (name?: string) => {
 };
 
 export const EnsNameRegistrationForm = (props: EnsNameRegistrationFormProps) => {
+  const { address: connectedAddress } = useAccount();
+  const { estimateRegistrationFees } = useRegisterENS({ isTestnet: props.isTestnet });
+
   const [label, setLabel] = useState<string>(getLabel(props.name));
   const [step, setStep] = useState<RegistrationSteps>(RegistrationSteps.Summary);
   const [durationSeconds, setDurationSeconds] = useState(() => secondsFromYears(new Date(), 1));
   const [regTxFees, setRegTxFees] = useState<{
     isChecking: boolean;
+    failed?: boolean;
     estimatedGas: number;
     price: { wei: bigint; eth: number };
   }>({
     estimatedGas: 0,
     isChecking: false,
-    price: { wei: 0n, eth: 0.0001 },
+    failed: false,
+    price: { wei: 0n, eth: 0 },
   });
   const [price, setPrice] = useState<{
     isChecking: boolean;
@@ -86,6 +95,100 @@ export const EnsNameRegistrationForm = (props: EnsNameRegistrationFormProps) => 
   );
 
   const [successData, setSuccessData] = useState<RegistrationSuccessData | null>();
+
+  const feeRequestRef = useRef(0);
+
+  const runFeeEstimate = useCallback(
+    async (
+      requestId: number,
+      params: {
+        label: string;
+        owner: Address;
+        durationInSeconds: number;
+        records: EnsRecords;
+      }
+    ) => {
+      try {
+        const result = await estimateRegistrationFees({
+          label: params.label,
+          owner: params.owner,
+          durationInSeconds: params.durationInSeconds,
+          secret: REG_SECRET_PLACEHOLDER,
+          records: params.records,
+          referrer: props.referrer,
+        });
+        if (feeRequestRef.current !== requestId) return;
+        setRegTxFees({
+          isChecking: false,
+          failed: false,
+          estimatedGas: Number(result.gasEstimate),
+          price: { wei: result.wei, eth: result.eth },
+        });
+      } catch {
+        if (feeRequestRef.current !== requestId) return;
+        setRegTxFees({
+          isChecking: false,
+          failed: true,
+          estimatedGas: 0,
+          price: { wei: 0n, eth: 0 },
+        });
+      }
+    },
+    [estimateRegistrationFees, props.referrer]
+  );
+
+  const debouncedEstimate = useMemo(
+    () =>
+      debounce(
+        (
+          requestId: number,
+          params: {
+            label: string;
+            owner: Address;
+            durationInSeconds: number;
+            records: EnsRecords;
+          }
+        ) => {
+          void runFeeEstimate(requestId, params);
+        },
+        500
+      ),
+    [runFeeEstimate]
+  );
+
+  useEffect(() => {
+    if (
+      !connectedAddress ||
+      !label ||
+      label.length < 3 ||
+      nameValidation.isChecking ||
+      nameValidation.isTaken ||
+      price.isChecking ||
+      price.eth <= 0
+    ) {
+      return;
+    }
+
+    const requestId = feeRequestRef.current + 1;
+    feeRequestRef.current = requestId;
+    setRegTxFees((prev) => ({ ...prev, isChecking: true, failed: false }));
+    debouncedEstimate(requestId, {
+      label,
+      owner: connectedAddress,
+      durationInSeconds: durationSeconds,
+      records: ensRecords,
+    });
+  }, [
+    connectedAddress,
+    label,
+    durationSeconds,
+    ensRecords,
+    nameValidation.isChecking,
+    nameValidation.isTaken,
+    price.isChecking,
+    price.eth,
+    debouncedEstimate,
+  ]);
 
   const handleSaveRecords = () => {
     setEnsRecords(deepCopy(ensRecordTemplate));

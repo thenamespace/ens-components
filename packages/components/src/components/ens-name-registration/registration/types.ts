@@ -13,7 +13,7 @@ export enum ProcessSteps {
 
 export interface RegistrationState {
   step: ProcessSteps;
-  commitment: { tx?: string; completed: boolean; time: number };
+  commitment: { tx?: string; completed: boolean; time: number; feeWei?: bigint };
   timerStartedAt: number;
   registration: { tx?: string; completed: boolean };
   label: string;

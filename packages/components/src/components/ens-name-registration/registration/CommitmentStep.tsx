@@ -103,7 +103,8 @@ export const CommitmentStep: React.FC<CommitmentStepProps> = ({
 
     try {
       // Wait for transaction with retry
-      await waitTx({ hash: tx });
+      const receipt = await waitTx({ hash: tx });
+      const commitFeeWei = receipt.gasUsed * (receipt.effectiveGasPrice || 0n);
 
       setCommitTxStatus({ sent: true, completed: true, hash: tx });
 
@@ -111,7 +112,12 @@ export const CommitmentStep: React.FC<CommitmentStepProps> = ({
         onStateUpdated({
           ...state,
           step: ProcessSteps.TimerStarted,
-          commitment: { tx: tx, completed: true, time: new Date().getTime() },
+          commitment: {
+            tx: tx,
+            completed: true,
+            time: new Date().getTime(),
+            feeWei: commitFeeWei,
+          },
         });
         setCommitTxStatus({ sent: false, completed: false, hash: "" });
       }, 1000);

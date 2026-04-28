@@ -99,9 +99,10 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
 
       setCommitTxStatus({ sent: true, completed: true, hash: tx });
 
-      const gasUsed = receipt.gasUsed;
-      const gasPrice = receipt.effectiveGasPrice || BigInt(0);
-      const transactionFeesEth = formatEther(gasUsed * gasPrice);
+      const registerFeeWei = receipt.gasUsed * (receipt.effectiveGasPrice || 0n);
+      const commitFeeWei = state.commitment?.feeWei ?? 0n;
+      const totalFeeWei = registerFeeWei + commitFeeWei;
+      const transactionFeesEth = formatEther(totalFeeWei);
       const totalCost = (registrationPrice + parseFloat(transactionFeesEth)).toString();
 
       const expiryDate = new Date(Date.now() + state.durationInSeconds * 1000);

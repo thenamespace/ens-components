@@ -23,6 +23,7 @@ export interface RegistrationSummaryProps {
   };
   transactionFees?: {
     isChecking: boolean;
+    failed?: boolean;
     estimatedGas: number;
     price: {
       wei: bigint;
@@ -79,19 +80,26 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
 
   const { regPrice, regFees, regTotal } = useMemo(() => {
     let regPrice = 0;
-    let regFees = 0;
-    let total = 0;
+    let regFees: number | string = 0;
+    let total: number | string = 0;
 
     if (price) {
       regPrice += price.eth;
-      total += price.eth;
+      total = (total as number) + price.eth;
     }
-    if (transactionFees) {
-      regFees += transactionFees.price.eth;
-      total += transactionFees.price.eth;
+    if (transactionFees?.failed) {
+      regFees = "N/A";
+      total = "N/A";
+    } else if (transactionFees) {
+      regFees = (regFees as number) + transactionFees.price.eth;
+      total = (total as number) + transactionFees.price.eth;
     }
 
-    return { regFees, regPrice, regTotal: formatFloat(total, 5) };
+    return {
+      regFees,
+      regPrice,
+      regTotal: typeof total === "number" ? formatFloat(total, 5) : total,
+    };
   }, [price, transactionFees]);
 
   const checkAvailability = async (labelToCheck: string) => {

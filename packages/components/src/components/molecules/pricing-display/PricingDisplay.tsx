@@ -64,7 +64,9 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
           <ShurikenSpinner size={16} />
         ) : (
           <Text size="sm" color="grey">
-            {primaryFee.amount === "Free" ? "Free" : `${primaryFee.amount} ETH`}
+            {primaryFee.amount === "Free" || primaryFee.amount === "N/A"
+              ? primaryFee.amount
+              : `${primaryFee.amount} ETH`}
           </Text>
         )}
       </div>
@@ -77,7 +79,7 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
             <ShurikenSpinner size={16} />
           ) : (
             <Text size="sm" color="grey">
-              {networkFees.amount} ETH
+              {networkFees.amount === "N/A" ? "N/A" : `${networkFees.amount} ETH`}
             </Text>
           )}
         </div>
@@ -91,7 +93,9 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
         ) : (
           <div style={{ textAlign: "right" }}>
             <Text size="lg" weight="bold">
-              {total.amount === "Free" ? "Free" : `${total.amount} ETH`}
+              {total.amount === "Free" || total.amount === "N/A"
+                ? total.amount
+                : `${total.amount} ETH`}
             </Text>
             {totalUsd && (
               <Text size="xs" color="grey">
