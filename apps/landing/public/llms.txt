@@ -11,6 +11,7 @@ npm install @thenamespace/ens-components wagmi viem @tanstack/react-query
 ## Docs
 
 - [Full API Reference](https://enscomponents.com/llms-full.txt): Complete prop tables, TypeScript interfaces, exported hooks, CSS custom properties, theming examples, error handling, and integration recipes for all five components.
+- [Agent Skill](https://enscomponents.com/Skill.md): Installable skill for AI coding assistants — `npx skills add thenamespace/skills -s ens-components`.
 - [OpenAPI Spec](https://enscomponents.com/.well-known/openapi.yaml): Machine-readable OpenAPI 3.1.0 spec with JSON schemas for all callback and record types.
 - [AI Plugin Manifest](https://enscomponents.com/.well-known/ai-plugin.json): Agent discovery manifest with package metadata and documentation pointers.
 - [GitHub Repository](https://github.com/thenamespace/ens-components): Source code, issues, and releases.
