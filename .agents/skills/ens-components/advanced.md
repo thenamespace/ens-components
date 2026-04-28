@@ -268,6 +268,8 @@ Key props:
 
 > **Breaking change (v1.3+):** `expiryInYears: number` was removed. Use `durationLabel: string` instead.
 
+**Duration picker:** The form includes a built-in toggle between a years `+/−` picker (default) and a calendar date picker. Minimum registration is **28 days** — this is enforced by the ENS `ETHRegistrarController` contract and cannot be lowered.
+
 ### `EnsRecordsForm`
 
 Key props:

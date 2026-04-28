@@ -12,13 +12,15 @@ export const secondsToDateInput = (expirySeconds: number): string => {
   return `${year}-${month}-${day}`;
 };
 
-/** Duration in seconds from nowSeconds to midnight of valueAsDate (day-aligned) */
+/** Duration in seconds from nowSeconds to the start of valueAsDate's calendar day (UTC-day aligned).
+ *  Uses local date parts fed into Date.UTC to count whole calendar days without DST skew. */
 export const roundDurationWithDay = (valueAsDate: Date, nowSeconds: number): number => {
-  const endMidnight = new Date(valueAsDate.getTime());
-  endMidnight.setHours(0, 0, 0, 0);
-  const startMidnight = new Date(nowSeconds * 1000);
-  startMidnight.setHours(0, 0, 0, 0);
-  return Math.max(0, Math.floor((endMidnight.getTime() - startMidnight.getTime()) / 1000));
+  const start = new Date(nowSeconds * 1000);
+  // Read local date parts, then project into UTC so the delta is always N×86400s regardless of DST.
+  const endDay = Date.UTC(valueAsDate.getFullYear(), valueAsDate.getMonth(), valueAsDate.getDate());
+  const startDay = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
+  const days = Math.floor((endDay - startDay) / 86_400_000);
+  return Math.max(0, days * 86_400);
 };
 
 /** Calendar-aware seconds for N whole years from startDate (handles leap years) */

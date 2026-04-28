@@ -48,7 +48,9 @@ export const DurationPicker: React.FC<DurationPickerProps> = ({
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { valueAsDate } = e.currentTarget;
     if (!valueAsDate) return;
-    // Native date picker returns UTC midnight; add timezone offset to get local date
+    // <input type="date"> yields UTC midnight. Shift to local midnight so that
+    // getDate()/getMonth()/getFullYear() in roundDurationWithDay resolve to the
+    // user's intended calendar day (otherwise UTC+ zones see the prior day).
     const normalised = new Date(
       valueAsDate.getTime() + valueAsDate.getTimezoneOffset() * 60 * 1000
     );

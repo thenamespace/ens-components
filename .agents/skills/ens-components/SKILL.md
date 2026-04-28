@@ -86,6 +86,7 @@ Call out that `EnsNameRegistrationForm` already handles the normal ENS flow:
 - wait period
 - register transaction
 - success screen
+- duration picker — years `+/−` by default, toggleable to a calendar date picker; minimum 28 days (contract-enforced)
 
 ### 4. Add Extras Only When Asked
 
