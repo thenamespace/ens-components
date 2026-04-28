@@ -6,7 +6,7 @@ info:
     This API exposes the LLM-friendly reference files and metadata for the
     ENS Components React library. Use these endpoints to retrieve full prop
     tables, TypeScript types, integration recipes, and package metadata.
-  version: 1.1.6
+  version: 1.3.0
   contact:
     url: https://namespace.ninja
   license:
@@ -143,8 +143,9 @@ components:
     RegistrationSuccessData:
       type: object
       properties:
-        expiryInYears:
-          type: integer
+        durationLabel:
+          type: string
+          description: Human-readable duration e.g. "1 year" or "6 months, 3 days"
         registrationCost:
           type: string
           description: Formatted ETH string
@@ -156,7 +157,7 @@ components:
           description: Formatted ETH string
         expiryDate:
           type: string
-          description: ISO date string
+          description: Formatted date string e.g. "April 28, 2027"
 
     OffchainSubnameCreatedData:
       type: object

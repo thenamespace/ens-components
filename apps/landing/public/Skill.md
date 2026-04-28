@@ -3,6 +3,22 @@ name: ens-components
 description: Use when a developer asks how to choose, integrate, or customize @thenamespace/ens-components in a React app, especially for ENS registration, ENS record editing, onchain subname minting, offchain subnames, avatar upload, theming, or deciding which ENS component fits their flow.
 ---
 
+## Agent Quickstart
+
+To use this skill in your AI assistant:
+
+```bash
+npx skills add thenamespace/skills -s ens-components
+```
+
+Or install all Namespace skills:
+
+```bash
+npx skills add thenamespace/skills
+```
+
+Once installed, your agent will know how to help developers integrate `@thenamespace/ens-components` into any React app.
+
 # @thenamespace/ens-components
 
 React UI kit for ENS and Namespace flows. Built on wagmi; no wallet UI library is required.

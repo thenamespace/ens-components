@@ -1,110 +1,73 @@
 import { useState } from "react";
-import { Bot, Download, GitBranch, Code2, FileText, BookOpen, Cpu } from "lucide-react";
+import { Bot, Code2, FileText, BookOpen, Cpu, Zap, MessageSquare } from "lucide-react";
 import { CodePanel } from "../components/CodePanel";
-import { CopyButton } from "../components/CopyButton";
 
-const FETCH_DOCS_CMD = `# Quick summary — install, component names, key props
-curl https://enscomponents.com/llms.txt
 
-# Full API reference — prop tables, types, hooks, recipes
-curl https://enscomponents.com/llms-full.txt
+const INSTALL_SKILL_CMD = `# Install the ENS components skill
+npx skills add thenamespace/skills -s ens-components`;
 
-# OpenAPI spec — JSON schemas for all callback / record types
-curl https://enscomponents.com/.well-known/openapi.yaml`;
+const ASK_AGENT_CODE = `// Once the skill is installed, just describe what you need.
+// Your agent already knows every prop, type, hook, and pattern.
 
-const PICK_COMPONENT_CODE = `// Match the user's intent to the right component:
-//
-// Register a .eth name                → EnsNameRegistrationForm
-// Edit profile records on-chain       → EnsRecordsForm
-// Select/preview records (no wallet)  → SelectRecordsForm
-// Gasless offchain subname creation   → OffchainSubnameForm
-// Onchain subname minting             → SubnameMintForm
-//
-// Required props at a glance:
-//
-// EnsNameRegistrationForm   no required props (name? is optional pre-fill)
-// EnsRecordsForm            name: string, existingRecords: EnsRecords
-// SelectRecordsForm         records: EnsRecords, onRecordsUpdated: fn
-// OffchainSubnameForm       offchainManager: OffchainClient, name: string
-// SubnameMintForm           parentName: string
-//
-// All components accept:
-//   isTestnet?: boolean            — switch to Sepolia
-//   onConnectWallet?: () => void   — hook into your wallet modal
-//   noBorder?: boolean             — remove card border`;
+"Add ENS name registration to my Next.js app"
+"Let users mint subnames under myname.eth"
+"Build a gasless subname form with avatar upload"
+"Show an ENS record editor for the connected wallet"`;
 
-const INTEGRATION_CODE = `// 1. Install
-// npm install @thenamespace/ens-components wagmi viem @tanstack/react-query
-
-// 2. Providers — required once at app root
-import { WagmiProvider, createConfig, http } from "wagmi";
-import { mainnet } from "wagmi/chains";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+const INTEGRATION_CODE = `// Your agent generates production-ready code like this:
 import "@thenamespace/ens-components/styles";
-
-const config = createConfig({
-  chains: [mainnet],
-  transports: { [mainnet.id]: http() },
-});
-const queryClient = new QueryClient();
-
-// 3. Drop in the component — example: ENS name registration
 import { EnsNameRegistrationForm } from "@thenamespace/ens-components";
 
 export default function Page() {
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <EnsNameRegistrationForm
-          onConnectWallet={() => {/* open your wallet modal */}}
-          onRegistrationSuccess={(r) => console.log("Registered", r)}
-        />
-      </QueryClientProvider>
-    </WagmiProvider>
+    <EnsNameRegistrationForm
+      onConnectWallet={() => {/* open your wallet modal */}}
+      onRegistrationSuccess={(r) => console.log("Registered", r.durationLabel)}
+    />
   );
 }`;
 
 const STEPS = [
   {
     num: "01",
-    icon: <Download size={15} strokeWidth={2.2} />,
-    title: "Fetch the reference",
-    desc: "Retrieve the full API reference before generating any code. It has all prop tables, TypeScript types, hooks, and recipes.",
+    icon: <Zap size={15} strokeWidth={2.2} />,
+    title: "Install the skill",
+    desc: "One command gives your agent full knowledge of every component, prop, type, and integration pattern.",
   },
   {
     num: "02",
-    icon: <GitBranch size={15} strokeWidth={2.2} />,
-    title: "Pick a component",
-    desc: "Match the user's use case to one of five components. Each handles a distinct ENS operation with its own required props.",
+    icon: <MessageSquare size={15} strokeWidth={2.2} />,
+    title: "Describe what you need",
+    desc: "Ask your agent in plain language. The skill handles component selection, required props, and provider setup automatically.",
   },
   {
     num: "03",
     icon: <Code2 size={15} strokeWidth={2.2} />,
-    title: "Generate the integration",
-    desc: "Drop in the component with the correct props. All components require WagmiProvider and QueryClientProvider at the app root.",
+    title: "Get production code",
+    desc: "Your agent generates correct, typed integration code — no trial and error on prop names or missing providers.",
   },
 ];
 
 const CODE: Record<string, { type: "cmd" | "code"; content: string; title?: string }> = {
-  "01": { type: "code", content: FETCH_DOCS_CMD, title: "fetch-docs.sh" },
-  "02": { type: "code", content: PICK_COMPONENT_CODE, title: "component-map.ts" },
+  "01": { type: "code", content: INSTALL_SKILL_CMD, title: "terminal" },
+  "02": { type: "code", content: ASK_AGENT_CODE, title: "prompts.txt" },
   "03": { type: "code", content: INTEGRATION_CODE, title: "page.tsx" },
 };
 
 const RESOURCES = [
   {
+    href: "https://enscomponents.com/Skill.md",
+    icon: <Zap size={16} strokeWidth={2} />,
+    label: "Skill.md",
+    desc: "Raw skill file — fetch directly into any agent",
+    tag: "MD",
+  },
+  {
     href: "https://enscomponents.com/llms.txt",
     icon: <FileText size={16} strokeWidth={2} />,
     label: "llms.txt",
-    desc: "Summary index — components, types, install",
+    desc: "Summary — components, types, install",
     tag: "~4 KB",
-  },
-  {
-    href: "https://enscomponents.com/llms-full.txt",
-    icon: <BookOpen size={16} strokeWidth={2} />,
-    label: "llms-full.txt",
-    desc: "Full API reference — all props, hooks, recipes",
-    tag: "~28 KB",
   },
   {
     href: "https://enscomponents.com/.well-known/openapi.yaml",
@@ -137,7 +100,7 @@ export function AgentQuickStartSection() {
         </div>
         <h2 className="agent-qs-title">Agent Quick Start</h2>
         <p className="agent-qs-subtitle">
-          How to discover, read, and use this library as an LLM or AI coding agent.
+          Install the skill once. Your agent handles the rest.
         </p>
       </div>
 
@@ -164,23 +127,13 @@ export function AgentQuickStartSection() {
         </div>
 
         <div className="qs-code-blocks">
-          {active.type === "cmd" ? (
-            <div className="install-block" style={{ position: "relative", whiteSpace: "pre" }}>
-              <span className="install-prompt">$</span>
-              <code>{active.content}</code>
-              <div style={{ position: "absolute", top: 10, right: 10 }}>
-                <CopyButton text={active.content} />
-              </div>
-            </div>
-          ) : (
-            <CodePanel title={active.title!} code={active.content} showCopy />
-          )}
+          <CodePanel title={active.title!} code={active.content} showCopy />
         </div>
       </div>
 
       {/* Resource cards */}
       <div className="agent-qs-resources-section">
-        <p className="agent-qs-resources-label">Machine-readable endpoints</p>
+        <p className="agent-qs-resources-label">Or access directly — no skill manager needed</p>
         <div className="agent-qs-resources">
           {RESOURCES.map((r) => (
             <a key={r.href} href={r.href} target="_blank" rel="noreferrer" className="agent-qs-resource-card">
