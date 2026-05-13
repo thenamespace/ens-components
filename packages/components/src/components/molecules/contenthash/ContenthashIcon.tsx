@@ -1,5 +1,6 @@
 import { ContenthashProtocol } from "@/types";
 import { IpfsIcon } from "./icons/IpfsIcon";
+import { IpnsIcon } from "./icons/IpnsIcon";
 import { OnionIcon } from "./icons/OnionIcon";
 import { ArweaveIcon } from "./icons/ArweaveIcon";
 import { SkynetIcon } from "./icons/SkynetIcon";
@@ -12,6 +13,7 @@ interface ContenthashIconProps extends React.SVGProps<SVGSVGElement> {
 
 const icons: Record<ContenthashProtocol, React.FC<{ size?: number }>> = {
   [ContenthashProtocol.Ipfs]: IpfsIcon,
+  [ContenthashProtocol.Ipns]: IpnsIcon,
   [ContenthashProtocol.Onion]: OnionIcon,
   [ContenthashProtocol.Arweave]: ArweaveIcon,
   [ContenthashProtocol.Skynet]: SkynetIcon,

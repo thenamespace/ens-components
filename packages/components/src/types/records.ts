@@ -21,6 +21,7 @@ export interface EnsContenthashRecord {
 
 export enum ContenthashProtocol {
   Ipfs = "ipfs",
+  Ipns = "ipns",
   Onion = "onion3",
   Arweave = "arweave",
   Skynet = "skynet",

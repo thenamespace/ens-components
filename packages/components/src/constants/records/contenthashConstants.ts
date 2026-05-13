@@ -13,6 +13,11 @@ export const supportedContenthashRecords: SupportedContenthashRecord[] = [
     protocolPrefix: "ipfs://",
   },
   {
+    protocol: ContenthashProtocol.Ipns,
+    label: "IPNS",
+    protocolPrefix: "ipns://",
+  },
+  {
     protocol: ContenthashProtocol.Onion,
     label: "ONION",
     protocolPrefix: "onion3://",
@@ -51,6 +56,9 @@ export const isContenthashValid = (
     case ContenthashProtocol.Ipfs:
       // IPFS CIDv0 (Qm...) or CIDv1 (bafy...)
       return /^(Qm[1-9A-HJ-NP-Za-km-z]{44}|b[a-z2-7]{58,})$/i.test(value);
+    case ContenthashProtocol.Ipns:
+      // IPNS: CIDv0 (Qm...), CIDv1 base36 (k51...), or CIDv1 base32 (bafy...)
+      return /^(Qm[1-9A-HJ-NP-Za-km-z]{44}|k51[a-z2-7]{56,}|b[a-z2-7]{58,})$/i.test(value);
     case ContenthashProtocol.Onion:
       // Onion v3 addresses are 56 characters
       return /^[a-z2-7]{56}$/i.test(value);

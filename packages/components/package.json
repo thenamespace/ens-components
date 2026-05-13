@@ -68,7 +68,7 @@
     "react-dom": "^18.3.1",
     "react-easy-crop": "^5.5.6",
     "rimraf": "^6.0.1",
-    "rollup": "^4.50.1",
+    "rollup": "^4.60.3",
     "rollup-plugin-dts": "^6.2.3",
     "rollup-plugin-esbuild": "^6.2.1",
     "rollup-plugin-postcss": "^4.0.2",
