@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from "react";
 import "./RegistrationSummary.css";
 import { normalize } from "viem/ens";
 
-import { debounce } from "@/utils";
+import { debounce, formatEth } from "@/utils";
 import { MIN_REGISTRATION_SECONDS } from "@/utils/date";
 import { Button, Icon, Input, Text, ShurikenSpinner } from "@/components";
 import { PricingDisplay } from "@/components/molecules";
@@ -79,20 +79,25 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
   const { ethUsdRate } = useEthDollarValue();
   const { isEnsAvailable, getRegistrationPrice } = useRegisterENS({ isTestnet });
 
-  const { regPrice, regFees, regTotal } = useMemo(() => {
+  const { regPrice, regFees, regTotal, regTotalWei } = useMemo(() => {
     const priceEth = price?.eth ?? 0;
     const feesEth = transactionFees?.price.eth ?? 0;
     const heuristicPrefix = transactionFees?.isHeuristic ? "~" : "";
 
-    const regPrice = priceEth > 0 ? priceEth.toFixed(4) : "0.0000";
+    // ETH cells use the shared `formatEth` helper (fixed 4 decimals; any
+    // non-zero amount below the threshold renders as "<0.0001"). The USD
+    // subtitle on Total is derived from wei in PricingDisplay so it stays
+    // numerically honest even when the ETH cell is rounded.
+    const regPrice = priceEth > 0 ? formatEth(priceEth) : "0.0000";
     const regFees = transactionFees?.failed
       ? "N/A"
-      : `${heuristicPrefix}${feesEth.toFixed(4)}`;
+      : `${heuristicPrefix}${formatEth(feesEth)}`;
     const regTotal = transactionFees?.failed
       ? "N/A"
-      : `${heuristicPrefix}${(priceEth + feesEth).toFixed(4)}`;
+      : `${heuristicPrefix}${formatEth(priceEth + feesEth)}`;
+    const regTotalWei = (price?.wei ?? 0n) + (transactionFees?.price.wei ?? 0n);
 
-    return { regPrice, regFees, regTotal };
+    return { regPrice, regFees, regTotal, regTotalWei };
   }, [price, transactionFees]);
 
   const checkAvailability = async (labelToCheck: string) => {
@@ -252,6 +257,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
             total={{
               amount: regTotal,
               isChecking: totalPriceLoading,
+              weiAmount: regTotalWei,
             }}
             expiryPicker={{
               durationSeconds,

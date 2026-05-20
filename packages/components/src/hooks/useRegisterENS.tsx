@@ -17,7 +17,7 @@ import {
 import { mainnet, sepolia } from "viem/chains";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { getEnsContracts } from "@thenamespace/addresses";
-import { createEnsReferer, equalsIgnoreCase, formatFloat } from "@/utils";
+import { createEnsReferer, equalsIgnoreCase } from "@/utils";
 import { ONE_YEAR } from "@/utils/date";
 import { ABIS } from "./abis";
 import { EnsRecords } from "@/types";
@@ -114,7 +114,7 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
     const totalPrice = price.base + price.premium;
     return {
       wei: totalPrice,
-      eth: formatFloat(formatEther(totalPrice, "wei"), 4),
+      eth: parseFloat(formatEther(totalPrice)),
     };
   };
 
