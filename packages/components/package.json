@@ -42,9 +42,7 @@
     "lint": "eslint .",
     "format:check": "prettier --check .",
     "build:types": "tsc -p tsconfig.types.json",
-    "build": "npm run clean && npm run build:types && rollup -c rollup.config.mjs",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "build": "npm run clean && npm run build:types && rollup -c rollup.config.mjs"
   },
   "keywords": [],
   "author": "",
@@ -76,7 +74,6 @@
     "rollup-plugin-postcss": "^4.0.2",
     "typescript": "^5.9.2",
     "viem": "^2.46.3",
-    "vitest": "^2.1.9",
     "wagmi": "^2.19.5"
   },
   "dependencies": {
