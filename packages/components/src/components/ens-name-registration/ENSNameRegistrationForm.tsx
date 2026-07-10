@@ -60,7 +60,8 @@ export const EnsNameRegistrationForm = (
     RegistrationSteps.Summary
   );
   const [years, setYears] = useState(1);
-  // TODO: Implement gas prices, Currently its hardcoded!
+  // Network (gas) fee estimate for the commit + register transactions.
+  // Populated by RegistrationSummary via onTransactionFeesChange.
   const [regTxFees, setRegTxFees] = useState<{
     isChecking: boolean;
     estimatedGas: number;
@@ -70,7 +71,7 @@ export const EnsNameRegistrationForm = (
     isChecking: false,
     price: {
       wei: 0n,
-      eth: 0.0001,
+      eth: 0,
     },
   });
   const [price, setPrice] = useState<{
@@ -158,6 +159,7 @@ export const EnsNameRegistrationForm = (
               years={years}
               price={price}
               nameValidation={nameValidation}
+              records={ensRecords}
               isTestnet={props.isTestnet || false}
               transactionFees={regTxFees}
               title={props.title}
@@ -168,6 +170,7 @@ export const EnsNameRegistrationForm = (
               onLabelChange={setLabel}
               onYearsChange={setYears}
               onPriceChange={setPrice}
+              onTransactionFeesChange={setRegTxFees}
               onNameValidationChange={setNameValidation}
               onSetProfile={() => setShowProfile(true)}
               onStart={() => setStep(RegistrationSteps.Progress)}

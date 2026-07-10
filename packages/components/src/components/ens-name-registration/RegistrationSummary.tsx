@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import "./RegistrationSummary.css";
 import { normalize } from "viem/ens";
 
@@ -8,6 +8,7 @@ import { PricingDisplay } from "@/components/molecules";
 import ninjaImage from "../../assets/banner.png";
 import shurikenImage from "../../assets/shuriken.svg";
 import { useRegisterENS, useEthDollarValue } from "@/hooks";
+import { EnsRecords } from "@/types";
 import { useAccount } from "wagmi";
 
 const MIN_ENS_LEN = 3;
@@ -33,6 +34,7 @@ export interface RegistrationSummaryProps {
     isTaken: boolean;
     reason?: string;
   };
+  records?: EnsRecords;
   isTestnet?: boolean;
   title?: string;
   subtitle?: string;
@@ -42,6 +44,11 @@ export interface RegistrationSummaryProps {
   onLabelChange: (label: string) => void;
   onYearsChange: (years: number) => void;
   onPriceChange: (price: { isChecking: boolean; wei: bigint; eth: number }) => void;
+  onTransactionFeesChange?: (fees: {
+    isChecking: boolean;
+    estimatedGas: number;
+    price: { wei: bigint; eth: number };
+  }) => void;
   onNameValidationChange: (validation: { isChecking: boolean; isTaken: boolean; reason?: string }) => void;
   onSetProfile?: () => void;
   onStart?: () => void;
@@ -54,6 +61,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
   price,
   nameValidation,
   transactionFees,
+  records,
   isTestnet = false,
   title,
   subtitle,
@@ -63,6 +71,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
   onLabelChange,
   onYearsChange,
   onPriceChange,
+  onTransactionFeesChange,
   onNameValidationChange,
   onSetProfile,
   onStart,
@@ -70,9 +79,10 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
 }) => {
   const { isConnected } = useAccount();
   const { ethUsdRate } = useEthDollarValue();
-  const { isEnsAvailable, getRegistrationPrice } = useRegisterENS({
-    isTestnet,
-  });
+  const { isEnsAvailable, getRegistrationPrice, estimateRegistrationFee } =
+    useRegisterENS({
+      isTestnet,
+    });
 
   const { regPrice, regFees, regTotal } = useMemo(() => {
 
@@ -131,6 +141,38 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
     }
   };
 
+  // Estimates the network (gas) fee for the commit + register transactions.
+  // Gas price is read from the network, so this runs even with no connected
+  // wallet. Refreshed alongside the price so the estimate stays current.
+  const checkTransactionFees = async () => {
+    if (!onTransactionFeesChange) {
+      return;
+    }
+    onTransactionFeesChange({
+      isChecking: true,
+      estimatedGas: 0,
+      price: { wei: 0n, eth: 0 },
+    });
+    try {
+      const fee = await estimateRegistrationFee({
+        label,
+        expiryInYears: years,
+        records,
+      });
+      onTransactionFeesChange({
+        isChecking: false,
+        estimatedGas: Number(fee.gas),
+        price: { wei: fee.wei, eth: fee.eth },
+      });
+    } catch (err) {
+      onTransactionFeesChange({
+        isChecking: false,
+        estimatedGas: 0,
+        price: { wei: 0n, eth: 0 },
+      });
+    }
+  };
+
   const debouncedCheckAvailability = useCallback(
     debounce((labelToCheck: string) => checkAvailability(labelToCheck), 500),
     []
@@ -144,6 +186,31 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
     ),
     []
   );
+
+  // When the form opens with a pre-filled name, fetch availability and price
+  // immediately. Otherwise the receipt stays at 0 until the user edits the
+  // name or nudges the expiry.
+  useEffect(() => {
+    if (label.length >= MIN_ENS_LEN) {
+      onNameValidationChange({ isChecking: true, isTaken: false });
+      onPriceChange({ isChecking: true, eth: 0, wei: 0n });
+      checkAvailability(label);
+      checkRegistrationPrice(label, years);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // The network-fee estimate is independent of the specific name and duration,
+  // but depends on the records being written (each adds storage writes). Re-run
+  // it once a name is long enough to register and whenever the records change.
+  const recordsKey = useMemo(() => JSON.stringify(records ?? {}), [records]);
+  const canEstimateFees = label.length >= MIN_ENS_LEN;
+  useEffect(() => {
+    if (canEstimateFees) {
+      checkTransactionFees();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recordsKey, canEstimateFees]);
 
   const handleNameChanged = async (value: string) => {
     const _value = value.toLocaleLowerCase().trim();
