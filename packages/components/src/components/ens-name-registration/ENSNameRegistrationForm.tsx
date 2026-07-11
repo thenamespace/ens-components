@@ -13,6 +13,11 @@ import { useRegisterENS } from "@/hooks";
 
 const REG_SECRET_PLACEHOLDER = "0x0000000000000000000000000000000000000000000000000000000000000001";
 
+// Owner used for gas estimation when no wallet is connected. Any non-zero
+// address works: the estimator funds the owner via a state override, and
+// register() only needs a mintable (non-zero) recipient.
+const FEE_ESTIMATE_OWNER_PLACEHOLDER = "0x0000000000000000000000000000000000000001" as Address;
+
 export interface EnsNameRegistrationFormProps {
   name?: string;
   isTestnet?: boolean;
@@ -156,7 +161,6 @@ export const EnsNameRegistrationForm = (props: EnsNameRegistrationFormProps) => 
 
   useEffect(() => {
     if (
-      !connectedAddress ||
       !label ||
       label.length < 3 ||
       nameValidation.isChecking ||
@@ -164,8 +168,10 @@ export const EnsNameRegistrationForm = (props: EnsNameRegistrationFormProps) => 
       price.isChecking ||
       price.eth <= 0
     ) {
-      // Cancel any in-flight estimation result so it doesn't apply later.
+      // Cancel any in-flight estimation result so it doesn't apply later,
+      // and stop a spinner left over from a request that will never resolve.
       feeRequestRef.current += 1;
+      setRegTxFees((prev) => (prev.isChecking ? { ...prev, isChecking: false } : prev));
       return;
     }
 
@@ -176,7 +182,9 @@ export const EnsNameRegistrationForm = (props: EnsNameRegistrationFormProps) => 
     );
     debouncedEstimate(requestId, {
       label,
-      owner: connectedAddress,
+      // Estimation works without a wallet — gas price comes from the network
+      // and the owner's balance is state-overridden in the estimator.
+      owner: connectedAddress ?? FEE_ESTIMATE_OWNER_PLACEHOLDER,
       durationInSeconds: durationSeconds,
       records: ensRecords,
     });
@@ -243,7 +251,7 @@ export const EnsNameRegistrationForm = (props: EnsNameRegistrationFormProps) => 
               price={price}
               nameValidation={nameValidation}
               isTestnet={props.isTestnet || false}
-              transactionFees={connectedAddress ? regTxFees : undefined}
+              transactionFees={regTxFees}
               title={props.title}
               subtitle={props.subtitle}
               bannerImage={props.bannerImage}
