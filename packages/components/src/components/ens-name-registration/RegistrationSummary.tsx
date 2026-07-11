@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import "./RegistrationSummary.css";
 import { normalize } from "viem/ens";
 
@@ -122,6 +122,19 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
     }
   };
 
+  // When the form opens with a pre-filled name, fetch availability and price
+  // immediately — otherwise the receipt stays at 0 until the user edits the
+  // name or nudges the expiry.
+  useEffect(() => {
+    if (label.length >= MIN_ENS_LEN) {
+      onNameValidationChange({ isChecking: true, isTaken: false });
+      onPriceChange({ isChecking: true, eth: 0, wei: 0n });
+      checkAvailability(label);
+      checkRegistrationPrice(label, durationSeconds);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const debouncedCheckAvailability = useCallback(
     debounce((labelToCheck: string) => checkAvailability(labelToCheck), 500),
     []
@@ -176,7 +189,10 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
     label.length < MIN_ENS_LEN || nameValidation.isChecking || nameValidation.isTaken;
 
   const totalPriceLoading = transactionFees?.isChecking || price.isChecking;
-  const transactionFeesLoading = transactionFees?.isChecking || false;
+  // Fee estimation only kicks off once the registration price resolves, so
+  // while the price is loading the fees are pending too — spin instead of
+  // flashing a stale/zero amount.
+  const transactionFeesLoading = transactionFees?.isChecking || price.isChecking;
 
   return (
     <div className="ens-registration-summary">
