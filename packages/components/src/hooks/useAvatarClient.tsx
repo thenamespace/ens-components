@@ -5,7 +5,7 @@ import {
   createAvatarClient,
 } from "@thenamespace/avatar";
 import type { UploadResult } from "@thenamespace/avatar";
-import { useAccount, useWalletClient } from "wagmi";
+import { useAccount, useSwitchChain, useWalletClient } from "wagmi";
 import { mainnet, sepolia } from "viem/chains";
 
 interface UseAvatarClientParams {
@@ -22,28 +22,6 @@ export interface UploadAvatarParams {
 export type UploadImageType = "avatar" | "header";
 
 const IMAGE_UPLOAD_LOG_PREFIX = "[ImageUpload]";
-
-type UploadResultWithAliases = UploadResult & {
-  avatarUrl?: string;
-  headerUrl?: string;
-};
-
-const withCanonicalUrl = (
-  imageType: UploadImageType,
-  result: UploadResultWithAliases
-): UploadResult => {
-  const url =
-    result.url ||
-    (imageType === "avatar" ? result.avatarUrl : result.headerUrl) ||
-    result.avatarUrl ||
-    result.headerUrl;
-
-  if (!url) {
-    throw new Error("Upload response did not include an image URL.");
-  }
-
-  return { ...result, url };
-};
 
 const getDefaultDomain = () => {
   if (typeof window === "undefined") {
@@ -71,10 +49,13 @@ export const getImageUploadErrorMessage = (
         return imageType === "avatar"
           ? "Please connect your wallet to upload avatar."
           : "Please connect your wallet to upload header image.";
+      case ErrorCodes.PROVIDER_CHAIN_MISMATCH:
+        return "Please switch your wallet to the correct network.";
       case ErrorCodes.NOT_SUBNAME_OWNER:
         return "You do not own this ENS name.";
       case ErrorCodes.FILE_TOO_LARGE:
         return "Image is too large.";
+      case ErrorCodes.INVALID_FILE_FORMAT:
       case ErrorCodes.INVALID_FILE_TYPE:
         return "Unsupported image type.";
       case ErrorCodes.EXPIRED_NONCE:
@@ -95,9 +76,10 @@ export const getImageUploadErrorMessage = (
 export const useAvatarClient = ({ isTestnet, domain }: UseAvatarClientParams) => {
   const { address } = useAccount();
   const { data: walletClient } = useWalletClient();
+  const { switchChainAsync } = useSwitchChain();
 
   const resolvedDomain = domain || getDefaultDomain();
-  const fallbackChainId = isTestnet ? sepolia.id : mainnet.id;
+  const expectedChainId = isTestnet ? sepolia.id : mainnet.id;
 
   const provider = useMemo(() => {
     if (!walletClient || !address) {
@@ -112,9 +94,29 @@ export const useAvatarClient = ({ isTestnet, domain }: UseAvatarClientParams) =>
           message,
         });
       },
-      getChainId: async () => walletClient.chain?.id || fallbackChainId,
+      getChainId: async () => {
+        if (typeof walletClient.getChainId === "function") {
+          return walletClient.getChainId();
+        }
+        if (walletClient.chain?.id) {
+          return walletClient.chain.id;
+        }
+        return expectedChainId;
+      },
+      // v2 network enforcement: SDK switches chain before SIWE when available
+      switchChain: async (chainId: number) => {
+        if (switchChainAsync) {
+          await switchChainAsync({ chainId });
+          return;
+        }
+        if (typeof walletClient.switchChain === "function") {
+          await walletClient.switchChain({ id: chainId });
+          return;
+        }
+        throw new Error(`Unable to switch wallet to chain ${chainId}`);
+      },
     };
-  }, [walletClient, address, fallbackChainId]);
+  }, [walletClient, address, expectedChainId, switchChainAsync]);
 
   const client = useMemo(() => {
     return createAvatarClient({
@@ -148,19 +150,23 @@ export const useAvatarClient = ({ isTestnet, domain }: UseAvatarClientParams) =>
         wallet: address,
       });
 
-      const rawResult = (await (imageType === "avatar"
-        ? client.uploadAvatar({
-            subname: params.ensName,
-            file: params.file,
-            onProgress: params.onProgress,
-          })
-        : client.uploadHeader({
-            subname: params.ensName,
-            file: params.file,
-            onProgress: params.onProgress,
-          }))) as UploadResultWithAliases;
+      // v2 normalizes a stable `url` from avatarUrl / headerUrl
+      const result =
+        imageType === "avatar"
+          ? await client.uploadAvatar({
+              subname: params.ensName,
+              file: params.file,
+              onProgress: params.onProgress,
+            })
+          : await client.uploadHeader({
+              subname: params.ensName,
+              file: params.file,
+              onProgress: params.onProgress,
+            });
 
-      const result = withCanonicalUrl(imageType, rawResult);
+      if (!result.url) {
+        throw new Error("Upload response did not include an image URL.");
+      }
 
       console.info(`${IMAGE_UPLOAD_LOG_PREFIX} upload result`, {
         imageType,

@@ -168,21 +168,21 @@ Related files:
 
 ---
 
-### C.2) Upload response normalization
+### C.2) Avatar SDK v2 upload results
 
-The avatar SDK may return payloads in different shapes depending on
-transport/wrapping. `useAvatarClient` normalizes common variants before
-passing data into UI:
+`@thenamespace/avatar` v2 normalizes upload responses to a stable `url`
+field (plus `avatarUrl` / `headerUrl`). `useAvatarClient` relies on that
+and only guards against a missing `url`.
 
-- root: `url`, `uploadedAt`
-- nested: `data.url`, `result.url`, `data.data.url`, `result.data.url`
-- alternate URL keys: `avatarUrl`, `imageUrl`, `fileUrl`
+v2 also enforces wallet network before SIWE (via `getChainId` /
+`switchChain` on the provider) and supports SIWE v4 for smart-contract
+wallets. Header mutations use the compact Metadata Service `/h` route.
 
 Debug logs (filter by `imageType: avatar | header`):
 
 - `[ImageUploadModal] sign+upload started`
 - `[ImageUploadModal] cropped file ready`
-- `[ImageUpload] starting` / `raw result` / `normalized result`
+- `[ImageUpload] starting` / `upload result`
 - `[ImageUploadModal] upload result`
 - Error paths: `[ImageUpload] failed` / `[ImageUploadModal] upload error`
 
