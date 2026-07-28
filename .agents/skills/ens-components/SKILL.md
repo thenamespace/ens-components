@@ -20,6 +20,8 @@ React UI kit for ENS and Namespace flows. Built on wagmi; no wallet UI library i
 Routing rules:
 
 - Default to `EnsNameRegistrationForm` when the user asks for a general quickstart.
+- Do not use `EnsNameRegistrationForm` for DNS names. It only registers second-level `.eth` names.
+- `EnsRecordsForm`, `SubnameMintForm`, and `OffchainSubnameForm` accept DNS names that have already been imported into ENS.
 - Use `EnsRecordsForm` only when the user already has an ENS name and wants to edit records.
 - Use `SelectRecordsForm` only for custom or controlled UIs.
 - Use `SubnameMintForm` for onchain subname listings.

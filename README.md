@@ -27,6 +27,13 @@
 | `SubnameMintForm` | Mint onchain subnames from a Namespace listing |
 | `OffchainSubnameForm` | Create and update gasless offchain subnames via the Namespace API |
 
+`EnsRecordsForm`, `SubnameMintForm`, and `OffchainSubnameForm` accept both native
+`.eth` names and DNS names that have been imported into ENS, such as `example.com`.
+The relevant Namespace listing or API key must already be configured for the parent
+name. `EnsNameRegistrationForm` remains `.eth`-only because it uses the ENS ETH
+Registrar Controller; import DNS names into ENS before passing them to the other
+components.
+
 ---
 
 ## Install
@@ -128,7 +135,7 @@ import { EnsRecordsForm } from "@thenamespace/ens-components";
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `name` | `string` | ENS name to edit |
+| `name` | `string` | ENS name to edit (`.eth` or a DNS name imported into ENS) |
 | `existingRecords` | `EnsRecords` | Current on-chain records |
 | `isTestnet` | `boolean` | Use Sepolia instead of mainnet |
 | `noBorder` | `boolean` | Remove the card border |
@@ -171,7 +178,7 @@ import { SubnameMintForm } from "@thenamespace/ens-components";
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `parentName` | `string` | ENS name users will mint subnames under |
+| `parentName` | `string` | ENS parent (`.eth` or ENS-imported DNS) with an active Namespace listing |
 | `isTestnet` | `boolean` | Use Sepolia instead of mainnet |
 | `txConfirmations` | `number` | Block confirmations to wait after tx |
 | `onConnectWallet` | `() => void` | Called when the user needs to connect |
@@ -212,7 +219,7 @@ npm install @thenamespace/offchain-manager
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `name` | `string` | Parent ENS name |
+| `name` | `string` | Parent ENS name (`.eth` or ENS-imported DNS) |
 | `offchainManager` | `OffchainClient` | Client from `createOffchainClient()` |
 | `isTestnet` | `boolean` | Use Sepolia instead of mainnet |
 | `label` | `string` | Pre-fill and lock the subname label |

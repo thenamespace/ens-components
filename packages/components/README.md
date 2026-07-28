@@ -4,6 +4,9 @@ Production-ready React components for ENS name registration, record editing, and
 
 [![npm](https://img.shields.io/npm/v/@thenamespace/ens-components)](https://www.npmjs.com/package/@thenamespace/ens-components)
 
+Record editing and onchain/offchain subname flows support native `.eth` names and
+DNS names imported into ENS, such as `example.com`. The `.eth` registration form is limited to `.eth` registrations.
+
 ## Install
 
 ```bash
@@ -75,13 +78,13 @@ Full `.eth` name registration flow: search → commit → wait → register.
 ```tsx
 <EnsNameRegistrationForm
   isTestnet={false}
-  onNameRegistered={(name) => console.log("Registered:", name)}
+  onNameRegistered={name => console.log("Registered:", name)}
 />
 ```
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `isTestnet` | `boolean` | Use Sepolia testnet contracts |
+| Prop               | Type                     | Description                            |
+| ------------------ | ------------------------ | -------------------------------------- |
+| `isTestnet`        | `boolean`                | Use Sepolia testnet contracts          |
 | `onNameRegistered` | `(name: string) => void` | Callback after successful registration |
 
 ---
@@ -95,16 +98,16 @@ Edit all resolver records for an ENS name — addresses, text records, contentha
   name="alice.eth"
   existingRecords={{ texts: [], addresses: [] }}
   isTestnet={false}
-  onRecordsSaved={(records) => console.log(records)}
+  onRecordsSaved={records => console.log(records)}
 />
 ```
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `name` | `string` | The ENS name to edit |
-| `existingRecords` | `EnsRecords` | Current on-chain records to pre-populate |
-| `isTestnet` | `boolean` | Use Sepolia testnet contracts |
-| `onRecordsSaved` | `(records: EnsRecords) => void` | Callback after records are saved |
+| Prop              | Type                            | Description                                               |
+| ----------------- | ------------------------------- | --------------------------------------------------------- |
+| `name`            | `string`                        | ENS name to edit (`.eth` or a DNS name imported into ENS) |
+| `existingRecords` | `EnsRecords`                    | Current on-chain records to pre-populate                  |
+| `isTestnet`       | `boolean`                       | Use Sepolia testnet contracts                             |
+| `onRecordsSaved`  | `(records: EnsRecords) => void` | Callback after records are saved                          |
 
 ---
 
@@ -116,15 +119,15 @@ Mint an onchain subname from a Namespace listing.
 <SubnameMintForm
   parentName="alice.eth"
   isTestnet={false}
-  onSubnameMinted={(subname) => console.log("Minted:", subname)}
+  onSubnameMinted={subname => console.log("Minted:", subname)}
 />
 ```
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `parentName` | `string` | Parent ENS name with an active listing |
-| `isTestnet` | `boolean` | Use Sepolia testnet contracts |
-| `onSubnameMinted` | `(subname: string) => void` | Callback after mint |
+| Prop              | Type                        | Description                                                    |
+| ----------------- | --------------------------- | -------------------------------------------------------------- |
+| `parentName`      | `string`                    | ENS parent (`.eth` or ENS-imported DNS) with an active listing |
+| `isTestnet`       | `boolean`                   | Use Sepolia testnet contracts                                  |
+| `onSubnameMinted` | `(subname: string) => void` | Callback after mint                                            |
 
 ---
 
@@ -137,16 +140,16 @@ Create or update an offchain subname through the Namespace API.
   name="alice.eth"
   apiKeyOrToken="YOUR_NAMESPACE_API_KEY"
   isTestnet={false}
-  onSubnameSaved={(subname) => console.log("Saved:", subname)}
+  onSubnameSaved={subname => console.log("Saved:", subname)}
 />
 ```
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `name` | `string` | Parent ENS name |
-| `apiKeyOrToken` | `string` | Namespace API key or SIWE token |
-| `isTestnet` | `boolean` | Use Sepolia testnet contracts |
-| `onSubnameSaved` | `(subname: string) => void` | Callback after save |
+| Prop             | Type                        | Description                                  |
+| ---------------- | --------------------------- | -------------------------------------------- |
+| `name`           | `string`                    | Parent ENS name (`.eth` or ENS-imported DNS) |
+| `apiKeyOrToken`  | `string`                    | Namespace API key or SIWE token              |
+| `isTestnet`      | `boolean`                   | Use Sepolia testnet contracts                |
+| `onSubnameSaved` | `(subname: string) => void` | Callback after save                          |
 
 ---
 
@@ -182,7 +185,7 @@ Components use CSS variables that can be overridden:
 
 ```css
 :root {
-  --ns-color-primary: #5A4BFF;
+  --ns-color-primary: #5a4bff;
   --ns-color-bg: #ffffff;
   --ns-color-fg: #111111;
   --ns-radius-md: 12px;
