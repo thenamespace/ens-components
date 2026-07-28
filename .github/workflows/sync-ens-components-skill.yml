@@ -15,7 +15,7 @@ jobs:
     name: Sync to thenamespace/skills
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout uikit
+      - name: Checkout ENS Components
         uses: actions/checkout@v4
 
       - name: Checkout devrel skills repo
@@ -35,11 +35,11 @@ jobs:
         with:
           token: ${{ secrets.CROSS_REPO_SYNC_TOKEN }}
           path: target
-          commit-message: "chore: sync ens-components skill from uikit"
+          commit-message: "chore: sync ens-components skill"
           branch: "chore/sync-ens-components-skill"
           delete-branch: true
-          title: "chore: sync ens-components skill from uikit"
+          title: "chore: sync ens-components skill"
           body: |
-            Automated sync triggered by changes to `.agents/skills/ens-components/**` in `thenamespace/uikit`.
+            Automated sync triggered by changes to `.agents/skills/ens-components/**` in `thenamespace/ens-components`.
 
             This PR updates `skills/ens-components/**` in `thenamespace/skills`.
