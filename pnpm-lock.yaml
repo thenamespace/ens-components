@@ -137,8 +137,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.1
       '@thenamespace/avatar':
-        specifier: ^2.0.0
-        version: 2.0.0(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(viem@2.46.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
+        specifier: ^2.0.1
+        version: 2.0.1(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(viem@2.46.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
       '@thenamespace/mint-manager':
         specifier: ^1.1.1
         version: 1.1.1(bufferutil@4.1.0)(utf-8-validate@5.0.10)(zod@3.25.76)
@@ -1678,8 +1678,8 @@ packages:
   '@thenamespace/addresses@1.1.1':
     resolution: {integrity: sha512-Ta2KEcc6fd7HoPKbkbaWjxX050Z6JwMZJCldJxkqT/SIuJI+mCjVrXJkRuhLEiKqpbEAXJv7EULCgToJF12PSg==}
 
-  '@thenamespace/avatar@2.0.0':
-    resolution: {integrity: sha512-qt8xi8s39NKfISYXfEtF9zt1G79tuRCaNA9JNwNNlDry2UNhwvvRTi1CgujoHT1cF8ZR7dq5TXzjQV5pRQYkcA==}
+  '@thenamespace/avatar@2.0.1':
+    resolution: {integrity: sha512-HFzHOu/c5OGTHYlc8hLZ6TbSLZgvMoTVEp1jXHQ6fQ2NwhNw2txfNVStdO5j7r1NUBHYdhzQmVLo/vbB7IH+Qw==}
     engines: {node: '>=16.0.0'}
 
   '@thenamespace/mint-manager@1.1.1':
@@ -7171,7 +7171,7 @@ snapshots:
       - '@swc/core'
       - '@swc/wasm'
 
-  '@thenamespace/avatar@2.0.0(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(viem@2.46.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))':
+  '@thenamespace/avatar@2.0.1(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(viem@2.46.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))':
     dependencies:
       '@signinwithethereum/siwe': 4.2.0(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(viem@2.46.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
       axios: 1.13.5
