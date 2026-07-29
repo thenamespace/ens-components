@@ -18,7 +18,7 @@ export interface EnsRecordsFormProps {
   // the form will query ens registry
   resolverAddress?: Address;
   isTestnet?: boolean;
-  // Full ens name
+  // Full ENS name, including a DNS name imported into ENS
   name: string;
   existingRecords: EnsRecords;
   noBorder?: boolean;

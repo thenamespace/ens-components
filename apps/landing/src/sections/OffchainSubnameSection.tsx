@@ -7,9 +7,10 @@ import { CodePanel } from "../components/CodePanel";
 import { DemoPanel } from "../components/DemoPanel";
 import { PropsEditor } from "../components/PropsEditor";
 import type { PropDef } from "../components/types";
+import { isValidEnsParentName } from "../utils/ensName";
 
 const OFFCHAIN_DEFS: PropDef[] = [
-  { key: "name",      type: "string",  default: "yourname.eth", required: true, readonly: true, tip: "Parent ENS name users will mint subnames under" },
+  { key: "name",      type: "string",  default: "yourname.eth", required: true, readonly: true, tip: "Parent ENS name, including an ENS-imported DNS name such as example.com" },
   { key: "isTestnet", type: "boolean", default: false,           tip: "Use Sepolia testnet instead of Ethereum mainnet" },
   { key: "label",     type: "string",  default: "",              tip: "Pre-fill and lock the subname label", placeholder: "alice" },
   { key: "title",     type: "string",  default: "",              tip: "Override the default header title text", placeholder: "Create your subname" },
@@ -63,7 +64,10 @@ export function OffchainSubnameSection({ isTestnet, onIsTestnetChange }: { isTes
     setValues((prev) => ({ ...prev, isTestnet }));
   }, [isTestnet]);
 
-  const isNameValid = ensName.endsWith(".eth") && ensName.slice(0, -4).length >= 3;
+  const isNameValid = useMemo(
+    () => isValidEnsParentName(ensName),
+    [ensName]
+  );
   const isApiKeyValid = /^ns-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(apiKey.trim());
   const isReady = isNameValid && isApiKeyValid;
 
@@ -80,7 +84,7 @@ export function OffchainSubnameSection({ isTestnet, onIsTestnetChange }: { isTes
         icon={Unlink}
         name="Offchain Subnames"
         title="Create Offchain Subnames"
-        desc="Let users claim subnames instantly via the Namespace API. No gas, no on-chain transaction. Just a parent ENS name and an API key."
+        desc="Let users claim subnames instantly via the Namespace API. Supports .eth names and DNS names imported into ENS, with no gas or on-chain transaction."
       />
       <div className="component-grid">
         <div className="code-col">
@@ -91,13 +95,13 @@ export function OffchainSubnameSection({ isTestnet, onIsTestnetChange }: { isTes
           <div className="offchain-gate">
             <div className="offchain-gate-fields">
               <div className="offchain-gate-field">
-                <label className="offchain-gate-label">ENS Name</label>
+                <label className="offchain-gate-label">ENS or DNS Name</label>
                 <input
                   className="ens-lookup-input"
                   type="text"
                   value={ensName}
-                  placeholder="yourname.eth"
-                  onChange={(e) => setEnsName(e.target.value.trim())}
+                  placeholder="yourname.eth or example.com"
+                  onChange={(e) => setEnsName(e.target.value.trim().toLowerCase())}
                 />
               </div>
               <div className="offchain-gate-field">

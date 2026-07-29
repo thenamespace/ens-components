@@ -82,6 +82,11 @@ export default function Page() {
 
 Components use wagmi hooks (window.ethereum, wallet state) and must render on the client.
 
+`EnsRecordsForm`, `SubnameMintForm`, and `OffchainSubnameForm` support both native
+`.eth` names and DNS names already imported into ENS, such as `example.com`.
+`EnsNameRegistrationForm` only registers second-level `.eth` names and does not
+perform DNS imports.
+
 ---
 
 ## Component Reference
@@ -173,7 +178,7 @@ const existingRecords = { addresses: [], texts: [] }; // replace with your fetch
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| name | `string` | **required** | Full ENS name (e.g. "alice.eth") |
+| name | `string` | **required** | Full ENS name, including an ENS-imported DNS name (e.g. "alice.eth" or "example.com") |
 | existingRecords | `EnsRecords` | **required** | Current records to populate the editor |
 | isTestnet | `boolean` | `false` | Use Sepolia |
 | resolverChainId | `number` | `undefined` | Override which chain to resolve on |
@@ -259,7 +264,7 @@ const client = createOffchainClient({
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | offchainManager | `OffchainClient` | **required** | Client instance from @thenamespace/offchain-manager |
-| name | `string` | **required** | Parent ENS name (e.g. "myname.eth") |
+| name | `string` | **required** | Parent ENS name, including an ENS-imported DNS name (e.g. "myname.eth" or "example.com") |
 | label | `string` | `undefined` | Pre-fill the subname label input |
 | isTestnet | `boolean` | `false` | Use Sepolia |
 | title | `string` | `undefined` | Override card title |
@@ -313,7 +318,7 @@ import { SubnameMintForm } from "@thenamespace/ens-components";
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| parentName | `string` | **required** | Parent ENS name under which to mint |
+| parentName | `string` | **required** | Parent ENS name (`.eth` or ENS-imported DNS) under which to mint |
 | label | `string` | `undefined` | Pre-fill the subname label |
 | isTestnet | `boolean` | `false` | Use Sepolia |
 | title | `string` | `undefined` | Override card title |

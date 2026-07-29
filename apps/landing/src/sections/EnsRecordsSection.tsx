@@ -55,7 +55,7 @@ const WRAPPER_ABI = [{
 }] as const;
 
 const ENS_RECORDS_DEFS: PropDef[] = [
-  { key: "name",            type: "string",  default: "yourname.eth",          required: true, readonly: true, tip: "Full ENS name whose records will be edited" },
+  { key: "name",            type: "string",  default: "yourname.eth",          required: true, readonly: true, tip: "Full ENS name, including a DNS name imported into ENS" },
   { key: "existingRecords", type: "string",  default: "Existing name records",  required: true, readonly: true, tip: "Current on-chain records pre-loaded from the ENS resolver" },
   { key: "isTestnet",       type: "boolean", default: false,                    tip: "Use Sepolia testnet instead of Ethereum mainnet" },
   { key: "noBorder",        type: "boolean", default: false,                    tip: "Remove the card border and shadow wrapper" },
@@ -156,20 +156,20 @@ export function EnsRecordsSection({ isTestnet, onIsTestnetChange }: { isTestnet:
         icon={BookOpenText}
         name="ENS Records"
         title="Edit Profile Records"
-        desc="Full-featured editor for text records, addresses, contenthash, and avatar uploads. Reads existing records and writes them back via a resolver transaction."
+        desc="Full-featured editor for .eth names and DNS names imported into ENS. Reads existing records and writes changes back via a resolver transaction."
       />
       <div className="component-grid">
         <DemoPanel>
           {!submittedName ? (
             <div className="ens-lookup-wrap">
-              <p className="ens-lookup-title">Enter your ENS name</p>
+              <p className="ens-lookup-title">Enter your ENS or imported DNS name</p>
               <p className="ens-lookup-sub">Load your current records to edit them</p>
               <input
                 className="ens-lookup-input"
                 type="text"
                 value={ensName}
-                placeholder="yourname.eth"
-                onChange={(e) => setEnsName(e.target.value)}
+                placeholder="yourname.eth or example.com"
+                onChange={(e) => setEnsName(e.target.value.toLowerCase())}
                 onKeyDown={(e) => e.key === "Enter" && isConnected && !loading && handleLookup()}
               />
               {lookupError && <p className="ens-lookup-error">{lookupError}</p>}

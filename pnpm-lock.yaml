@@ -30,8 +30,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/components
       '@thenamespace/offchain-manager':
-        specifier: ^1.0.10
-        version: 1.0.11
+        specifier: ^1.0.13
+        version: 1.0.13
       lucide-react:
         specifier: ^0.511.0
         version: 0.511.0(react@18.3.1)
@@ -137,14 +137,14 @@ importers:
         specifier: ^1.1.0
         version: 1.1.1
       '@thenamespace/avatar':
-        specifier: ^2.0.0
-        version: 2.0.0(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(viem@2.46.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
+        specifier: ^2.0.1
+        version: 2.0.1(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(viem@2.46.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
       '@thenamespace/mint-manager':
         specifier: ^1.1.1
         version: 1.1.1(bufferutil@4.1.0)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@thenamespace/offchain-manager':
-        specifier: ^1.0.10
-        version: 1.0.11
+        specifier: ^1.0.13
+        version: 1.0.13
       bootstrap:
         specifier: ^5.3.0
         version: 5.3.8(@popperjs/core@2.11.8)
@@ -1678,15 +1678,15 @@ packages:
   '@thenamespace/addresses@1.1.1':
     resolution: {integrity: sha512-Ta2KEcc6fd7HoPKbkbaWjxX050Z6JwMZJCldJxkqT/SIuJI+mCjVrXJkRuhLEiKqpbEAXJv7EULCgToJF12PSg==}
 
-  '@thenamespace/avatar@2.0.0':
-    resolution: {integrity: sha512-qt8xi8s39NKfISYXfEtF9zt1G79tuRCaNA9JNwNNlDry2UNhwvvRTi1CgujoHT1cF8ZR7dq5TXzjQV5pRQYkcA==}
+  '@thenamespace/avatar@2.0.1':
+    resolution: {integrity: sha512-HFzHOu/c5OGTHYlc8hLZ6TbSLZgvMoTVEp1jXHQ6fQ2NwhNw2txfNVStdO5j7r1NUBHYdhzQmVLo/vbB7IH+Qw==}
     engines: {node: '>=16.0.0'}
 
   '@thenamespace/mint-manager@1.1.1':
     resolution: {integrity: sha512-nUpbUdXb22H2BZEmXCYQgP9qihgD0ugfue9caKLeCptt/XwWaRycQ0rw+LAPnL5P3PuPcrnRekkN5+76sL7EnQ==}
 
-  '@thenamespace/offchain-manager@1.0.11':
-    resolution: {integrity: sha512-lzTKiMs9QgZc5vYo0CsG5Kgo0X7bflybnYIKFGYxvQWEqGTAdvOw8nzxtCvVTHsBzsx8D1z810KgDu8t1fcI0A==}
+  '@thenamespace/offchain-manager@1.0.13':
+    resolution: {integrity: sha512-1IClGbw5zZ2GCluLsK1+B6sol13E8uRrqYmEIADhblo8mv1Gfeg/GeLH4q87Xy9W4wVEZOLgZr72T0xTWhdTmA==}
     engines: {node: '>=16.0.0'}
 
   '@trysound/sax@0.2.0':
@@ -7171,7 +7171,7 @@ snapshots:
       - '@swc/core'
       - '@swc/wasm'
 
-  '@thenamespace/avatar@2.0.0(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(viem@2.46.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))':
+  '@thenamespace/avatar@2.0.1(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(viem@2.46.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))':
     dependencies:
       '@signinwithethereum/siwe': 4.2.0(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(viem@2.46.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
       axios: 1.13.5
@@ -7198,7 +7198,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@thenamespace/offchain-manager@1.0.11':
+  '@thenamespace/offchain-manager@1.0.13':
     dependencies:
       axios: 1.13.5
     transitivePeerDependencies:

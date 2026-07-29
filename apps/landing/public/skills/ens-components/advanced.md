@@ -29,6 +29,11 @@ Additional flow-specific prerequisites:
 - `SubnameMintForm`: the parent name must already have an active Namespace listing
 - `OffchainSubnameForm`: `@thenamespace/offchain-manager`, a configured `OffchainClient`, and a valid API key for the parent name
 
+`EnsRecordsForm`, `SubnameMintForm`, and `OffchainSubnameForm` support native
+`.eth` names and DNS names already imported into ENS (for example `example.com`).
+`EnsNameRegistrationForm` cannot import or register DNS names; it only registers
+second-level `.eth` names through the ETH Registrar Controller.
+
 ## ENS Records
 
 Use `EnsRecordsForm` when the user already owns the ENS name and wants a ready-made record editor.
@@ -49,6 +54,7 @@ import { EnsRecordsForm } from "@thenamespace/ens-components";
 Important:
 
 - The caller must fetch `existingRecords` before rendering.
+- `name` may be a native `.eth` name or a DNS name imported into ENS.
 - Use this instead of `SelectRecordsForm` unless the user explicitly needs a controlled or embedded UI.
 
 ## Controlled Records UI
@@ -99,6 +105,7 @@ import { SubnameMintForm } from "@thenamespace/ens-components";
 Important:
 
 - The parent name must already have an active Namespace listing.
+- The parent may be a native `.eth` name or a DNS name imported into ENS.
 - The component handles chain-switch prompts.
 - `referrer` belongs to `EnsNameRegistrationForm`, not `SubnameMintForm`.
 
@@ -126,6 +133,7 @@ const offchainManager = createOffchainClient({
 
 Important behavior:
 
+- The parent may be a native `.eth` name or a DNS name imported into ENS; the installed offchain SDK validates both.
 - The component uses `offchainManager.getSingleSubname()` for availability and update-mode detection.
 - If the subname already exists, it enters update mode with prefilled records.
 - If the user wants direct SDK CRUD, filtering, or record queries, use the `offchain-ens-subname-sdk` skill instead of this UI skill.

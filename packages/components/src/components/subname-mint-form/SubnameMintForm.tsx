@@ -63,6 +63,7 @@ export interface SubnameMintedData {
 }
 
 interface SubnameMintFormProps {
+  // Parent ENS name, including a DNS name imported into ENS, with an active Namespace listing
   parentName: string;
   label?: string;
   isTestnet?: boolean;

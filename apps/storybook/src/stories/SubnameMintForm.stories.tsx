@@ -31,7 +31,8 @@ const meta: Meta<typeof SubnameMintForm> = {
   argTypes: {
     parentName: {
       control: "text",
-      description: "Parent ENS name whose subnames are available for minting",
+      description:
+        "Parent ENS name, including an ENS-imported DNS name, whose subnames are available for minting",
     },
     isTestnet: {
       control: "boolean",

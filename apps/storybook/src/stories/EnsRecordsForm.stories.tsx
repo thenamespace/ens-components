@@ -31,7 +31,8 @@ const meta: Meta<typeof EnsRecordsForm> = {
   argTypes: {
     name: {
       control: "text",
-      description: "Full ENS name (e.g. vitalik.eth)",
+      description:
+        "Full ENS name, including a DNS name imported into ENS (e.g. vitalik.eth or example.com)",
     },
     isTestnet: {
       control: "boolean",

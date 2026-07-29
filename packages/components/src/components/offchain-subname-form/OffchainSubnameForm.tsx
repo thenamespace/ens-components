@@ -33,6 +33,7 @@ export interface OffchainSubnameCreatedData {
 
 interface OffchainSubnameFormProps {
   offchainManager: OffchainClient;
+  // Parent ENS name, including a DNS name imported into ENS
   name: string;
   label?: string;
   title?: string;

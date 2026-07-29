@@ -31,7 +31,8 @@ const meta: Meta<typeof OffchainSubnameForm> = {
   argTypes: {
     name: {
       control: "text",
-      description: "Parent ENS name (e.g. yourname.eth)",
+      description:
+        "Parent ENS name, including an ENS-imported DNS name (e.g. yourname.eth or example.com)",
     },
     apiKeyOrToken: {
       control: "text",
