@@ -11,6 +11,13 @@ import { mainnet, sepolia } from "viem/chains";
 interface UseAvatarClientParams {
   isTestnet?: boolean;
   domain?: string;
+  walletProvider?: AvatarUploadWalletProvider;
+}
+
+export interface AvatarUploadWalletProvider {
+  address: `0x${string}`;
+  chainId: number;
+  signMessage: (message: string) => Promise<`0x${string}`>;
 }
 
 export interface UploadAvatarParams {
@@ -73,7 +80,11 @@ export const getImageUploadErrorMessage = (
   return defaultFailedMessage;
 };
 
-export const useAvatarClient = ({ isTestnet, domain }: UseAvatarClientParams) => {
+export const useAvatarClient = ({
+  isTestnet,
+  domain,
+  walletProvider,
+}: UseAvatarClientParams) => {
   const { address } = useAccount();
   const { data: walletClient } = useWalletClient();
   const { switchChainAsync } = useSwitchChain();
@@ -81,7 +92,7 @@ export const useAvatarClient = ({ isTestnet, domain }: UseAvatarClientParams) =>
   const resolvedDomain = domain || getDefaultDomain();
   const expectedChainId = isTestnet ? sepolia.id : mainnet.id;
 
-  const provider = useMemo(() => {
+  const wagmiProvider = useMemo(() => {
     if (!walletClient || !address) {
       return undefined;
     }
@@ -118,6 +129,19 @@ export const useAvatarClient = ({ isTestnet, domain }: UseAvatarClientParams) =>
     };
   }, [walletClient, address, expectedChainId, switchChainAsync]);
 
+  const provider = useMemo(() => {
+    if (walletProvider) {
+      return {
+        getAddress: async () => walletProvider.address,
+        signMessage: walletProvider.signMessage,
+        getChainId: async () => walletProvider.chainId,
+      };
+    }
+    return wagmiProvider;
+  }, [walletProvider, wagmiProvider]);
+
+  const providerAddress = walletProvider?.address ?? address;
+
   const client = useMemo(() => {
     return createAvatarClient({
       network: isTestnet ? "sepolia" : "mainnet",
@@ -130,7 +154,7 @@ export const useAvatarClient = ({ isTestnet, domain }: UseAvatarClientParams) =>
     imageType: UploadImageType,
     params: UploadAvatarParams
   ): Promise<UploadResult> => {
-    if (!provider || !address) {
+    if (!provider || !providerAddress) {
       throw new Error(
         imageType === "avatar"
           ? "Please connect your wallet to upload avatar."
@@ -147,7 +171,7 @@ export const useAvatarClient = ({ isTestnet, domain }: UseAvatarClientParams) =>
         fileSize: params.file.size,
         network: isTestnet ? "sepolia" : "mainnet",
         domain: resolvedDomain,
-        wallet: address,
+        wallet: providerAddress,
       });
 
       // v2 normalizes a stable `url` from avatarUrl / headerUrl

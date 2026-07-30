@@ -11,6 +11,7 @@
     "dev": "turbo run dev",
     "storybook": "turbo run dev --filter=storybook",
     "landing": "turbo run dev --filter=landing",
+    "smart-accounts": "pnpm --filter smart-account-test dev",
     "lint": "turbo run lint",
     "format": "prettier --write .",
     "format:check": "turbo run format:check"

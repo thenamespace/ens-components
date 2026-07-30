@@ -7,7 +7,11 @@ import {
 } from "@thenamespace/avatar";
 import { Button, ShurikenSpinner, Text } from "@/components/atoms";
 import { Alert, Modal, ProgressBar } from "@/components/molecules";
-import { useAvatarClient, UploadImageType } from "@/hooks";
+import {
+  useAvatarClient,
+  UploadImageType,
+  type AvatarUploadWalletProvider,
+} from "@/hooks";
 import { getCroppedImageFile } from "../avatar-upload/cropImage";
 import "./ImageUploadModal.css";
 
@@ -23,6 +27,7 @@ interface ImageUploadModalProps {
   imageType: UploadImageType;
   isTestnet?: boolean;
   siweDomain?: string;
+  walletProvider?: AvatarUploadWalletProvider;
   onClose: () => void;
   onUploaded: (data: { url: string; uploadedAt: string }) => void;
 }
@@ -74,6 +79,7 @@ export const ImageUploadModal = ({
   imageType,
   isTestnet,
   siweDomain,
+  walletProvider,
   onClose,
   onUploaded,
 }: ImageUploadModalProps) => {
@@ -91,6 +97,7 @@ export const ImageUploadModal = ({
   const { uploadAvatar, uploadHeader } = useAvatarClient({
     isTestnet,
     domain: siweDomain,
+    walletProvider,
   });
 
   const isBusy = uploadState === "signing" || uploadState === "uploading";

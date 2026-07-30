@@ -1,0 +1,30 @@
+{
+  "name": "smart-account-test",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 4001",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --port 4001"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.0.0",
+    "@privy-io/react-auth": "^3.35.2",
+    "@thenamespace/avatar": "^2.0.1",
+    "@thenamespace/ens-components": "workspace:*",
+    "@thenamespace/offchain-manager": "^1.0.13",
+    "permissionless": "^0.2.57",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "viem": "^2.46.3",
+    "wagmi": "^2.19.5"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.2",
+    "typescript": "^5.9.2",
+    "vite": "^6.3.5"
+  }
+}

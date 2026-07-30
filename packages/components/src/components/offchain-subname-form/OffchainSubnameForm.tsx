@@ -15,6 +15,7 @@ import { useOwnerValidation } from "./useSubnameValidation";
 import { useSubnameChecker } from "./useSubnameChecker";
 import { buildSubnameRequest } from "./requestBuilder";
 import "./OffchainSubnameForm.css";
+import type { AvatarUploadWalletProvider } from "@/hooks";
 
 enum CreateStep {
   Form = "form",
@@ -42,6 +43,8 @@ interface OffchainSubnameFormProps {
   onCancel?: () => void;
   isTestnet?: boolean;
   avatarUploadDomain?: string;
+  defaultOwnerAddress?: string;
+  avatarUploadWalletProvider?: AvatarUploadWalletProvider;
   onSubnameCreated?: (data: OffchainSubnameCreatedData) => Promise<void> | void;
   onSubnameUpdated?: (data: OffchainSubnameCreatedData) => Promise<void> | void;
 }
@@ -57,6 +60,8 @@ export const OffchainSubnameForm = ({
   hideTitle = false,
   isTestnet,
   avatarUploadDomain,
+  defaultOwnerAddress,
+  avatarUploadWalletProvider,
   onCancel,
   onSubnameCreated,
   onSubnameUpdated,
@@ -101,7 +106,9 @@ export const OffchainSubnameForm = ({
   });
 
   // Owner address state
-  const [ownerAddress, setOwnerAddress] = useState<string>("");
+  const [ownerAddress, setOwnerAddress] = useState<string>(
+    defaultOwnerAddress || ""
+  );
   const { ownerAddressError, validateOwnerAddress, clearError: clearOwnerError } = useOwnerValidation();
 
   // Creating state
@@ -125,7 +132,7 @@ export const OffchainSubnameForm = ({
         setEnsRecords({ addresses: [], texts: [] });
         setEnsRecordsTemplate({ addresses: [], texts: [] });
         setBaselineRecords({ addresses: [], texts: [] });
-        setOwnerAddress("");
+        setOwnerAddress(defaultOwnerAddress || "");
         setInitialOwner("");
         setShowProfile(false);
         return;
@@ -161,6 +168,13 @@ export const OffchainSubnameForm = ({
       checkSubnameExists(propLabel);
     }
   }, [propLabel]);
+
+  useEffect(() => {
+    if (!isUpdateMode && defaultOwnerAddress) {
+      setOwnerAddress(defaultOwnerAddress);
+      validateOwnerAddress(defaultOwnerAddress);
+    }
+  }, [defaultOwnerAddress, isUpdateMode]);
 
   const handleNameChanged = async (value: string) => {
     const _value = value.toLowerCase().trim();
@@ -310,6 +324,7 @@ export const OffchainSubnameForm = ({
           ensName: `${label}.${name}`,
           isTestnet,
           siweDomain: avatarUploadDomain,
+          walletProvider: avatarUploadWalletProvider,
         }}
       />
     );

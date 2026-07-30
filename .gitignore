@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+.pnpm-store/
 
 # Builds / Bundles
 dist/
@@ -32,6 +33,7 @@ storybook-static/
 # Env files
 .env
 .env.*
+!**/.env.example
 
 # Coverage
 coverage/

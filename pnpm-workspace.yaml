@@ -1,3 +1,6 @@
 packages:
   - "packages/*"
   - "apps/*"
+
+overrides:
+  "@walletconnect/logger>pino": "10.0.0"

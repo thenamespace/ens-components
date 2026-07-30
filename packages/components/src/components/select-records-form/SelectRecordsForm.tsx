@@ -17,6 +17,7 @@ import { ImageRecords } from "./image-records/ImageRecords";
 import { deepCopy } from "@/utils";
 import { TextRecordCategory } from "@/constants";
 import { ImageUploadModal } from "./image-upload/ImageUploadModal";
+import type { AvatarUploadWalletProvider } from "@/hooks";
 
 enum RecordsSidebarItem {
   General = "General",
@@ -40,6 +41,7 @@ export interface AvatarUploadContext {
   ensName: string;
   isTestnet?: boolean;
   siweDomain?: string;
+  walletProvider?: AvatarUploadWalletProvider;
 }
 
 export interface SelectRecordsFormProps {
@@ -514,6 +516,7 @@ export const SelectRecordsForm = ({
           ensName={avatarUpload.ensName}
           isTestnet={avatarUpload.isTestnet}
           siweDomain={avatarUpload.siweDomain}
+          walletProvider={avatarUpload.walletProvider}
           onClose={() => setActiveUploadTarget(null)}
           onUploaded={data => handleImageUploaded(activeUploadTarget, data)}
         />
