@@ -91,20 +91,25 @@
   z-index: 1;
 }
 
+/* Affix insets follow the design's search field: the icon sits 14px in, and
+   the text clears it by a further gap so the two never crowd each other
+   (design `_ds_bundle.css`: `.search-icon { left: var(--space-7) }`,
+   `.search .input { padding-left: 38px }`). */
 .ns-input__prefix {
-  left: var(--ns-space-5);
+  left: var(--ns-space-7);
 }
 
 .ns-input__suffix {
-  right: var(--ns-space-5);
+  right: var(--ns-space-7);
 }
 
+/* 14px inset + ~18px icon + 6px breathing room */
 .ns-input__wrapper:has(.ns-input__prefix) .ns-input {
-  padding-left: var(--ns-space-16);
+  padding-left: calc(var(--ns-space-7) + 18px + var(--ns-space-3));
 }
 
 .ns-input__wrapper:has(.ns-input__suffix) .ns-input {
-  padding-right: var(--ns-space-16);
+  padding-right: calc(var(--ns-space-7) + 18px + var(--ns-space-3));
 }
 
 /* ---- placeholder ------------------------------------------------------- */

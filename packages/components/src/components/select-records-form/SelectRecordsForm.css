@@ -51,6 +51,11 @@
 .ns-records-content-wrapper .ns-records-content > [class*="col-"] {
   padding-left: 0;
   padding-right: 0;
+  /* bootstrap's `.row > *` adds `margin-top: var(--bs-gutter-y)` (8px at g-2)
+     to every child, which stacks on top of the grid row-gap; vertical spacing
+     here comes from row-gap alone */
+  padding-top: 0;
+  margin-top: 0;
   max-width: none;
   flex: none;
   width: auto;
@@ -64,6 +69,23 @@
 /* search field: 40px, hairline-strong (flows line 140) */
 .ns-records-content-wrapper .ns-records-content > *:first-child .ns-input {
   border-color: var(--ns-border-strong);
+}
+
+/* The search sits tight to the panel edge above and the nav below: the grid's
+   column gutter (20px) is too generous vertically, and the search row carries
+   its own bootstrap margins on top of it. Collapse both. */
+.ns-records-content-wrapper .ns-records-content {
+  column-gap: var(--ns-space-10);
+  row-gap: var(--ns-space-6);
+}
+
+.ns-records-content-wrapper .ns-records-content > *:first-child {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.ns-select-records-form .ns-records-content-wrapper {
+  padding-top: var(--ns-space-8);
 }
 
 /* ---- nav column (flows lines 74-84, script navBtn 507-531) ------------- */
@@ -122,6 +144,48 @@
 
 .ns-records-content .ns-records-sidebar .sidebar-item.active .ns-icon {
   stroke: var(--ns-surface);
+}
+
+/* nav icons sit quiet next to the label and take the row's ink */
+.ns-records-content .ns-records-sidebar .sidebar-item .ns-icon {
+  flex: none;
+  stroke: var(--ns-text-faint);
+}
+
+.ns-records-content .ns-records-sidebar .sidebar-item:hover .ns-icon {
+  stroke: var(--ns-text-2);
+}
+
+/* ---- empty state: search matched nothing (flows lines 117-120) --------- */
+
+.ns-records-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ns-space-8);
+  padding: var(--ns-space-16) 0;
+}
+
+.ns-records-empty__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--ns-control);
+  padding: 0 var(--ns-space-8);
+  font-family: var(--ns-font-family);
+  font-size: var(--ns-size-body-sm);
+  font-weight: var(--ns-weight-medium);
+  letter-spacing: 0.02em;
+  color: var(--ns-blue-600);
+  background: transparent;
+  border: 1px solid var(--ns-blue-500);
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.ns-records-empty__clear:hover {
+  background: var(--ns-blue-100);
+  color: var(--ns-blue-700);
 }
 
 /* ---- scrolling record body (flows line 82) ----------------------------- */

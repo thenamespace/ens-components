@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useMemo, useRef, useState } from "react";
+import { RefObject, useEffect, useMemo, useRef, useState, useCallback} from "react";
 import {
   ContenthashProtocol,
   EnsAddressRecord,
@@ -6,7 +6,7 @@ import {
   EnsRecords,
   EnsTextRecord,
 } from "@/types";
-import { Icon, Input, Text } from "../atoms";
+import { Icon, IconName, Input, Text } from "../atoms";
 import { Alert } from "../molecules";
 import { TextRecords } from "./text-records/TextRecords";
 import { AddressRecords } from "./address-record/AddressRecords";
@@ -24,6 +24,15 @@ enum RecordsSidebarItem {
   Addresses = "Addresses",
   Website = "Website",
 }
+
+/** Same icons the records-selector overlay uses for its nav, so the two
+ *  navigations read as one system. */
+const navIcons: Record<RecordsSidebarItem, IconName> = {
+  [RecordsSidebarItem.General]: "box",
+  [RecordsSidebarItem.Social]: "square-user",
+  [RecordsSidebarItem.Addresses]: "pin",
+  [RecordsSidebarItem.Website]: "globe",
+};
 
 type ImageRecordType = "avatar" | "header";
 
@@ -77,6 +86,21 @@ export const SelectRecordsForm = ({
   const addressesCategoryRef = useRef<HTMLDivElement | null>(null);
   const websiteCategoryRef = useRef<HTMLDivElement | null>(null);
   const [searchFilter, setSearchFilter] = useState("");
+  // Each record section reports whether it survived the search filter; when a
+  // search is active and none of them did, we show a single empty state
+  // instead of a blank pane (design: "No records found" + CLEAR FILTER).
+  const [sectionVisibility, setSectionVisibility] = useState<
+    Record<string, boolean>
+  >({});
+  const handleSectionVisibility = useCallback(
+    (section: string) => (isVisible: boolean) =>
+      setSectionVisibility(prev =>
+        prev[section] === isVisible ? prev : { ...prev, [section]: isVisible }
+      ),
+    []
+  );
+  const hasSearchResults = Object.values(sectionVisibility).some(Boolean);
+  const showEmptyState = searchFilter.trim().length > 0 && !hasSearchResults;
 
   const [currentNav, setCurrentNav] = useState<RecordsSidebarItem>(
     RecordsSidebarItem.General
@@ -447,6 +471,7 @@ export const SelectRecordsForm = ({
                   key={item}
                   className={`sidebar-item ${item === currentNav ? "active" : ""}`}
                 >
+                  <Icon size={16} name={navIcons[item as RecordsSidebarItem]} />
                   <Text weight="medium" size="sm">
                     {item}
                   </Text>
@@ -467,6 +492,7 @@ export const SelectRecordsForm = ({
                 onTextsChanged={handleTextsUpdated}
                 category={TextRecordCategory.General}
                 searchFilter={searchFilter}
+                onVisibilityChange={handleSectionVisibility("general")}
                 focusRecordKey={imageManualFocus?.record}
                 focusTrigger={imageManualFocus?.trigger}
               />
@@ -479,6 +505,7 @@ export const SelectRecordsForm = ({
                 onTextsChanged={handleTextsUpdated}
                 category={TextRecordCategory.Social}
                 searchFilter={searchFilter}
+                onVisibilityChange={handleSectionVisibility("social")}
               />
             </div>
             {/* Address Records */}
@@ -488,6 +515,7 @@ export const SelectRecordsForm = ({
                 addresses={records.addresses}
                 onAddressesChanged={e => handleAddressesUpdated(e)}
                 searchFilter={searchFilter}
+                onVisibilityChange={handleSectionVisibility("addresses")}
               />
             </div>
             {/* Contenthash Records */}
@@ -498,8 +526,23 @@ export const SelectRecordsForm = ({
                 onContenthashRemoved={() => handleContenthashRemoved()}
                 onContenthashAdded={e => handleContenthashAdded(e)}
                 searchFilter={searchFilter}
+                onVisibilityChange={handleSectionVisibility("website")}
               />
             </div>
+            {showEmptyState && (
+              <div className="ns-records-empty">
+                <Text weight="medium" size="sm">
+                  No records found
+                </Text>
+                <button
+                  type="button"
+                  className="ns-records-empty__clear"
+                  onClick={() => setSearchFilter("")}
+                >
+                  Clear filter
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -25,6 +25,9 @@ interface TextRecordsProps {
   searchFilter?: string;
   focusRecordKey?: string;
   focusTrigger?: number;
+  /** Reports whether this section currently renders anything, so the parent
+   *  can show a single "no records found" state for the whole form. */
+  onVisibilityChange?: (isVisible: boolean) => void;
 }
 
 export const TextRecords = ({
@@ -35,6 +38,7 @@ export const TextRecords = ({
   searchFilter,
   focusRecordKey,
   focusTrigger,
+  onVisibilityChange,
 }: TextRecordsProps) => {
   const existingTextsMap = useMemo(() => {
     const map: Record<string, EnsTextRecord> = {};
@@ -223,7 +227,15 @@ export const TextRecords = ({
     isGeneralCategory &&
     (committedCustomTexts.length > 0 || customDrafts.length > 0);
 
-  if (filteredItems.length === 0 && !hasCustomContent) {
+  // Mirrors the early return below; reported so the parent knows whether any
+  // section survived the search filter.
+  const isVisible = filteredItems.length > 0 || hasCustomContent;
+  useEffect(() => {
+    onVisibilityChange?.(isVisible);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVisible]);
+
+  if (!isVisible) {
     return <></>;
   }
 

@@ -8,6 +8,9 @@ interface AddressRecordProps {
   addresses: EnsAddressRecord[];
   onAddressesChanged: (addresses: EnsAddressRecord[]) => void;
   searchFilter?: string;
+  /** Reports whether this section currently renders anything, so the parent
+   *  can show a single "no records found" state for the whole form. */
+  onVisibilityChange?: (isVisible: boolean) => void;
 }
 
 export const AddressRecords = ({
@@ -15,6 +18,7 @@ export const AddressRecords = ({
   onAddressesChanged,
   initialAddresses,
   searchFilter,
+  onVisibilityChange,
 }: AddressRecordProps) => {
   const existingAddressMap = useMemo(() => {
     const map: Record<number, EnsAddressRecord> = {};
@@ -76,7 +80,17 @@ export const AddressRecords = ({
     return supportedAddresses.filter(record => filterAddress(record));
   }, [searchFilter]);
 
-  if (filteredAddresses.length === 0) {
+  // Mirrors the early return below; reported so the parent knows whether any
+  // section survived the search filter.
+  const isVisible = filteredAddresses.length > 0;
+  useEffect(() => {
+    onVisibilityChange?.(isVisible);
+    // onVisibilityChange is intentionally omitted — callers may pass an inline
+    // callback, and we only care about the transition.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVisible]);
+
+  if (!isVisible) {
     return <></>;
   }
 
