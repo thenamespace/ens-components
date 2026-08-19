@@ -1,65 +1,92 @@
+/* =========================================================================
+   Text — the design's type scale. Sizes come from the token scale, never
+   from rem guesses. Props are frozen; the `.ns-text--mono` / `.ns-text--label`
+   utilities exist for feature CSS to compose onto existing markup.
+   ========================================================================= */
+
 .ns-text {
   font-family: var(--ns-font-family);
-  line-height: 1.5;
+  line-height: var(--ns-leading-body);
   padding: 0;
 }
 
-/* Size variants */
+/* ---- size variants ----------------------------------------------------- */
 .ns-text--xs {
-  font-size: 0.755rem;
-  line-height: 1.3;
+  font-size: var(--ns-size-micro);
+  line-height: var(--ns-leading-body);
 }
 
 .ns-text--sm {
-  font-size: 0.875rem;
-  line-height: 1.4;
+  font-size: var(--ns-size-meta);
+  line-height: var(--ns-leading-body);
 }
 
 .ns-text--md {
-  font-size: 1rem;
-  line-height: 1.5;
+  font-size: var(--ns-size-body);
+  line-height: var(--ns-leading-body);
 }
 
 .ns-text--lg {
-  font-size: 1.125rem;
-  line-height: 1.6;
+  font-size: var(--ns-size-h4);
+  line-height: var(--ns-leading-tight);
+  letter-spacing: var(--ns-track-heading);
 }
 
 .ns-text--xl {
-  font-size: 1.25rem;
-  line-height: 1.6;
+  font-size: var(--ns-size-h3);
+  line-height: var(--ns-leading-tight);
+  letter-spacing: var(--ns-track-heading);
 }
 
-/* Weight variants */
+/* ---- weight variants --------------------------------------------------- */
 .ns-text--light {
-  font-weight: 300;
+  font-weight: var(--ns-weight-regular);
 }
 
 .ns-text--regular {
-  font-weight: 400;
+  font-weight: var(--ns-weight-regular);
 }
 
 .ns-text--medium {
-  font-weight: 500;
+  font-weight: var(--ns-weight-medium);
 }
 
 .ns-text--bold {
-  font-weight: 700;
+  font-weight: var(--ns-weight-bold);
 }
 
-/* Color variants */
+/* ---- colour variants --------------------------------------------------- */
+/* `primary` is the primary INK, not the accent (it was #1f1f1f before the
+   refresh; --ns-color-primary is now the blue accent, which would turn every
+   default <Text> blue). */
 .ns-text--primary {
-  color: var(--ns-color-primary);
+  color: var(--ns-text);
 }
 
 .ns-text--white {
-  color: #ffffff;
+  color: var(--ns-color-primary-contrast);
 }
 
 .ns-text--grey {
-  color: var(--ns-color-muted);
+  color: var(--ns-text-3);
 }
 
+/* Field-level validation is amber; the red of --ns-dot-bad is reserved for
+   hard failures surfaced through Alert. */
 .ns-text--danger {
-  color: var(--ns-alert-error-text);
+  color: var(--ns-amber-700);
+}
+
+/* ---- composable utilities (no prop changes) ---------------------------- */
+.ns-text--mono {
+  font-family: var(--ns-font-mono);
+}
+
+.ns-text--label {
+  font-size: var(--ns-size-label);
+  font-weight: var(--ns-weight-medium);
+  letter-spacing: var(--ns-track-label);
+  text-transform: uppercase;
+  line-height: var(--ns-leading-tight);
+  color: var(--ns-text-faint);
 }

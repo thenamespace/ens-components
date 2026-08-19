@@ -1,3 +1,8 @@
+/* =========================================================================
+   Tooltip — minimal square ink chip. No radius, no shadow, no scale.
+   The arrow is positional, not decorative, so it stays (recoloured).
+   ========================================================================= */
+
 .ns-tooltip-trigger {
   display: inline-block;
   position: relative;
@@ -8,23 +13,21 @@
   position: fixed;
   z-index: 9999;
   pointer-events: none;
-  animation: tooltip-fade-in 0.2s ease-out;
+  animation: tooltip-fade-in 0.15s ease-out;
   max-width: 90vw;
   word-wrap: break-word;
 }
 
 .ns-tooltip__content {
-  background: var(--ns-color-fg);
-  color: var(--ns-color-bg);
-  padding: 8px 12px;
-  border-radius: var(--ns-radius-md);
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.4;
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    0 2px 4px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--ns-text);
+  color: var(--ns-surface);
+  padding: var(--ns-space-3) var(--ns-space-5);
+  border: none;
+  border-radius: 0;
+  font-family: var(--ns-font-family);
+  font-size: var(--ns-size-meta);
+  font-weight: var(--ns-weight-medium);
+  line-height: var(--ns-leading-body);
   max-width: 100%;
   word-wrap: break-word;
   white-space: pre-wrap;
@@ -42,7 +45,7 @@
   top: 100%;
   left: 50%;
   transform: translateX(-50%);
-  border-top-color: var(--ns-color-fg);
+  border-top-color: var(--ns-text);
   border-bottom: none;
 }
 
@@ -50,7 +53,7 @@
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  border-bottom-color: var(--ns-color-fg);
+  border-bottom-color: var(--ns-text);
   border-top: none;
 }
 
@@ -58,7 +61,7 @@
   left: 100%;
   top: 50%;
   transform: translateY(-50%);
-  border-left-color: var(--ns-color-fg);
+  border-left-color: var(--ns-text);
   border-right: none;
 }
 
@@ -66,65 +69,197 @@
   right: 100%;
   top: 50%;
   transform: translateY(-50%);
-  border-right-color: var(--ns-color-fg);
+  border-right-color: var(--ns-text);
   border-left: none;
 }
 
 .ns-tooltip--top-start .ns-tooltip__arrow {
   top: 100%;
-  left: 16px;
-  border-top-color: var(--ns-color-fg);
+  left: var(--ns-space-8);
+  border-top-color: var(--ns-text);
   border-bottom: none;
 }
 
 .ns-tooltip--top-end .ns-tooltip__arrow {
   top: 100%;
-  right: 16px;
-  border-top-color: var(--ns-color-fg);
+  right: var(--ns-space-8);
+  border-top-color: var(--ns-text);
   border-bottom: none;
 }
 
 .ns-tooltip--bottom-start .ns-tooltip__arrow {
   bottom: 100%;
-  left: 16px;
-  border-bottom-color: var(--ns-color-fg);
+  left: var(--ns-space-8);
+  border-bottom-color: var(--ns-text);
   border-top: none;
 }
 
 .ns-tooltip--bottom-end .ns-tooltip__arrow {
   bottom: 100%;
-  right: 16px;
-  border-bottom-color: var(--ns-color-fg);
+  right: var(--ns-space-8);
+  border-bottom-color: var(--ns-text);
   border-top: none;
 }
 
-/* Animations */
+/* Opacity-only fade: no scale, no travel. */
 @keyframes tooltip-fade-in {
   from {
     opacity: 0;
-    transform: scale(0.95) translateY(4px);
   }
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
   }
 }
 
-/* Dark theme adjustments */
+/* ---- light variant — a surface held by a hairline ---------------------- */
+.ns-tooltip--light .ns-tooltip__content {
+  background: var(--ns-surface);
+  color: var(--ns-text);
+  border: 1px solid var(--ns-border-strong);
+}
+
+.ns-tooltip--light.ns-tooltip--top .ns-tooltip__arrow {
+  border-top-color: var(--ns-surface);
+}
+
+.ns-tooltip--light.ns-tooltip--bottom .ns-tooltip__arrow {
+  border-bottom-color: var(--ns-surface);
+}
+
+.ns-tooltip--light.ns-tooltip--left .ns-tooltip__arrow {
+  border-left-color: var(--ns-surface);
+}
+
+.ns-tooltip--light.ns-tooltip--right .ns-tooltip__arrow {
+  border-right-color: var(--ns-surface);
+}
+
+.ns-tooltip--light.ns-tooltip--top-start .ns-tooltip__arrow,
+.ns-tooltip--light.ns-tooltip--top-end .ns-tooltip__arrow {
+  border-top-color: var(--ns-surface);
+}
+
+.ns-tooltip--light.ns-tooltip--bottom-start .ns-tooltip__arrow,
+.ns-tooltip--light.ns-tooltip--bottom-end .ns-tooltip__arrow {
+  border-bottom-color: var(--ns-surface);
+}
+
+/* ---- tone variants ----------------------------------------------------- */
+.ns-tooltip--success .ns-tooltip__content {
+  background: var(--ns-ok);
+  color: var(--ns-color-primary-contrast);
+}
+
+.ns-tooltip--success.ns-tooltip--top .ns-tooltip__arrow,
+.ns-tooltip--success.ns-tooltip--top-start .ns-tooltip__arrow,
+.ns-tooltip--success.ns-tooltip--top-end .ns-tooltip__arrow {
+  border-top-color: var(--ns-ok);
+}
+
+.ns-tooltip--success.ns-tooltip--bottom .ns-tooltip__arrow,
+.ns-tooltip--success.ns-tooltip--bottom-start .ns-tooltip__arrow,
+.ns-tooltip--success.ns-tooltip--bottom-end .ns-tooltip__arrow {
+  border-bottom-color: var(--ns-ok);
+}
+
+.ns-tooltip--success.ns-tooltip--left .ns-tooltip__arrow {
+  border-left-color: var(--ns-ok);
+}
+
+.ns-tooltip--success.ns-tooltip--right .ns-tooltip__arrow {
+  border-right-color: var(--ns-ok);
+}
+
+.ns-tooltip--error .ns-tooltip__content {
+  background: var(--ns-dot-bad);
+  color: var(--ns-color-primary-contrast);
+}
+
+.ns-tooltip--error.ns-tooltip--top .ns-tooltip__arrow,
+.ns-tooltip--error.ns-tooltip--top-start .ns-tooltip__arrow,
+.ns-tooltip--error.ns-tooltip--top-end .ns-tooltip__arrow {
+  border-top-color: var(--ns-dot-bad);
+}
+
+.ns-tooltip--error.ns-tooltip--bottom .ns-tooltip__arrow,
+.ns-tooltip--error.ns-tooltip--bottom-start .ns-tooltip__arrow,
+.ns-tooltip--error.ns-tooltip--bottom-end .ns-tooltip__arrow {
+  border-bottom-color: var(--ns-dot-bad);
+}
+
+.ns-tooltip--error.ns-tooltip--left .ns-tooltip__arrow {
+  border-left-color: var(--ns-dot-bad);
+}
+
+.ns-tooltip--error.ns-tooltip--right .ns-tooltip__arrow {
+  border-right-color: var(--ns-dot-bad);
+}
+
+.ns-tooltip--warning .ns-tooltip__content {
+  background: var(--ns-amber-600);
+  color: var(--ns-color-primary-contrast);
+}
+
+.ns-tooltip--warning.ns-tooltip--top .ns-tooltip__arrow,
+.ns-tooltip--warning.ns-tooltip--top-start .ns-tooltip__arrow,
+.ns-tooltip--warning.ns-tooltip--top-end .ns-tooltip__arrow {
+  border-top-color: var(--ns-amber-600);
+}
+
+.ns-tooltip--warning.ns-tooltip--bottom .ns-tooltip__arrow,
+.ns-tooltip--warning.ns-tooltip--bottom-start .ns-tooltip__arrow,
+.ns-tooltip--warning.ns-tooltip--bottom-end .ns-tooltip__arrow {
+  border-bottom-color: var(--ns-amber-600);
+}
+
+.ns-tooltip--warning.ns-tooltip--left .ns-tooltip__arrow {
+  border-left-color: var(--ns-amber-600);
+}
+
+.ns-tooltip--warning.ns-tooltip--right .ns-tooltip__arrow {
+  border-right-color: var(--ns-amber-600);
+}
+
+.ns-tooltip--info .ns-tooltip__content {
+  background: var(--ns-blue-600);
+  color: var(--ns-color-primary-contrast);
+}
+
+.ns-tooltip--info.ns-tooltip--top .ns-tooltip__arrow,
+.ns-tooltip--info.ns-tooltip--top-start .ns-tooltip__arrow,
+.ns-tooltip--info.ns-tooltip--top-end .ns-tooltip__arrow {
+  border-top-color: var(--ns-blue-600);
+}
+
+.ns-tooltip--info.ns-tooltip--bottom .ns-tooltip__arrow,
+.ns-tooltip--info.ns-tooltip--bottom-start .ns-tooltip__arrow,
+.ns-tooltip--info.ns-tooltip--bottom-end .ns-tooltip__arrow {
+  border-bottom-color: var(--ns-blue-600);
+}
+
+.ns-tooltip--info.ns-tooltip--left .ns-tooltip__arrow {
+  border-left-color: var(--ns-blue-600);
+}
+
+.ns-tooltip--info.ns-tooltip--right .ns-tooltip__arrow {
+  border-right-color: var(--ns-blue-600);
+}
+
+/* ---- dark theme (legacy, unrefreshed) ---------------------------------- */
 [data-theme="dark"] .ns-tooltip__content {
   background: var(--ns-color-fg);
   color: var(--ns-color-bg);
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.3),
-    0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-[data-theme="dark"] .ns-tooltip--top .ns-tooltip__arrow {
+[data-theme="dark"] .ns-tooltip--top .ns-tooltip__arrow,
+[data-theme="dark"] .ns-tooltip--top-start .ns-tooltip__arrow,
+[data-theme="dark"] .ns-tooltip--top-end .ns-tooltip__arrow {
   border-top-color: var(--ns-color-fg);
 }
 
-[data-theme="dark"] .ns-tooltip--bottom .ns-tooltip__arrow {
+[data-theme="dark"] .ns-tooltip--bottom .ns-tooltip__arrow,
+[data-theme="dark"] .ns-tooltip--bottom-start .ns-tooltip__arrow,
+[data-theme="dark"] .ns-tooltip--bottom-end .ns-tooltip__arrow {
   border-bottom-color: var(--ns-color-fg);
 }
 
@@ -136,149 +271,11 @@
   border-right-color: var(--ns-color-fg);
 }
 
-[data-theme="dark"] .ns-tooltip--top-start .ns-tooltip__arrow,
-[data-theme="dark"] .ns-tooltip--top-end .ns-tooltip__arrow {
-  border-top-color: var(--ns-color-fg);
-}
-
-[data-theme="dark"] .ns-tooltip--bottom-start .ns-tooltip__arrow,
-[data-theme="dark"] .ns-tooltip--bottom-end .ns-tooltip__arrow {
-  border-bottom-color: var(--ns-color-fg);
-}
-
-/* Variants for different tooltip styles */
-.ns-tooltip--light .ns-tooltip__content {
-  background: var(--ns-color-bg);
-  color: var(--ns-color-fg);
-  border: 1px solid var(--ns-color-border);
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.1),
-    0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.ns-tooltip--light.ns-tooltip--top .ns-tooltip__arrow {
-  border-top-color: var(--ns-color-bg);
-}
-
-.ns-tooltip--light.ns-tooltip--bottom .ns-tooltip__arrow {
-  border-bottom-color: var(--ns-color-bg);
-}
-
-.ns-tooltip--light.ns-tooltip--left .ns-tooltip__arrow {
-  border-left-color: var(--ns-color-bg);
-}
-
-.ns-tooltip--light.ns-tooltip--right .ns-tooltip__arrow {
-  border-right-color: var(--ns-color-bg);
-}
-
-.ns-tooltip--light.ns-tooltip--top-start .ns-tooltip__arrow,
-.ns-tooltip--light.ns-tooltip--top-end .ns-tooltip__arrow {
-  border-top-color: var(--ns-color-bg);
-}
-
-.ns-tooltip--light.ns-tooltip--bottom-start .ns-tooltip__arrow,
-.ns-tooltip--light.ns-tooltip--bottom-end .ns-tooltip__arrow {
-  border-bottom-color: var(--ns-color-bg);
-}
-
-/* Success variant */
-.ns-tooltip--success .ns-tooltip__content {
-  background: var(--ns-alert-success-text);
-  color: white;
-  border-color: var(--ns-alert-success-text);
-}
-
-.ns-tooltip--success.ns-tooltip--top .ns-tooltip__arrow {
-  border-top-color: var(--ns-alert-success-text);
-}
-
-.ns-tooltip--success.ns-tooltip--bottom .ns-tooltip__arrow {
-  border-bottom-color: var(--ns-alert-success-text);
-}
-
-.ns-tooltip--success.ns-tooltip--left .ns-tooltip__arrow {
-  border-left-color: var(--ns-alert-success-text);
-}
-
-.ns-tooltip--success.ns-tooltip--right .ns-tooltip__arrow {
-  border-right-color: var(--ns-alert-success-text);
-}
-
-/* Error variant */
-.ns-tooltip--error .ns-tooltip__content {
-  background: var(--ns-alert-error-text);
-  color: white;
-  border-color: var(--ns-alert-error-text);
-}
-
-.ns-tooltip--error.ns-tooltip--top .ns-tooltip__arrow {
-  border-top-color: var(--ns-alert-error-text);
-}
-
-.ns-tooltip--error.ns-tooltip--bottom .ns-tooltip__arrow {
-  border-bottom-color: var(--ns-alert-error-text);
-}
-
-.ns-tooltip--error.ns-tooltip--left .ns-tooltip__arrow {
-  border-left-color: var(--ns-alert-error-text);
-}
-
-.ns-tooltip--error.ns-tooltip--right .ns-tooltip__arrow {
-  border-right-color: var(--ns-alert-error-text);
-}
-
-/* Warning variant */
-.ns-tooltip--warning .ns-tooltip__content {
-  background: var(--ns-alert-warning-text);
-  color: white;
-  border-color: var(--ns-alert-warning-text);
-}
-
-.ns-tooltip--warning.ns-tooltip--top .ns-tooltip__arrow {
-  border-top-color: var(--ns-alert-warning-text);
-}
-
-.ns-tooltip--warning.ns-tooltip--bottom .ns-tooltip__arrow {
-  border-bottom-color: var(--ns-alert-warning-text);
-}
-
-.ns-tooltip--warning.ns-tooltip--left .ns-tooltip__arrow {
-  border-left-color: var(--ns-alert-warning-text);
-}
-
-.ns-tooltip--warning.ns-tooltip--right .ns-tooltip__arrow {
-  border-right-color: var(--ns-alert-warning-text);
-}
-
-/* Info variant */
-.ns-tooltip--info .ns-tooltip__content {
-  background: var(--ns-alert-info-text);
-  color: white;
-  border-color: var(--ns-alert-info-text);
-}
-
-.ns-tooltip--info.ns-tooltip--top .ns-tooltip__arrow {
-  border-top-color: var(--ns-alert-info-text);
-}
-
-.ns-tooltip--info.ns-tooltip--bottom .ns-tooltip__arrow {
-  border-bottom-color: var(--ns-alert-info-text);
-}
-
-.ns-tooltip--info.ns-tooltip--left .ns-tooltip__arrow {
-  border-left-color: var(--ns-alert-info-text);
-}
-
-.ns-tooltip--info.ns-tooltip--right .ns-tooltip__arrow {
-  border-right-color: var(--ns-alert-info-text);
-}
-
-/* Responsive adjustments */
+/* ---- responsive -------------------------------------------------------- */
 @media (max-width: 480px) {
   .ns-tooltip__content {
-    font-size: 13px;
-    padding: 6px 10px;
+    font-size: var(--ns-size-micro);
+    padding: var(--ns-space-2) var(--ns-space-4);
     max-width: 250px;
   }
 

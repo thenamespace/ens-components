@@ -1,18 +1,22 @@
-/* Progress Bar Styles */
+/* Progress bar → the design's `.meter` (spec lines 68–69; used at HTML line 261):
+   a 5px amber rail with a solid amber fill. Square, shadowless, no ornament.
+
+   The rotating star is retired: the DOM (and the asset import) stays, the
+   element is simply not rendered. */
+
 .ens-names-register-progress-container {
-  margin-top: 20px;
+  margin-top: var(--ns-space-10);
   width: 100%;
   display: flex;
   justify-content: center;
-  height: 26px !important;
 }
 
 .ens-names-register-progress-bar {
   width: 100%;
-  height: 26px !important;
-  background-color: #000000;
-  border-radius: 4px;
-  padding: 4px;
+  height: 5px;
+  background-color: var(--ns-amber-300);
+  border-radius: 0;
+  padding: 0;
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
@@ -20,45 +24,15 @@
 
 .ens-names-register-progress-fill {
   height: 100%;
-  background-color: #ffffff;
-  border-radius: 0 12px 12px 0;
+  background-color: var(--ns-amber-600);
+  border-radius: 0;
   transition: width 0.1s linear;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0 8px 0 4px;
-  overflow: visible;
+  padding: 0;
   box-sizing: border-box;
 }
 
-.ens-names-register-progress-star-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  right: 5px;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 18px;
-  width: 18px;
-  pointer-events: none;
-}
-
+/* Retired illustration — asset kept in the repo, usage removed */
+.ens-names-register-progress-star-wrapper,
 .ens-names-register-progress-star {
-  display: block;
-  width: 100%;
-  height: 100%;
-  animation: rotate-star 2s linear infinite;
-  will-change: transform;
-  transform-origin: center center;
-}
-
-@keyframes rotate-star {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  display: none;
 }

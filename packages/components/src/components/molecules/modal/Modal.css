@@ -1,7 +1,20 @@
+/* =========================================================================
+   Modal — overlay panel. Square, hairline, shadowless.
+   Elevation used to come from `--ns-shadow`; it now comes from the
+   `--ns-border-strong` hairline, which is what separates the panel from the
+   page. The backdrop stays dim so the panel reads as lifted.
+   ========================================================================= */
+
 .ns-modal-overlay {
   position: fixed;
   inset: 0;
-  background: var(--ns-modal-overlay, rgba(0, 0, 0, 0.4));
+  /* Fallback for engines without color-mix(); this is the design's literal
+     backdrop value (ink at 45%). */
+  background: rgba(27, 29, 30, 0.45);
+  background: var(
+    --ns-modal-overlay,
+    color-mix(in srgb, var(--ns-text) 45%, transparent)
+  );
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,13 +29,13 @@
 }
 
 .ns-modal {
-  background: var(--ns-color-bg);
-  border: 1px solid var(--ns-color-border);
-  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface);
+  /* the hairline IS the elevation — never a shadow */
+  border: 1px solid var(--ns-border-strong);
+  border-radius: 0;
   width: 100%;
   max-height: 85vh;
   overflow: hidden;
-  box-shadow: var(--ns-shadow);
 }
 
 .ns-modal--sm {
@@ -39,41 +52,57 @@
   width: min(720px, 100%);
   max-width: 100%;
   max-height: min(90vh, 760px);
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
+  border-radius: 0;
+  /* the drawer's boundary against the page is its top hairline */
+  border-top: 1px solid var(--ns-border-strong);
   border-left: none;
   border-right: none;
   border-bottom: none;
   padding-bottom: env(safe-area-inset-bottom, 0);
-  box-shadow: 0 -14px 42px rgba(0, 0, 0, 0.3);
 }
 
 .ns-modal__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  gap: var(--ns-space-6);
+  padding: var(--ns-space-10) var(--ns-space-12);
+  border-bottom: 1px solid var(--ns-rule);
 }
 
 .ns-modal__title {
-  margin-right: 12px;
+  margin-right: var(--ns-space-6);
+  min-width: 0;
+  font-size: var(--ns-size-h4);
+  font-weight: var(--ns-weight-medium);
+  color: var(--ns-text);
 }
 
+/* 26px square icon button (design line 134) — square, hairline, flat */
 .ns-modal__close {
   appearance: none;
-  border: none;
-  background: transparent;
-  color: var(--ns-color-fg);
-  opacity: 0.7;
-  font-size: 20px;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: var(--ns-surface);
+  border: 1px solid var(--ns-border-strong);
+  border-radius: 0;
+  color: var(--ns-text-3);
+  font-size: var(--ns-size-h4);
+  line-height: 1;
   cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
 }
 .ns-modal__close:hover {
-  opacity: 1;
+  color: var(--ns-text);
+  border-color: var(--ns-text-faint);
 }
 
 .ns-modal__body {
-  padding: 20px;
+  padding: var(--ns-space-10) var(--ns-space-12);
   overflow: auto;
 }
 
@@ -81,15 +110,29 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
-  padding: 14px 20px;
+  flex-wrap: wrap;
+  gap: var(--ns-space-4);
+  padding: var(--ns-space-7) var(--ns-space-12);
+  border-top: 1px solid var(--ns-rule);
 }
 
 @media (max-width: 600px) {
   .ns-modal--drawer {
     width: 100%;
     max-height: min(92vh, 760px);
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
+    /* square corners on the drawer too — the system has no radius */
+    border-radius: 0;
+  }
+
+  .ns-modal__header,
+  .ns-modal__body,
+  .ns-modal__footer {
+    padding-left: var(--ns-space-6);
+    padding-right: var(--ns-space-6);
+  }
+
+  .ns-modal__body {
+    padding-top: var(--ns-space-6);
+    padding-bottom: var(--ns-space-6);
   }
 }

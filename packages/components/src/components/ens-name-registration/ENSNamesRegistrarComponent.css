@@ -1,12 +1,29 @@
+/* Registration flow shell — HTML line 185:
+   width: 100%; max-width: 500px; surface ground, strong hairline, square.
+
+   `container-type: inline-size` is the responsiveness anchor for the whole
+   flow: the production webapp renders this shell inside ~330px modals on
+   desktop viewports, where `@media` never fires. Every narrow layout in this
+   directory is written as `@container`. */
 .ens-registration-form-container {
-  background-color: var(--ns-color-bg-accent);
+  container-type: inline-size;
+  background-color: var(--ns-surface);
   width: 100%;
   max-width: 500px;
   height: fit-content;
-  border-radius: 10px;
-  border: 1px solid var(--ns-color-border);
+  border-radius: 0;
+  border: 1px solid var(--ns-border-strong);
 }
 
 .ens-registration-form-container.no-border {
   border: none !important;
+}
+
+/* A query container establishes layout containment, which makes it the
+   containing block for `position: fixed` descendants — that would shrink the
+   Modal overlay (rendered in-tree, not portalled) down to this card. While a
+   modal is open in the subtree, drop containment so the overlay covers the
+   viewport again; the layout underneath is behind the backdrop anyway. */
+.ens-registration-form-container:has(.ns-modal-overlay) {
+  container-type: normal;
 }

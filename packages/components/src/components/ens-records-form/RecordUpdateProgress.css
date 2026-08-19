@@ -1,4 +1,10 @@
-/* Common screen container styles */
+/* =========================================================================
+   Records update progress / success / failure.
+   Success reuses the ink band of the registration success screen
+   (Namespace Flows.dc.html lines 282-284) rather than an illustration —
+   96px --ns-name-ink, centred mono caps in --ns-blue-300 (plan §4.6).
+   ========================================================================= */
+
 .record-update-screen-container {
   display: flex;
   justify-content: center;
@@ -7,23 +13,26 @@
 }
 
 .record-update-screen-card {
-  border-radius: 20px;
-  padding: 32px;
   width: 100%;
   max-width: 480px;
+  padding: 0 0 var(--ns-space-14);
   text-align: center;
   position: relative;
+  background: var(--ns-surface);
+  border-radius: 0;
 }
 
 .record-update-screen-title-section {
-  margin-bottom: 24px;
+  padding: 0 var(--ns-space-14);
+  margin-bottom: var(--ns-space-14);
 }
 
 .record-update-screen-actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--ns-space-6);
   width: 100%;
+  padding: 0 var(--ns-space-14);
 }
 
 .record-update-screen-view-name-btn,
@@ -32,27 +41,61 @@
   width: 100%;
 }
 
-/* Success screen specific styles */
+/* ---- success: the ink band replaces the illustration ------------------- */
+
 .record-update-success-illustration {
-  margin-bottom: 24px;
+  height: 96px;
+  margin-bottom: var(--ns-space-14);
   display: flex;
   justify-content: center;
   align-items: center;
+  background: var(--ns-name-ink);
 }
 
 .record-update-success-illustration img {
-  width: 100%;
-  max-width: 200px;
-  height: auto;
-  object-fit: contain;
+  display: none;
 }
 
-/* Failed screen specific styles */
+.record-update-success-illustration::after {
+  content: "RECORDS UPDATED";
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-micro);
+  letter-spacing: var(--ns-track-caps);
+  color: var(--ns-blue-300);
+}
+
+/* ---- failure ----------------------------------------------------------- */
+
 .record-update-failed-icon {
-  margin-bottom: 24px;
+  margin: var(--ns-space-14) 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: var(--ns-color-error, #ef4444);
+  color: var(--ns-dot-bad);
 }
 
+/* the markup hands the icon a literal red; the palette's tone wins */
+.record-update-failed-icon .ns-icon {
+  stroke: var(--ns-dot-bad);
+}
+
+/* ---- narrow layouts (container first — these render inside modals) ----- */
+
+@container (max-width: 480px) {
+  .record-update-screen-title-section,
+  .record-update-screen-actions {
+    padding: 0 var(--ns-space-8);
+  }
+
+  .record-update-screen-card {
+    padding-bottom: var(--ns-space-8);
+  }
+}
+
+/* Fallback for browsers without container queries. */
+@media screen and (max-width: 600px) {
+  .record-update-screen-title-section,
+  .record-update-screen-actions {
+    padding: 0 var(--ns-space-8);
+  }
+}

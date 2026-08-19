@@ -302,7 +302,19 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
                   </Text>
                 </div>
               </div>
-              <Button style={{ width: 40, height: 40 }}>{`>`}</Button>
+              <span className="profile-cta-arrow" aria-hidden="true">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                >
+                  <path d="M6 3.6 10.4 8 6 12.4" />
+                </svg>
+              </span>
             </div>
           </div>
         </>

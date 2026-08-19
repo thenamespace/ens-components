@@ -1,14 +1,23 @@
-/* Base Alert Styles */
+/* =========================================================================
+   Alert — the design's `.banner`
+   -------------------------------------------------------------------------
+   Square, hairline, shadowless. The signature is the 3px accent rail on the
+   left edge; the other three sides are the tone's hairline.
+   Tone values arrive from the `--ns-alert-*` aliases (styles/global.css).
+   ========================================================================= */
+
 .ns-alert {
   display: flex;
   align-items: flex-start;
-  padding: 12px 16px;
-  border-radius: var(--ns-radius-md);
-  border: 1px solid;
+  padding: var(--ns-space-6) var(--ns-space-8);
+  border-radius: 0;
+  border: 1px solid transparent;
+  /* the accent rail — variants recolour it via border-left-color */
+  border-left-width: 3px;
   font-family: var(--ns-font-family);
-  font-size: 14px;
-  line-height: 1.5;
-  margin: 8px 0;
+  font-size: var(--ns-size-body);
+  line-height: var(--ns-leading-body);
+  margin: var(--ns-space-4) 0;
   position: relative;
   width: 100%;
   box-sizing: border-box;
@@ -18,14 +27,14 @@
   display: flex;
   align-items: flex-start;
   width: 100%;
-  gap: 12px;
+  gap: var(--ns-space-6);
 }
 
 .ns-alert-content-vertical {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 16px;
+  gap: var(--ns-space-8);
 }
 
 .ns-alert-icon {
@@ -33,7 +42,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: var(--ns-space-1);
 }
 
 .ns-alert-icon-vertical {
@@ -46,38 +55,39 @@
 }
 
 .ns-alert-title {
-  font-weight: 600;
-  margin-bottom: 4px;
-  font-size: 14px;
+  font-size: var(--ns-size-body);
+  font-weight: var(--ns-weight-bold);
+  letter-spacing: var(--ns-track-heading);
+  line-height: var(--ns-leading-tight);
+  margin-bottom: var(--ns-space-2);
 }
 
 .ns-alert-description {
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: var(--ns-size-meta);
+  line-height: var(--ns-leading-body);
+  opacity: 0.9;
 }
 
 .ns-alert-close {
   background: none;
   border: none;
+  border-radius: 0;
   cursor: pointer;
-  padding: 4px;
-  border-radius: var(--ns-radius-sm);
+  padding: var(--ns-space-2);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-top: 2px;
-  transition: background-color 0.2s ease;
+  margin-top: var(--ns-space-1);
+  color: inherit;
+  transition: background-color 0.15s ease;
 }
 
-.ns-alert-close:hover {
-  background-color: var(--ns-alert-error-close-hover);
-}
-
-/* Error Variant */
+/* ---- Error — reserved for hard transaction failures --------------------- */
 .ns-alert-error {
   background-color: var(--ns-alert-error-bg);
   border-color: var(--ns-alert-error-border);
+  border-left-color: var(--ns-alert-error-icon);
   color: var(--ns-alert-error-text);
 }
 
@@ -85,10 +95,7 @@
   color: var(--ns-alert-error-icon);
 }
 
-.ns-alert-error .ns-alert-title {
-  color: var(--ns-alert-error-text);
-}
-
+.ns-alert-error .ns-alert-title,
 .ns-alert-error .ns-alert-close {
   color: var(--ns-alert-error-text);
 }
@@ -97,10 +104,11 @@
   background-color: var(--ns-alert-error-close-hover);
 }
 
-/* Warning Variant */
+/* ---- Warning — also the tone for field validation ----------------------- */
 .ns-alert-warning {
   background-color: var(--ns-alert-warning-bg);
   border-color: var(--ns-alert-warning-border);
+  border-left-color: var(--ns-alert-warning-icon);
   color: var(--ns-alert-warning-text);
 }
 
@@ -108,10 +116,7 @@
   color: var(--ns-alert-warning-icon);
 }
 
-.ns-alert-warning .ns-alert-title {
-  color: var(--ns-alert-warning-text);
-}
-
+.ns-alert-warning .ns-alert-title,
 .ns-alert-warning .ns-alert-close {
   color: var(--ns-alert-warning-text);
 }
@@ -120,10 +125,11 @@
   background-color: var(--ns-alert-warning-close-hover);
 }
 
-/* Info Variant */
+/* ---- Info -------------------------------------------------------------- */
 .ns-alert-info {
   background-color: var(--ns-alert-info-bg);
   border-color: var(--ns-alert-info-border);
+  border-left-color: var(--ns-alert-info-icon);
   color: var(--ns-alert-info-text);
 }
 
@@ -131,10 +137,7 @@
   color: var(--ns-alert-info-icon);
 }
 
-.ns-alert-info .ns-alert-title {
-  color: var(--ns-alert-info-text);
-}
-
+.ns-alert-info .ns-alert-title,
 .ns-alert-info .ns-alert-close {
   color: var(--ns-alert-info-text);
 }
@@ -143,10 +146,11 @@
   background-color: var(--ns-alert-info-close-hover);
 }
 
-/* Success Variant */
+/* ---- Success ----------------------------------------------------------- */
 .ns-alert-success {
   background-color: var(--ns-alert-success-bg);
   border-color: var(--ns-alert-success-border);
+  border-left-color: var(--ns-alert-success-icon);
   color: var(--ns-alert-success-text);
 }
 
@@ -154,10 +158,7 @@
   color: var(--ns-alert-success-icon);
 }
 
-.ns-alert-success .ns-alert-title {
-  color: var(--ns-alert-success-text);
-}
-
+.ns-alert-success .ns-alert-title,
 .ns-alert-success .ns-alert-close {
   color: var(--ns-alert-success-text);
 }
@@ -166,18 +167,18 @@
   background-color: var(--ns-alert-success-close-hover);
 }
 
-/* Responsive Design */
+/* ---- Narrow containers (production renders these in ~330px modals) ----- */
 @media (max-width: 640px) {
   .ns-alert {
-    padding: 10px 12px;
-    font-size: 13px;
+    padding: var(--ns-space-5) var(--ns-space-6);
+    font-size: var(--ns-size-meta);
   }
 
   .ns-alert-content {
-    gap: 10px;
+    gap: var(--ns-space-5);
   }
 
   .ns-alert-icon {
-    margin-top: 1px;
+    margin-top: 0;
   }
 }

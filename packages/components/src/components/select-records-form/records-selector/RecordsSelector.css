@@ -1,71 +1,272 @@
-.ns-records-sidebar .sidebar-item {
-  cursor: pointer;
-  padding: 8px;
-  transition: all 0.2s linear;
-}
+/* =========================================================================
+   Add-records selector (Namespace Flows.dc.html lines 129-180,
+   chip() 546-567). Flat panel, hairline nav column, chip rows that go solid
+   blue when selected and fade out when already added.
+   ========================================================================= */
 
-.ns-records-sidebar .sidebar-item.active {
-  background-color: var(--ns-color-bg-darker);
-  border-radius: 5px;
-}
-
-.ns-records-sidebar .sidebar-item:hover {
-  background-color: var(--ns-color-bg-darker);
-  border-radius: 5px;
-}
-
-.ns-records-sidebar .ns-records-content {
-  height: 230px;
-  overflow-y: scroll;
-  position: relative;
-}
-
-.ns-records-content .bot-gradiant {
+.ns-records-selector {
+  container-type: inline-size;
   width: 100%;
-  height: 30px;
-  background-color: red;
-  position: absolute;
-  bottom: 0px;
+  max-width: 640px;
+  background: var(--ns-surface);
+  border-radius: 0;
 }
+
+/* search row: 40px, hairline-strong (flows lines 139-142) */
+.ns-records-selector > .ns-mb-3 .ns-input {
+  border-color: var(--ns-border-strong);
+}
+
+/* ---- nav + body grid (flows line 144) ---------------------------------- */
+
+.ns-records-selector .ns-records-sidebar {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: var(--ns-space-10);
+  align-items: start;
+  margin: 0;
+}
+
+.ns-records-selector .ns-records-sidebar > [class*="col-"] {
+  padding-left: 0;
+  padding-right: 0;
+  max-width: none;
+  flex: none;
+  width: auto;
+}
+
+.ns-records-selector .ns-records-sidebar > .col-4 {
+  display: flex;
+  flex-direction: column;
+  background: var(--ns-surface);
+  border: 1px solid var(--ns-border);
+}
+
+.ns-records-selector .ns-records-sidebar .sidebar-item {
+  gap: var(--ns-space-3);
+  width: 100%;
+  padding: var(--ns-space-7) var(--ns-space-8);
+  text-align: left;
+  background-color: transparent;
+  color: var(--ns-text-2);
+  border: none;
+  border-bottom: 1px solid var(--ns-rule);
+  border-radius: 0;
+  cursor: pointer;
+  transition:
+    background-color 0.15s linear,
+    color 0.15s linear;
+}
+
+.ns-records-selector .ns-records-sidebar .sidebar-item:last-child {
+  border-bottom: none;
+}
+
+.ns-records-selector .ns-records-sidebar .sidebar-item .ns-text {
+  font-size: var(--ns-size-meta);
+  font-weight: var(--ns-weight-regular);
+}
+
+.ns-records-selector .ns-records-sidebar .sidebar-item .ns-icon.ns-me-1 {
+  margin-right: 0;
+}
+
+.ns-records-selector .ns-records-sidebar .sidebar-item:hover {
+  background-color: var(--ns-surface-2);
+  border-radius: 0;
+}
+
+.ns-records-selector .ns-records-sidebar .sidebar-item.active,
+.ns-records-selector .ns-records-sidebar .sidebar-item.active:hover {
+  background-color: var(--ns-blue-600);
+  border-radius: 0;
+}
+
+.ns-records-selector .ns-records-sidebar .sidebar-item.active .ns-text {
+  color: var(--ns-surface);
+  font-weight: var(--ns-weight-medium);
+}
+
+.ns-records-selector .ns-records-sidebar .sidebar-item.active .ns-icon {
+  stroke: var(--ns-surface);
+}
+
+/* ---- scrolling chip body (flows line 155) ------------------------------ */
+
+.ns-records-selector .ns-records-sidebar .ns-records-content {
+  height: 230px;
+  overflow-y: auto;
+  position: relative;
+  padding-right: var(--ns-space-3);
+}
+
+.ns-records-selector .ns-records-selector-category > .ns-text--bold {
+  font-size: var(--ns-size-body);
+  font-weight: var(--ns-weight-bold);
+  color: var(--ns-text);
+}
+
+/* the bootstrap row of chips becomes a grid; cols stay as grid children */
+.ns-records-selector-category .row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ns-space-5);
+  margin: 0;
+}
+
+.ns-records-selector-category .row > [class*="col-"] {
+  display: block;
+  width: auto;
+  max-width: none;
+  flex: none;
+  padding: 0;
+}
+
+/* ---- chips (chip(), flows lines 546-567) ------------------------------- */
 
 .ns-records-selector-category .ns-text-record {
-  background-color: var(--ns-color-bg);
-  padding: 8px;
-  border: 1px solid var(--ns-color-border);
-  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-2);
+  width: 100%;
+  min-width: 0;
+  padding: var(--ns-space-5) var(--ns-space-3);
+  background-color: var(--ns-surface);
+  color: var(--ns-text);
+  border: 1px solid var(--ns-border);
+  border-radius: 0;
+  font-size: var(--ns-size-micro);
+  font-weight: var(--ns-weight-medium);
   cursor: pointer;
-  transition: all 0.2s linear;
+  transition:
+    background-color 0.15s linear,
+    border-color 0.15s linear;
+}
+
+.ns-records-selector-category .ns-text-record .ns-text {
+  font-size: var(--ns-size-micro);
+  font-weight: var(--ns-weight-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ns-records-selector-category .ns-text-record:hover {
-  background-color: rgb(245, 245, 245);
+  background-color: var(--ns-surface-2);
+  border-color: var(--ns-border-strong);
 }
 
-.ns-records-selector-category .ns-text-record.active {
-  background-color: var(--ns-color-fg);
+/* selected = solid blue with white ink */
+.ns-records-selector-category .ns-text-record.active,
+.ns-records-selector-category .ns-text-record.active:hover {
+  background-color: var(--ns-blue-600);
+  border-color: var(--ns-blue-600);
 }
 
+/* icons sit flat — the black filled circle is gone */
 .ns-text-record .ns-icon-cont {
-  width: 22px;
-  height: 22px;
-  border-radius: 100%;
-  background-color: var(--ns-color-fg);
+  width: 20px;
+  height: 20px;
+  flex: none;
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: transparent;
+  border-radius: 0;
 }
 
-.ns-text-record.disabled {
-  background-color: var(--ns-color-bg-darker);
-  border-color: var(--ns-color-bg-darker);
-  opacity: 0.5;
-  cursor: not-allowed;
+.ns-text-record .ns-icon-cont.ns-me-1 {
+  margin-right: 0;
 }
 
-.ns-text-record.disabled:hover {
-  border-color: var(--ns-color-border);
+/* the markup hands non-selected icons a white stroke for the old dark
+   circle; on the flat surface they take the row's ink instead. */
+.ns-text-record .ns-icon-cont .ns-icon {
+  stroke: var(--ns-text-3);
 }
 
 .ns-text-record.active .ns-icon-cont {
-  background-color: var(--ns-color-bg);
+  background-color: transparent;
+}
+
+.ns-text-record.active .ns-icon-cont .ns-icon {
+  stroke: var(--ns-surface);
+}
+
+/* already added = faded, not selectable */
+.ns-text-record.disabled,
+.ns-text-record.disabled:hover {
+  background-color: var(--ns-surface);
+  border-color: var(--ns-border);
+  color: var(--ns-text-faint);
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ns-text-record.disabled .ns-text {
+  color: var(--ns-text-faint);
+}
+
+/* ---- narrow layouts ---------------------------------------------------- */
+
+@container (max-width: 480px) {
+  .ns-records-selector .ns-records-sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ns-records-selector .ns-records-sidebar > .col-4 {
+    flex-direction: row;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .ns-records-selector .ns-records-sidebar .sidebar-item {
+    flex: none;
+    white-space: nowrap;
+    border-bottom: none;
+    border-right: 1px solid var(--ns-rule);
+  }
+
+  .ns-records-selector .ns-records-sidebar .sidebar-item:last-child {
+    border-right: none;
+  }
+}
+
+@container (max-width: 390px) {
+  .ns-records-selector-category .row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Fallback for browsers without container queries. */
+@media screen and (max-width: 600px) {
+  .ns-records-selector .ns-records-sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ns-records-selector .ns-records-sidebar > .col-4 {
+    flex-direction: row;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .ns-records-selector .ns-records-sidebar .sidebar-item {
+    flex: none;
+    white-space: nowrap;
+    border-bottom: none;
+    border-right: 1px solid var(--ns-rule);
+  }
+
+  .ns-records-selector .ns-records-sidebar .sidebar-item:last-child {
+    border-right: none;
+  }
+}
+
+/* A query container establishes layout containment, which makes it the
+   containing block for `position: fixed` descendants — that would shrink the
+   Modal overlay (rendered in-tree, not portalled) down to this card. While a
+   modal is open in the subtree, drop containment so the overlay covers the
+   viewport again; the layout underneath is behind the backdrop anyway. */
+.ns-records-selector:has(.ns-modal-overlay) {
+  container-type: normal;
 }

@@ -1,16 +1,22 @@
-/* Timer Styles */
+/* Commitment timer — plan §4.3. The ring stays (behaviour frozen) but becomes
+   a supporting element: blue stroke on a surface-3 track, square caps, and a
+   mono countdown in name ink. Fluid via container units so it survives the
+   webapp's ~330px modals. */
+
 .ens-names-register-timer-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 24px;
-  margin-bottom: 8px;
+  margin-top: var(--ns-space-14);
+  margin-bottom: var(--ns-space-4);
 }
 
 .ens-names-register-timer-circle {
   position: relative;
-  width: 200px;
-  height: 200px;
+  width: min(200px, 60cqw);
+  height: min(200px, 60cqw);
+  max-width: 200px;
+  max-height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -22,7 +28,14 @@
   transform: rotate(-90deg);
 }
 
+/* track — overrides the inline presentation attribute */
+.ens-names-register-timer-svg circle {
+  stroke: var(--ns-surface-3);
+}
+
 .ens-names-register-timer-progress {
+  stroke: var(--ns-blue-600);
+  stroke-linecap: butt;
   transition: stroke-dashoffset 0.5s linear;
 }
 
@@ -32,11 +45,20 @@
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  color: #000000;
+  color: var(--ns-name-ink);
 }
 
+/* the countdown is a number — it reads in mono */
 .ens-names-register-timer-text .ns-text {
-  font-size: 32px;
-  font-weight: 700;
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-h2);
+  font-weight: var(--ns-weight-medium);
+  color: var(--ns-name-ink);
   line-height: 1;
+}
+
+@container (max-width: 390px) {
+  .ens-names-register-timer-text .ns-text {
+    font-size: var(--ns-size-h3);
+  }
 }

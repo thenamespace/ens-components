@@ -1,18 +1,22 @@
-/* Progress Bar Styles */
+/* =========================================================================
+   ProgressBar — the design's `.meter`: a 5px amber rule, nothing else.
+   The rotating star is retired (DOM kept, hidden) and the black rounded
+   track is gone.
+   ========================================================================= */
+
 .ens-names-register-progress-container {
-  margin-top: 20px;
+  margin-top: var(--ns-space-10);
   width: 100%;
-  display: flex;
-  justify-content: center;
-  height: 40px !important;
+  display: block;
+  height: auto;
 }
 
 .ens-names-register-progress-bar {
   width: 100%;
-  height: 40px !important;
-  background-color: #000000;
-  border-radius: 4px;
-  padding: 4px;
+  height: 5px;
+  background-color: var(--ns-amber-300);
+  border-radius: 0;
+  padding: 0;
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
@@ -20,46 +24,15 @@
 
 .ens-names-register-progress-fill {
   height: 100%;
-  background-color: #ffffff;
-  border-radius: 0 12px 12px 0;
+  background-color: var(--ns-amber-600);
+  border-radius: 0;
+  /* functional: the fill animates with the registration steps */
   transition: width 0.1s linear;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0 8px 0 4px;
-  overflow: visible;
   box-sizing: border-box;
 }
 
-.ens-names-register-progress-star-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  right: 5px;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 26px;
-  width: 26px;
-  pointer-events: none;
-}
-
+/* Retired ornament — kept in the DOM, out of the design. */
+.ens-names-register-progress-star-wrapper,
 .ens-names-register-progress-star {
-  display: block;
-  width: 100%;
-  height: 100%;
-  animation: rotate-star 2s linear infinite;
-  will-change: transform;
-  transform-origin: center center;
+  display: none;
 }
-
-@keyframes rotate-star {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-

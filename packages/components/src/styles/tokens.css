@@ -1,0 +1,142 @@
+/* =========================================================================
+   Design tokens — @thenamespace/ens-components
+   -------------------------------------------------------------------------
+   Ported from the design system token set (tokens/*.css).
+   The design's VALUES are law; the NAMES are namespaced.
+
+   RULE: this library must never ship an unprefixed custom property.
+   Every token below is `--ns-*`. The design's generic names
+   (--bg, --surface, --text, --border, --radius, --space-*) would collide
+   with host pages, which define their own. Do not add unprefixed names here
+   or anywhere else in the library.
+
+   The system is square (radius 0) and shadowless: elevation is a hairline,
+   never a shadow.
+   ========================================================================= */
+
+:root {
+  /* ---- fonts (replaces Satoshi) ---------------------------------------- */
+  --ns-font-family: "DM Sans", system-ui, sans-serif;
+  --ns-font-mono: "DM Mono", ui-monospace, monospace;
+
+  /* ---- ground ---------------------------------------------------------- */
+  --ns-canvas: #e9e4dc;
+  --ns-bg: #fbfaf9;
+  --ns-surface: #ffffff;
+  --ns-surface-2: #fcfbfa;
+  --ns-surface-3: #f5f3ef;
+  --ns-surface-4: #f2efea;
+
+  /* ---- ink ------------------------------------------------------------- */
+  --ns-text: #1b1d1e;
+  --ns-text-2: #4a4741;
+  --ns-text-3: #6b665e;
+  --ns-text-muted: #8a857c;
+  --ns-text-faint: #9a958d;
+  --ns-text-faintest: #b9b4ab;
+
+  /* ---- lines ----------------------------------------------------------- */
+  --ns-border: #f0ede8;
+  --ns-border-strong: #dfdad2;
+  --ns-border-frame: #dad4cb;
+  --ns-rule: #f5f3ef;
+
+  /* ---- blue — the one accent ------------------------------------------- */
+  --ns-blue-100: #e6f1fa;
+  --ns-blue-300: #6eb6e8;
+  --ns-blue-500: #2e8fd0;
+  --ns-blue-600: #0f6fa8;
+  --ns-blue-700: #0a5480;
+  --ns-name-ink: #12324a;
+
+  /* ---- amber — expiry / grace / warning / validation errors ------------ */
+  --ns-amber-100: #fdf9ec;
+  --ns-amber-200: #fbf2de;
+  --ns-amber-300: #f6edd6;
+  --ns-amber-400: #e7c77a;
+  --ns-amber-500: #d98b1b;
+  --ns-amber-600: #b4620b;
+  --ns-amber-700: #8a4a05;
+
+  /* ---- pink — legacy / upgrade ----------------------------------------- */
+  --ns-pink-100: #fdeef6;
+  --ns-pink-300: #f0a6cb;
+  --ns-pink-600: #c22b7a;
+  --ns-pink-700: #8c1152;
+
+  /* ---- status ---------------------------------------------------------- */
+  --ns-ok: #5e8a6c;
+  --ns-dot-ok: #7fa98b;
+  --ns-dot-soon: var(--ns-amber-500);
+  --ns-dot-bad: #c2410c;
+
+  /* ---- semantic -------------------------------------------------------- */
+  --ns-text-link: var(--ns-blue-600);
+  --ns-text-link-hover: var(--ns-blue-700);
+  --ns-focus-ring: var(--ns-blue-500);
+  --ns-selection: #d6eaf8;
+
+  /* ---- spacing --------------------------------------------------------- */
+  --ns-space-1: 2px;
+  --ns-space-2: 4px;
+  --ns-space-3: 6px;
+  --ns-space-4: 8px;
+  --ns-space-5: 10px;
+  --ns-space-6: 12px;
+  --ns-space-7: 14px;
+  --ns-space-8: 16px;
+  --ns-space-9: 18px;
+  --ns-space-10: 20px;
+  --ns-space-12: 22px;
+  --ns-space-14: 26px;
+  --ns-space-16: 32px;
+  --ns-space-20: 48px;
+  --ns-space-24: 56px;
+
+  /* ---- control heights ------------------------------------------------- */
+  --ns-control-sm: 30px;
+  --ns-control-md: 34px;
+  --ns-control: 38px;
+  --ns-control-lg: 40px;
+  --ns-control-xl: 44px;
+
+  /* ---- layout / avatar sizes (design extras, prefixed & harmless) ------- */
+  --ns-page-max: 1160px;
+  --ns-screen-width: 1280px;
+  --ns-avatar-sm: 26px;
+  --ns-avatar-row: 34px;
+  --ns-avatar-lg: 120px;
+
+  /* ---- type scale ------------------------------------------------------ */
+  --ns-size-name-xl: 40px;
+  --ns-size-name-lg: 34px;
+  --ns-size-h2: 24px;
+  --ns-size-h3: 18px;
+  --ns-size-h4: 16px;
+  --ns-size-body: 14px;
+  --ns-size-body-sm: 13.5px;
+  --ns-size-meta: 13px;
+  --ns-size-mono-row: 14.5px;
+  --ns-size-label: 11.5px;
+  --ns-size-micro: 11px;
+
+  --ns-weight-regular: 400;
+  --ns-weight-medium: 500;
+  --ns-weight-bold: 700;
+
+  --ns-leading-tight: 1.2;
+  --ns-leading-body: 1.55;
+  --ns-leading-prose: 1.6;
+
+  --ns-track-name: -0.03em;
+  --ns-track-heading: -0.02em;
+  --ns-track-label: 0.07em;
+  --ns-track-caps: 0.1em;
+
+  /* ---- borders — the system is square; there is no radius scale -------- */
+  --ns-radius: 0;
+  --ns-hairline: 1px solid var(--ns-border);
+  --ns-hairline-strong: 1px solid var(--ns-border-strong);
+  --ns-rule-line: 1px solid var(--ns-rule);
+  /* no shadow tokens: elevation is a hairline, never a shadow */
+}

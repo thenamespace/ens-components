@@ -1,0 +1,45 @@
+/* =========================================================================
+   Tag — the design's `.tag`: status, never decoration.
+   Uppercase micro-label type, square, no radius, no shadow.
+   ========================================================================= */
+
+.ns-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ns-space-3);
+
+  padding: var(--ns-space-2) var(--ns-space-5);
+
+  font-family: var(--ns-font-family);
+  font-size: var(--ns-size-label);
+  font-weight: var(--ns-weight-medium);
+  line-height: var(--ns-leading-tight);
+  letter-spacing: var(--ns-track-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0;
+  color: var(--ns-text-3);
+}
+
+.ns-tag--outline {
+  color: var(--ns-text-3);
+  border-color: var(--ns-border);
+}
+
+.ns-tag--blue {
+  color: var(--ns-blue-600);
+  background: var(--ns-blue-100);
+}
+
+.ns-tag--amber {
+  color: var(--ns-amber-600);
+  background: var(--ns-amber-200);
+}
+
+.ns-tag--pink {
+  color: var(--ns-pink-600);
+  background: var(--ns-pink-100);
+}

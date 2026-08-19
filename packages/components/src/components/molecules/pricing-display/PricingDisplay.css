@@ -1,11 +1,78 @@
+/* =========================================================================
+   PricingDisplay — the fee rows (design lines 223–233).
+   Labels are DM Sans in muted ink; every amount is DM Mono. That split is
+   the whole look of the block: words in the sans face, numbers in the mono.
+   Square, hairline, shadowless.
+   ========================================================================= */
+
 .ens-registration-pricing {
-  border-radius: 15px;
-  background-color: var(--ns-color-bg);
-  border: 1px solid var(--ns-color-border);
-  padding: 15px;
+  border-radius: 0;
+  background-color: var(--ns-surface);
+  border: 1px solid var(--ns-border);
+  padding: var(--ns-space-10);
 }
 
+/* ---- fee rows ---------------------------------------------------------- */
+.ens-registration-pricing .pricing-row {
+  gap: var(--ns-space-6);
+  /* let a long label/value pair wrap rather than overflow at ~330px */
+  flex-wrap: wrap;
+}
+
+.ens-registration-pricing .pricing-label {
+  font-size: var(--ns-size-meta);
+  color: var(--ns-text-3);
+  min-width: 0;
+}
+
+.ens-registration-pricing .pricing-value {
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-meta);
+  color: var(--ns-text-2);
+  text-align: right;
+  margin-left: auto;
+}
+
+/* ---- total ------------------------------------------------------------- */
 .ens-registration-pricing .total-fee {
-  border-top: 1px solid var(--ns-color-border);
-  padding-top: 8px;
+  border-top: 1px solid var(--ns-rule);
+  padding-top: var(--ns-space-6);
+  gap: var(--ns-space-6);
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.ens-registration-pricing .pricing-total-label {
+  font-size: var(--ns-size-body);
+  font-weight: var(--ns-weight-bold);
+  color: var(--ns-text);
+}
+
+.ens-registration-pricing .pricing-total-values {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-1);
+  margin-left: auto;
+  min-width: 0;
+}
+
+.ens-registration-pricing .pricing-total-value {
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-h4);
+  font-weight: var(--ns-weight-bold);
+  color: var(--ns-text);
+  line-height: var(--ns-leading-tight);
+}
+
+.ens-registration-pricing .pricing-total-usd {
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-micro);
+  color: var(--ns-text-faint);
+  line-height: var(--ns-leading-tight);
+}
+
+@media (max-width: 600px) {
+  .ens-registration-pricing {
+    padding: var(--ns-space-8);
+  }
 }

@@ -1,33 +1,87 @@
+/* Subname mint — Namespace Flows.dc.html lines 307–367.
+   Same shell, input, receipt and profile-CTA language as the registration
+   flow (§4.2/§4.5). Square, hairline, shadowless; names and amounts in mono. */
+
 .ns-subname-mint-form {
-    border: 1px solid var(--ns-color-border);
-    border-radius: 15px;
+    container-type: inline-size;
+    background-color: var(--ns-surface);
+    border: 1px solid var(--ns-border-strong);
+    border-radius: 0;
     width: 100%;
     max-width: 500px;
 }
 
-.ns-subname-mint-input input {
-    border-radius: 13px;
+/* A query container is a containing block for `position: fixed` descendants,
+   which would shrink the in-tree Modal overlay (image upload) to this card.
+   Drop containment while a modal is open in the subtree. */
+.ns-subname-mint-form:has(.ns-modal-overlay) {
+    container-type: normal;
+}
+
+.ns-subname-mint-form img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ---- Name input (lines 318–329) --------------------------------------
+   48px row, strong hairline, mono name ink. The parent-name suffix is plain
+   mono text — no grey suffix box — and ellipsizes when it runs long. */
+.ns-subname-mint-input .ns-input {
+    background: var(--ns-surface);
+    border: 1px solid var(--ns-border-strong);
+    border-radius: 0;
+    font-family: var(--ns-font-mono);
+    font-size: var(--ns-size-h4);
+    color: var(--ns-name-ink);
+    padding-left: 44px;
+    padding-right: 46%;
+}
+
+.ns-subname-mint-input .ns-input:focus {
+    border-color: var(--ns-focus-ring);
+}
+
+.ns-subname-mint-input .ns-input::placeholder {
+    color: var(--ns-text-faint);
+    opacity: 1;
+    font-family: var(--ns-font-mono);
 }
 
 .ns-subname-mint-input .ns-input__prefix {
-    left: 13px;
+    left: var(--ns-space-8);
+}
+
+.ns-subname-mint-input .ns-input__prefix .ns-icon {
+    stroke: var(--ns-text-faint);
 }
 
 .ns-subname-mint-input .ns-input__suffix {
-    padding: 0px;
-    border-left: 1px solid var(--ns-color-border);
-    background-color: var(--ns-color-bg-accent);
-    height: 45px;
-    right: 1px;
-    padding-right: 20px;
-    padding-left: 20px;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
+    right: var(--ns-space-8);
+    padding: 0;
+    height: auto;
+    max-width: 42%;
+    background: none;
+    border: none;
+    border-radius: 0;
 }
 
+.ns-subname-mint-input .ns-input__suffix .ns-text {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--ns-font-mono);
+    font-size: var(--ns-size-meta);
+    font-weight: var(--ns-weight-medium);
+    color: var(--ns-text-faint);
+    line-height: var(--ns-leading-tight);
+}
+
+/* ---- Actions --------------------------------------------------------- */
 .ens-update-records-form-actions {
     display: flex;
-    gap: 8px;
+    gap: var(--ns-space-4);
 }
 
 .ens-update-records-form-actions button {
@@ -45,6 +99,67 @@
     max-width: 100%;
 }
 
+/* ---- Records CTA (lines 350–359) ------------------------------------- */
+.ens-profile-selector {
+    border: 1px solid var(--ns-border);
+    border-radius: 0;
+    padding: var(--ns-space-8) var(--ns-space-10);
+    background-color: var(--ns-surface-3);
+}
+
+.ens-profile-selector > .d-flex {
+    gap: var(--ns-space-8);
+}
+
+.ens-profile-selector .shuriken-cont {
+    width: var(--ns-avatar-row);
+    height: var(--ns-avatar-row);
+    flex: none;
+    border-radius: 0;
+    background-color: transparent;
+}
+
+.ens-profile-selector .shuriken {
+    width: var(--ns-avatar-row);
+    height: auto;
+    transition: transform 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.ens-profile-selector .shuriken:hover {
+    transform: rotate(150deg);
+}
+
+/* 30px solid blue chevron block (line 357) */
+.ens-profile-selector .profile-cta-arrow {
+    width: 30px;
+    height: 30px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border-radius: 0;
+    background-color: var(--ns-blue-600);
+    color: var(--ns-surface);
+}
+
+/* ---- Narrow containers (plan §5) — the webapp's ~330px modals -------- */
+@container (max-width: 390px) {
+    .ens-update-records-form-actions {
+        flex-direction: column;
+    }
+
+    .ens-update-records-form-actions button,
+    .ens-update-records-form-actions .ns-mint-action-tooltip {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .ns-subname-mint-input .ns-input {
+        font-size: var(--ns-size-body);
+    }
+}
+
+/* Fallback for browsers without container queries */
 @media screen and (max-width: 600px) {
     .ens-update-records-form-actions {
         flex-direction: column;
@@ -59,27 +174,4 @@
         max-width: 100%;
         width: 100%;
     }
-}
-
-.ens-profile-selector {
-    border: 3px dashed var(--ns-color-border);
-    border-radius: 10px;
-    padding: 15px;
-    background-color: var(--ns-color-bg);
-}
-
-.ens-profile-selector .shuriken-cont {
-    width: 55px;
-    height: 55px;
-    border-radius: 10px;
-    background-color: var(--ns-color-border);
-}
-
-.ens-profile-selector .shuriken {
-    transition: all 0.3s ease-in-out;
-    cursor: pointer;
-}
-
-.ens-profile-selector .shuriken:hover {
-    transform: rotate(150deg);
 }

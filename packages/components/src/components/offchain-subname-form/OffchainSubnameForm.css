@@ -1,27 +1,93 @@
+/* Offchain subname form — no artboard of its own; it follows the mint-form
+   spec (§4.5): same shell, same 48px mono name input, same plain-text suffix.
+   Square, hairline, shadowless. */
+
 .ns-offchain-subname-form {
-    border: 1px solid var(--ns-color-border);
-    border-radius: 15px;
+    container-type: inline-size;
+    background-color: var(--ns-surface);
+    border: 1px solid var(--ns-border-strong);
+    border-radius: 0;
     width: 100%;
     max-width: 500px;
 }
 
-.ns-offchain-subname-input input,
-.ns-offchain-owner-input input {
-    border-radius: 13px;
+/* A query container is a containing block for `position: fixed` descendants,
+   which would shrink the in-tree Modal overlay to this card. Drop containment
+   while a modal is open in the subtree. */
+.ns-offchain-subname-form:has(.ns-modal-overlay) {
+    container-type: normal;
+}
+
+.ns-offchain-subname-form img {
+    max-width: 100%;
+    height: auto;
+}
+
+.ns-offchain-subname-input .ns-input,
+.ns-offchain-owner-input .ns-input {
+    background: var(--ns-surface);
+    border: 1px solid var(--ns-border-strong);
+    border-radius: 0;
+    font-family: var(--ns-font-mono);
+    color: var(--ns-name-ink);
+}
+
+.ns-offchain-subname-input .ns-input:focus,
+.ns-offchain-owner-input .ns-input:focus {
+    border-color: var(--ns-focus-ring);
+}
+
+.ns-offchain-subname-input .ns-input::placeholder,
+.ns-offchain-owner-input .ns-input::placeholder {
+    color: var(--ns-text-faint);
+    opacity: 1;
+    font-family: var(--ns-font-mono);
+}
+
+.ns-offchain-subname-input .ns-input {
+    font-size: var(--ns-size-h4);
+    padding-left: 44px;
+    padding-right: 46%;
+}
+
+/* the owner address is a hash — mono at meta size so it fits */
+.ns-offchain-owner-input .ns-input {
+    font-size: var(--ns-size-meta);
 }
 
 .ns-offchain-subname-input .ns-input__prefix {
-    left: 13px;
+    left: var(--ns-space-8);
+}
+
+.ns-offchain-subname-input .ns-input__prefix .ns-icon {
+    stroke: var(--ns-text-faint);
 }
 
 .ns-offchain-subname-input .ns-input__suffix {
-    padding: 0px;
-    border-left: 1px solid var(--ns-color-border);
-    background-color: var(--ns-color-bg-accent);
-    height: 45px;
-    right: 1px;
-    padding-right: 20px;
-    padding-left: 20px;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
+    right: var(--ns-space-8);
+    padding: 0;
+    height: auto;
+    max-width: 42%;
+    background: none;
+    border: none;
+    border-radius: 0;
+}
+
+.ns-offchain-subname-input .ns-input__suffix .ns-text {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--ns-font-mono);
+    font-size: var(--ns-size-meta);
+    font-weight: var(--ns-weight-medium);
+    color: var(--ns-text-faint);
+    line-height: var(--ns-leading-tight);
+}
+
+@container (max-width: 390px) {
+    .ns-offchain-subname-input .ns-input {
+        font-size: var(--ns-size-body);
+    }
 }

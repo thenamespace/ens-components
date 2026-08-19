@@ -1,41 +1,68 @@
+/* =========================================================================
+   Record update summary (plan §4.6).
+   Surface + hairline-strong frame, square badges in the tag-outline look:
+   the record key is an uppercase micro-label, the value is mono.
+   ========================================================================= */
+
 .record-update-summary {
-  padding: 15px;
-  background-color: var(--ns-color-bg-accent);
-  border-radius: 15px;
+  container-type: inline-size;
   max-width: 600px;
   margin: 0 auto;
+  padding: var(--ns-space-8);
+  background-color: var(--ns-surface);
+  border: 1px solid var(--ns-border-strong);
+  border-radius: 0;
 }
 
 .record-update-summary .text-center {
   text-align: center;
 }
 
+/* the brand illustration survives, constrained (plan §8.5) */
+.record-update-summary img {
+  max-width: min(200px, 60%);
+  height: auto;
+}
+
+/* ---- accordions -------------------------------------------------------- */
+
 .record-summary-accordion {
-  margin-bottom: 12px;
-  background-color: var(--ns-color-bg);
-  border-radius: 10px;
-  border: 1px solid var(--ns-color-border);
+  margin-bottom: var(--ns-space-6);
+  background-color: var(--ns-surface);
+  border: 1px solid var(--ns-border);
+  border-radius: 0;
 }
 
 .record-summary-accordion .ns-accordion__body-inner {
   padding-top: 0;
 }
 
-
 .record-summary-section {
-  margin-bottom: 16px;
+  margin-bottom: var(--ns-space-8);
 }
 
 .record-summary-section:last-child {
   margin-bottom: 0;
 }
 
+/* the "Added (n)" / "Modified (n)" section headings are micro-labels */
+.record-summary-section > .ns-text--sm.ns-text--medium.ns-text--grey {
+  font-size: var(--ns-size-label);
+  font-weight: var(--ns-weight-medium);
+  letter-spacing: var(--ns-track-label);
+  line-height: var(--ns-leading-tight);
+  text-transform: uppercase;
+  color: var(--ns-text-faint);
+}
+
 .record-summary-badges-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
+  gap: var(--ns-space-4);
+  margin-top: var(--ns-space-4);
 }
+
+/* ---- badges ------------------------------------------------------------ */
 
 .record-summary-expandable-badge {
   flex: 0 0 auto;
@@ -53,41 +80,71 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
-  background-color: var(--ns-color-bg-accent);
-  border-radius: 8px;
+  gap: var(--ns-space-4);
+  padding: var(--ns-space-4) var(--ns-space-6);
+  background-color: var(--ns-surface);
+  border: 1px solid var(--ns-border);
+  border-radius: 0;
+  color: var(--ns-text-3);
   cursor: pointer;
-  transition: opacity 0.2s ease;
   white-space: nowrap;
+  transition:
+    background-color 0.15s linear,
+    border-color 0.15s linear;
+}
+
+/* the record key reads as an uppercase micro-label */
+.record-summary-badge-header .ns-text--xs {
+  font-size: var(--ns-size-label);
+  font-weight: var(--ns-weight-medium);
+  letter-spacing: var(--ns-track-label);
+  line-height: var(--ns-leading-tight);
+  text-transform: uppercase;
+  color: var(--ns-text-2);
 }
 
 .record-summary-expandable-badge--expanded .record-summary-badge-header {
-  border-radius: 8px 8px 0 0;
+  border-radius: 0;
+  border-bottom-color: var(--ns-rule);
 }
 
 .record-summary-badge-header:hover {
-  opacity: 0.9;
+  opacity: 1;
+  background-color: var(--ns-surface-2);
+  border-color: var(--ns-border-strong);
 }
 
 .record-summary-badge-content {
-  padding: 0 12px;
-  background-color: var(--ns-color-bg-accent);
-  border-radius: 0 0 8px 8px;
+  padding: 0 var(--ns-space-6);
+  background-color: var(--ns-surface-2);
+  border: 1px solid var(--ns-border);
+  border-top: none;
+  border-radius: 0;
   overflow: hidden;
   transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
   box-sizing: border-box;
 }
 
-.record-summary-expandable-badge:not(.record-summary-expandable-badge--expanded) .record-summary-badge-content {
+/* record VALUES are mono — addresses, hashes, content hashes */
+.record-summary-badge-content .ns-text {
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-meta);
+  color: var(--ns-name-ink);
+  word-break: break-all;
+}
+
+.record-summary-expandable-badge:not(.record-summary-expandable-badge--expanded)
+  .record-summary-badge-content {
   max-width: 0;
   min-width: 0;
   padding-left: 0;
   padding-right: 0;
+  border: none;
 }
 
 .record-summary-badge-content > div {
-  padding: 8px 0;
+  padding: var(--ns-space-4) 0;
   white-space: normal;
   word-break: break-word;
 }
@@ -101,33 +158,34 @@
   cursor: default;
 }
 
-@media screen and (max-width: 600px) {
-  .record-summary-simple-badge {
-    flex-basis: 100%;
-    width: 100%;
-    min-width: 100%;
-  }
-}
-
+/* the count chip next to an accordion title */
 .record-summary-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-left: 3px;
-  background-color: var(--ns-color-bg-accent, #f4f4f4);
-  color: var(--ns-color-fg, #000);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
+  margin-left: var(--ns-space-2);
+  padding: 0 var(--ns-space-3);
   min-width: 20px;
+  background-color: var(--ns-surface-3);
+  border: 1px solid var(--ns-border);
+  border-radius: 0;
   text-align: center;
 }
 
+.record-summary-badge .ns-text {
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-micro);
+  color: var(--ns-text-3);
+}
+
+/* ---- actions (flows lines 124-127) ------------------------------------- */
+
 .record-update-summary-actions {
   display: flex;
-  gap: 8px;
-  padding-top: 0px;
+  gap: var(--ns-space-4);
+  padding-top: var(--ns-space-4);
+  border-top: 1px solid var(--ns-rule);
+  margin-top: var(--ns-space-8);
 }
 
 .record-update-summary-actions button {
@@ -135,7 +193,35 @@
   max-width: 50%;
 }
 
+/* ---- narrow layouts ---------------------------------------------------- */
+
+@container (max-width: 480px) {
+  .record-update-summary {
+    padding: var(--ns-space-6);
+  }
+
+  .record-summary-simple-badge,
+  .record-summary-expandable-badge {
+    flex-basis: 100%;
+    width: 100%;
+    min-width: 100%;
+  }
+}
+
+@container (max-width: 390px) {
+  .record-update-summary-actions {
+    flex-direction: column;
+  }
+
+  .record-update-summary-actions button {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+/* Fallback for browsers without container queries. */
 @media screen and (max-width: 600px) {
+  .record-summary-simple-badge,
   .record-summary-expandable-badge {
     flex-basis: 100%;
     width: 100%;
@@ -152,3 +238,11 @@
   }
 }
 
+/* A query container establishes layout containment, which makes it the
+   containing block for `position: fixed` descendants — that would shrink the
+   Modal overlay (rendered in-tree, not portalled) down to this card. While a
+   modal is open in the subtree, drop containment so the overlay covers the
+   viewport again; the layout underneath is behind the backdrop anyway. */
+.record-update-summary:has(.ns-modal-overlay) {
+  container-type: normal;
+}

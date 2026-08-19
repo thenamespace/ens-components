@@ -57,11 +57,11 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
           />
         </div>
       )}
-      <div className="d-flex justify-content-between align-items-center mb-1">
-        <Text size="sm" color="grey">
+      <div className="d-flex justify-content-between align-items-center mb-1 pricing-row">
+        <Text size="sm" color="grey" className="pricing-label">
           {primaryFee.label}
         </Text>
-        <Text size="sm" color="grey">
+        <Text size="sm" color="grey" className="pricing-value">
           {primaryFee.isChecking ? (
             <ShurikenSpinner size={14} />
           ) : isSentinel(primaryFee.amount) ? (
@@ -72,11 +72,11 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
         </Text>
       </div>
       {networkFees && (
-        <div className="d-flex justify-content-between align-items-center mb-1">
-          <Text size="sm" color="grey">
+        <div className="d-flex justify-content-between align-items-center mb-1 pricing-row">
+          <Text size="sm" color="grey" className="pricing-label">
             Est. network fees
           </Text>
-          <Text size="sm" color="grey">
+          <Text size="sm" color="grey" className="pricing-value">
             {networkFees.isChecking ? (
               <ShurikenSpinner size={14} />
             ) : networkFees.amount === "N/A" ? (
@@ -88,11 +88,11 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
         </div>
       )}
       <div className="d-flex justify-content-between align-items-center mt-2 total-fee">
-        <Text size="lg" weight="bold">
+        <Text size="lg" weight="bold" className="pricing-total-label">
           Total
         </Text>
-        <div style={{ textAlign: "right" }}>
-          <Text size="lg" weight="bold">
+        <div className="pricing-total-values" style={{ textAlign: "right" }}>
+          <Text size="lg" weight="bold" className="pricing-total-value">
             {totalLoading ? (
               <ShurikenSpinner size={18} />
             ) : isSentinel(total.amount) ? (
@@ -101,7 +101,7 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
               `${total.amount} ETH`
             )}
           </Text>
-          <Text size="xs" color="grey">
+          <Text size="xs" color="grey" className="pricing-total-usd">
             {totalUsd ? `≈ $${totalUsd}` : NBSP}
           </Text>
         </div>

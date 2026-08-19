@@ -1,68 +1,109 @@
+/* =========================================================================
+   DurationPicker — the bordered stepper (design lines 210–221).
+   One hairline box; the internal divisions are hairlines too, never gaps.
+   Durations and dates are numbers, so they are set in DM Mono.
+   Behaviour, props and markup are unchanged.
+   ========================================================================= */
+
 .ns-duration-picker {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  align-items: center;
+  gap: var(--ns-space-4);
+  align-items: stretch;
   width: 100%;
 }
 
-/* Years mode: − N year(s) + */
+/* ---- years mode: − N year(s) + ----------------------------------------- */
 .ns-duration-picker__control {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   width: 100%;
-  border: 1px solid var(--ns-color-border, #e5e7eb);
-  border-radius: 9999px;
-  padding: 4px;
-  gap: 4px;
+  height: var(--ns-control-lg);
+  border: 1px solid var(--ns-border-strong);
+  border-radius: 0;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
 }
 
-.ns-duration-picker__btn {
-  height: 44px;
-  width: 44px;
-  min-width: 44px;
-  border-radius: 50%;
-  flex-shrink: 0;
+/* Two classes so this reliably outranks the Button atom's variant rules. */
+.ns-duration-picker__control .ns-duration-picker__btn {
+  height: 100%;
+  width: var(--ns-control-lg);
+  min-width: var(--ns-control-lg);
+  flex: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
-  font-weight: 700;
   padding: 0;
+  border: none;
+  border-radius: 0;
+  background-color: var(--ns-surface);
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-h4);
+  font-weight: var(--ns-weight-regular);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ns-blue-600);
 }
 
-.ns-duration-picker__btn--plus {
-  background-color: var(--ns-color-primary, #3b82f6);
-  color: white;
+.ns-duration-picker__control .ns-duration-picker__btn:hover:not(:disabled) {
+  background-color: var(--ns-blue-100);
+  color: var(--ns-blue-700);
+}
+
+.ns-duration-picker__control .ns-duration-picker__btn:disabled {
+  color: var(--ns-text-faintest);
+  background-color: var(--ns-surface);
+}
+
+/* The plus button is no longer a filled pill — both steppers are equals. */
+.ns-duration-picker__control .ns-duration-picker__btn--plus {
+  background-color: var(--ns-surface);
+  color: var(--ns-blue-600);
 }
 
 .ns-duration-picker__label {
   flex: 1;
+  min-width: 0;
+  display: grid;
+  place-items: center;
   text-align: center;
-  font-weight: 700;
-  font-size: 1.5rem;
-  color: var(--ns-color-primary, #3b82f6);
-  line-height: 44px;
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-body);
+  font-weight: var(--ns-weight-regular);
+  line-height: normal;
+  color: var(--ns-name-ink);
+  /* the internal hairlines live on the label, per the design */
+  border-left: 1px solid var(--ns-border);
+  border-right: 1px solid var(--ns-border);
 }
 
-/* Calendar mode */
+/* ---- calendar mode ----------------------------------------------------- */
 .ns-duration-picker__calendar {
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
   width: 100%;
-  border: 1px solid var(--ns-color-border, #e5e7eb);
-  border-radius: 9999px;
-  padding: 12px 8px 12px 24px;
+  height: var(--ns-control-lg);
+  border: 1px solid var(--ns-border-strong);
+  border-radius: 0;
+  padding: 0;
   overflow: hidden;
   cursor: pointer;
 }
 
 .ns-duration-picker__date-display {
-  font-weight: 600;
-  font-size: 1rem;
-  color: var(--ns-color-primary, #3b82f6);
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  padding: 0 var(--ns-space-8);
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-body);
+  font-weight: var(--ns-weight-regular);
+  color: var(--ns-name-ink);
   pointer-events: none;
   white-space: nowrap;
   overflow: hidden;
@@ -74,7 +115,7 @@
   position: absolute;
   left: 0;
   top: 0;
-  width: calc(100% - 60px);
+  width: calc(100% - var(--ns-control-lg));
   height: 100%;
   opacity: 0;
   cursor: pointer;
@@ -84,16 +125,15 @@
 }
 
 .ns-duration-picker__calendar-btn {
-  background-color: var(--ns-color-primary, #3b82f6);
-  color: white;
-  height: 44px;
-  width: 44px;
-  min-width: 44px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  background-color: var(--ns-blue-600);
+  color: var(--ns-surface);
+  height: 100%;
+  width: var(--ns-control-lg);
+  min-width: var(--ns-control-lg);
+  border-radius: 0;
+  display: grid;
+  place-items: center;
+  flex: none;
   cursor: pointer;
   border: none;
   padding: 0;
@@ -101,22 +141,40 @@
   position: relative;
 }
 
-/* Footer: "N year registration. Pick by date" */
+.ns-duration-picker__calendar-btn:hover {
+  background-color: var(--ns-blue-700);
+}
+
+/* ---- footer: "N year registration · Pick by date" ---------------------- */
 .ns-duration-picker__footer {
   display: flex;
   align-items: center;
-  gap: 2px;
+  justify-content: space-between;
+  gap: var(--ns-space-2);
   flex-wrap: wrap;
-  justify-content: center;
+  width: 100%;
+  font-size: var(--ns-size-micro);
+  color: var(--ns-text-3);
 }
 
+/* A micro-label affordance, not a button label — uppercase is correct here
+   (design line 219). */
 .ns-duration-picker__toggle {
-  color: var(--ns-color-primary, #3b82f6);
+  color: var(--ns-blue-600);
   background: none;
   border: none;
+  border-radius: 0;
   padding: 0;
   cursor: pointer;
-  font-size: 0.75rem;
-  font-weight: 700;
-  line-height: inherit;
+  font-family: var(--ns-font-family);
+  font-size: var(--ns-size-micro);
+  font-weight: var(--ns-weight-medium);
+  letter-spacing: var(--ns-track-caps);
+  text-transform: uppercase;
+  line-height: var(--ns-leading-tight);
+  white-space: nowrap;
+}
+
+.ns-duration-picker__toggle:hover {
+  color: var(--ns-blue-700);
 }

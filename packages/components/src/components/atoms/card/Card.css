@@ -1,17 +1,18 @@
+/* =========================================================================
+   Card — the design's `.card`: a surface held by a hairline.
+   Elevation is a hairline, never a shadow.
+   ========================================================================= */
+
 .card {
-  border-radius: 16px;
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  background: var(--ns-surface);
+  border: 1px solid var(--ns-border);
+  border-radius: 0;
+  padding: var(--ns-space-12);
   overflow: hidden;
 }
 
 .ns-card {
-  background: var(--ns-color-bg);
-  border: 1px solid var(--ns-color-border);
-  border-radius: var(--ns-radius-md);
-  box-shadow: var(--ns-shadow);
-  transition:
-    background 0.2s ease,
-    border 0.2s ease;
+  background: var(--ns-surface);
+  border: 1px solid var(--ns-border);
+  border-radius: 0;
 }

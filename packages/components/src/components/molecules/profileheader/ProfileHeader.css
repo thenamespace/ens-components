@@ -1,18 +1,27 @@
+/* =========================================================================
+   ProfileHeader — square profile card (design lines 47–70).
+   Square avatar sat on a flat band, separated by an outline in the band's
+   own colour rather than a ring or a shadow.
+   ========================================================================= */
+
 .ns-profile-header {
-  background: var(--ns-color-bg);
-  border: 1px solid var(--ns-color-border);
-  border-radius: var(--ns-radius-lg);
-  box-shadow: var(--ns-shadow);
+  background: var(--ns-surface);
+  border: 1px solid var(--ns-border);
+  border-radius: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
+  width: 100%;
 }
 
+/* ---- banner ------------------------------------------------------------ */
 .ns-profile-header__banner {
   width: 100%;
-  height: 140px;
+  height: clamp(96px, 30vw, 140px);
+  background: var(--ns-surface-4);
+  border-bottom: 1px solid var(--ns-border);
   overflow: hidden;
 }
 
@@ -20,18 +29,23 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
+/* ---- avatar — square, outlined in the banner colour -------------------- */
 .ns-profile-header__avatar {
   position: relative;
   margin-top: -50px;
 }
 
 .ns-avatar-img {
+  display: block;
   width: 100px;
   height: 100px;
-  border-radius: 50%;
-  border: 4px solid var(--ns-color-bg);
+  border-radius: 0;
+  border: none;
+  outline: 5px solid var(--ns-surface-4);
+  background: var(--ns-surface);
   object-fit: cover;
 }
 
@@ -39,70 +53,108 @@
   position: absolute;
   bottom: 0;
   right: 0;
-  background: var(--ns-color-bg);
-  border-radius: 50%;
-  padding: 4px;
-  box-shadow: var(--ns-shadow);
+  display: grid;
+  place-items: center;
+  background: var(--ns-surface);
+  border: 1px solid var(--ns-border-strong);
+  border-radius: 0;
+  padding: var(--ns-space-2);
 }
 
 .ns-profile-header__chain img {
+  display: block;
   width: 20px;
   height: 20px;
 }
 
+/* ---- info -------------------------------------------------------------- */
 .ns-profile-header__info {
-  padding: 12px;
+  padding: var(--ns-space-6) var(--ns-space-8) var(--ns-space-8);
+  width: 100%;
+  min-width: 0;
 }
 
 .ns-profile-header__username {
-  font-size: 0.85rem;
-  color: var(--ns-color-muted);
-  margin-bottom: 4px;
+  font-size: var(--ns-size-meta);
+  color: var(--ns-text-3);
+  margin-bottom: var(--ns-space-2);
 }
 
 .ns-profile-header__name {
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: var(--ns-color-fg);
+  font-size: var(--ns-size-h3);
+  font-weight: var(--ns-weight-medium);
+  letter-spacing: var(--ns-track-heading);
+  line-height: var(--ns-leading-tight);
+  color: var(--ns-text);
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
+/* tag-outline look: a square hairline chip with a micro-label inside */
 .ns-profile-header__primary {
-  display: inline-block;
-  margin-top: 6px;
-  padding: 2px 8px;
-  border-radius: var(--ns-radius-sm);
-  font-size: 0.75rem;
-  background: var(--ns-color-bg-accent);
-  color: var(--ns-color-fg);
+  display: inline-flex;
+  align-items: center;
+  margin-top: var(--ns-space-3);
+  padding: var(--ns-space-2) var(--ns-space-5);
+  border: 1px solid var(--ns-border);
+  border-radius: 0;
+  background: transparent;
+  font-size: var(--ns-size-label);
+  font-weight: var(--ns-weight-medium);
+  letter-spacing: var(--ns-track-label);
+  text-transform: uppercase;
+  color: var(--ns-text-3);
 }
 
 .ns-profile-header__bio {
-  margin: 8px 0;
-  font-size: 0.9rem;
-  color: var(--ns-color-muted);
+  margin: var(--ns-space-4) 0 0;
+  font-size: var(--ns-size-meta);
+  line-height: var(--ns-leading-body);
+  color: var(--ns-text-3);
 }
 
 .ns-profile-header__stats {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 10px;
-  font-size: 0.85rem;
-  color: var(--ns-color-fg);
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--ns-space-3);
+  margin-top: var(--ns-space-5);
+  font-size: var(--ns-size-meta);
+  color: var(--ns-text-2);
 }
 
 .ns-profile-header__follow {
-  margin-left: 8px;
-  padding: 4px 12px;
-  border: none;
-  border-radius: var(--ns-radius-md);
-  background: var(--ns-color-primary);
-  color: var(--ns-color-primary-contrast);
+  margin-left: var(--ns-space-4);
+  height: var(--ns-control-sm);
+  padding: 0 var(--ns-space-6);
+  border: 1px solid var(--ns-blue-600);
+  border-radius: 0;
+  background: var(--ns-blue-600);
+  color: var(--ns-surface);
   cursor: pointer;
-  font-size: 0.85rem;
+  font-family: var(--ns-font-family);
+  font-size: var(--ns-size-body-sm);
+  font-weight: var(--ns-weight-medium);
+  letter-spacing: 0.02em;
 }
 
 .ns-profile-header__follow:hover {
-  background: var(--ns-color-fg);
+  background: var(--ns-blue-700);
+  border-color: var(--ns-blue-700);
+}
+
+@media (max-width: 390px) {
+  .ns-profile-header__avatar {
+    margin-top: -42px;
+  }
+
+  .ns-avatar-img {
+    width: 84px;
+    height: 84px;
+  }
+
+  .ns-profile-header__info {
+    padding: var(--ns-space-5) var(--ns-space-6) var(--ns-space-6);
+  }
 }

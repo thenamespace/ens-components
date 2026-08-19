@@ -1,0 +1,4 @@
+/* Design system typefaces: DM Sans (body) + DM Mono (names, numbers, fees, dates).
+   Shared by both style entry points (styles/index.css and src/styles.ts) so the
+   extracted CSS bundle and the JS-injected bundle stay identical. */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=DM+Mono:wght@400;500&display=swap");

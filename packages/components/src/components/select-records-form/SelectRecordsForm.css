@@ -1,147 +1,450 @@
+/* =========================================================================
+   Records / profile editor — the design's records editor
+   (Namespace Flows.dc.html lines 45-127, script navBtn() 507-531, tile() 533-544).
+
+   Square, hairline, shadowless. Record rows are table rows: a hairline
+   between them, --ns-surface-2 on hover, generous padding. Uppercase is
+   reserved for micro-labels (the .field-label pattern), never for buttons.
+
+   Mobile is driven by CONTAINER queries: this form renders inside ~330px
+   modals on desktop viewports, where @media never fires. The @media blocks
+   are kept as a fallback only.
+   ========================================================================= */
+
 .ns-select-records-form {
-  background-color: var(--ns-color-bg-accent);
+  container-type: inline-size;
   width: 100%;
   max-width: 500px;
-  border-radius: 15px;
   min-height: 400px;
+  background: var(--ns-surface);
+  border: 1px solid var(--ns-border-strong);
+  border-radius: 0;
 }
 
+/* ---- shells ------------------------------------------------------------ */
+
 .ns-select-records-form .ns-records-wrapper {
-  padding: 10px 20px;
+  padding: var(--ns-space-5) var(--ns-space-10);
   max-height: 200px;
   overflow-y: auto;
 }
 
 .ns-select-records-form .ns-records-content-wrapper {
-  padding: 15px;
+  padding: var(--ns-space-12) var(--ns-space-14);
 }
 
+/* The bootstrap `row` becomes the design's two-column editor grid
+   (132px nav + fluid body, flows line 73). The cols stay in the DOM and
+   become plain grid children. */
 .ns-records-content-wrapper .ns-records-content {
-  background-color: var(--ns-color-bg);
-  border-radius: 15px;
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: var(--ns-space-10);
+  align-items: start;
+  margin: 0;
+  padding: 0;
   height: 100%;
-  padding: 10px;
+  background: transparent;
+  border-radius: 0;
 }
+
+.ns-records-content-wrapper .ns-records-content > [class*="col-"] {
+  padding-left: 0;
+  padding-right: 0;
+  max-width: none;
+  flex: none;
+  width: auto;
+}
+
+/* the search row spans both columns */
+.ns-records-content-wrapper .ns-records-content > *:first-child {
+  grid-column: 1 / -1;
+}
+
+/* search field: 40px, hairline-strong (flows line 140) */
+.ns-records-content-wrapper .ns-records-content > *:first-child .ns-input {
+  border-color: var(--ns-border-strong);
+}
+
+/* ---- nav column (flows lines 74-84, script navBtn 507-531) ------------- */
+
+.ns-records-content .ns-records-sidebar {
+  display: flex;
+  flex-direction: column;
+  background: var(--ns-surface);
+  border: 1px solid var(--ns-border);
+  border-radius: 0;
+}
+
+.ns-records-content .ns-records-sidebar .sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-3);
+  width: 100%;
+  padding: var(--ns-space-7) var(--ns-space-8);
+  text-align: left;
+  background: transparent;
+  color: var(--ns-text-2);
+  border: none;
+  border-bottom: 1px solid var(--ns-rule);
+  border-radius: 0;
+  cursor: pointer;
+  transition:
+    background-color 0.15s linear,
+    color 0.15s linear;
+}
+
+.ns-records-content .ns-records-sidebar .sidebar-item:last-child {
+  border-bottom: none;
+}
+
+.ns-records-content .ns-records-sidebar .sidebar-item .ns-text {
+  font-size: var(--ns-size-meta);
+  font-weight: var(--ns-weight-regular);
+}
+
+.ns-records-content .ns-records-sidebar .sidebar-item:hover {
+  background-color: var(--ns-surface-2);
+  border-radius: 0;
+}
+
+/* active = solid blue, white ink */
+.ns-records-content .ns-records-sidebar .sidebar-item.active,
+.ns-records-content .ns-records-sidebar .sidebar-item.active:hover {
+  background-color: var(--ns-blue-600);
+  border-radius: 0;
+}
+
+.ns-records-content .ns-records-sidebar .sidebar-item.active .ns-text {
+  color: var(--ns-surface);
+  font-weight: var(--ns-weight-medium);
+}
+
+.ns-records-content .ns-records-sidebar .sidebar-item.active .ns-icon {
+  stroke: var(--ns-surface);
+}
+
+/* ---- scrolling record body (flows line 82) ----------------------------- */
 
 .ns-records-content .ns-records-inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-14);
   max-height: 320px;
   overflow-y: auto;
+  padding-right: var(--ns-space-3);
 }
 
+.ns-records-content .ns-records-inner > .ns-mb-2 {
+  margin-bottom: 0;
+}
+
+/* ---- legacy tab strip (kept for consumers) ----------------------------- */
+
 .ns-select-records-form .ns-select-records-content {
-  background-color: var(--ns-color-bg);
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
+  background-color: var(--ns-surface);
+  border-radius: 0;
+}
+
+.ns-select-records-nav {
+  display: flex;
+  background: var(--ns-surface);
+  border: 1px solid var(--ns-border-strong);
 }
 
 .ns-select-records-nav .nav-cont {
-  background-color: var(--ns-color-bg);
-  padding: 10px;
-  width: 100%;
+  flex: 1;
+  padding: var(--ns-space-5) var(--ns-space-8);
+  background-color: transparent;
+  color: var(--ns-text-3);
+  border-radius: 0;
   cursor: pointer;
-  border-top-left-radius: 7px;
-  border-top-right-radius: 7px;
-  opacity: 0.5;
+  opacity: 1;
+  transition: background-color 0.15s linear;
 }
 
 .ns-select-records-nav .nav-cont:hover {
-  opacity: 0.8;
-}
-
-.ns-select-records-nav .nav-cont.active {
-  background-color: var(--ns-color-bg);
+  background-color: var(--ns-surface-2);
   opacity: 1;
 }
 
-.ns-select-records-form .ns-close-icon {
-  cursor: pointer;
-  transition: all 0.25s linear;
+.ns-select-records-nav .nav-cont.active {
+  background-color: var(--ns-blue-600);
+  color: var(--ns-surface);
+  opacity: 1;
 }
 
-.ns-select-records-form .ns-close-icon:hover {
-  transform: scale(1.06);
-  background-color: var(--ns-color-bg-accent);
-  border-radius: 15px;
-  padding: 2px;
-}
+/* ---- footer actions (flows lines 124-127) ------------------------------ */
 
-.ns-select-records-form .not-found-badge {
-  border: 1px solid var(--ns-color-bg);
+.ns-select-records-form .ns-select-records-actions {
+  border-top: 1px solid var(--ns-rule);
 }
 
 .ns-select-records-form .ns-record-actions {
-  padding: 0px 20px;
-  padding-bottom: 20px;
+  padding: 0 var(--ns-space-10) var(--ns-space-10);
+}
+
+.ns-select-records-form .not-found-badge {
+  border: 1px solid var(--ns-border);
+  border-radius: 0;
 }
 
 .ns-select-records-form .record-count-badge {
-  width: 18px;
+  min-width: 18px;
   height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--ns-color-bg-accent);
-  border-radius: 3px;
-  padding: 1px;
+  padding: 0 var(--ns-space-1);
+  background-color: var(--ns-surface-3);
+  border: 1px solid var(--ns-border);
+  border-radius: 0;
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-micro);
+  color: var(--ns-text-3);
 }
 
-.ns-records-content .ns-records-sidebar .sidebar-item {
+/* =========================================================================
+   Record groups (TextRecords / AddressRecords / ContenthashRecord all render
+   `.ns-text-records`; the three components share one visual contract).
+   ========================================================================= */
+
+/* group title (flows lines 86-88) */
+.ns-text-records > .ns-text--bold {
+  font-size: var(--ns-size-body);
+  font-weight: var(--ns-weight-bold);
+  color: var(--ns-text);
+  border-bottom: 1px solid var(--ns-rule);
+  padding-bottom: var(--ns-space-4);
+}
+
+/* ---- record row = the design's table row -------------------------------
+   The row wrappers are the only unclassed children of `.ns-text-records`
+   (one per record, in all three record components), which makes them
+   addressable without a markup change. Their inline 10px spacer is
+   neutralised so consecutive rows share one hairline. */
+.ns-text-records > div:not([class]) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+  padding: var(--ns-space-6) var(--ns-space-4);
+  margin-bottom: 0 !important;
+  border-bottom: 1px solid var(--ns-rule);
+  transition: background-color 0.15s linear;
+}
+
+.ns-text-records > div:not([class]):hover {
+  background-color: var(--ns-surface-2);
+}
+
+/* field label above each input (flows line 92) — uppercase micro-label */
+.ns-text-records > div:not([class]) > .ns-text--xs.ns-text--medium.ns-text--grey {
+  font-family: var(--ns-font-family);
+  font-size: var(--ns-size-label);
+  font-weight: var(--ns-weight-medium);
+  letter-spacing: var(--ns-track-label);
+  line-height: var(--ns-leading-tight);
+  text-transform: uppercase;
+  color: var(--ns-text-faint);
+}
+
+/* the field + remove-button line (flows lines 94-101) */
+.ns-text-records > div:not([class]) > .d-flex.align-items-center,
+.ns-text-records > div:not([class]) .d-flex.align-items-center {
+  gap: var(--ns-space-5);
+}
+
+/* record VALUES that are addresses / content hashes render in mono ink.
+   Both AddressRecords and ContenthashRecord put a `.ns-chain-icon` in the
+   field prefix; text records use a lucide `.ns-icon`, so this separates the
+   two without a markup change (script lines 610-613). */
+.ns-text-records .ns-input__wrapper:has(.ns-chain-icon) .ns-input {
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-meta);
+  color: var(--ns-name-ink);
+}
+
+/* validation copy sits under the field in amber (flows lines 603-620) */
+.ns-text-records > div:not([class]) > .ns-text--xs.ns-text--danger {
+  font-size: var(--ns-size-micro);
+  color: var(--ns-amber-700);
+}
+
+/* ---- remove button = 40px square icon button (flows lines 98-100) ------ */
+
+.ns-text-records .ns-close-icon,
+.ns-select-records-form .ns-close-icon {
+  width: var(--ns-control-lg);
+  height: var(--ns-control-lg);
+  flex: none;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: var(--ns-surface);
+  border: 1px solid var(--ns-border);
+  border-radius: 0;
+  color: var(--ns-text-faint);
   cursor: pointer;
-  padding: 8px;
-  transition: all 0.2s linear;
+  transition:
+    background-color 0.15s linear,
+    border-color 0.15s linear,
+    color 0.15s linear;
 }
 
-.ns-records-content .ns-records-sidebar .sidebar-item.active {
-  background-color: var(--ns-color-bg-accent);
-  border-radius: 5px;
+.ns-text-records .ns-close-icon.ns-ms-1 {
+  margin-left: 0;
 }
 
-.ns-records-content .ns-records-sidebar .sidebar-item:hover {
-  background-color: var(--ns-color-bg-accent);
-  border-radius: 5px;
+.ns-text-records .ns-close-icon:hover,
+.ns-select-records-form .ns-close-icon:hover {
+  transform: none;
+  padding: 0;
+  border-radius: 0;
+  background-color: var(--ns-surface-2);
+  border-color: var(--ns-border-strong);
+  color: var(--ns-text-2);
 }
+
+/* ---- suggestion tiles (flows lines 106-113, tile() 533-544) ------------
+   The bootstrap row/col layout is overridden with a 3-column grid on the
+   container; the cols stay in the DOM as plain grid children. */
 
 .ns-text-records .row {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ns-space-5);
+  margin: 0;
+  padding-top: var(--ns-space-8);
 }
 
 .ns-text-records .row > [class*="col-"] {
-  display: flex;
+  display: block;
+  width: auto;
+  max-width: none;
+  flex: none;
+  padding: 0;
 }
 
 .ns-text-records .ns-text-suggestion {
-  padding: 5px;
-  outline: 1px solid var(--ns-color-border);
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.25s linear;
-  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: var(--ns-space-2);
   width: 100%;
+  height: 100%;
+  padding: var(--ns-space-7) var(--ns-space-5);
+  text-align: center;
+  background-color: var(--ns-surface);
+  border: 1px solid var(--ns-border);
+  border-radius: 0;
+  outline: none;
+  cursor: pointer;
+  transition:
+    background-color 0.15s linear,
+    border-color 0.15s linear;
 }
 
 .ns-text-records .ns-text-suggestion:hover {
-  background-color: var(--ns-color-bg-accent);
+  background-color: var(--ns-surface-2);
+  border-color: var(--ns-border-strong);
 }
 
-.ns-text-records .ns-close-icon {
-  cursor: pointer;
-  transition: all 0.25s linear;
+.ns-text-records .ns-text-suggestion .ns-text {
+  font-size: var(--ns-size-micro);
+  font-weight: var(--ns-weight-medium);
+  color: var(--ns-text-2);
 }
 
-.ns-text-records .ns-close-icon:hover {
-  transform: scale(1.06);
-  background-color: var(--ns-color-bg-accent);
-  border-radius: 15px;
-  padding: 2px;
+.ns-text-records .ns-text-suggestion .ns-text.ns-mt-1 {
+  margin-top: var(--ns-space-2);
 }
 
+/* =========================================================================
+   Narrow layouts — container queries first (plan §5).
+   ========================================================================= */
+
+@container (max-width: 480px) {
+  .ns-select-records-form .ns-records-content-wrapper {
+    padding: var(--ns-space-8);
+  }
+
+  /* one column; the nav becomes a horizontally scrollable row */
+  .ns-records-content-wrapper .ns-records-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ns-records-content .ns-records-sidebar {
+    flex-direction: row;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .ns-records-content .ns-records-sidebar .sidebar-item {
+    flex: none;
+    white-space: nowrap;
+    border-bottom: none;
+    border-right: 1px solid var(--ns-rule);
+  }
+
+  .ns-records-content .ns-records-sidebar .sidebar-item:last-child {
+    border-right: none;
+  }
+}
+
+@container (max-width: 390px) {
+  .ns-text-records .row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ns-text-records > div:not([class]) {
+    padding: var(--ns-space-5) var(--ns-space-2);
+  }
+}
+
+/* Fallback for browsers without container queries (actual phones). */
 @media screen and (max-width: 600px) {
   .ns-select-records-form {
     width: 100%;
   }
+
+  .ns-select-records-form .ns-records-content-wrapper {
+    padding: var(--ns-space-8);
+  }
+
+  .ns-records-content-wrapper .ns-records-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ns-records-content .ns-records-sidebar {
+    flex-direction: row;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .ns-records-content .ns-records-sidebar .sidebar-item {
+    flex: none;
+    white-space: nowrap;
+    border-bottom: none;
+    border-right: 1px solid var(--ns-rule);
+  }
+
+  .ns-records-content .ns-records-sidebar .sidebar-item:last-child {
+    border-right: none;
+  }
+}
+
+@media screen and (max-width: 390px) {
+  .ns-text-records .row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* A query container establishes layout containment, which makes it the
+   containing block for `position: fixed` descendants — that would shrink the
+   Modal overlay (rendered in-tree, not portalled) down to this card. While a
+   modal is open in the subtree, drop containment so the overlay covers the
+   viewport again; the layout underneath is behind the backdrop anyway. */
+.ns-select-records-form:has(.ns-modal-overlay) {
+  container-type: normal;
 }

@@ -1,3 +1,9 @@
+/* =========================================================================
+   Dropdown — a flat menu. Square, hairline, shadowless.
+   The menu fuses with its trigger: a -1px offset collapses the two hairlines
+   into one shared line (design lines 52–55).
+   ========================================================================= */
+
 .ns-dropdown {
   position: relative;
   display: inline-block;
@@ -9,7 +15,7 @@
 }
 
 .ns-dropdown__trigger:focus-visible {
-  outline: 2px solid var(--ns-color-primary);
+  outline: 2px solid var(--ns-focus-ring);
   outline-offset: 2px;
 }
 
@@ -18,19 +24,19 @@
   z-index: 1000;
 
   width: max-content;
+  /* never wider than the viewport — menus stay usable inside ~330px modals */
+  max-width: calc(100vw - 20px);
 
-  background: var(--ns-color-bg);
-  border: 1px solid var(--ns-color-border);
-  border-radius: var(--ns-radius-md);
-  box-shadow: var(--ns-shadow);
-  animation: ns-dropdown-fade-in 200ms cubic-bezier(0.4, 0, 0.2, 1);
-  transform-origin: top center;
+  background: var(--ns-surface);
+  border: 1px solid var(--ns-border-strong);
+  border-radius: 0;
+  /* opacity-only fade: no scale, no translate — and nothing that would
+     clobber the translateX(-50%) of the centre alignment */
+  animation: ns-dropdown-fade-in 150ms ease;
   box-sizing: border-box;
-  /* optional: keep items on one line if you want “wide” behavior */
-  /* white-space: nowrap; */
 }
 
-/* keep your placement/alignment rules, but make sure end/center don't fight with left */
+/* Alignment */
 .ns-dropdown--align-start {
   left: 0;
   right: auto;
@@ -45,44 +51,36 @@
   left: auto;
 }
 
-/* Placement variants */
+/* Placement variants — the -1px fuses the menu's hairline with the trigger's */
 .ns-dropdown--bottom {
   top: 100%;
-  margin-top: 0.25rem;
-  transform-origin: top center;
+  margin-top: -1px;
 }
 
 .ns-dropdown--top {
   bottom: 100%;
-  margin-bottom: 0.25rem;
-  transform-origin: bottom center;
+  margin-bottom: -1px;
 }
 
 .ns-dropdown--left {
   right: 100%;
-  margin-right: 0.25rem;
-  transform-origin: right center;
+  margin-right: -1px;
 }
 
 .ns-dropdown--right {
   left: 100%;
-  margin-left: 0.25rem;
-  transform-origin: left center;
+  margin-left: -1px;
 }
 
-/* Professional Fade Animation */
+/* Item styling is owned by the feature CSS that renders the menu contents
+   (e.g. ImageRecords) so that arbitrary children — Button atoms included —
+   are not clobbered here. */
+
 @keyframes ns-dropdown-fade-in {
-  0% {
+  from {
     opacity: 0;
-    transform: scale(0.95) translateY(-8px);
   }
-  100% {
+  to {
     opacity: 1;
-    transform: scale(1) translateY(0);
   }
-}
-
-/* Dark theme adjustments */
-[data-theme="dark"] .ns-dropdown__menu {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }

@@ -1,51 +1,70 @@
+/* =========================================================================
+   Global styles + legacy variable rewire
+   -------------------------------------------------------------------------
+   The library's component CSS consumes the legacy `--ns-color-*` / `--ns-radius-*`
+   / `--ns-alert-*` variables. Rather than rewrite every component file, those
+   names are redefined here as ALIASES of the design tokens in `./tokens.css`
+   (which must be imported BEFORE this file).
+
+   Radius is 0 and shadow is none at the source, so the whole library becomes
+   square and shadowless in one move.
+
+   RULE: no unprefixed custom property may be declared or consumed here.
+   Host pages define their own `--bg`/`--text`/`--border`/`--radius`.
+   ========================================================================= */
+
 :root {
-  --ns-font-family:
-    "Satoshi", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
-    Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  --ns-radius-sm: 4px;
-  --ns-radius-md: 8px;
-  --ns-radius-lg: 12px;
+  /* --ns-font-family / --ns-font-mono live in ./tokens.css */
 
-  --ns-color-bg: #ffffff;
-  --ns-color-bg-accent: #f4f4f4;
-  --ns-color-bg-accent-hover: #d9d9d9;
-  --ns-color-bg-darker: #e2e2e2;
-  --ns-color-fg: #111827;
-  --ns-color-muted: #6b7280;
-  --ns-color-primary: #1f1f1f;
+  /* kill every rounding and every shadow at the source */
+  --ns-radius-sm: 0;
+  --ns-radius-md: 0;
+  --ns-radius-lg: 0;
+  --ns-shadow: none;
+
+  --ns-color-bg: var(--ns-surface);
+  --ns-color-bg-accent: var(--ns-surface-3);
+  --ns-color-bg-accent-hover: var(--ns-surface-4);
+  --ns-color-bg-darker: var(--ns-surface-4);
+  --ns-color-fg: var(--ns-text);
+  --ns-color-muted: var(--ns-text-3);
+  --ns-color-primary: var(--ns-blue-600);
   --ns-color-primary-contrast: #ffffff;
-  --ns-color-border: #e5e7eb;
-  --ns-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 1px rgba(0, 0, 0, 0.02);
+  --ns-color-border: var(--ns-border-strong);
 
-  /* Error Colors */
-  --ns-alert-error-bg: #fef2f2;
-  --ns-alert-error-border: #fecaca;
-  --ns-alert-error-text: #dc2626;
-  --ns-alert-error-icon: #dc2626;
-  --ns-alert-error-close-hover: rgba(220, 38, 38, 0.1);
+  /* Error Colors — hard failures keep a red, built from --ns-dot-bad.
+     The design has no error surface; these two tints are derived. */
+  --ns-alert-error-bg: #fbede6;
+  --ns-alert-error-border: #ebc5b2;
+  --ns-alert-error-text: var(--ns-dot-bad);
+  --ns-alert-error-icon: var(--ns-dot-bad);
+  --ns-alert-error-close-hover: rgba(194, 65, 12, 0.1);
 
-  /* Warning Colors */
-  --ns-alert-warning-bg: #fffbeb;
-  --ns-alert-warning-border: #fed7aa;
-  --ns-alert-warning-text: #d97706;
-  --ns-alert-warning-icon: #d97706;
-  --ns-alert-warning-close-hover: rgba(217, 119, 6, 0.1);
+  /* Warning Colors — the design's amber banner tone */
+  --ns-alert-warning-bg: var(--ns-amber-100);
+  --ns-alert-warning-border: var(--ns-amber-400);
+  --ns-alert-warning-text: var(--ns-amber-700);
+  --ns-alert-warning-icon: var(--ns-amber-600);
+  --ns-alert-warning-close-hover: rgba(138, 74, 5, 0.1);
 
-  /* Info Colors */
-  --ns-alert-info-bg: #eff6ff;
-  --ns-alert-info-border: #bfdbfe;
-  --ns-alert-info-text: #257eeb;
-  --ns-alert-info-icon: #25a2eb;
-  --ns-alert-info-close-hover: rgba(37, 99, 235, 0.1);
+  /* Info Colors — the one blue accent */
+  --ns-alert-info-bg: var(--ns-blue-100);
+  --ns-alert-info-border: var(--ns-blue-300);
+  --ns-alert-info-text: var(--ns-blue-700);
+  --ns-alert-info-icon: var(--ns-blue-600);
+  --ns-alert-info-close-hover: rgba(10, 84, 128, 0.1);
 
-  /* Success Colors */
-  --ns-alert-success-bg: #f0fdf4;
-  --ns-alert-success-border: #bbf7d0;
-  --ns-alert-success-text: #16a34a;
-  --ns-alert-success-icon: #16a34a;
-  --ns-alert-success-close-hover: rgba(22, 163, 74, 0.1);
+  /* Success Colors — derived tints of --ns-ok */
+  --ns-alert-success-bg: #eff4f0;
+  --ns-alert-success-border: #c9dace;
+  --ns-alert-success-text: var(--ns-ok);
+  --ns-alert-success-icon: var(--ns-dot-ok);
+  --ns-alert-success-close-hover: rgba(94, 138, 108, 0.1);
 }
 
+/* Dark theme: the design ships light-only. These legacy values are left
+   untouched so the ThemeProvider API keeps working. Marked "legacy,
+   unrefreshed" in the release notes — do not invent a dark palette. */
 [data-theme="dark"] {
   --ns-color-bg: #0b0f19;
   --ns-color-fg: #e5e7eb;
@@ -84,31 +103,37 @@
   --ns-alert-success-close-hover: rgba(134, 239, 172, 0.1);
 }
 
-html {
-  background-color: #f5f4f5 !important;
-}
+/* NOTE: the `html { background-color: #f5f4f5 !important }` rule was removed.
+   A component library must not force the host page's background. Consumers
+   that want the design ground can set `background: var(--ns-bg)` themselves. */
 
 .ns-reset {
   font-family: var(--ns-font-family);
   color: var(--ns-color-fg);
 }
 
+/* Thin, square scrollbars (design `.scroll-thin`) */
 .ns-styled-scrollbar::-webkit-scrollbar {
   -webkit-appearance: none;
   width: 6px;
-  background-color: var(--ns-color-bg-accent);
+  background-color: var(--ns-surface-3);
 }
 
 .ns-styled-scrollbar::-webkit-scrollbar-thumb {
-  background-color: var(--ns-color-fg);
-  border-radius: 4px;
+  background-color: var(--ns-text-faintest);
+  border-radius: 0;
 }
+
+/* =========================================================================
+   Demo shell (storybook / landing chrome). Not part of the redesigned flows,
+   but it ships in the bundle, so it must not leak rounded or shadowed styles.
+   ========================================================================= */
 
 /* Body Layout */
 .ns-body {
   display: flex;
   flex: 1;
-  background: var(--bg);
+  background: var(--ns-bg);
   min-height: calc(100vh - 60px);
 }
 
@@ -134,28 +159,30 @@ html {
 /* Right ENS Section */
 .ns-right {
   flex: 1;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background-color: var(--ns-surface);
+  border: 1px solid var(--ns-border);
+  border-radius: 0;
+  box-shadow: none;
   padding: 20px;
   margin: 16px;
   height: 100%;
   display: flex;
   flex-direction: column;
 }
+
 .ns-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding-bottom: 12px;
   margin-bottom: 16px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--ns-rule);
 }
 
 .ns-tabs {
   display: flex;
   gap: 16px;
-  font-weight: 500;
+  font-weight: var(--ns-weight-medium);
 }
 
 .ns-actions-buttons {
@@ -170,55 +197,54 @@ html {
   display: flex;
   gap: 6px;
   padding: 6px 10px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  color: var(--muted);
+  border-radius: 0;
+  font-size: var(--ns-size-meta);
+  color: var(--ns-text-3);
+  transition: background 0.15s ease, color 0.15s ease;
 }
+
 .ns-tabs span.active {
-  background: #f8f8f9;
-  color: #fff;
-  border-radius: 8px;
-  padding: 4px 12px;
-  transition:
-    background 0.2s,
-    color 0.2s;
+  background: var(--ns-blue-600);
+  color: var(--ns-color-primary-contrast);
+  border-radius: 0;
+  padding: 6px 10px;
 }
 
 .ns-tabs span:hover {
-  background: var(--bg);
-  color: var(--primary);
+  background: var(--ns-surface-3);
+  color: var(--ns-text);
 }
 
-/* .ns-tabs .active {
-  color: var(--primary);
-  font-weight: 600;
-  background: var(--bg);
-} */
+.ns-tabs span.active:hover {
+  background: var(--ns-blue-700);
+  color: var(--ns-color-primary-contrast);
+}
 
 .ns-tabs .count {
-  background: #f0f0f0;
+  background: var(--ns-surface-3);
+  color: var(--ns-text-3);
   padding: 2px 6px;
-  border-radius: 10px;
-  font-size: 12px;
+  border-radius: 0;
+  font-size: var(--ns-size-micro);
+  font-family: var(--ns-font-mono);
   margin-left: 6px;
 }
 
 .ns-search button {
-  border: none;
-  background: var(--bg);
-  border-radius: 6px;
+  border: 1px solid var(--ns-border-strong);
+  background: var(--ns-surface);
+  border-radius: 0;
   padding: 6px 10px;
   cursor: pointer;
-  font-size: 14px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  font-size: var(--ns-size-body);
+  color: var(--ns-text-2);
+  box-shadow: none;
+  transition: background 0.15s ease;
 }
 
 .ns-search button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  background: var(--ns-surface-3);
+  box-shadow: none;
 }
 
 .ns-right-column {
@@ -236,20 +262,13 @@ html {
   gap: 16px;
 }
 
-.ns-searchbar {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 14px;
-}
-
 .ns-sidebar {
   width: 60px;
-  background-color: #ffffff;
-  border-right: 1px solid var(--border);
+  background-color: var(--ns-surface);
+  border-right: 1px solid var(--ns-border);
   padding: 12px 8px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 0;
+  box-shadow: none;
 
   display: flex;
   flex-direction: column;
@@ -265,11 +284,12 @@ html {
 }
 
 .ns-sidebar::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
+  background-color: var(--ns-surface-3);
 }
 .ns-sidebar::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
+  background: var(--ns-text-faintest);
+  border-radius: 0;
 }
 
 .ns-menu {
@@ -281,27 +301,26 @@ html {
 
 .ns-menu span {
   cursor: pointer;
-  color: var(--muted);
+  color: var(--ns-text-3);
   font-size: 22px;
   padding: 10px;
-  border-radius: 10px;
-  transition: all 0.25s ease-in-out;
+  border-radius: 0;
+  transition: background 0.15s ease, color 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .ns-menu span:hover {
-  background: rgba(37, 99, 235, 0.08); /* light blue bg */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* hover shadow */
-  transform: translateY(-2px); /* subtle lift effect */
+  background: var(--ns-surface-3);
+  box-shadow: none;
 }
 
 .ns-menu .active {
-  background: rgba(37, 99, 235, 0.12);
-  color: var(--primary);
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2); /* highlight active */
+  background: var(--ns-blue-100);
+  color: var(--ns-blue-700);
+  font-weight: var(--ns-weight-medium);
+  box-shadow: none;
 }
 
 /* Navbar Styles */
@@ -310,15 +329,15 @@ html {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #ffffff;
+  background-color: var(--ns-surface);
   padding: 12px 20px;
-  border-bottom: 1px solid var(--border);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--ns-border);
+  box-shadow: none;
   position: sticky;
   top: 0;
   z-index: 50;
   width: calc(100% - 100px);
-  border-radius: var(--ns-radius-md);
+  border-radius: 0;
   margin-left: 20px;
 }
 
@@ -330,27 +349,29 @@ html {
 }
 
 .ns-logo {
-  font-weight: bold;
+  font-weight: var(--ns-weight-bold);
   font-size: 20px;
-  background: #000;
-  color: #fff;
-  border-radius: 20%;
+  background: var(--ns-name-ink);
+  color: var(--ns-surface);
+  border-radius: 0;
   padding: 8px 14px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: none;
 }
 
 .ns-searchbar {
-  border: 1px solid var(--border);
-  border-radius: 10px;
+  border: 1px solid var(--ns-border-strong);
+  border-radius: 0;
   padding: 6px 12px;
-  font-size: 14px;
+  font-size: var(--ns-size-body);
   width: 220px;
-  transition: all 0.2s ease-in-out;
+  background: var(--ns-surface);
+  color: var(--ns-text);
+  transition: border-color 0.15s ease;
 }
 
 .ns-searchbar:focus {
-  border-color: #2563eb; /* blue focus */
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: var(--ns-focus-ring);
+  box-shadow: none;
   outline: none;
 }
 
@@ -361,40 +382,40 @@ html {
 }
 
 .ns-network {
-  font-weight: 600;
-  background: var(--bg);
+  font-weight: var(--ns-weight-medium);
+  background: var(--ns-surface-3);
   padding: 6px 12px;
-  border-radius: 10px;
-  transition: all 0.2s ease-in-out;
+  border-radius: 0;
+  transition: background 0.15s ease, color 0.15s ease;
   cursor: pointer;
 }
 
 .ns-network:hover {
-  background: rgba(37, 99, 235, 0.08);
-  color: #2563eb;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.1);
+  background: var(--ns-blue-100);
+  color: var(--ns-blue-700);
+  box-shadow: none;
 }
 
 .ns-profile {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: 500;
+  font-weight: var(--ns-weight-medium);
   padding: 6px 10px;
-  border-radius: 10px;
+  border-radius: 0;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: background 0.15s ease;
 }
 
 .ns-profile:hover {
-  background: rgba(0, 0, 0, 0.05);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  background: var(--ns-surface-3);
+  box-shadow: none;
 }
 
 .ns-navbar-profile-avatar {
   width: 32px;
   height: 32px;
-  border-radius: 50%;
+  border-radius: 0;
   object-fit: cover;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: none;
 }

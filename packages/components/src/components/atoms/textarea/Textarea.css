@@ -1,3 +1,7 @@
+/* =========================================================================
+   Textarea — `.input` treatment, multiline: square, hairline, amber errors.
+   ========================================================================= */
+
 .ns-textarea__wrapper {
   position: relative;
   display: block;
@@ -8,97 +12,97 @@
 
 .ns-textarea {
   width: 100%;
-  min-height: 35px;
-  background: #fcfcfc;
-  border: 1px solid var(--ns-color-border);
-  border-radius: var(--ns-radius-md);
-  color: var(--ns-color-fg);
+  min-height: var(--ns-control);
+  background: var(--ns-surface);
+  border: 1px solid var(--ns-border);
+  border-radius: 0;
+  color: var(--ns-text);
   font-family: var(--ns-font-family);
-  transition:
-    border-color 150ms ease,
-    box-shadow 150ms ease;
+  font-size: var(--ns-size-body);
+  font-weight: var(--ns-weight-regular);
+  line-height: var(--ns-leading-body);
+  transition: border-color 150ms ease;
   outline: none;
-  padding: 0.7rem;
+  padding: var(--ns-space-5) var(--ns-space-6);
   box-sizing: border-box;
   resize: vertical;
 }
 
+.ns-textarea:hover:not(:disabled) {
+  border-color: var(--ns-border-strong);
+}
+
+/* Focus is a border, never a ring. */
 .ns-textarea:focus {
-  border-color: var(--ns-color-primary);
-  box-shadow: 0 0 0 2px
-    color-mix(in srgb, var(--ns-color-primary) 15%, transparent);
+  border-color: var(--ns-focus-ring);
 }
 
 .ns-textarea:disabled {
-  background: color-mix(in srgb, var(--ns-color-bg) 95%, var(--ns-color-muted));
-  color: var(--ns-color-muted);
+  background: var(--ns-surface-3);
+  color: var(--ns-text-faint);
   cursor: not-allowed;
 }
 
-.ns-textarea--error {
-  border-color: #ef4444;
-}
-
+/* Validation — amber, per the design. */
+.ns-textarea--error,
+.ns-textarea--error:hover,
 .ns-textarea--error:focus {
-  border-color: #ef4444;
-  box-shadow: 0 0 0 2px color-mix(in srgb, #ef4444 15%, transparent);
+  border-color: var(--ns-amber-600);
 }
 
-/* Size variants */
+/* ---- sizes ------------------------------------------------------------- */
 .ns-textarea--sm {
-  min-height: 40px;
-  font-size: 0.775rem;
+  min-height: var(--ns-control-lg);
+  font-size: var(--ns-size-meta);
 }
 
 .ns-textarea--md {
   min-height: 60px;
-  font-size: 0.85rem;
+  font-size: var(--ns-size-body);
 }
 
 .ns-textarea--lg {
   min-height: 90px;
-  font-size: 1rem;
+  font-size: var(--ns-size-h4);
 }
 
-/* Prefix and Suffix - positioned inside textarea */
+/* ---- prefix / suffix: plain text, no boxes ----------------------------- */
 .ns-textarea__prefix,
 .ns-textarea__suffix {
   position: absolute;
   display: flex;
   align-items: flex-start;
-  color: var(--ns-color-muted);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: var(--ns-text-faint);
+  font-size: var(--ns-size-meta);
   pointer-events: none;
   z-index: 1;
 }
 
 .ns-textarea__prefix {
-  left: 10px;
-  top: 10px;
+  left: var(--ns-space-5);
+  top: var(--ns-space-5);
 }
 
 .ns-textarea__suffix {
-  right: 10px;
-  top: 10px;
+  right: var(--ns-space-5);
+  top: var(--ns-space-5);
 }
 
-/* Adjust textarea padding when prefix/suffix present */
 .ns-textarea__wrapper:has(.ns-textarea__prefix) .ns-textarea {
-  padding-left: 2.5rem;
+  padding-left: var(--ns-space-16);
 }
 
 .ns-textarea__wrapper:has(.ns-textarea__suffix) .ns-textarea {
-  padding-right: 2.5rem;
+  padding-right: var(--ns-space-16);
 }
 
-/* Placeholder styling */
+/* ---- placeholder ------------------------------------------------------- */
 .ns-textarea::placeholder {
-  color: var(--ns-color-muted);
-  opacity: 0.5;
-  font-size: 13px;
-  font-weight: 400;
-}
-
-.ns-textarea {
-  font-weight: 400;
-  line-height: 1.5;
+  color: var(--ns-text-faint);
+  opacity: 1;
+  font-size: var(--ns-size-meta);
+  font-weight: var(--ns-weight-regular);
 }

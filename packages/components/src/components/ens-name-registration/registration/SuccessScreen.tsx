@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Confetti from "react-confetti";
-import finishLogo from "../../../assets/finish.png";
-import { Button, Text } from "../../atoms";
+import { Button, Identicon, Text } from "../../atoms";
 import { getEnsAppUrl } from "@/utils";
 import "./SuccessScreen.css";
 
@@ -56,7 +55,7 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
     <div
       ref={containerRef}
       className="ens-registration-success-container"
-      style={{ position: "relative", overflow: "hidden", padding:"10px" }}
+      style={{ position: "relative", overflow: "hidden" }}
     >
       {containerSize.width > 0 && containerSize.height > 0 && (
         <Confetti
@@ -73,75 +72,71 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
       )}
 
       <div className="ens-registration-success-card" style={{ position: "relative", zIndex: 1 }}>
-        <div className="ens-registration-success-illustration">
-          <img src={finishLogo} alt="Success Illustration" />
-        </div>
+        <div className="ens-registration-success-band">REGISTERED</div>
 
-        <div className="ens-registration-success-title-section">
-          <Text size="sm" color="grey" className="mb-2">
-            Hooray! You've registered
-          </Text>
-          <Text size="lg" weight="bold">
-            {ensName}.eth
-          </Text>
-        </div>
+        <div className="ens-registration-success-body">
+          <div className="ens-registration-success-title-section">
+            <Identicon seed={`${ensName}.eth`} size={44} />
+            <span className="ens-registration-success-name">{ensName}.eth</span>
+          </div>
 
-        <div className="ens-registration-success-summary">
-          <div className="ens-registration-success-summary-row">
-            <Text size="sm" color="grey">{durationLabel} registration</Text>
-            <Text size="sm" color="grey">
-              {parseFloat(registrationCost).toFixed(4)} ETH
-            </Text>
-          </div>
-          <div className="ens-registration-success-summary-row">
-            <Text size="sm" color="grey">Transaction fees</Text>
-            <Text size="sm" color="grey">
-              {parseFloat(transactionFees).toFixed(4)} ETH
-            </Text>
-          </div>
-          <div className="ens-registration-success-summary-row ens-registration-success-total">
-            <Text size="lg" weight="bold">
-              Total
-            </Text>
-            <div className="ens-registration-success-total-amount">
+          <div className="ens-registration-success-summary">
+            <div className="ens-registration-success-summary-row">
+              <Text size="sm" color="grey">{durationLabel} registration</Text>
+              <Text size="sm" color="grey">
+                {parseFloat(registrationCost).toFixed(4)} ETH
+              </Text>
+            </div>
+            <div className="ens-registration-success-summary-row">
+              <Text size="sm" color="grey">Transaction fees</Text>
+              <Text size="sm" color="grey">
+                {parseFloat(transactionFees).toFixed(4)} ETH
+              </Text>
+            </div>
+            <div className="ens-registration-success-summary-row ens-registration-success-total">
               <Text size="lg" weight="bold">
-                {parseFloat(total).toFixed(4)} ETH
+                Total
+              </Text>
+              <div className="ens-registration-success-total-amount">
+                <Text size="lg" weight="bold">
+                  {parseFloat(total).toFixed(4)} ETH
+                </Text>
+              </div>
+            </div>
+            <div className="ens-registration-success-summary-row ens-registration-success-expiry">
+              <Text size="sm" color="grey">Name Expires</Text>
+              <Text size="sm" color="grey">
+                {expiryDate}
               </Text>
             </div>
           </div>
-          <div className="ens-registration-success-summary-row ens-registration-success-expiry">
-            <Text size="sm" color="grey">Name Expires</Text>
-            <Text size="sm" color="grey">
-              {expiryDate}
-            </Text>
-          </div>
-        </div>
 
-        <div className="ens-registration-success-actions">
-          <Button
-            variant="outline"
-            onClick={onRegisterAnother}
-            className="ens-registration-success-register-another-btn"
-          >
-            Register another
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => {
-              if (onViewName) {
-                onViewName();
-              } else {
-                window.open(getEnsAppUrl(`${ensName}.eth`, isTestnet), "_blank", "noopener,noreferrer");
-              }
-            }}
-            className="ens-registration-success-view-name-btn"
-          >
-            View Name
-          </Button>
-        </div>
+          <div className="ens-registration-success-actions">
+            <Button
+              variant="outline"
+              onClick={onRegisterAnother}
+              className="ens-registration-success-register-another-btn"
+            >
+              Register another
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (onViewName) {
+                  onViewName();
+                } else {
+                  window.open(getEnsAppUrl(`${ensName}.eth`, isTestnet), "_blank", "noopener,noreferrer");
+                }
+              }}
+              className="ens-registration-success-view-name-btn"
+            >
+              View Name
+            </Button>
+          </div>
           <Button onClick={() => onGreat?.()} size="lg" className="ns-wd-100 mt-2">
             Great!
           </Button>
+        </div>
       </div>
     </div>
   );

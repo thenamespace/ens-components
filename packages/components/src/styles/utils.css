@@ -63,10 +63,64 @@
   width: 100%;
 }
 
-/* Card container - reusable container with white bg, grey border, and padding */
+/* Card container - reusable container with white bg, hairline border, padding */
 .ns-card-container {
-  background-color: var(--ns-color-bg);
-  border: 1px solid var(--ns-color-border);
-  border-radius: 10px;
-  padding: 20px;
+  background-color: var(--ns-surface);
+  border: 1px solid var(--ns-border);
+  border-radius: 0;
+  box-shadow: none;
+  padding: var(--ns-space-10);
+}
+
+/* ---- Design-system typography utilities ---------------------------------
+   Composable classes for feature CSS. No component API changes.
+   ------------------------------------------------------------------------ */
+
+/* Mono — names, addresses, hashes, amounts, dates */
+.ns-mono {
+  font-family: var(--ns-font-mono);
+}
+
+/* Uppercase micro-label — the label above a field, a group, a stat.
+   Uppercase belongs to micro-labels only, never to buttons. */
+.ns-field-label {
+  display: block;
+  font-family: var(--ns-font-family);
+  font-size: var(--ns-size-label);
+  font-weight: var(--ns-weight-medium);
+  letter-spacing: var(--ns-track-label);
+  text-transform: uppercase;
+  color: var(--ns-text-faint);
+  line-height: var(--ns-leading-tight);
+}
+
+/* Name row — an ENS name rendered inline, in mono ink */
+.ns-name-row {
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-mono-row);
+  font-weight: var(--ns-weight-regular);
+  letter-spacing: 0;
+  color: var(--ns-name-ink);
+}
+
+/* Status dot — 7x7 square, never a circle */
+.ns-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 0;
+  background: var(--ns-text-faintest);
+}
+
+.ns-dot--ok {
+  background: var(--ns-dot-ok);
+}
+
+.ns-dot--soon {
+  background: var(--ns-dot-soon);
+}
+
+.ns-dot--bad {
+  background: var(--ns-dot-bad);
 }

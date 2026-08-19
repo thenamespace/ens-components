@@ -1,6 +1,11 @@
+/* =========================================================================
+   Update-records footer actions (Namespace Flows.dc.html lines 124-127):
+   two buttons, `flex: 1`, above a rule. Stacking behaviour is unchanged.
+   ========================================================================= */
+
 .ens-update-records-form-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--ns-space-4);
 }
 
 .ens-update-records-form-actions button {
@@ -8,7 +13,7 @@
   max-width: 50%;
 }
 
-@media screen and (max-width: 600px) {
+@container (max-width: 390px) {
   .ens-update-records-form-actions {
     flex-direction: column;
   }
@@ -19,3 +24,14 @@
   }
 }
 
+/* Fallback for browsers without container queries. */
+@media screen and (max-width: 600px) {
+  .ens-update-records-form-actions {
+    flex-direction: column;
+  }
+
+  .ens-update-records-form-actions button {
+    max-width: 100%;
+    width: 100%;
+  }
+}

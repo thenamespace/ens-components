@@ -1,103 +1,164 @@
+/* Registration success — Namespace Flows.dc.html lines 280–303.
+   The ninja illustration is retired in favour of the typographic ink band;
+   the receipt below it is mono throughout. */
+
 .ens-registration-success-container {
+  container-type: inline-size;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
+}
+
+.ens-registration-success-container:has(.ns-modal-overlay) {
+  container-type: normal;
 }
 
 .ens-registration-success-card {
-  border-radius: 20px;
+  border-radius: 0;
   width: 100%;
   max-width: 480px;
-  text-align: center;
+  text-align: left;
   position: relative;
-  padding: 10px;
+  padding: 0;
 }
 
-.ens-registration-success-illustration {
-  margin-bottom: 24px;
+/* ---- Ink band (lines 282–284) ---------------------------------------- */
+.ens-registration-success-band {
+  height: 96px;
+  display: grid;
+  place-items: center;
+  background-color: var(--ns-name-ink);
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-micro);
+  letter-spacing: var(--ns-track-caps);
+  color: var(--ns-blue-300);
+}
+
+.ens-registration-success-body {
+  padding: var(--ns-space-14);
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+  gap: var(--ns-space-12);
 }
 
-.ens-registration-success-illustration img {
-  width: 100%;
-  max-width: 200px;
-  height: auto;
-  object-fit: contain;
-}
-
+/* ---- Identity row (lines 286–289) ------------------------------------ */
 .ens-registration-success-title-section {
-  margin-bottom: 24px;
-}
-
-.ens-registration-success-message {
-  display: block;
-  margin-bottom: 12px;
-  color: var(--ns-color-fg, #333333);
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-8);
+  margin-bottom: 0;
 }
 
 .ens-registration-success-name {
   display: block;
-  line-height: 1.2;
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-h4);
+  color: var(--ns-name-ink);
+  line-height: var(--ns-leading-tight);
+  overflow-wrap: anywhere;
 }
 
+.ens-registration-success-message {
+  display: block;
+  color: var(--ns-text-3);
+}
+
+/* ---- Receipt rows (lines 290–296) ------------------------------------ */
 .ens-registration-success-summary {
-  background: white;
-  border: 1px solid var(--ns-color-border, #e5e7eb);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: 0;
   text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-6);
 }
 
 .ens-registration-success-summary-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
-}
-
-.ens-registration-success-summary-row:last-child {
+  gap: var(--ns-space-6);
   margin-bottom: 0;
 }
 
+/* values are numbers — mono, always */
+.ens-registration-success-summary-row > *:last-child,
+.ens-registration-success-summary-row > *:last-child .ns-text {
+  font-family: var(--ns-font-mono);
+}
+
 .ens-registration-success-total {
-  border-top: 1px solid var(--ns-color-border, #e5e7eb);
-  padding-top: 16px;
-  margin-top: 8px;
-  margin-bottom: 16px;
+  border-top: 1px solid var(--ns-rule);
+  padding-top: var(--ns-space-6);
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.ens-registration-success-total .ns-text {
+  font-size: var(--ns-size-body);
+  font-weight: var(--ns-weight-medium);
 }
 
 .ens-registration-success-expiry {
-  border-top: 1px solid var(--ns-color-border, #e5e7eb);
-  padding-top: 16px;
-  margin-top: 8px;
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
 }
 
 .ens-registration-success-total-amount {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--ns-space-3);
 }
 
 .ens-registration-success-eth-logo {
-  font-size: 18px;
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-h4);
   line-height: 1;
 }
 
+/* ---- Actions (lines 297–300) ----------------------------------------- */
 .ens-registration-success-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--ns-space-4);
   width: 100%;
 }
 
-.ens-registration-success-register-another-btn {
-  flex: 1;
-}
-
+.ens-registration-success-register-another-btn,
 .ens-registration-success-view-name-btn {
   flex: 1;
+  min-width: 0;
 }
 
+/* ---- Narrow containers (plan §5) ------------------------------------- */
+@container (max-width: 480px) {
+  .ens-registration-success-body {
+    padding: var(--ns-space-10);
+  }
+}
+
+@container (max-width: 390px) {
+  .ens-registration-success-body {
+    padding: var(--ns-space-8);
+    gap: var(--ns-space-10);
+  }
+
+  .ens-registration-success-band {
+    height: 72px;
+  }
+
+  .ens-registration-success-actions {
+    flex-direction: column;
+  }
+}
+
+/* Fallback for browsers without container queries */
+@media screen and (max-width: 600px) {
+  .ens-registration-success-body {
+    padding: var(--ns-space-8);
+  }
+}

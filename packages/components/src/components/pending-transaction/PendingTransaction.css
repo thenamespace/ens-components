@@ -1,144 +1,101 @@
+/* Pending transaction — no artboard; styled by the system's rules (plan §3.3):
+   flat square card, hairline elevation, status carried by a 3px top border
+   instead of a gradient strip, tx hash in mono. The decorative animations
+   (pulse / bounce / shake / shimmer) are gone; only the spinner spins, because
+   that one is information. */
+
 .ns-pending-tx {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px;
-  box-shadow: var(--ns-shadow);
+  padding: var(--ns-space-14);
+  background: var(--ns-surface);
+  border: 1px solid var(--ns-border-strong);
+  border-top: 3px solid var(--ns-border-strong);
+  border-radius: 0;
   max-width: 400px;
   margin: 0 auto;
   text-align: center;
   position: relative;
-  overflow: hidden;
 }
 
-.ns-pending-tx::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(
-    90deg,
-    var(--ns-color-primary),
-    var(--ns-color-muted)
-  );
-  border-radius: var(--ns-radius-lg) var(--ns-radius-lg) 0 0;
+/* status lives in the top hairline, not in a gradient */
+.ns-pending-tx--in-progress {
+  border-top-color: var(--ns-blue-600);
 }
 
-.ns-pending-tx--in-progress::before {
-  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
-  animation: progress-shimmer 2s ease-in-out infinite;
+.ns-pending-tx--completed {
+  border-top-color: var(--ns-ok);
 }
 
-.ns-pending-tx--completed::before {
-  background: linear-gradient(90deg, var(--ns-alert-success-text), #16a34a);
-}
-
-.ns-pending-tx--failed::before {
-  background: linear-gradient(90deg, var(--ns-alert-error-text), #dc2626);
-}
-
-@keyframes progress-shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+.ns-pending-tx--failed {
+  border-top-color: var(--ns-dot-bad);
 }
 
 .ns-pending-tx__content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: var(--ns-space-8);
   width: 100%;
 }
 
 .ns-pending-tx__status {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-weight: 500;
-  font-size: 16px;
+  gap: var(--ns-space-6);
+  font-weight: var(--ns-weight-medium);
+  font-size: var(--ns-size-h4);
+  color: var(--ns-text);
 }
 
+/* ---- Status mark — a square, never a circle -------------------------- */
 .ns-pending-tx__icon {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 48px;
   height: 48px;
-  border-radius: 50%;
+  flex: none;
+  border-radius: 0;
   position: relative;
 }
 
 .ns-pending-tx__icon--in-progress {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
-  animation: pulse 2s ease-in-out infinite;
+  background: var(--ns-blue-100);
+  color: var(--ns-blue-600);
 }
 
 .ns-pending-tx__icon--completed {
-  background: rgba(22, 163, 74, 0.1);
-  color: var(--ns-alert-success-text);
-  animation: success-bounce 0.6s ease-out;
+  background: var(--ns-alert-success-bg);
+  color: var(--ns-ok);
+}
+
+.ns-pending-tx__icon--completed .ns-icon {
+  stroke: var(--ns-ok);
 }
 
 .ns-pending-tx__icon--failed {
-  background: rgba(220, 38, 38, 0.1);
-  color: var(--ns-alert-error-text);
-  animation: error-shake 0.5s ease-in-out;
+  background: var(--ns-alert-error-bg);
+  color: var(--ns-dot-bad);
 }
 
-@keyframes pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.8;
-  }
+.ns-pending-tx__icon--failed .ns-icon {
+  stroke: var(--ns-dot-bad);
 }
 
-@keyframes success-bounce {
-  0% {
-    transform: scale(0.3);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes error-shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-5px);
-  }
-  75% {
-    transform: translateX(5px);
-  }
-}
-
+/* ---- Spinner — motion that carries meaning, kept.
+   Square with one open edge, per the design's spinner (HTML lines 571–577). */
 .ns-pending-tx__spinner {
-  width: 24px;
-  height: 24px;
-  border: 2px solid rgba(59, 130, 246, 0.2);
-  border-top: 2px solid #3b82f6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--ns-blue-600);
+  border-right-color: transparent;
+  border-radius: 0;
+  animation: ns-pending-tx-spin 700ms linear infinite;
 }
 
-@keyframes spin {
+@keyframes ns-pending-tx-spin {
   0% {
     transform: rotate(0deg);
   }
@@ -147,53 +104,55 @@
   }
 }
 
+/* the hash is a hash — mono */
 .ns-pending-tx__message {
-  font-size: 14px;
-  color: var(--ns-color-muted);
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-meta);
+  color: var(--ns-text-3);
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
+/* ---- Explorer link — flat hairline row ------------------------------- */
 .ns-pending-tx__link {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  background: var(--ns-color-bg-accent);
-  color: var(--ns-color-fg);
+  justify-content: center;
+  gap: var(--ns-space-4);
+  min-height: var(--ns-control);
+  padding: 0 var(--ns-space-10);
+  background: var(--ns-surface);
+  color: var(--ns-text-2);
   text-decoration: none;
-  border-radius: var(--ns-radius-md);
-  font-weight: 500;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  border: 1px solid var(--ns-color-border);
+  border: 1px solid var(--ns-border-strong);
+  border-radius: 0;
+  font-size: var(--ns-size-body-sm);
+  font-weight: var(--ns-weight-medium);
+  letter-spacing: 0.02em;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .ns-pending-tx__link:hover {
-  background: var(--ns-color-bg-accent-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: var(--ns-surface-3);
+  border-color: var(--ns-text-faintest);
+  color: var(--ns-text);
 }
 
 .ns-pending-tx__link:active {
-  transform: translateY(0);
+  background: var(--ns-surface-4);
 }
 
 .ns-pending-tx__link-icon {
-  transition: transform 0.2s ease;
+  stroke: currentColor;
 }
 
-.ns-pending-tx__link:hover .ns-pending-tx__link-icon {
-  transform: translateX(2px);
-}
-
-/* Dark theme adjustments */
-[data-theme="dark"] .ns-pending-tx {
-  background: var(--ns-color-bg);
-  border-color: var(--ns-color-border);
-}
-
+/* Dark theme — legacy, unrefreshed (plan §8.4): keep it working, flat */
+[data-theme="dark"] .ns-pending-tx,
 [data-theme="dark"] .ns-pending-tx__link {
-  background: var(--ns-color-bg-accent);
+  background: var(--ns-color-bg);
   border-color: var(--ns-color-border);
 }
 
@@ -201,15 +160,29 @@
   background: var(--ns-color-bg-accent-hover);
 }
 
-/* Responsive design */
-@media (max-width: 480px) {
+/* ---- Narrow layouts --------------------------------------------------- */
+@container (max-width: 390px) {
   .ns-pending-tx {
-    padding: 20px;
-    margin: 0 16px;
+    padding: var(--ns-space-10);
   }
 
   .ns-pending-tx__status {
-    font-size: 14px;
+    font-size: var(--ns-size-body);
+  }
+
+  .ns-pending-tx__icon {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ns-pending-tx {
+    padding: var(--ns-space-10);
+  }
+
+  .ns-pending-tx__status {
+    font-size: var(--ns-size-body);
   }
 
   .ns-pending-tx__icon {

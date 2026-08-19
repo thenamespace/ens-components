@@ -1,60 +1,150 @@
+/* Registration summary — Namespace Flows.dc.html lines 186–250.
+   Square, hairline, shadowless. Names / amounts / dates are mono. */
+
 .ens-registration-form-container .ens-registration-summary {
-  padding: 15px;
+  padding: var(--ns-space-14);
 }
 
-.ens-name-input input{
-  border-radius: 13px;
+/* Banner illustration (line 189) — the brand survives, constrained.
+   `bannerWidth` stays a prop (inline width); CSS only keeps it fluid. */
+.ens-registration-summary img[alt="Banner"] {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ---- Name input (lines 197–202) --------------------------------------
+   48px row, strong hairline, mono name ink. The `.eth` suffix is plain
+   mono text — the old grey suffix box is gone. */
+.ens-name-input .ns-input {
+  background: var(--ns-surface);
+  border: 1px solid var(--ns-border-strong);
+  border-radius: 0;
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-h4);
+  color: var(--ns-name-ink);
+  padding-left: 44px;
+  padding-right: 62px;
+}
+
+.ens-name-input .ns-input:focus {
+  border-color: var(--ns-focus-ring);
+}
+
+.ens-name-input .ns-input::placeholder {
+  color: var(--ns-text-faint);
+  opacity: 1;
+  font-family: var(--ns-font-mono);
 }
 
 .ens-name-input .ns-input__prefix {
-  left: 13px;
+  left: var(--ns-space-8);
+}
+
+.ens-name-input .ns-input__prefix .ns-icon {
+  stroke: var(--ns-text-faint);
 }
 
 .ens-name-input .ns-input__suffix {
-  padding: 0px;
-  border-left: var(--ns-color-bg-accent);
-  background-color: var(--ns-color-bg-accent);
-  height: 45px;
-  right: 1px;
-  padding-right: 20px;
-  padding-left: 20px;
-  border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
-  border-left: 1px solid var(--ns-color-border);
+  right: var(--ns-space-8);
+  padding: 0;
+  height: auto;
+  background: none;
+  border: none;
+  border-radius: 0;
 }
 
+.ens-name-input .ns-input__suffix .ns-text {
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-meta);
+  font-weight: var(--ns-weight-medium);
+  color: var(--ns-text-faint);
+  line-height: var(--ns-leading-tight);
+}
+
+/* ---- Fee rows (lines 223–233) ----------------------------------------
+   In this screen the rows sit directly on the card — no inner box. */
 .ens-registration-form-container .ens-registration-pricing {
-  border-radius: 15px;
-  background-color: var(--ns-color-bg);
-  border: 1px solid var(--ns-color-border);
-  padding: 15px;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  padding: 0;
 }
 
 .ens-registration-pricing .total-fee {
-  border-top: 1px solid var(--ns-color-border);
-  padding-top: 8px;
+  border-top: 1px solid var(--ns-rule);
+  padding-top: var(--ns-space-6);
 }
 
+/* ---- Profile CTA (lines 235–244) -------------------------------------
+   Flat hairline row on surface-3 — replaces the dashed box. */
 .ens-registration-form-container .ens-profile-selector {
-  border: 3px dashed var(--ns-color-border);
-  border-radius: 10px;
-  padding: 15px;
-   background-color: var(--ns-color-bg);
+  border: 1px solid var(--ns-border);
+  border-radius: 0;
+  padding: var(--ns-space-8) var(--ns-space-10);
+  background-color: var(--ns-surface-3);
+}
+
+.ens-registration-form-container .ens-profile-selector > .d-flex {
+  gap: var(--ns-space-8);
 }
 
 .ens-profile-selector .shuriken-cont {
-  width: 55px;
-  height: 55px;
-  border-radius: 10px;
-  background-color: var(--ns-color-border);;
+  width: var(--ns-avatar-row);
+  height: var(--ns-avatar-row);
+  flex: none;
+  border-radius: 0;
+  background-color: transparent;
 }
 
 .ens-profile-selector .shuriken {
-  transition: all 0.3s ease-in-out;
+  width: var(--ns-avatar-row);
+  height: auto;
+  transition: transform 0.3s ease-in-out;
   cursor: pointer;
 }
 
+/* the brand wink — cheap, motion only */
 .ens-profile-selector .shuriken:hover {
   transform: rotate(150deg);
 }
 
+/* 30px solid blue chevron block (line 242) */
+.ens-profile-selector .profile-cta-arrow {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 0;
+  background-color: var(--ns-blue-600);
+  color: var(--ns-surface);
+}
+
+/* ---- Narrow containers (plan §5) — the webapp's ~330px modals -------- */
+@container (max-width: 480px) {
+  .ens-registration-form-container .ens-registration-summary {
+    padding: var(--ns-space-10);
+  }
+}
+
+@container (max-width: 390px) {
+  .ens-registration-form-container .ens-registration-summary {
+    padding: var(--ns-space-8);
+  }
+
+  .ens-registration-summary img[alt="Banner"] {
+    max-width: min(200px, 60%);
+  }
+
+  .ens-name-input .ns-input {
+    font-size: var(--ns-size-body);
+  }
+}
+
+/* Fallback for browsers without container queries */
+@media screen and (max-width: 600px) {
+  .ens-registration-form-container .ens-registration-summary {
+    padding: var(--ns-space-8);
+  }
+}

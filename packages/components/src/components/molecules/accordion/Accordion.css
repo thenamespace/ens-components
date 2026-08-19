@@ -1,6 +1,11 @@
+/* =========================================================================
+   Accordion — a hairline group. Square, shadowless.
+   The height animation is functional and is kept.
+   ========================================================================= */
+
 .ns-accordion {
-  background-color: var(--ns-color-bg);
-  border-radius: 8px;
+  background-color: var(--ns-surface);
+  border-radius: 0;
   overflow: hidden;
 }
 
@@ -8,10 +13,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  gap: var(--ns-space-6);
+  padding: var(--ns-space-6) var(--ns-space-8);
   cursor: pointer;
   user-select: none;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.15s ease;
 }
 
 .ns-accordion--not-togglable .ns-accordion__header {
@@ -19,18 +25,20 @@
 }
 
 .ns-accordion__header:hover:not(.ns-accordion--disabled .ns-accordion__header):not(.ns-accordion--not-togglable .ns-accordion__header) {
-  background-color: var(--ns-color-bg-hover, rgba(0, 0, 0, 0.02));
+  background-color: var(--ns-surface-2);
 }
 
 .ns-accordion__title {
   flex: 1;
+  min-width: 0;
 }
 
 .ns-accordion__icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--ns-color-text-secondary);
+  flex: none;
+  color: var(--ns-text-3);
   transition: transform 0.3s ease;
 }
 
@@ -39,8 +47,11 @@
   transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* The rule between header and body lives on the inner element so it is
+   clipped away (along with the body) when the accordion is collapsed. */
 .ns-accordion__body-inner {
-  padding: 20px;
+  padding: var(--ns-space-10) var(--ns-space-8);
+  border-top: 1px solid var(--ns-rule);
 }
 
 /* Disabled state */
@@ -51,4 +62,14 @@
 
 .ns-accordion--disabled .ns-accordion__header {
   cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .ns-accordion__header {
+    padding: var(--ns-space-5) var(--ns-space-6);
+  }
+
+  .ns-accordion__body-inner {
+    padding: var(--ns-space-8) var(--ns-space-6);
+  }
 }

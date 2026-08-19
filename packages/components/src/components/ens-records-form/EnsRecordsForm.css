@@ -1,13 +1,39 @@
+/* =========================================================================
+   Set-records shell — the flow shell of Namespace Flows.dc.html line 45:
+   width 100%, max-width 500px, --ns-surface on a hairline-strong frame.
+   `container-type` makes the narrow layouts fire inside ~330px modals on
+   desktop viewports, where @media never would (plan §5).
+   ========================================================================= */
+
 .ens-records-form-container {
-  background-color: var(--ns-color-bg-accent);
+  container-type: inline-size;
   width: 100%;
   max-width: 500px;
   height: fit-content;
-  border-radius: 10px;
-  border: 1px solid var(--ns-color-border);
+  background-color: var(--ns-surface);
+  border: 1px solid var(--ns-border-strong);
+  border-radius: 0;
 }
 
+/* The component spells the modifier `no-boder`; both spellings are honoured
+   so the `noBorder` prop works without a markup change. */
+.ens-records-form-container.no-border,
+.ens-records-form-container.no-boder,
 .ens-records-form-container .no-border {
   border: none;
 }
 
+/* The records editor nests inside this frame — one hairline, not two. */
+.ens-records-form-container .ns-select-records-form {
+  max-width: none;
+  border: none;
+}
+
+/* A query container establishes layout containment, which makes it the
+   containing block for `position: fixed` descendants — that would shrink the
+   Modal overlay (rendered in-tree, not portalled) down to this card. While a
+   modal is open in the subtree, drop containment so the overlay covers the
+   viewport again; the layout underneath is behind the backdrop anyway. */
+.ens-records-form-container:has(.ns-modal-overlay) {
+  container-type: normal;
+}

@@ -1,3 +1,10 @@
+/* =========================================================================
+   Header band + avatar (Namespace Flows.dc.html lines 47-70).
+   140px --ns-surface-4 band with a bottom hairline and a mono "HEADER"
+   watermark; a 110px SQUARE avatar outlined in the band colour. No radii,
+   no shadows, no gradients — the design has none.
+   ========================================================================= */
+
 .ns-image-records {
   position: relative;
   z-index: 15;
@@ -10,76 +17,106 @@
   position: relative;
   display: flex;
   justify-content: end;
-  border-top-left-radius: 15px;
-  border-top-right-radius: 15px;
-  background-color: var(--ns-color-bg-accent);
+  background-color: var(--ns-surface-4);
+  background-size: cover;
+  background-position: center;
+  border-radius: 0;
+  border-bottom: 1px solid var(--ns-border);
   overflow: visible;
 }
 
-.ns-top-grad {
+/* watermark label, shown only while no header image is set (flows line 57) */
+.ns-image-records .ns-cover-record-cont:has(.ns-header-record-placeholder)::after {
+  content: "HEADER";
   position: absolute;
-  top: 0;
-  height: 70px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), transparent);
-  width: 100%;
-  border-top-left-radius: 15px;
-  border-top-right-radius: 15px;
+  left: var(--ns-space-10);
+  bottom: var(--ns-space-3);
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-micro);
+  letter-spacing: var(--ns-track-caps);
+  color: var(--ns-text-faint);
+  pointer-events: none;
 }
 
+/* the design has no gradient scrims; the DOM stays, the paint goes */
+.ns-top-grad,
 .ns-bot-grad {
-  position: absolute;
-  bottom: 0;
-  height: 60px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.25), transparent);
-  width: 100%;
-  border-top-left-radius: 15px;
-  border-top-right-radius: 15px;
+  display: none;
+  background: none;
 }
+
+/* ---- avatar: square, outlined in the band colour (flows lines 60-69) --- */
 
 .ns-image-records .ns-avatar-record-cont {
   width: 110px;
   height: 110px;
-  border-radius: 20px;
-  background-color: var(--ns-color-bg);
   position: absolute;
-  outline: 5px solid var(--ns-color-bg-accent);
   left: 50%;
-  transform: translateX(-50%);
   bottom: -20px;
-  transition: all 0.25s linear;
+  transform: translateX(-50%);
+  z-index: 5;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 5;
-  box-shadow: 0 6px 14px color-mix(in srgb, #000 18%, transparent);
+  background-color: var(--ns-surface);
+  background-size: cover;
+  background-position: center;
+  border-radius: 0;
+  outline: 5px solid var(--ns-surface-4);
 }
 
 .ns-image-records .ns-avatar-record-cont--set {
-  border: 1px solid color-mix(in srgb, var(--ns-color-primary) 22%, transparent);
+  border: none;
 }
 
+/* inner add-avatar target: 56px square icon button */
 .ns-image-records .ns-avatar-record-placeholder {
   width: 56px;
   height: 56px;
-  border-radius: 999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--ns-color-bg-accent);
+  display: grid;
+  place-items: center;
+  background: var(--ns-surface);
+  border: 1px solid var(--ns-border-strong);
+  border-radius: 0;
+  color: var(--ns-text-2);
+  cursor: pointer;
+  transition: border-color 0.15s linear;
 }
+
+.ns-image-records .ns-avatar-record-placeholder:hover {
+  border-color: var(--ns-text-faintest);
+}
+
+.ns-image-records .ns-avatar-record-placeholder .ns-icon {
+  stroke: var(--ns-text-2);
+}
+
+/* ---- add-header button: 40px square icon button (flows lines 49-51) ---- */
 
 .ns-header-record-placeholder {
   position: absolute;
-  right: 14px;
-  top: 12px;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.24);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  right: var(--ns-space-4);
+  top: var(--ns-space-4);
+  width: var(--ns-control-lg);
+  height: var(--ns-control-lg);
+  display: grid;
+  place-items: center;
+  background: var(--ns-surface);
+  border: 1px solid var(--ns-border-strong);
+  border-radius: 0;
+  color: var(--ns-text-2);
+  cursor: pointer;
+  transition: border-color 0.15s linear;
+}
+
+.ns-header-record-placeholder:hover {
+  border-color: var(--ns-text-faintest);
+}
+
+/* the trigger asks for a white icon for the old dark chip; on the flat
+   surface it takes the design's ink instead */
+.ns-header-record-placeholder .ns-icon {
+  stroke: var(--ns-text-2);
 }
 
 .ns-avatar-action-anchor {
@@ -92,27 +129,23 @@
 
 .ns-header-action-anchor {
   position: absolute;
-  right: 12px;
-  top: 10px;
+  right: var(--ns-space-6);
+  top: var(--ns-space-5);
   z-index: 6;
 }
 
+/* ---- generic square image action button -------------------------------- */
+
 .ns-image-action-plus {
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--ns-color-primary) 35%, var(--ns-color-border));
-  background: var(--ns-color-bg);
-  color: var(--ns-color-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--ns-shadow);
-  transition:
-    transform 0.2s ease,
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+  width: var(--ns-control-md);
+  height: var(--ns-control-md);
+  display: grid;
+  place-items: center;
+  background: var(--ns-surface);
+  border: 1px solid var(--ns-border-strong);
+  border-radius: 0;
+  color: var(--ns-text-2);
+  transition: border-color 0.15s linear;
 }
 
 button.ns-image-action-plus {
@@ -121,81 +154,89 @@ button.ns-image-action-plus {
 }
 
 .ns-image-action-plus:hover {
-  transform: scale(1.05);
-  background: var(--ns-color-bg-accent);
-  border-color: var(--ns-color-primary);
-  box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--ns-color-primary) 16%, transparent),
-    var(--ns-shadow);
+  transform: none;
+  background: var(--ns-surface-2);
+  border-color: var(--ns-text-faintest);
 }
 
 .ns-image-action-plus--set {
-  background: color-mix(in srgb, var(--ns-color-primary) 9%, var(--ns-color-bg));
+  background: var(--ns-surface-3);
 }
 
 .ns-image-action-plus--disabled {
-  opacity: 0.55;
+  opacity: 0.45;
   cursor: not-allowed;
   pointer-events: none;
 }
 
 .ns-image-action-plus:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--ns-color-primary) 35%, transparent);
-  outline-offset: 2px;
+  outline: 1px solid var(--ns-focus-ring);
+  outline-offset: 1px;
 }
 
+/* ---- the flat action menu (flows lines 52-55) -------------------------- */
+
 .ns-image-actions-menu {
-  min-width: 148px;
+  min-width: 150px;
   max-width: min(260px, calc(100vw - 20px));
-  padding: 4px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--ns-surface);
 }
 
 .ns-image-actions-menu-item {
   width: 100%;
-  border: 0;
-  border-radius: 8px;
+  border: none;
+  border-radius: 0;
   background: transparent;
   text-align: left;
-  padding: 8px 9px;
+  padding: var(--ns-space-6) var(--ns-space-8);
   font-family: var(--ns-font-family);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--ns-color-fg);
+  font-size: var(--ns-size-meta);
+  font-weight: var(--ns-weight-regular);
+  color: var(--ns-text-2);
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
+  transition: background-color 0.15s linear;
+}
+
+.ns-image-actions-menu-item + .ns-image-actions-menu-item {
+  border-top: 1px solid var(--ns-rule);
 }
 
 .ns-image-actions-menu-item:hover {
-  background: var(--ns-color-bg-accent);
-  color: var(--ns-color-primary);
+  background: var(--ns-surface-3);
+  color: var(--ns-text);
 }
 
 .ns-image-actions-menu-item:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--ns-color-primary) 18%, transparent);
-  outline-offset: 1px;
+  outline: 1px solid var(--ns-focus-ring);
+  outline-offset: -1px;
 }
 
+/* ---- narrow layouts ---------------------------------------------------- */
+
+@container (max-width: 390px) {
+  .ns-image-records .ns-avatar-record-cont {
+    width: 84px;
+    height: 84px;
+  }
+
+  .ns-image-records .ns-avatar-record-placeholder {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* Fallback for browsers without container queries. */
 @media screen and (max-width: 600px) {
   .ns-image-records {
     margin-bottom: 22px;
   }
 
-  .ns-image-action-plus {
-    width: 36px;
-    height: 36px;
-  }
-
-  .ns-avatar-action-anchor {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-
   .ns-header-action-anchor {
-    right: 10px;
-    top: 8px;
+    right: var(--ns-space-5);
+    top: var(--ns-space-4);
   }
 
   .ns-image-actions-menu {
