@@ -226,35 +226,33 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
         }
       />
 
-      {label.length < MIN_ENS_LEN && (
-        <div className="ns-text-center mt-2">
-          <Text size="xs" color="grey">
-            Minimum ENS name length is 3 characters
-          </Text>
-        </div>
-      )}
-
-      {label.length >= MIN_ENS_LEN && nameValidation.isChecking && (
-        <div
-          className="ns-text-center mt-2 d-flex align-items-center justify-content-center"
-          style={{ gap: "8px" }}
-        >
-          <ShurikenSpinner size={18} />
-          <Text size="sm" color="grey">
-            Checking availability
-          </Text>
-        </div>
-      )}
-
-      {label.length >= MIN_ENS_LEN &&
-        !nameValidation.isChecking &&
-        nameValidation.isTaken && (
-          <div className="ns-text-center mt-2">
-            <Text size="xs" color="grey">
-              {label}.eth is not available
-            </Text>
-          </div>
+      {/* One status line for every state, so "available" and "not available"
+          read identically — a status dot plus a micro label. */}
+      <div className="ns-name-status">
+        {label.length < MIN_ENS_LEN ? (
+          <>
+            <span className="ns-dot" />
+            <span className="ns-name-status__text">
+              Minimum ENS name length is {MIN_ENS_LEN} characters
+            </span>
+          </>
+        ) : nameValidation.isChecking ? (
+          <>
+            <ShurikenSpinner size={14} />
+            <span className="ns-name-status__text">Checking availability</span>
+          </>
+        ) : nameValidation.isTaken ? (
+          <>
+            <span className="ns-dot ns-dot--bad" />
+            <span className="ns-name-status__text">{label}.eth is not available</span>
+          </>
+        ) : (
+          <>
+            <span className="ns-dot ns-dot--ok" />
+            <span className="ns-name-status__text">{label}.eth is available</span>
+          </>
         )}
+      </div>
 
       {isNameAvailable && (
         <>

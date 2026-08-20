@@ -124,3 +124,21 @@
 .ns-dot--bad {
   background: var(--ns-dot-bad);
 }
+/* ---- name availability status line ------------------------------------
+   A 7px status dot plus a micro label, centred under a name field. Shared by
+   the registration, subname-mint and offchain-subname inputs so all three
+   states (available / taken / reserved / too-short) read identically
+   (design flows lines 203-207). */
+.ns-name-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ns-space-5);
+  min-height: 18px;
+  margin-top: var(--ns-space-4);
+}
+
+.ns-name-status__text {
+  font-size: var(--ns-size-micro);
+  color: var(--ns-text-3);
+}
