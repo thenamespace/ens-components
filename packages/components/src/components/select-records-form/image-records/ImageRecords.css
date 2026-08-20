@@ -25,19 +25,6 @@
   overflow: visible;
 }
 
-/* watermark label, shown only while no header image is set (flows line 57) */
-.ns-image-records .ns-cover-record-cont:has(.ns-header-record-placeholder)::after {
-  content: "HEADER";
-  position: absolute;
-  left: var(--ns-space-10);
-  bottom: var(--ns-space-3);
-  font-family: var(--ns-font-mono);
-  font-size: var(--ns-size-micro);
-  letter-spacing: var(--ns-track-caps);
-  color: var(--ns-text-faint);
-  pointer-events: none;
-}
-
 /* the design has no gradient scrims; the DOM stays, the paint goes */
 .ns-top-grad,
 .ns-bot-grad {

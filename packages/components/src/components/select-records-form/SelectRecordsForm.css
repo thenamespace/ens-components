@@ -14,7 +14,7 @@
 .ns-select-records-form {
   container-type: inline-size;
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
   min-height: 400px;
   background: var(--ns-surface);
   border: 1px solid var(--ns-border-strong);
