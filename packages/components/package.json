@@ -83,7 +83,7 @@
     "@namespacesdk/addresses": "^1.0.15",
     "@namespacesdk/indexer": "^1.0.1",
     "@thenamespace/addresses": "^1.1.0",
-    "@thenamespace/avatar": "^2.0.0",
+    "@thenamespace/avatar": "^2.0.2",
     "@thenamespace/mint-manager": "^1.1.1",
     "@thenamespace/offchain-manager": "^1.0.13",
     "bootstrap": "^5.3.0",
