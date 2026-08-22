@@ -79,8 +79,8 @@ importers:
         specifier: ^5.0.0
         version: 5.90.20(react@18.3.1)
       '@thenamespace/avatar':
-        specifier: ^2.0.1
-        version: 2.0.1(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(viem@2.46.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
+        specifier: ^2.0.2
+        version: 2.0.2(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(viem@2.46.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
       '@thenamespace/ens-components':
         specifier: workspace:*
         version: link:../../packages/components
@@ -189,8 +189,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.1
       '@thenamespace/avatar':
-        specifier: ^2.0.1
-        version: 2.0.1(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(viem@2.46.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
+        specifier: ^2.0.2
+        version: 2.0.2(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(viem@2.46.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
       '@thenamespace/mint-manager':
         specifier: ^1.1.1
         version: 1.1.1(bufferutil@4.1.0)(utf-8-validate@5.0.10)(zod@3.25.76)
@@ -1990,8 +1990,8 @@ packages:
   '@thenamespace/addresses@1.1.1':
     resolution: {integrity: sha512-Ta2KEcc6fd7HoPKbkbaWjxX050Z6JwMZJCldJxkqT/SIuJI+mCjVrXJkRuhLEiKqpbEAXJv7EULCgToJF12PSg==}
 
-  '@thenamespace/avatar@2.0.1':
-    resolution: {integrity: sha512-HFzHOu/c5OGTHYlc8hLZ6TbSLZgvMoTVEp1jXHQ6fQ2NwhNw2txfNVStdO5j7r1NUBHYdhzQmVLo/vbB7IH+Qw==}
+  '@thenamespace/avatar@2.0.2':
+    resolution: {integrity: sha512-2LTZ8fVze+50pmrmn1F6RjhUAyMXVqUiTr+tA8SeGPa0dv6VxIkvmI3jZoMRfbIeg9XNtNnM/45ddr9SQ2SziQ==}
     engines: {node: '>=16.0.0'}
 
   '@thenamespace/mint-manager@1.1.1':
@@ -8347,8 +8347,9 @@ snapshots:
       - '@swc/core'
       - '@swc/wasm'
 
-  '@thenamespace/avatar@2.0.1(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(viem@2.46.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))':
+  '@thenamespace/avatar@2.0.2(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(viem@2.46.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))':
     dependencies:
+      '@adraffy/ens-normalize': 1.11.1
       '@signinwithethereum/siwe': 4.2.0(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(viem@2.46.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
       axios: 1.13.5
     transitivePeerDependencies:
@@ -10962,7 +10963,7 @@ snapshots:
 
   extension-port-stream@3.0.0:
     dependencies:
-      readable-stream: 3.6.2
+      readable-stream: 4.7.0
       webextension-polyfill: 0.10.0
 
   eyes@0.1.8: {}
