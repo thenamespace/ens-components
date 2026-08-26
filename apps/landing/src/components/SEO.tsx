@@ -56,6 +56,7 @@ export function SEO({
       <meta name="twitter:image:alt" content="ENS Components by Namespace" />
 
       {/* AI / LLM discovery — llms.txt files are alternate text representations of this page */}
+      <link rel="api-catalog" href={`${SITE_URL}/.well-known/api-catalog`} />
       <link rel="alternate" type="text/plain" href={`${SITE_URL}/llms.txt`} title="LLM-friendly summary" />
       <link rel="alternate" type="text/plain" href={`${SITE_URL}/llms-full.txt`} title="LLM full API reference" />
     </Helmet>
