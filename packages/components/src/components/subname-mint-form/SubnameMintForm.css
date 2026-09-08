@@ -6,7 +6,7 @@
     container-type: inline-size;
     background-color: var(--ns-surface);
     border: 1px solid var(--ns-border-strong);
-    border-radius: 0;
+    border-radius: var(--ns-radius);
     width: 100%;
     max-width: 500px;
 }
@@ -29,7 +29,7 @@
 .ns-subname-mint-input .ns-input {
     background: var(--ns-surface);
     border: 1px solid var(--ns-border-strong);
-    border-radius: 0;
+    border-radius: var(--ns-radius);
     font-family: var(--ns-font-mono);
     font-size: var(--ns-size-h4);
     color: var(--ns-name-ink);
@@ -62,7 +62,7 @@
     max-width: 42%;
     background: none;
     border: none;
-    border-radius: 0;
+    border-radius: var(--ns-radius);
 }
 
 .ns-subname-mint-input .ns-input__suffix .ns-text {
@@ -102,7 +102,7 @@
 /* ---- Records CTA (lines 350–359) ------------------------------------- */
 .ens-profile-selector {
     border: 1px solid var(--ns-border);
-    border-radius: 0;
+    border-radius: var(--ns-radius);
     padding: var(--ns-space-8) var(--ns-space-10);
     background-color: var(--ns-surface-3);
 }
@@ -115,7 +115,7 @@
     width: var(--ns-avatar-row);
     height: var(--ns-avatar-row);
     flex: none;
-    border-radius: 0;
+    border-radius: var(--ns-radius);
     background-color: transparent;
 }
 
@@ -137,7 +137,7 @@
     flex: none;
     display: grid;
     place-items: center;
-    border-radius: 0;
+    border-radius: var(--ns-radius);
     background-color: var(--ns-blue-600);
     color: var(--ns-surface);
 }

@@ -7,7 +7,7 @@
 .ns-profile-header {
   background: var(--ns-surface);
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -42,7 +42,7 @@
   display: block;
   width: 100px;
   height: 100px;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   border: none;
   outline: 5px solid var(--ns-surface-4);
   background: var(--ns-surface);
@@ -57,7 +57,7 @@
   place-items: center;
   background: var(--ns-surface);
   border: 1px solid var(--ns-border-strong);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   padding: var(--ns-space-2);
 }
 
@@ -97,7 +97,7 @@
   margin-top: var(--ns-space-3);
   padding: var(--ns-space-2) var(--ns-space-5);
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   background: transparent;
   font-size: var(--ns-size-label);
   font-weight: var(--ns-weight-medium);
@@ -129,7 +129,7 @@
   height: var(--ns-control-sm);
   padding: 0 var(--ns-space-6);
   border: 1px solid var(--ns-blue-600);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   background: var(--ns-blue-600);
   color: var(--ns-surface);
   cursor: pointer;

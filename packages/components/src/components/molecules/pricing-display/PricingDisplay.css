@@ -6,7 +6,7 @@
    ========================================================================= */
 
 .ens-registration-pricing {
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   background-color: var(--ns-surface);
   border: 1px solid var(--ns-border);
   padding: var(--ns-space-10);

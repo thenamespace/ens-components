@@ -18,7 +18,7 @@
   min-height: 400px;
   background: var(--ns-surface);
   border: 1px solid var(--ns-border-strong);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 }
 
 /* ---- shells ------------------------------------------------------------ */
@@ -45,7 +45,7 @@
   padding: 0;
   height: 100%;
   background: transparent;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 }
 
 .ns-records-content-wrapper .ns-records-content > [class*="col-"] {
@@ -95,7 +95,7 @@
   flex-direction: column;
   background: var(--ns-surface);
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 }
 
 .ns-records-content .ns-records-sidebar .sidebar-item {
@@ -109,7 +109,7 @@
   color: var(--ns-text-2);
   border: none;
   border-bottom: 1px solid var(--ns-rule);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   cursor: pointer;
   transition:
     background-color 0.15s linear,
@@ -127,14 +127,14 @@
 
 .ns-records-content .ns-records-sidebar .sidebar-item:hover {
   background-color: var(--ns-surface-2);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 }
 
 /* active = solid blue, white ink */
 .ns-records-content .ns-records-sidebar .sidebar-item.active,
 .ns-records-content .ns-records-sidebar .sidebar-item.active:hover {
   background-color: var(--ns-blue-600);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 }
 
 .ns-records-content .ns-records-sidebar .sidebar-item.active .ns-text {
@@ -179,7 +179,7 @@
   color: var(--ns-blue-600);
   background: transparent;
   border: 1px solid var(--ns-blue-500);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   cursor: pointer;
 }
 
@@ -207,7 +207,7 @@
 
 .ns-select-records-form .ns-select-records-content {
   background-color: var(--ns-surface);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 }
 
 .ns-select-records-nav {
@@ -221,7 +221,7 @@
   padding: var(--ns-space-5) var(--ns-space-8);
   background-color: transparent;
   color: var(--ns-text-3);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   cursor: pointer;
   opacity: 1;
   transition: background-color 0.15s linear;
@@ -250,7 +250,7 @@
 
 .ns-select-records-form .not-found-badge {
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 }
 
 .ns-select-records-form .record-count-badge {
@@ -262,7 +262,7 @@
   padding: 0 var(--ns-space-1);
   background-color: var(--ns-surface-3);
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   font-family: var(--ns-font-mono);
   font-size: var(--ns-size-micro);
   color: var(--ns-text-3);
@@ -346,7 +346,7 @@
   padding: 0;
   background: var(--ns-surface);
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   color: var(--ns-text-faint);
   cursor: pointer;
   transition:
@@ -363,7 +363,7 @@
 .ns-select-records-form .ns-close-icon:hover {
   transform: none;
   padding: 0;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   background-color: var(--ns-surface-2);
   border-color: var(--ns-border-strong);
   color: var(--ns-text-2);
@@ -401,7 +401,7 @@
   text-align: center;
   background-color: var(--ns-surface);
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   outline: none;
   cursor: pointer;
   transition:

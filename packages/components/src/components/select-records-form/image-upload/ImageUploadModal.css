@@ -42,7 +42,7 @@
   height: clamp(180px, 34vh, 250px);
   overflow: hidden;
   border: 1px solid var(--ns-border-strong);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   background: var(--ns-surface-3);
 }
 
@@ -122,7 +122,7 @@
   padding: var(--ns-space-4) var(--ns-space-5);
   background: var(--ns-surface-3);
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 }
 
 @media (max-width: 600px) {

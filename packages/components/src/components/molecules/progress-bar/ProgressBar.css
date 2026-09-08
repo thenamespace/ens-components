@@ -25,7 +25,7 @@
 .ens-names-register-progress-fill {
   height: 100%;
   background-color: var(--ns-amber-600);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   /* functional: the fill animates with the registration steps */
   transition: width 0.1s linear;
   box-sizing: border-box;

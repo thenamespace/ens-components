@@ -9,7 +9,7 @@
   padding: var(--ns-space-8);
   background-color: var(--ns-surface-3);
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   width: 100%;
   box-sizing: border-box;
 }

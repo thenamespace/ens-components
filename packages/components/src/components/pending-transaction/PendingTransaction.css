@@ -12,7 +12,7 @@
   background: var(--ns-surface);
   border: 1px solid var(--ns-border-strong);
   border-top: 3px solid var(--ns-border-strong);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   max-width: 400px;
   margin: 0 auto;
   text-align: center;
@@ -57,7 +57,7 @@
   width: 48px;
   height: 48px;
   flex: none;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   position: relative;
 }
 
@@ -91,7 +91,7 @@
   height: 20px;
   border: 2px solid var(--ns-blue-600);
   border-right-color: transparent;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   animation: ns-pending-tx-spin 700ms linear infinite;
 }
 
@@ -125,7 +125,7 @@
   color: var(--ns-text-2);
   text-decoration: none;
   border: 1px solid var(--ns-border-strong);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   font-size: var(--ns-size-body-sm);
   font-weight: var(--ns-weight-medium);
   letter-spacing: 0.02em;

@@ -10,7 +10,7 @@
   display: flex;
   align-items: flex-start;
   padding: var(--ns-space-6) var(--ns-space-8);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   border: 1px solid transparent;
   /* the accent rail — variants recolour it via border-left-color */
   border-left-width: 3px;
@@ -71,7 +71,7 @@
 .ns-alert-close {
   background: none;
   border: none;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   cursor: pointer;
   padding: var(--ns-space-2);
   display: flex;

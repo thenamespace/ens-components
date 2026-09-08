@@ -19,7 +19,7 @@
     left: var(--ns-space-10);
     width: var(--ns-control-md);
     height: var(--ns-control-md);
-    border-radius: 0;
+    border-radius: var(--ns-radius);
     background-color: var(--ns-surface);
     border: 1px solid var(--ns-border);
     color: var(--ns-text-3);
@@ -44,7 +44,7 @@
 /* ---- Step rows (lines 262–271) --------------------------------------- */
 .ens-registration-progress .ns-accordion {
     border: 1px solid var(--ns-border);
-    border-radius: 0;
+    border-radius: var(--ns-radius);
     background-color: var(--ns-surface);
 }
 
@@ -64,7 +64,7 @@
     flex: none;
     background-color: var(--ns-blue-600);
     border: 1px solid var(--ns-blue-600);
-    border-radius: 0;
+    border-radius: var(--ns-radius);
     display: flex;
     align-items: center;
     justify-content: center;

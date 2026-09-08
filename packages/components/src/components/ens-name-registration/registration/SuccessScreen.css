@@ -15,7 +15,7 @@
 }
 
 .ens-registration-success-card {
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   width: 100%;
   max-width: 480px;
   text-align: left;
@@ -68,7 +68,7 @@
 .ens-registration-success-summary {
   background: transparent;
   border: none;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   padding: 0;
   margin-bottom: 0;
   text-align: left;

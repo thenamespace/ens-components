@@ -19,7 +19,7 @@
   text-align: center;
   position: relative;
   background: var(--ns-surface);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 }
 
 .record-update-screen-title-section {

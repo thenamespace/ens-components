@@ -20,7 +20,7 @@
   background-color: var(--ns-surface-4);
   background-size: cover;
   background-position: center;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   border-bottom: 1px solid var(--ns-border);
   overflow: visible;
 }
@@ -48,7 +48,7 @@
   background-color: var(--ns-surface);
   background-size: cover;
   background-position: center;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   outline: 5px solid var(--ns-surface-4);
 }
 
@@ -64,7 +64,7 @@
   place-items: center;
   background: var(--ns-surface);
   border: 1px solid var(--ns-border-strong);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   color: var(--ns-text-2);
   cursor: pointer;
   transition: border-color 0.15s linear;
@@ -90,7 +90,7 @@
   place-items: center;
   background: var(--ns-surface);
   border: 1px solid var(--ns-border-strong);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   color: var(--ns-text-2);
   cursor: pointer;
   transition: border-color 0.15s linear;
@@ -130,7 +130,7 @@
   place-items: center;
   background: var(--ns-surface);
   border: 1px solid var(--ns-border-strong);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   color: var(--ns-text-2);
   transition: border-color 0.15s linear;
 }
@@ -175,7 +175,7 @@ button.ns-image-action-plus {
 .ns-image-actions-menu-item {
   width: 100%;
   border: none;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   background: transparent;
   text-align: left;
   padding: var(--ns-space-6) var(--ns-space-8);

@@ -20,7 +20,7 @@
 
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   color: var(--ns-text-3);
 }
 

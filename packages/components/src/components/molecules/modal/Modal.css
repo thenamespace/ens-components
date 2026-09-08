@@ -32,7 +32,7 @@
   background: var(--ns-surface);
   /* the hairline IS the elevation — never a shadow */
   border: 1px solid var(--ns-border-strong);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   width: 100%;
   max-height: 85vh;
   overflow: hidden;
@@ -52,7 +52,7 @@
   width: min(720px, 100%);
   max-width: 100%;
   max-height: min(90vh, 760px);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   /* the drawer's boundary against the page is its top hairline */
   border-top: 1px solid var(--ns-border-strong);
   border-left: none;
@@ -89,7 +89,7 @@
   padding: 0;
   background: var(--ns-surface);
   border: 1px solid var(--ns-border-strong);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   color: var(--ns-text-3);
   font-size: var(--ns-size-h4);
   line-height: 1;
@@ -121,7 +121,7 @@
     width: 100%;
     max-height: min(92vh, 760px);
     /* square corners on the drawer too — the system has no radius */
-    border-radius: 0;
+    border-radius: var(--ns-radius);
   }
 
   .ns-modal__header,

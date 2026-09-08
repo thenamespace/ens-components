@@ -34,7 +34,7 @@
   background-color: var(--ns-btn-bg);
   color: var(--ns-btn-fg);
   border: 1px solid var(--ns-btn-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 
   cursor: pointer;
   transition:
@@ -149,7 +149,7 @@
   flex: none;
   border: 2px solid currentColor;
   border-right-color: transparent;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   animation: ui-spin 700ms linear infinite;
 }
 
@@ -202,7 +202,7 @@
   padding: 0;
   background: var(--ns-surface);
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   color: var(--ns-text-3);
   cursor: pointer;
   transition:

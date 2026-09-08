@@ -67,7 +67,7 @@
 .ns-card-container {
   background-color: var(--ns-surface);
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   box-shadow: none;
   padding: var(--ns-space-10);
 }

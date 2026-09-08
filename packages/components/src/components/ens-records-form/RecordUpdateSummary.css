@@ -11,7 +11,7 @@
   padding: var(--ns-space-8);
   background-color: var(--ns-surface);
   border: 1px solid var(--ns-border-strong);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 }
 
 .record-update-summary .text-center {
@@ -30,7 +30,7 @@
   margin-bottom: var(--ns-space-6);
   background-color: var(--ns-surface);
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 }
 
 .record-summary-accordion .ns-accordion__body-inner {
@@ -84,7 +84,7 @@
   padding: var(--ns-space-4) var(--ns-space-6);
   background-color: var(--ns-surface);
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   color: var(--ns-text-3);
   cursor: pointer;
   white-space: nowrap;
@@ -104,7 +104,7 @@
 }
 
 .record-summary-expandable-badge--expanded .record-summary-badge-header {
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   border-bottom-color: var(--ns-rule);
 }
 
@@ -119,7 +119,7 @@
   background-color: var(--ns-surface-2);
   border: 1px solid var(--ns-border);
   border-top: none;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   overflow: hidden;
   transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
@@ -168,7 +168,7 @@
   min-width: 20px;
   background-color: var(--ns-surface-3);
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   text-align: center;
 }
 

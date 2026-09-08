@@ -9,7 +9,7 @@
   width: 100%;
   max-width: 640px;
   background: var(--ns-surface);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 }
 
 /* search row: 40px, hairline-strong (flows lines 139-142) */
@@ -51,7 +51,7 @@
   color: var(--ns-text-2);
   border: none;
   border-bottom: 1px solid var(--ns-rule);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   cursor: pointer;
   transition:
     background-color 0.15s linear,
@@ -73,13 +73,13 @@
 
 .ns-records-selector .ns-records-sidebar .sidebar-item:hover {
   background-color: var(--ns-surface-2);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 }
 
 .ns-records-selector .ns-records-sidebar .sidebar-item.active,
 .ns-records-selector .ns-records-sidebar .sidebar-item.active:hover {
   background-color: var(--ns-blue-600);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 }
 
 .ns-records-selector .ns-records-sidebar .sidebar-item.active .ns-text {
@@ -134,7 +134,7 @@
   background-color: var(--ns-surface);
   color: var(--ns-text);
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   font-size: var(--ns-size-micro);
   font-weight: var(--ns-weight-medium);
   cursor: pointer;
@@ -172,7 +172,7 @@
   justify-content: center;
   align-items: center;
   background-color: transparent;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 }
 
 .ns-text-record .ns-icon-cont.ns-me-1 {

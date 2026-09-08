@@ -29,7 +29,7 @@
 
   background: var(--ns-surface);
   border: 1px solid var(--ns-border-strong);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   /* opacity-only fade: no scale, no translate — and nothing that would
      clobber the translateX(-50%) of the centre alignment */
   animation: ns-dropdown-fade-in 150ms ease;

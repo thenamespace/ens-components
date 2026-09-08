@@ -15,7 +15,7 @@
   min-height: var(--ns-control);
   background: var(--ns-surface);
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   color: var(--ns-text);
   font-family: var(--ns-font-family);
   font-size: var(--ns-size-body);
@@ -74,7 +74,7 @@
   align-items: flex-start;
   background: transparent;
   border: none;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   color: var(--ns-text-faint);
   font-size: var(--ns-size-meta);
   pointer-events: none;

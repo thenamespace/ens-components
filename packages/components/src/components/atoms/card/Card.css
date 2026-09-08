@@ -6,7 +6,7 @@
 .card {
   background: var(--ns-surface);
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   padding: var(--ns-space-12);
   overflow: hidden;
 }
@@ -14,5 +14,5 @@
 .ns-card {
   background: var(--ns-surface);
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 }

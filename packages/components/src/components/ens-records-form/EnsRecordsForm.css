@@ -12,7 +12,7 @@
   height: fit-content;
   background-color: var(--ns-surface);
   border: 1px solid var(--ns-border-strong);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 }
 
 /* The component spells the modifier `no-boder`; both spellings are honoured

@@ -19,7 +19,7 @@
 .ens-name-input .ns-input {
   background: var(--ns-surface);
   border: 1px solid var(--ns-border-strong);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   font-family: var(--ns-font-mono);
   font-size: var(--ns-size-h4);
   color: var(--ns-name-ink);
@@ -51,7 +51,7 @@
   height: auto;
   background: none;
   border: none;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
 }
 
 .ens-name-input .ns-input__suffix .ns-text {
@@ -66,7 +66,7 @@
    In this screen the rows sit directly on the card — no inner box. */
 .ens-registration-form-container .ens-registration-pricing {
   border: none;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   background-color: transparent;
   padding: 0;
 }
@@ -80,7 +80,7 @@
    Flat hairline row on surface-3 — replaces the dashed box. */
 .ens-registration-form-container .ens-profile-selector {
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   padding: var(--ns-space-8) var(--ns-space-10);
   background-color: var(--ns-surface-3);
 }
@@ -93,7 +93,7 @@
   width: var(--ns-avatar-row);
   height: var(--ns-avatar-row);
   flex: none;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   background-color: transparent;
 }
 
@@ -116,7 +116,7 @@
   flex: none;
   display: grid;
   place-items: center;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   background-color: var(--ns-blue-600);
   color: var(--ns-surface);
 }

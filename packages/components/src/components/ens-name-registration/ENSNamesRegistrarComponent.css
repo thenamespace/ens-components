@@ -11,7 +11,7 @@
   width: 100%;
   max-width: 500px;
   height: fit-content;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   border: 1px solid var(--ns-border-strong);
 }
 

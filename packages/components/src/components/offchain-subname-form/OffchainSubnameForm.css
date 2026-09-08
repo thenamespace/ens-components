@@ -6,7 +6,7 @@
     container-type: inline-size;
     background-color: var(--ns-surface);
     border: 1px solid var(--ns-border-strong);
-    border-radius: 0;
+    border-radius: var(--ns-radius);
     width: 100%;
     max-width: 500px;
 }
@@ -27,7 +27,7 @@
 .ns-offchain-owner-input .ns-input {
     background: var(--ns-surface);
     border: 1px solid var(--ns-border-strong);
-    border-radius: 0;
+    border-radius: var(--ns-radius);
     font-family: var(--ns-font-mono);
     color: var(--ns-name-ink);
 }
@@ -70,7 +70,7 @@
     max-width: 42%;
     background: none;
     border: none;
-    border-radius: 0;
+    border-radius: var(--ns-radius);
 }
 
 .ns-offchain-subname-input .ns-input__suffix .ns-text {

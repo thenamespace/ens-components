@@ -161,7 +161,7 @@
   flex: 1;
   background-color: var(--ns-surface);
   border: 1px solid var(--ns-border);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   box-shadow: none;
   padding: 20px;
   margin: 16px;
@@ -197,7 +197,7 @@
   display: flex;
   gap: 6px;
   padding: 6px 10px;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   font-size: var(--ns-size-meta);
   color: var(--ns-text-3);
   transition: background 0.15s ease, color 0.15s ease;
@@ -206,7 +206,7 @@
 .ns-tabs span.active {
   background: var(--ns-blue-600);
   color: var(--ns-color-primary-contrast);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   padding: 6px 10px;
 }
 
@@ -224,7 +224,7 @@
   background: var(--ns-surface-3);
   color: var(--ns-text-3);
   padding: 2px 6px;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   font-size: var(--ns-size-micro);
   font-family: var(--ns-font-mono);
   margin-left: 6px;
@@ -233,7 +233,7 @@
 .ns-search button {
   border: 1px solid var(--ns-border-strong);
   background: var(--ns-surface);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   padding: 6px 10px;
   cursor: pointer;
   font-size: var(--ns-size-body);
@@ -267,7 +267,7 @@
   background-color: var(--ns-surface);
   border-right: 1px solid var(--ns-border);
   padding: 12px 8px;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   box-shadow: none;
 
   display: flex;
@@ -304,7 +304,7 @@
   color: var(--ns-text-3);
   font-size: 22px;
   padding: 10px;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   transition: background 0.15s ease, color 0.15s ease;
   display: flex;
   align-items: center;
@@ -337,7 +337,7 @@
   top: 0;
   z-index: 50;
   width: calc(100% - 100px);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   margin-left: 20px;
 }
 
@@ -353,14 +353,14 @@
   font-size: 20px;
   background: var(--ns-name-ink);
   color: var(--ns-surface);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   padding: 8px 14px;
   box-shadow: none;
 }
 
 .ns-searchbar {
   border: 1px solid var(--ns-border-strong);
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   padding: 6px 12px;
   font-size: var(--ns-size-body);
   width: 220px;
@@ -385,7 +385,7 @@
   font-weight: var(--ns-weight-medium);
   background: var(--ns-surface-3);
   padding: 6px 12px;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   transition: background 0.15s ease, color 0.15s ease;
   cursor: pointer;
 }
@@ -402,7 +402,7 @@
   gap: 8px;
   font-weight: var(--ns-weight-medium);
   padding: 6px 10px;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   cursor: pointer;
   transition: background 0.15s ease;
 }
@@ -415,7 +415,7 @@
 .ns-navbar-profile-avatar {
   width: 32px;
   height: 32px;
-  border-radius: 0;
+  border-radius: var(--ns-radius);
   object-fit: cover;
   box-shadow: none;
 }
