@@ -30,7 +30,7 @@
 }
 
 .ns-select-records-form .ns-records-content-wrapper {
-  padding: var(--ns-space-12) var(--ns-space-14);
+  padding: var(--ns-space-12) var(--ns-space-8);
 }
 
 /* The bootstrap `row` becomes the design's two-column editor grid
@@ -75,7 +75,7 @@
    column gutter (20px) is too generous vertically, and the search row carries
    its own bootstrap margins on top of it. Collapse both. */
 .ns-records-content-wrapper .ns-records-content {
-  column-gap: var(--ns-space-10);
+  column-gap: var(--ns-space-6);
   row-gap: var(--ns-space-6);
 }
 
@@ -193,7 +193,7 @@
 .ns-records-content .ns-records-inner {
   display: flex;
   flex-direction: column;
-  gap: var(--ns-space-14);
+  gap: var(--ns-space-10);
   max-height: 320px;
   overflow-y: auto;
   padding-right: var(--ns-space-3);
@@ -273,13 +273,16 @@
    `.ns-text-records`; the three components share one visual contract).
    ========================================================================= */
 
-/* group title (flows lines 86-88) */
+/* group title (flows lines 86-88). The markup adds `.ns-mb-2` (10px) which
+   stacked on the tile grid's own padding-top; the gap under the rule is set
+   here in one place instead. */
 .ns-text-records > .ns-text--bold {
   font-size: var(--ns-size-body);
   font-weight: var(--ns-weight-bold);
   color: var(--ns-text);
   border-bottom: 1px solid var(--ns-rule);
   padding-bottom: var(--ns-space-4);
+  margin-bottom: var(--ns-space-6);
 }
 
 /* ---- record row = the design's table row -------------------------------
@@ -375,10 +378,11 @@
 
 .ns-text-records .row {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--ns-space-5);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--ns-space-4);
   margin: 0;
-  padding-top: var(--ns-space-8);
+  /* the heading below owns the gap above the tiles */
+  padding-top: 0;
 }
 
 .ns-text-records .row > [class*="col-"] {
@@ -394,10 +398,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--ns-space-2);
+  gap: var(--ns-space-3);
   width: 100%;
   height: 100%;
-  padding: var(--ns-space-7) var(--ns-space-5);
+  padding: var(--ns-space-6) var(--ns-space-4);
   text-align: center;
   background-color: var(--ns-surface);
   border: 1px solid var(--ns-border);
@@ -414,14 +418,20 @@
   border-color: var(--ns-border-strong);
 }
 
+/* The body leading (1.55) leaves ~4.5px of half-leading under a single-line
+   label, so an optically centred tile reads bottom-heavy even though the boxes
+   are symmetric. Tighten the line box to the glyphs. */
 .ns-text-records .ns-text-suggestion .ns-text {
   font-size: var(--ns-size-micro);
   font-weight: var(--ns-weight-medium);
+  line-height: 1.2;
   color: var(--ns-text-2);
 }
 
+/* spacing inside a tile comes from the flex `gap` alone; this utility margin
+   used to stack on top of it and double the icon-to-label distance */
 .ns-text-records .ns-text-suggestion .ns-text.ns-mt-1 {
-  margin-top: var(--ns-space-2);
+  margin-top: 0;
 }
 
 /* =========================================================================
@@ -453,6 +463,12 @@
 
   .ns-records-content .ns-records-sidebar .sidebar-item:last-child {
     border-right: none;
+  }
+}
+
+@container (max-width: 480px) {
+  .ns-text-records .row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -495,6 +511,12 @@
 
   .ns-records-content .ns-records-sidebar .sidebar-item:last-child {
     border-right: none;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .ns-text-records .row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

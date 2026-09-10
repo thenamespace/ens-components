@@ -382,7 +382,7 @@ export const TextRecords = ({
                 className="ns-text-suggestion"
                 onClick={() => handleTextAdded(record.key)}
               >
-                <Icon size={18} color="grey" name={record.icon} />
+                <Icon size={16} color="grey" name={record.icon} />
                 <Text className="ns-mt-1" size="xs" weight="medium">
                   {record.label}
                 </Text>
@@ -392,7 +392,7 @@ export const TextRecords = ({
         {isGeneralCategory && (
           <div className="col col-lg-3 col-sm-6 col-6">
             <div className="ns-text-suggestion" onClick={handleAddCustomDraft}>
-              <Icon size={18} color="grey" name="circle-help" />
+              <Icon size={16} color="grey" name="circle-help" />
               <Text className="ns-mt-1" size="xs" weight="medium">
                 Custom
               </Text>

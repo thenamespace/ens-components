@@ -159,7 +159,7 @@ export const AddressRecords = ({
                 className="ns-text-suggestion"
                 onClick={() => handleAddressAdded(record.coinType)}
               >
-                <ChainIcon size={20} chain={record.chainName} />
+                <ChainIcon size={16} chain={record.chainName} />
                 <Text className="ns-mt-1" size="xs" weight="medium">
                   {record.label}
                 </Text>

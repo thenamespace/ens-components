@@ -123,7 +123,7 @@ export const ContenthashRecord = ({
                 className="ns-text-suggestion"
                 onClick={() => onContenthashAdded(record.protocol)}
               >
-                <ContenthashIcon size={20} protocol={record.protocol} />
+                <ContenthashIcon size={16} protocol={record.protocol} />
                 <Text className="ns-mt-1" size="xs" weight="medium">
                   {record.label}
                 </Text>
