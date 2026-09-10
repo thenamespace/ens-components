@@ -273,15 +273,13 @@
    `.ns-text-records`; the three components share one visual contract).
    ========================================================================= */
 
-/* group title (flows lines 86-88). The markup adds `.ns-mb-2` (10px) which
-   stacked on the tile grid's own padding-top; the gap under the rule is set
-   here in one place instead. */
+/* group title. No rule underneath — the heading carries the section on its
+   own. The markup's `.ns-mb-2` (10px) is overridden here so the gap matches
+   the tile gutter (8px) and there is one source for it. */
 .ns-text-records > .ns-text--bold {
   font-size: var(--ns-size-body);
   font-weight: var(--ns-weight-bold);
   color: var(--ns-text);
-  border-bottom: 1px solid var(--ns-rule);
-  padding-bottom: var(--ns-space-4);
   margin-bottom: var(--ns-space-4);
 }
 
