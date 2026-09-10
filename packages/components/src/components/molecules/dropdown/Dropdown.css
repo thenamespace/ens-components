@@ -30,6 +30,10 @@
   background: var(--ns-surface);
   border: 1px solid var(--ns-border-strong);
   border-radius: var(--ns-radius);
+  /* Clip content to the panel's radius. Menus supply their own square-cornered
+     background (e.g. .ns-image-actions-menu), which otherwise paints over the
+     rounded corners and makes the border look broken. */
+  overflow: hidden;
   /* opacity-only fade: no scale, no translate — and nothing that would
      clobber the translateX(-50%) of the centre alignment */
   animation: ns-dropdown-fade-in 150ms ease;

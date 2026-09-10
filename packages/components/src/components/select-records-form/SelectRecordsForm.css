@@ -391,6 +391,10 @@
   max-width: none;
   flex: none;
   padding: 0;
+  /* bootstrap's `.row > *` adds `margin-top: var(--bs-gutter-y)` (8px at g-2),
+     which stacked on the grid row-gap and made the vertical gutter between
+     tile rows twice the horizontal one. Both come from `gap` now. */
+  margin-top: 0;
 }
 
 .ns-text-records .ns-text-suggestion {
@@ -425,7 +429,7 @@
    label, so an optically centred tile reads bottom-heavy even though the boxes
    are symmetric. Tighten the line box to the glyphs. */
 .ns-text-records .ns-text-suggestion .ns-text {
-  font-size: var(--ns-size-micro);
+  font-size: calc(var(--ns-size-micro) - 1px);
   font-weight: var(--ns-weight-medium);
   line-height: 1.2;
   color: var(--ns-text-2);
