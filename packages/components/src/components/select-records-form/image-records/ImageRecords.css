@@ -235,3 +235,25 @@ button.ns-image-action-plus {
     white-space: normal;
   }
 }
+
+/* ---- hit target ---------------------------------------------------------
+   The Dropdown's trigger wraps only the icon, so despite the whole square
+   showing `cursor: pointer`, a click landed only if it hit the 22/28px glyph.
+   Stretch the trigger chain to fill the button; as a side effect the menu now
+   drops from the button's edge instead of the icon's. */
+
+.ns-header-record-placeholder > .ns-dropdown,
+.ns-image-records .ns-avatar-record-placeholder > .ns-dropdown {
+  width: 100%;
+  height: 100%;
+}
+
+.ns-header-record-placeholder .ns-dropdown__trigger,
+.ns-header-record-placeholder .ns-dropdown__trigger > *,
+.ns-image-records .ns-avatar-record-placeholder .ns-dropdown__trigger,
+.ns-image-records .ns-avatar-record-placeholder .ns-dropdown__trigger > * {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
