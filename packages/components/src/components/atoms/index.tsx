@@ -7,3 +7,5 @@ export * from "./chain-icon/ChainIcon";
 export * from "./tooltip/Tooltip";
 export * from "./card/Card";
 export * from "./spinner/ShurikenSpinner";
+export * from "./tag/Tag";
+export * from "./identicon/Identicon";

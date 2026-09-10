@@ -7,7 +7,7 @@ import {
   supportedContenthashRecords,
 } from "@/constants";
 import { ContenthashProtocol, EnsContenthashRecord } from "@/types";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 interface ContenthashRecordProps {
   contenthash?: EnsContenthashRecord;
@@ -15,6 +15,9 @@ interface ContenthashRecordProps {
   onContenthashRemoved: () => void;
   onContenthashAdded: (protocol: ContenthashProtocol) => void;
   searchFilter?: string;
+  /** Reports whether this section currently renders anything, so the parent
+   *  can show a single "no records found" state for the whole form. */
+  onVisibilityChange?: (isVisible: boolean) => void;
 }
 
 export const ContenthashRecord = ({
@@ -23,6 +26,7 @@ export const ContenthashRecord = ({
   onContenthashRemoved,
   onContenthashAdded,
   searchFilter,
+  onVisibilityChange,
 }: ContenthashRecordProps) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -94,7 +98,15 @@ export const ContenthashRecord = ({
     return supportedContenthashRecords.filter(record => filterChash(record));
   }, [searchFilter]);
 
-  if (filteredSuggestions.length === 0) {
+  // Mirrors the early return below; reported so the parent knows whether any
+  // section survived the search filter.
+  const isVisible = filteredSuggestions.length > 0;
+  useEffect(() => {
+    onVisibilityChange?.(isVisible);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVisible]);
+
+  if (!isVisible) {
     return <></>;
   }
 
@@ -111,7 +123,7 @@ export const ContenthashRecord = ({
                 className="ns-text-suggestion"
                 onClick={() => onContenthashAdded(record.protocol)}
               >
-                <ContenthashIcon size={20} protocol={record.protocol} />
+                <ContenthashIcon size={16} protocol={record.protocol} />
                 <Text className="ns-mt-1" size="xs" weight="medium">
                   {record.label}
                 </Text>

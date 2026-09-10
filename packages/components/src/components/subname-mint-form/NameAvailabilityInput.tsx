@@ -44,42 +44,45 @@ export const NameAvailabilityInput = ({
         }
       />
 
-      {/* Status Messages */}
-      {showMinLengthMessage && (
-        <div className="ns-text-center mt-2">
-          <Text size="xs" color="grey">
-            Minimum subname length is 1 character
-          </Text>
-        </div>
-      )}
-
-      {showCheckingMessage && (
-        <div
-          className="ns-text-center mt-2 d-flex align-items-center justify-content-center"
-          style={{ gap: "8px" }}
-        >
-          <ShurikenSpinner size={18} />
-          <Text size="sm" color="grey">
-            Checking availability
-          </Text>
-        </div>
-      )}
-
-      {showUnavailableMessage && (
-        <div className="ns-text-center mt-2">
-          <Text size="xs" color="grey">
-            {label}.{parentName} is not available
-          </Text>
-        </div>
-      )}
-
-      {showReservedMessage && (
-        <div className="ns-text-center mt-2">
-          <Text size="xs" color="grey">
-            {label}.{parentName} is reserved
-          </Text>
-        </div>
-      )}
+      {/* One status line for every state, so all four read identically — a
+          status dot plus a micro label (design flows lines 203-207). */}
+      <div className="ns-name-status">
+        {showMinLengthMessage ? (
+          <>
+            <span className="ns-dot" />
+            <span className="ns-name-status__text">
+              Minimum subname length is {minLength} character
+              {minLength === 1 ? "" : "s"}
+            </span>
+          </>
+        ) : showCheckingMessage ? (
+          <>
+            <ShurikenSpinner size={14} />
+            <span className="ns-name-status__text">Checking availability</span>
+          </>
+        ) : showUnavailableMessage ? (
+          <>
+            <span className="ns-dot ns-dot--bad" />
+            <span className="ns-name-status__text">
+              {label}.{parentName} is not available
+            </span>
+          </>
+        ) : showReservedMessage ? (
+          <>
+            <span className="ns-dot ns-dot--soon" />
+            <span className="ns-name-status__text">
+              {label}.{parentName} is reserved
+            </span>
+          </>
+        ) : (
+          <>
+            <span className="ns-dot ns-dot--ok" />
+            <span className="ns-name-status__text">
+              {label}.{parentName} is available
+            </span>
+          </>
+        )}
+      </div>
     </div>
   );
 };

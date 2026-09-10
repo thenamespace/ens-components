@@ -48,25 +48,41 @@ export const SubnameInput = ({
         }
       />
 
-      {/* Status Messages */}
-      {value.length > 0 && value.length < minLength && (
-        <div className="ns-text-center mt-2">
-          <Text size="xs" color="grey">
-            Minimum subname length is {minLength} character
-          </Text>
+      {/* One status line for every state, so "available" and "not available"
+          read identically — a status dot plus a micro label. Update mode has
+          no availability to report, so it stays silent. */}
+      {!isUpdateMode && value.length > 0 && (
+        <div className="ns-name-status">
+          {value.length < minLength ? (
+            <>
+              <span className="ns-dot" />
+              <span className="ns-name-status__text">
+                Minimum subname length is {minLength} character
+                {minLength === 1 ? "" : "s"}
+              </span>
+            </>
+          ) : isChecking || isLoading ? (
+            <>
+              <ShurikenSpinner size={14} />
+              <span className="ns-name-status__text">Checking availability</span>
+            </>
+          ) : isAvailable ? (
+            <>
+              <span className="ns-dot ns-dot--ok" />
+              <span className="ns-name-status__text">
+                {value}.{parentName} is available
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="ns-dot ns-dot--bad" />
+              <span className="ns-name-status__text">
+                {value}.{parentName} is not available
+              </span>
+            </>
+          )}
         </div>
       )}
-
-      {!isUpdateMode && value.length >= minLength &&
-        !isChecking &&
-        !isLoading &&
-        !isAvailable && (
-          <div className="mt-2">
-            <Text size="xs" color="grey">
-              {value}.{parentName} is not available
-            </Text>
-          </div>
-        )}
     </div>
   );
 };
