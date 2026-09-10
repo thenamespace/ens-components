@@ -282,7 +282,7 @@
   color: var(--ns-text);
   border-bottom: 1px solid var(--ns-rule);
   padding-bottom: var(--ns-space-4);
-  margin-bottom: var(--ns-space-6);
+  margin-bottom: var(--ns-space-4);
 }
 
 /* ---- record row = the design's table row -------------------------------
@@ -401,7 +401,10 @@
   gap: var(--ns-space-3);
   width: 100%;
   height: 100%;
-  padding: var(--ns-space-6) var(--ns-space-4);
+  /* optically centred, not box-centred: the icon has ~1.75px of padding
+     inside its own 16px box and the label's ink stops at the baseline, so
+     equal padding reads top-heavy. */
+  padding: var(--ns-space-5) var(--ns-space-4) var(--ns-space-6);
   text-align: center;
   background-color: var(--ns-surface);
   border: 1px solid var(--ns-border);
