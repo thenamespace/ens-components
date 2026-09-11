@@ -2,7 +2,7 @@
 # https://enscomponents.com/llms-full.txt
 # Summary version: https://enscomponents.com/llms.txt
 # Last-Updated: 2026-09-11
-# Package version: 2.0.0-alpha.1
+# Package version: 2.0.0
 
 User-agent: *
 Allow: /
@@ -509,7 +509,7 @@ useRegisterENS(options: { isTestnet?: boolean })
 Import `@thenamespace/ens-components/styles` and then override any variable on `:root`
 (or on a scoped selector) to theme the components.
 
-> **v2.0.0-alpha is a visual overhaul** (Namespace Flows design system). The
+> **v2.0.0 is a visual overhaul** (Namespace Flows design system). The
 > library ships a token layer (`styles/tokens.css`) with every token
 > `--ns-`-prefixed. The design is light-only: warm off-white ground, a single
 > near-black accent, 10px corners, no shadows, DM Sans for text and DM Mono for

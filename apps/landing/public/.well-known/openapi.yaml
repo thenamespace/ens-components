@@ -6,7 +6,7 @@ info:
     This API exposes the LLM-friendly reference files and metadata for the
     ENS Components React library. Use these endpoints to retrieve full prop
     tables, TypeScript types, integration recipes, and package metadata.
-  version: 2.0.0-alpha.1
+  version: 2.0.0
   contact:
     url: https://namespace.ninja
   license:

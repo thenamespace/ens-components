@@ -171,7 +171,7 @@ Note the current contract:
 
 ## Theming And Presentation
 
-> **v2.0.0-alpha is a visual overhaul** (Namespace Flows design system: new
+> **v2.0.0 is a visual overhaul** (Namespace Flows design system: new
 > token layer, near-black accent, 10px corners, DM Sans/DM Mono). Component
 > props, hooks, exports and web3 flows are unchanged — no public API broke.
 
