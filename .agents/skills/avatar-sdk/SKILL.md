@@ -181,12 +181,14 @@ format validation applies to browser `File` objects.
 | Mutation | Route |
 |----------|-------|
 | Avatar upload/delete | `/profile/{network}/{subname}/avatar` |
-| Header upload/delete | `/profile/{network}/{subname}/h` |
+| Header upload/delete | `/profile/{network}/{subname}/header` |
 
-Header mutations use the **compact `/h` route**, but the multipart field name,
-SIWE nonce scope, and SIWE verification action remain `header`. Uploads send
-`siweMessage`, `siweSignature`, `address` plus the media file; deletes send the
-same three fields as JSON.
+Header mutations use the **`/header` route** (since v2.0.x; the compact `/h`
+path is reserved for the stable public header URL returned by the service).
+The multipart field name, SIWE nonce scope, and SIWE verification action remain
+`header`. The subname is ENSIP-15-normalized and URL-encoded before it is
+placed in the route. Uploads send `siweMessage`, `siweSignature`, `address`
+plus the media file; deletes send the same three fields as JSON.
 
 ## Error handling
 

@@ -171,6 +171,10 @@ Note the current contract:
 
 ## Theming And Presentation
 
+> **v2.0.0 is a visual overhaul** (Namespace Flows design system: new
+> token layer, near-black accent, 10px corners, DM Sans/DM Mono). Component
+> props, hooks, exports and web3 flows are unchanged — no public API broke.
+
 ### ThemeProvider
 
 ```tsx
@@ -185,26 +189,42 @@ const { theme, toggleTheme } = useTheme();
 
 ### CSS variables
 
+The library ships a token layer (`styles/tokens.css`); every token is
+`--ns-`-prefixed so it cannot collide with host CSS. The design (v2, the
+Namespace Flows system) is light-only: warm off-white ground, a single
+near-black accent, 10px corners, no shadows, DM Sans for text and DM Mono for
+names, amounts, dates and hashes. Fonts load from Google Fonts inside the
+stylesheet itself, so no font setup is needed in the host app.
+
 ```css
 :root {
-  --ns-font-family: "Inter", sans-serif;
-  --ns-radius-sm: 4px;
-  --ns-radius-md: 8px;
-  --ns-radius-lg: 12px;
-  --ns-color-bg: #ffffff;
-  --ns-color-fg: #111827;
-  --ns-color-muted: #6b7280;
-  --ns-color-primary: #1f1f1f;
-  --ns-color-border: #e5e7eb;
-}
+  --ns-font-family: "DM Sans", system-ui, sans-serif;
+  --ns-font-mono: "DM Mono", ui-monospace, monospace;
 
-[data-theme="dark"] {
-  --ns-color-bg: #0b0f19;
-  --ns-color-fg: #e5e7eb;
-  --ns-color-muted: #9ca3af;
-  --ns-color-border: #1f2937;
+  --ns-bg: #fbfaf9;        /* page ground — set it yourself on the host page */
+  --ns-surface: #ffffff;   /* card surface */
+  --ns-text: #1b1d1e;
+  --ns-ink: #212121;       /* the accent — the whole ramp derives from it */
+  --ns-radius: 10px;       /* single radius lever */
+  --ns-link: #0080bc;      /* links stay blue, separate from the accent */
 }
 ```
+
+Overriding works differently since v2:
+
+- The accent ramp derives from `--ns-ink`. Re-accent by setting `--ns-ink`; the
+  legacy `--ns-blue-*` names still resolve because they alias the ink ramp.
+- Corners are controlled by the single `--ns-radius` token.
+- The legacy `--ns-color-*`, `--ns-radius-sm/md/lg`, and `--ns-alert-*`
+  variables remain as aliases, so older overrides keep working — but they are
+  no longer the primary levers.
+
+Dark theme: `ThemeProvider` still sets `data-theme="dark"` and legacy dark
+values are kept so the API keeps working, but the design ships light-only and
+the dark palette is unrefreshed — treat dark mode as best-effort, not polished.
+
+The library no longer forces the host page's `html` background. Consumers that
+want the design ground set `background: var(--ns-bg)` themselves.
 
 ### Avatar and header upload
 
