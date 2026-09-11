@@ -1,8 +1,8 @@
 # @thenamespace/ens-components — Full API Reference
 # https://enscomponents.com/llms-full.txt
 # Summary version: https://enscomponents.com/llms.txt
-# Last-Updated: 2026-04-28
-# Package version: 1.3.0
+# Last-Updated: 2026-09-11
+# Package version: 2.0.0-alpha.1
 
 User-agent: *
 Allow: /
@@ -509,61 +509,74 @@ useRegisterENS(options: { isTestnet?: boolean })
 Import `@thenamespace/ens-components/styles` and then override any variable on `:root`
 (or on a scoped selector) to theme the components.
 
+> **v2.0.0-alpha is a visual overhaul** (Namespace Flows design system). The
+> library ships a token layer (`styles/tokens.css`) with every token
+> `--ns-`-prefixed. The design is light-only: warm off-white ground, a single
+> near-black accent, 10px corners, no shadows, DM Sans for text and DM Mono for
+> names, amounts, dates and hashes. Fonts load from Google Fonts inside the
+> stylesheet itself, so no font setup is needed in the host app. The legacy
+> `--ns-color-*`, `--ns-radius-sm/md/lg`, and `--ns-alert-*` variables still
+> resolve as aliases, so older overrides keep working, but they are no longer
+> the primary levers.
+
 ### Layout & Typography
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `--ns-font-family` | `"Satoshi", system-ui, sans-serif` | Component font stack |
-| `--ns-radius-sm` | `4px` | Small border radius |
-| `--ns-radius-md` | `8px` | Medium border radius |
-| `--ns-radius-lg` | `12px` | Large border radius |
-| `--ns-shadow` | `0 1px 2px rgba(0,0,0,0.04)` | Default box shadow |
+| `--ns-font-family` | `"DM Sans", system-ui, sans-serif` | Component font stack |
+| `--ns-font-mono` | `"DM Mono", ui-monospace, monospace` | Mono font for names, amounts, dates and hashes |
+| `--ns-radius` | `10px` | Single radius lever |
 
-### Colors (Light Theme)
+The legacy `--ns-radius-sm/md/lg` aliases are now all `0` (corners are
+controlled by the single `--ns-radius` token) and `--ns-shadow` is `none` —
+the design is shadowless; elevation is a hairline.
+
+### Core Tokens
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `--ns-color-bg` | `#ffffff` | Component background |
-| `--ns-color-bg-accent` | `#f4f4f4` | Subtle accent background |
-| `--ns-color-bg-accent-hover` | `#d9d9d9` | Accent hover state |
-| `--ns-color-bg-darker` | `#e2e2e2` | Darker accent |
-| `--ns-color-fg` | `#111827` | Primary foreground / text |
-| `--ns-color-muted` | `#6b7280` | Muted / secondary text |
-| `--ns-color-primary` | `#1f1f1f` | Primary action color (buttons) |
+| `--ns-bg` | `#fbfaf9` | Page ground — set it yourself on the host page |
+| `--ns-surface` | `#ffffff` | Card surface |
+| `--ns-text` | `#1b1d1e` | Body text |
+| `--ns-ink` | `#212121` | The accent — the whole ramp derives from it |
+| `--ns-link` | `#0080bc` | Links stay blue, separate from the accent |
+
+### Colors (Legacy Aliases)
+
+| Variable | Resolves to | Description |
+|----------|-------------|-------------|
+| `--ns-color-bg` | `var(--ns-surface)` | Component background |
+| `--ns-color-bg-accent` | `var(--ns-surface-3)` | Subtle accent background |
+| `--ns-color-bg-accent-hover` | `var(--ns-surface-4)` | Accent hover state |
+| `--ns-color-bg-darker` | `var(--ns-surface-4)` | Darker accent |
+| `--ns-color-fg` | `var(--ns-text)` | Primary foreground / text |
+| `--ns-color-muted` | `var(--ns-text-3)` | Muted / secondary text |
+| `--ns-color-primary` | `var(--ns-ink)` | Primary action color (buttons) |
 | `--ns-color-primary-contrast` | `#ffffff` | Text on primary color |
-| `--ns-color-border` | `#e5e7eb` | Border color |
+| `--ns-color-border` | `var(--ns-border-strong)` | Border color |
 
-### Alert Colors
+### Alert Colors (Legacy Aliases)
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `--ns-alert-error-bg` | `#fef2f2` | Error alert background |
-| `--ns-alert-error-border` | `#fecaca` | Error alert border |
-| `--ns-alert-error-text` | `#dc2626` | Error alert text |
-| `--ns-alert-warning-bg` | `#fffbeb` | Warning alert background |
-| `--ns-alert-warning-border` | `#fed7aa` | Warning alert border |
-| `--ns-alert-warning-text` | `#d97706` | Warning alert text |
-| `--ns-alert-info-bg` | `#eff6ff` | Info alert background |
-| `--ns-alert-info-border` | `#bfdbfe` | Info alert border |
-| `--ns-alert-info-text` | `#257eeb` | Info alert text |
-| `--ns-alert-success-bg` | `#f0fdf4` | Success alert background |
-| `--ns-alert-success-border` | `#bbf7d0` | Success alert border |
-| `--ns-alert-success-text` | `#16a34a` | Success alert text |
+| Variable | Resolves to | Purpose |
+|----------|-------------|---------|
+| `--ns-alert-error-bg` | `#fbede6` | Error alert background |
+| `--ns-alert-error-border` | `#ebc5b2` | Error alert border |
+| `--ns-alert-error-text` | `var(--ns-dot-bad)` | Error alert text |
+| `--ns-alert-warning-bg` | `var(--ns-amber-100)` | Warning alert background |
+| `--ns-alert-warning-border` | `var(--ns-amber-400)` | Warning alert border |
+| `--ns-alert-warning-text` | `var(--ns-amber-700)` | Warning alert text |
+| `--ns-alert-info-bg` | `var(--ns-blue-100)` | Info alert background |
+| `--ns-alert-info-border` | `var(--ns-blue-300)` | Info alert border |
+| `--ns-alert-info-text` | `var(--ns-blue-700)` | Info alert text |
+| `--ns-alert-success-bg` | `#eff4f0` | Success alert background |
+| `--ns-alert-success-border` | `#c9dace` | Success alert border |
+| `--ns-alert-success-text` | `var(--ns-ok)` | Success alert text |
 
 ### Dark Theme
 
-Apply `data-theme="dark"` to any ancestor element (or `<html>`) to activate the built-in dark
-palette. Override individual variables after that to customise further.
-
-```css
-/* Custom dark theme override example */
-[data-theme="dark"] {
-  --ns-color-bg: #0b0f19;
-  --ns-color-fg: #e5e7eb;
-  --ns-color-muted: #9ca3af;
-  --ns-color-border: #1f2937;
-}
-```
+`ThemeProvider` still sets `data-theme="dark"` and legacy dark values are kept
+so the API keeps working, but the design ships light-only and the dark palette
+is unrefreshed — treat dark mode as best-effort, not polished.
 
 ---
 
@@ -572,10 +585,9 @@ palette. Override individual variables after that to customise further.
 ```css
 /* Minimal brand override */
 :root {
-  --ns-color-primary: #7c3aed;          /* purple primary */
-  --ns-color-primary-contrast: #ffffff;
-  --ns-radius-md: 4px;                  /* sharper corners */
-  --ns-font-family: "Inter", sans-serif;
+  --ns-ink: #7c3aed;            /* re-accent — the whole ramp follows */
+  --ns-radius: 4px;             /* sharper corners */
+  --ns-font-family: "DM Sans", sans-serif;
 }
 ```
 
