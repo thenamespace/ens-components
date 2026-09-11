@@ -291,8 +291,11 @@ Base URL (both networks): `https://metadata.namespace.ninja`
 | `/auth/nonce` | POST | Get SIWE nonce (body: `{ address, scope }`) |
 | `/profile/{network}/{subname}/avatar` | POST | Upload avatar (multipart) |
 | `/profile/{network}/{subname}/avatar` | DELETE | Delete avatar (JSON) |
-| `/profile/{network}/{subname}/h` | POST | Upload header (multipart, field name `header`) |
-| `/profile/{network}/{subname}/h` | DELETE | Delete header (JSON) |
+| `/profile/{network}/{subname}/header` | POST | Upload header (multipart, field name `header`) |
+| `/profile/{network}/{subname}/header` | DELETE | Delete header (JSON) |
 
-Header mutations use the compact `/h` route; the multipart field name, SIWE nonce
-scope, and SIWE verification action remain `header`.
+Header mutations use the `/header` route (the compact `/h` path is reserved for
+the stable public header URL returned by the service); the multipart field
+name, SIWE nonce scope, and SIWE verification action remain `header`. The
+subname is ENSIP-15-normalized and URL-encoded before it is placed in the
+route.
