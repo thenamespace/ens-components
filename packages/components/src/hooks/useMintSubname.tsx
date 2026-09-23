@@ -1,4 +1,4 @@
-import { Address, Hash, formatEther } from "viem";
+import { Address, Hash, formatEther, parseEther } from "viem";
 import { usePublicClient, useWalletClient } from "wagmi";
 import { MintTransactionResponse } from "@thenamespace/mint-manager/dist/types";
 
@@ -12,6 +12,10 @@ export interface EstimatedFees {
   gasPrice: bigint;
   totalFeeWei: bigint;
   totalFeeEth: number;
+  /** The account cannot cover the mint value; the fee above is still real. */
+  insufficientFunds: boolean;
+  /** How much more ETH the account needs to cover value + gas. */
+  shortfallWei: bigint;
 }
 
 interface EstimateFeesParams {
@@ -66,7 +70,16 @@ export const useMintSubname = ({ chainId }: { chainId: number }) => {
     }
 
     try {
-      // Estimate gas
+      // A wallet that cannot cover the mint value makes eth_estimateGas fail
+      // outright with OutOfFunds, which would leave the receipt showing "N/A"
+      // and no reason why. Detect that up front, then estimate against an
+      // overridden balance so the gas figure stays real and the caller can say
+      // plainly that funds are short.
+      const balance = await publicClient
+        .getBalance({ address: account })
+        .catch(() => null);
+      const underfunded = balance !== null && balance < mintTx.value;
+
       const gasEstimate = await publicClient.estimateContractGas({
         address: mintTx.contractAddress,
         abi: mintTx.abi,
@@ -74,6 +87,13 @@ export const useMintSubname = ({ chainId }: { chainId: number }) => {
         args: mintTx.args,
         account,
         value: mintTx.value,
+        ...(underfunded
+          ? {
+              stateOverride: [
+                { address: account, balance: mintTx.value + parseEther("1") },
+              ],
+            }
+          : {}),
       });
 
       // Compute maxFeePerGas matching typical wallet behaviour:
@@ -97,11 +117,17 @@ export const useMintSubname = ({ chainId }: { chainId: number }) => {
       const totalFeeWei = gasEstimate * gasPriceWei;
       const totalFeeEth = parseFloat(formatEther(totalFeeWei));
 
+      const required = mintTx.value + totalFeeWei;
+      const shortfallWei =
+        balance !== null && balance < required ? required - balance : 0n;
+
       return {
         gasEstimate,
         gasPrice: gasPriceWei,
         totalFeeWei,
         totalFeeEth,
+        insufficientFunds: shortfallWei > 0n,
+        shortfallWei,
       };
     } catch (err) {
       console.error("Gas estimation error:", err);

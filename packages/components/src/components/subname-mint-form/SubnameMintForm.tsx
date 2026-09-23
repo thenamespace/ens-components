@@ -393,7 +393,9 @@ const SubnameMintFormContent = ({
     isChecking: boolean;
     failed: boolean;
     price: { wei: bigint; eth: number };
-  }>({ isChecking: false, failed: false, price: { wei: 0n, eth: 0 } });
+    /** Set when the wallet cannot cover value + gas; the fee itself is valid. */
+    shortfallEth: number;
+  }>({ isChecking: false, failed: false, price: { wei: 0n, eth: 0 }, shortfallEth: 0 });
 
   // Format ETH value with smart precision for small numbers
   const formatEthDisplay = (value: number): string => {
@@ -478,6 +480,8 @@ const SubnameMintFormContent = ({
   }, [mintDetails]);
 
   // Check if subname is reserved (non-blocking, user can try another name)
+  const hasInsufficientFunds = transactionFees.shortfallEth > 0;
+
   const isSubnameReserved = useMemo(() => {
     const { canMint, validationErrors } = mintDetails.details;
     return (
@@ -512,7 +516,14 @@ const SubnameMintFormContent = ({
       });
       const result = await estimateTransactionFees({ mintTx, account: connectedAddress });
       if (result) {
-        setTransactionFees({ isChecking: false, failed: false, price: { wei: result.totalFeeWei, eth: result.totalFeeEth } });
+        setTransactionFees({
+          isChecking: false,
+          failed: false,
+          price: { wei: result.totalFeeWei, eth: result.totalFeeEth },
+          shortfallEth: result.insufficientFunds
+            ? parseFloat(formatEther(result.shortfallWei))
+            : 0,
+        });
         setGasEstimated(true);
       } else {
         setTransactionFees((prev) => ({ ...prev, isChecking: false, failed: true }));
@@ -832,13 +843,24 @@ const SubnameMintFormContent = ({
 
       <ContractErrorLabel error={contractError} />
 
+      {/* Funding is a wallet problem, not a name problem: the price and fee
+          above stay on screen and only minting is blocked. */}
+      {hasInsufficientFunds && (
+        <div className="mt-2">
+          <Alert variant="warning">
+            <Text size="sm">Insufficient funds</Text>
+          </Alert>
+        </div>
+      )}
+
       <MintFormActions
         onCancel={() => onCancel?.()}
         onMint={handleMint}
         isMintDisabled={
           !isAvailableForMint ||
           mintDetails.isChecking ||
-          !mintDetails.details.canMint
+          !mintDetails.details.canMint ||
+          hasInsufficientFunds
         }
         isWaitingWallet={mintState.isWaitingWallet}
         needsChainSwitch={needsChainSwitch}

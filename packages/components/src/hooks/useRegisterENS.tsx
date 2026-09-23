@@ -6,18 +6,15 @@ import {
   Hex,
   isAddress,
   keccak256,
-  namehash,
   padHex,
-  parseAbi,
   parseEther,
   toBytes,
   toHex,
-  zeroAddress,
 } from "viem";
 import { mainnet, sepolia } from "viem/chains";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { getEnsContracts } from "@thenamespace/addresses";
-import { createEnsReferer, equalsIgnoreCase } from "@/utils";
+import { createEnsReferer } from "@/utils";
 import { ONE_YEAR } from "@/utils/date";
 import { ABIS } from "./abis";
 import { EnsRecords } from "@/types";
@@ -64,10 +61,6 @@ const isStateOverrideRejection = (err: unknown): boolean => {
 };
 
 const NAMESPACE_REFERRER_ADDRESS = "0xb7B18611b8C51B4B3F400BaF09DB49E61e0aF044";
-
-const ENS_REGISTRY_ABI = parseAbi([
-  "function owner(bytes32) view returns (address)",
-]);
 
 export interface RegistrationRequest {
   label: string;
@@ -118,14 +111,17 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
     };
   };
 
+  // The registrar is the authority on whether a .eth name can be registered.
+  // The registry's owner record is not: it keeps pointing at the previous
+  // holder after a registration expires and clears its grace period, so a
+  // released name still looks owned there and would be reported as taken.
   const isEnsAvailable = async (label: string): Promise<boolean> => {
-    const ownerAddress = await publicClient!.readContract({
-      functionName: "owner",
-      abi: ENS_REGISTRY_ABI,
-      args: [namehash(`${label}.eth`)],
-      address: getEnsRegistry(),
-    });
-    return equalsIgnoreCase(ownerAddress, zeroAddress);
+    return (await publicClient!.readContract({
+      functionName: "available",
+      abi: ABIS.ETH_REGISTRAR_CONTOLLER,
+      args: [label],
+      address: getEthController(),
+    })) as boolean;
   };
 
   const makeCommitment = async (request: RegistrationRequest): Promise<Hash> => {
@@ -320,7 +316,6 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
   };
 
   const getEthController = () => getEnsContracts(isTestnet).ethRegistrarController;
-  const getEnsRegistry = () => getEnsContracts(isTestnet).ensRegistry;
   const getPublicResolver = () => getEnsContracts(isTestnet).publicResolver;
 
   const getRegReferrer = (request: RegistrationRequest) => {
