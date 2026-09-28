@@ -1,0 +1,37 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://enscomponents.com/",
+      "service-desc": [
+        {
+          "href": "https://enscomponents.com/.well-known/openapi.yaml",
+          "type": "application/openapi+yaml"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://enscomponents.com/",
+          "type": "text/html",
+          "title": "ENS Components interactive docs and playground"
+        }
+      ],
+      "service-meta": [
+        {
+          "href": "https://enscomponents.com/llms.txt",
+          "type": "text/plain",
+          "title": "LLM-friendly summary"
+        },
+        {
+          "href": "https://enscomponents.com/llms-full.txt",
+          "type": "text/plain",
+          "title": "LLM full API reference"
+        },
+        {
+          "href": "https://enscomponents.com/.well-known/ai-plugin.json",
+          "type": "application/json",
+          "title": "AI plugin manifest"
+        }
+      ]
+    }
+  ]
+}
