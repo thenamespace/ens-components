@@ -91,7 +91,7 @@ export const ContractErrorLabel: React.FC<ContractErrorLabelProps> = ({
   };
 
   return (
-    <div className={`mt-2 ns-wd-100 ${className}`} style={{ width: "100%", boxSizing: "border-box" }}>
+    <div className={`ns-wd-100 ${className}`} style={{ width: "100%", boxSizing: "border-box" }}>
       <Alert variant="error" className="ns-wd-100">
         <Text size="sm">{getErrorMessage()}</Text>
       </Alert>

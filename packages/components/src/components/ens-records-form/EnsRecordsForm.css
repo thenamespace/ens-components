@@ -8,7 +8,10 @@
 .ens-records-form-container {
   container-type: inline-size;
   width: 100%;
-  max-width: 500px;
+  max-width: var(--ns-frame-width);
+  /* the 1px frame counts inside the width, so every card is exactly
+     --ns-frame-width wide */
+  box-sizing: border-box;
   height: fit-content;
   background-color: var(--ns-surface);
   border: 1px solid var(--ns-border-strong);
@@ -24,6 +27,13 @@
 }
 
 /* The records editor nests inside this frame — one hairline, not two. */
+/* An alert placed straight in the frame (e.g. no resolver) is inset like the
+   frame's content, not stretched edge to edge across the border. */
+.ens-records-form-container > .ns-alert {
+  width: auto;
+  margin: var(--ns-space-8);
+}
+
 .ens-records-form-container .ns-select-records-form {
   max-width: none;
   border: none;

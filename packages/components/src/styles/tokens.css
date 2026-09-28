@@ -154,4 +154,9 @@
   --ns-hairline-strong: 1px solid var(--ns-border-strong);
   --ns-rule-line: 1px solid var(--ns-rule);
   /* no shadow tokens: elevation is a hairline, never a shadow */
+
+  /* ---- layout -------------------------------------------------------- */
+  /* One width for every top-level card (registration, subname mint,
+     off-chain subname, records form / editor) so they read as one family. */
+  --ns-frame-width: 500px;
 }

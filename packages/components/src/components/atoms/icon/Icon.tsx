@@ -68,6 +68,7 @@ export type IconName =
   | "copy"
   | "clock"
   | "plus"
+  | "upload"
   | "image"
   | "xSocial"
   | "chevron-up"
@@ -105,6 +106,7 @@ const icons: Record<IconName, IconComponent> = {
   copy: CopyIcon,
   clock: Clock,
   plus: LucideIcons.Plus,
+  upload: LucideIcons.Upload,
   xSocial: XIcon,
   "chevron-up": LucideIcons.ChevronUp,
   "chevron-down": LucideIcons.ChevronDown,

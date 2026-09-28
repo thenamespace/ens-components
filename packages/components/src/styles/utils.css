@@ -142,3 +142,46 @@
   font-size: var(--ns-size-micro);
   color: var(--ns-text-3);
 }
+
+/* ---- Form stack --------------------------------------------------------
+   The body of every single-column card (registration, subname mint,
+   off-chain subname): 26px inset, and one 20px rhythm between groups (header,
+   input + its status line, pricing, profile CTA, alerts, actions). Children
+   carry no margins of their own; spacing comes from `gap` alone, so host
+   utility classes can't knock it out of step. */
+.ns-form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-10);
+  padding: var(--ns-space-14);
+}
+
+.ns-form-stack > * {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.ns-form-stack .ns-alert {
+  margin: 0;
+}
+
+/* title + subtitle pair tightly, centred */
+.ns-form-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ns-space-2);
+  text-align: center;
+}
+
+@container (max-width: 480px) {
+  .ns-form-stack {
+    padding: var(--ns-space-10);
+  }
+}
+
+@container (max-width: 390px) {
+  .ns-form-stack {
+    padding: var(--ns-space-8);
+  }
+}

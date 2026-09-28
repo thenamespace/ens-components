@@ -11,6 +11,7 @@ import { Alert } from "../molecules";
 import { TextRecords } from "./text-records/TextRecords";
 import { AddressRecords } from "./address-record/AddressRecords";
 import { ContenthashRecord } from "./contenthash-records/ContenthashRecord";
+import { CustomRecords } from "./custom-records/CustomRecords";
 import "./SelectRecordsForm.css";
 import { RecordsAddedParams } from "./records-selector/RecordsSelector";
 import { ImageRecords } from "./image-records/ImageRecords";
@@ -23,6 +24,7 @@ enum RecordsSidebarItem {
   Social = "Social",
   Addresses = "Addresses",
   Website = "Website",
+  Custom = "Custom",
 }
 
 /** Same icons the records-selector overlay uses for its nav, so the two
@@ -32,6 +34,7 @@ const navIcons: Record<RecordsSidebarItem, IconName> = {
   [RecordsSidebarItem.Social]: "square-user",
   [RecordsSidebarItem.Addresses]: "pin",
   [RecordsSidebarItem.Website]: "globe",
+  [RecordsSidebarItem.Custom]: "edit",
 };
 
 type ImageRecordType = "avatar" | "header";
@@ -85,6 +88,7 @@ export const SelectRecordsForm = ({
   const socialCategoryRef = useRef<HTMLDivElement | null>(null);
   const addressesCategoryRef = useRef<HTMLDivElement | null>(null);
   const websiteCategoryRef = useRef<HTMLDivElement | null>(null);
+  const customCategoryRef = useRef<HTMLDivElement | null>(null);
   const [searchFilter, setSearchFilter] = useState("");
   // Each record section reports whether it survived the search filter; when a
   // search is active and none of them did, we show a single empty state
@@ -109,6 +113,12 @@ export const SelectRecordsForm = ({
   const recordsInnerRef = useRef<HTMLDivElement | null>(null);
   const isScrollingProgrammatically = useRef(false);
 
+  // New search results start from the top of the pane, not wherever the
+  // previous scroll position left them.
+  useEffect(() => {
+    recordsInnerRef.current?.scrollTo({ top: 0 });
+  }, [searchFilter]);
+
   // Update active nav based on scroll position
   useEffect(() => {
     const scrollContainer = recordsInnerRef.current;
@@ -119,6 +129,7 @@ export const SelectRecordsForm = ({
       { ref: socialCategoryRef, nav: RecordsSidebarItem.Social },
       { ref: addressesCategoryRef, nav: RecordsSidebarItem.Addresses },
       { ref: websiteCategoryRef, nav: RecordsSidebarItem.Website },
+      { ref: customCategoryRef, nav: RecordsSidebarItem.Custom },
     ];
 
     const updateActiveNav = () => {
@@ -147,6 +158,19 @@ export const SelectRecordsForm = ({
           }
         }
       });
+
+      // The last sections are too short to ever reach the top; once the
+      // container is scrolled to the end, the last rendered section wins.
+      const atBottom =
+        scrollContainer.scrollTop > 0 &&
+        scrollContainer.scrollTop + scrollContainer.clientHeight >=
+          scrollContainer.scrollHeight - 2;
+      if (atBottom) {
+        const lastRendered = [...refs]
+          .reverse()
+          .find(({ ref }) => ref.current && ref.current.offsetHeight > 0);
+        if (lastRendered) closestSection = lastRendered.nav;
+      }
 
       if (closestSection) {
         setCurrentNav(closestSection);
@@ -211,6 +235,7 @@ export const SelectRecordsForm = ({
       Social: socialCategoryRef,
       Website: websiteCategoryRef,
       Addresses: addressesCategoryRef,
+      Custom: customCategoryRef,
     };
 
     const currentRef = references[category];
@@ -527,6 +552,15 @@ export const SelectRecordsForm = ({
                 onContenthashAdded={e => handleContenthashAdded(e)}
                 searchFilter={searchFilter}
                 onVisibilityChange={handleSectionVisibility("website")}
+              />
+            </div>
+            {/* Custom key/value records */}
+            <div ref={customCategoryRef} className="ns-mb-2">
+              <CustomRecords
+                texts={records.texts}
+                onTextsChanged={handleTextsUpdated}
+                searchFilter={searchFilter}
+                onVisibilityChange={handleSectionVisibility("custom")}
               />
             </div>
             {showEmptyState && (

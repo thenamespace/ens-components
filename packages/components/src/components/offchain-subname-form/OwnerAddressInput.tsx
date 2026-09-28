@@ -8,7 +8,7 @@ interface OwnerAddressInputProps {
 
 export const OwnerAddressInput = ({ value, error, onChange }: OwnerAddressInputProps) => {
   return (
-    <div className="mt-2">
+    <div>
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}

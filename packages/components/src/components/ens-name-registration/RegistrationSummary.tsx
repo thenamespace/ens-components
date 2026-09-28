@@ -205,12 +205,12 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
           />
         </div>
       )}
-      <div className="text-center mb-3" style={{ textAlign: "center" }}>
-        <Text weight="bold" className="text-align-center" size="lg">
-          {title || "ENS Name Registration"}
+      <div className="text-center" style={{ textAlign: "center" }}>
+        <Text weight="bold" className="text-align-center" size="xl">
+          {title || "Claim your Web3 identity"}
         </Text>
         <Text color="grey" className="text-align-center" size="sm">
-          {subtitle || "Register your ENS name and set a profile"}
+          {subtitle || "Register your ENS username and set a profile"}
         </Text>
       </div>
       <Input
@@ -233,7 +233,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
           <>
             <span className="ns-dot" />
             <span className="ns-name-status__text">
-              Minimum ENS name length is {MIN_ENS_LEN} characters
+              Minimum length is {MIN_ENS_LEN} characters
             </span>
           </>
         ) : nameValidation.isChecking ? (
@@ -257,7 +257,6 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
       {isNameAvailable && (
         <>
           <PricingDisplay
-            className="mt-2"
             primaryFee={{
               label: "Registration Fee",
               amount: regPrice,
@@ -282,7 +281,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
           />
 
           <div
-            className="ens-profile-selector mt-2"
+            className="ens-profile-selector"
             onClick={onSetProfile}
             style={{ cursor: "pointer" }}
           >
@@ -319,14 +318,13 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
       )}
 
       {!isConnected && onConnectWallet ? (
-        <Button style={{ width: "100%" }} size="lg" className="mt-2" onClick={onConnectWallet}>
+        <Button style={{ width: "100%" }} size="lg" onClick={onConnectWallet}>
           Connect Wallet
         </Button>
       ) : (
         <Button
           style={{ width: "100%" }}
           size="lg"
-          className="mt-2"
           disabled={nextBtnDisabled}
           onClick={() => onStart?.()}
         >

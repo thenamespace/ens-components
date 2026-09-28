@@ -111,7 +111,7 @@ export const ImageRecords = ({
               disabled={headerActions.length === 0}
               trigger={
                 <div title="Add header" aria-label="Add header">
-                  <Icon color="white" name="plus" size={22} />
+                  <Icon color="white" name="upload" size={20} />
                 </div>
               }
             >
@@ -143,7 +143,7 @@ export const ImageRecords = ({
               disabled={avatarActions.length === 0}
               trigger={
                 <div title="Add avatar" aria-label="Add avatar">
-                  <Icon color="grey" name="plus" size={28} />
+                  <Icon color="grey" name="upload" size={24} />
                 </div>
               }
             >
