@@ -13,7 +13,7 @@
   border: 1px solid var(--ns-border-strong);
   border-top: 3px solid var(--ns-border-strong);
   border-radius: var(--ns-radius);
-  max-width: 400px;
+  max-width: var(--ns-frame-width);
   margin: 0 auto;
   text-align: center;
   position: relative;

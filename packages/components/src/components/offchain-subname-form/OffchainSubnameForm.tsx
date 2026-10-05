@@ -333,7 +333,7 @@ export const OffchainSubnameForm = ({
 
   return (
     <div className="ns-offchain-subname-form">
-      <div style={{ padding: 15 }}>
+      <div className="ns-form-stack">
         {!hideTitle && (
           <FormHeader
             isUpdateMode={isUpdateMode}
@@ -377,7 +377,7 @@ export const OffchainSubnameForm = ({
 
         {/* Error alert */}
         {errorMessage && (
-          <div className="mt-2">
+          <div>
             <Alert variant="error" position="vertical">
               <Text size="sm">{errorMessage}</Text>
             </Alert>
@@ -385,7 +385,7 @@ export const OffchainSubnameForm = ({
         )}
 
         {/* Action buttons */}
-        <div className="ens-update-records-form-actions mt-2">
+        <div className="ens-update-records-form-actions">
           <Button
             variant="outline"
             size="lg"

@@ -765,19 +765,19 @@ const SubnameMintFormContent = ({
   }
 
   return (
-    <div style={{padding: 15}}>
-      <div className="ns-text-center mb-3">
-        <Text weight="bold" size="lg">
+    <div className="ns-form-stack">
+      <div className="ns-form-header">
+        <Text weight="bold" size="xl">
           {title || "Get Your Web3 Username"}
         </Text>
         {subtitle && (
-          <Text color="grey" size="sm" className="mt-1">
+          <Text color="grey" size="sm">
             {subtitle}
           </Text>
         )}
       </div>
 
-      <div className="mt-3">
+      <div>
         <NameAvailabilityInput
           label={label}
           parentName={parentName}
@@ -792,7 +792,7 @@ const SubnameMintFormContent = ({
 
       {/* Blocking error alert */}
       {blockingError && (
-        <div className="mt-2">
+        <div>
           <Alert variant={blockingError.variant} position="vertical">
             <Text size="sm">{blockingError.message}</Text>
           </Alert>
@@ -803,7 +803,6 @@ const SubnameMintFormContent = ({
       {isAvailableForMint && (
         <>
           <PricingDisplay
-            className="mt-2"
             primaryFee={{
               label: "Price",
               amount: regPrice,
@@ -834,7 +833,7 @@ const SubnameMintFormContent = ({
 
       {/* Mint error alert - shown above buttons */}
       {error && (
-        <div className="mt-2">
+        <div>
           <Alert variant="error" position="vertical">
             <Text size="sm">{error}</Text>
           </Alert>
@@ -846,7 +845,7 @@ const SubnameMintFormContent = ({
       {/* Funding is a wallet problem, not a name problem: the price and fee
           above stay on screen and only minting is blocked. */}
       {hasInsufficientFunds && (
-        <div className="mt-2">
+        <div>
           <Alert variant="warning">
             <Text size="sm">Insufficient funds</Text>
           </Alert>

@@ -237,23 +237,23 @@ export const RecordUpdateSummary: React.FC<RecordUpdateSummaryProps> = ({
 
   return (
     <div className="record-update-summary">
-      <div className="d-flex justify-content-center">
+      <div className="record-update-summary__banner">
         <img
           style={{ width: "250px", margin: "auto" }}
           src={ninjaImage}
           alt="Ninja Image"
         />
       </div>
-      <div className="text-center mb-3" style={{ textAlign: "center" }}>
-        <Text weight="bold" className="text-align-center" size="lg">
+      <div className="ns-form-header record-update-summary__header">
+        <Text weight="bold" size="xl">
           Update Summary
         </Text>
-        <Text color="grey" className="text-align-center" size="sm">
+        <Text color="grey" size="sm">
           Review the changes you're about to make
         </Text>
       </div>
 
-      <div className="ns-card-container">
+      <div className="record-update-summary__changes">
         {/* Addresses Section */}
       {hasAddressChanges && (
         <Accordion

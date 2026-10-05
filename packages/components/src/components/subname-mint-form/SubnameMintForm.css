@@ -8,7 +8,16 @@
     border: 1px solid var(--ns-border-strong);
     border-radius: var(--ns-radius);
     width: 100%;
-    max-width: 500px;
+    max-width: var(--ns-frame-width);
+    /* the 1px frame counts inside the width, so every card is exactly
+       --ns-frame-width wide */
+    box-sizing: border-box;
+}
+
+/* Alerts that are the frame's only content (listing errors) sit inset. */
+.ns-subname-mint-form > .ns-alert {
+    width: auto;
+    margin: var(--ns-space-8);
 }
 
 /* A query container is a containing block for `position: fixed` descendants,
@@ -100,11 +109,20 @@
 }
 
 /* ---- Records CTA (lines 350–359) ------------------------------------- */
+/* Kept in step with RegistrationSummary.css — the same CTA in both flows. */
 .ens-profile-selector {
     border: 1px solid var(--ns-border);
     border-radius: var(--ns-radius);
-    padding: var(--ns-space-8) var(--ns-space-10);
+    padding: var(--ns-space-7) var(--ns-space-8);
     background-color: var(--ns-surface-3);
+    transition:
+        background-color 0.15s linear,
+        border-color 0.15s linear;
+}
+
+.ens-profile-selector:hover {
+    background-color: var(--ns-surface-4);
+    border-color: var(--ns-border-strong);
 }
 
 .ens-profile-selector > .d-flex {
@@ -130,16 +148,27 @@
     transform: rotate(150deg);
 }
 
-/* 30px solid blue chevron block (line 357) */
+/* Quiet chevron that wakes up with the row on hover */
 .ens-profile-selector .profile-cta-arrow {
     width: 30px;
     height: 30px;
     flex: none;
     display: grid;
     place-items: center;
-    border-radius: var(--ns-radius);
-    background-color: var(--ns-blue-600);
-    color: var(--ns-surface);
+    border-radius: calc(var(--ns-radius) - 2px);
+    background-color: var(--ns-surface);
+    border: 1px solid var(--ns-border);
+    color: var(--ns-text-3);
+    transition:
+        color 0.15s linear,
+        border-color 0.15s linear,
+        transform 0.15s ease-out;
+}
+
+.ens-profile-selector:hover .profile-cta-arrow {
+    color: var(--ns-text);
+    border-color: var(--ns-border-strong);
+    transform: translateX(2px);
 }
 
 /* ---- Narrow containers (plan §5) — the webapp's ~330px modals -------- */

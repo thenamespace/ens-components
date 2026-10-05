@@ -44,9 +44,9 @@
     opacity 120ms ease;
 }
 
-.ns-btn:hover:not(:disabled) {
-  border-color: var(--ns-text-faint);
-}
+/* Hover is owned by each variant (below). A generic border-colour change here
+   used to paint a grey ring around the solid button and barely register on
+   the outline one. */
 
 .ns-btn:active:not(:disabled) {
   background-color: var(--ns-surface-3);
@@ -93,12 +93,25 @@
   --ns-btn-fg: var(--ns-color-primary-contrast);
   --ns-btn-border: var(--ns-blue-600);
 }
+/* Hover lifts the ink fill to a clearly lighter charcoal (the old hover went
+   a shade darker, which was invisible on near-black); press sinks it below
+   the resting ink. */
 .ns-btn--solid:hover:not(:disabled) {
-  --ns-btn-bg: var(--ns-blue-700);
-  --ns-btn-border: var(--ns-blue-700);
+  --ns-btn-bg: color-mix(in srgb, var(--ns-ink) 84%, white);
+  --ns-btn-border: color-mix(in srgb, var(--ns-ink) 84%, white);
 }
 .ns-btn--solid:active:not(:disabled) {
+  --ns-btn-bg: var(--ns-blue-700);
+  --ns-btn-border: var(--ns-blue-700);
   background-color: var(--ns-blue-700);
+}
+/* Disabled solid: a quiet recessed surface instead of the ink fill at 45%
+   opacity, which read as a heavy flat grey slab. */
+.ns-btn--solid:disabled {
+  --ns-btn-bg: var(--ns-surface-4);
+  --ns-btn-fg: var(--ns-text-faint);
+  --ns-btn-border: var(--ns-surface-4);
+  opacity: 1;
 }
 
 .ns-btn--outline {
@@ -106,10 +119,15 @@
   --ns-btn-fg: var(--ns-blue-600);
   --ns-btn-border: var(--ns-blue-500);
 }
+/* Hover fills with the warm surface used by nav/tile hovers and firms the
+   border up to full ink, so the state change is obvious. */
 .ns-btn--outline:hover:not(:disabled) {
-  --ns-btn-bg: var(--ns-blue-100);
-  --ns-btn-fg: var(--ns-blue-700);
-  --ns-btn-border: var(--ns-blue-500);
+  --ns-btn-bg: var(--ns-surface-3);
+  --ns-btn-fg: var(--ns-blue-600);
+  --ns-btn-border: var(--ns-blue-600);
+}
+.ns-btn--outline:active:not(:disabled) {
+  background-color: var(--ns-surface-4);
 }
 
 .ns-btn--ghost {

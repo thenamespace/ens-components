@@ -6,21 +6,49 @@
 
 .record-update-summary {
   container-type: inline-size;
-  max-width: 600px;
+  box-sizing: border-box;
+  max-width: var(--ns-frame-width);
   margin: 0 auto;
-  padding: var(--ns-space-8);
+  padding: var(--ns-space-14);
   background-color: var(--ns-surface);
   border: 1px solid var(--ns-border-strong);
   border-radius: var(--ns-radius);
+}
+
+/* Inside the records form the frame already draws the card — don't draw a
+   second one inside it. */
+.ens-records-form-container .record-update-summary {
+  max-width: none;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+/* Header rhythm matches the registration card: banner, 16px, title +
+   subtitle (4px apart), 20px, then the changes. */
+.record-update-summary__banner {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--ns-space-8);
+}
+
+.record-update-summary__header {
+  margin-bottom: var(--ns-space-10);
+}
+
+/* the change list sits on the card; only the accordions are boxed */
+.record-update-summary__changes > .record-summary-accordion:last-child {
+  margin-bottom: 0;
 }
 
 .record-update-summary .text-center {
   text-align: center;
 }
 
-/* the brand illustration survives, constrained (plan §8.5) */
+/* the brand illustration, sized like the registration banner */
 .record-update-summary img {
-  max-width: min(200px, 60%);
+  display: block;
+  max-width: min(250px, 70%);
   height: auto;
 }
 
@@ -180,12 +208,11 @@
 
 /* ---- actions (flows lines 124-127) ------------------------------------- */
 
+/* no rule above the actions; the 20px gap separates them */
 .record-update-summary-actions {
   display: flex;
   gap: var(--ns-space-4);
-  padding-top: var(--ns-space-4);
-  border-top: 1px solid var(--ns-rule);
-  margin-top: var(--ns-space-8);
+  margin-top: var(--ns-space-10);
 }
 
 .record-update-summary-actions button {
@@ -197,7 +224,7 @@
 
 @container (max-width: 480px) {
   .record-update-summary {
-    padding: var(--ns-space-6);
+    padding: var(--ns-space-10);
   }
 
   .record-summary-simple-badge,

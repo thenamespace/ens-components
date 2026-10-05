@@ -3,7 +3,7 @@
    (Namespace Flows.dc.html lines 45-127, script navBtn() 507-531, tile() 533-544).
 
    Square, hairline, shadowless. Record rows are table rows: a hairline
-   between them, --ns-surface-2 on hover, generous padding. Uppercase is
+   between them, no hover fill, generous padding. Uppercase is
    reserved for micro-labels (the .field-label pattern), never for buttons.
 
    Mobile is driven by CONTAINER queries: this form renders inside ~330px
@@ -14,11 +14,21 @@
 .ns-select-records-form {
   container-type: inline-size;
   width: 100%;
-  max-width: 600px;
+  max-width: var(--ns-frame-width);
   min-height: 400px;
   background: var(--ns-surface);
   border: 1px solid var(--ns-border-strong);
   border-radius: var(--ns-radius);
+}
+
+/* The library ships no global reset, so hosts without their own
+   `box-sizing: border-box` (Storybook, bare apps) let `width: 100%` + padding
+   push the nav items and tile grid past their columns. Scope one here. */
+.ns-select-records-form,
+.ns-select-records-form *,
+.ns-select-records-form *::before,
+.ns-select-records-form *::after {
+  box-sizing: border-box;
 }
 
 /* ---- shells ------------------------------------------------------------ */
@@ -90,9 +100,14 @@
 
 /* ---- nav column (flows lines 74-84, script navBtn 507-531) ------------- */
 
+/* A flush list: items run edge to edge and the container clips them, so only
+   the first item's top corners and the last item's bottom corners follow the
+   box's radius; everything in between stays square on hover / active. */
 .ns-records-content .ns-records-sidebar {
   display: flex;
   flex-direction: column;
+  padding: 0;
+  overflow: hidden;
   background: var(--ns-surface);
   border: 1px solid var(--ns-border);
   border-radius: var(--ns-radius);
@@ -103,21 +118,17 @@
   align-items: center;
   gap: var(--ns-space-3);
   width: 100%;
-  padding: var(--ns-space-7) var(--ns-space-8);
+  /* 14px sideways keeps the labels where the old 4px inset + 10px put them */
+  padding: var(--ns-space-5) var(--ns-space-7);
   text-align: left;
   background: transparent;
-  color: var(--ns-text-2);
+  color: var(--ns-text-3);
   border: none;
-  border-bottom: 1px solid var(--ns-rule);
-  border-radius: var(--ns-radius);
+  border-radius: 0;
   cursor: pointer;
   transition:
     background-color 0.15s linear,
     color 0.15s linear;
-}
-
-.ns-records-content .ns-records-sidebar .sidebar-item:last-child {
-  border-bottom: none;
 }
 
 .ns-records-content .ns-records-sidebar .sidebar-item .ns-text {
@@ -126,34 +137,52 @@
 }
 
 .ns-records-content .ns-records-sidebar .sidebar-item:hover {
-  background-color: var(--ns-surface-2);
-  border-radius: var(--ns-radius);
+  background-color: var(--ns-surface-3);
+  color: var(--ns-text);
 }
 
-/* active = solid blue, white ink */
+/* active = solid fill, white ink */
 .ns-records-content .ns-records-sidebar .sidebar-item.active,
 .ns-records-content .ns-records-sidebar .sidebar-item.active:hover {
   background-color: var(--ns-blue-600);
-  border-radius: var(--ns-radius);
+  color: var(--ns-surface);
 }
 
 .ns-records-content .ns-records-sidebar .sidebar-item.active .ns-text {
-  color: var(--ns-surface);
   font-weight: var(--ns-weight-medium);
 }
 
-.ns-records-content .ns-records-sidebar .sidebar-item.active .ns-icon {
-  stroke: var(--ns-surface);
-}
-
-/* nav icons sit quiet next to the label and take the row's ink */
 .ns-records-content .ns-records-sidebar .sidebar-item .ns-icon {
   flex: none;
-  stroke: var(--ns-text-faint);
 }
 
-.ns-records-content .ns-records-sidebar .sidebar-item:hover .ns-icon {
-  stroke: var(--ns-text-2);
+/* ---- one ink for icon + label ------------------------------------------
+   Nav items and suggestion tiles set a single `color` for their state (muted
+   by default, full ink on hover, white when active); the label and the icon
+   both take it, so they never drift apart. Icons arrive with a hard-coded
+   `color="grey"`, which each icon family applies differently: lucide as a
+   stroke attribute, the filled brand marks (X, Discord, GitHub, Telegram) as a
+   fill attribute, YouTube via currentColor. CSS beats presentation
+   attributes, so each is pointed back at currentColor here. Chain and
+   protocol logos keep their brand colours. */
+.ns-records-content .sidebar-item .ns-text,
+.ns-text-records .ns-text-suggestion .ns-text {
+  color: inherit;
+}
+
+.ns-records-content .sidebar-item .ns-icon,
+.ns-text-records .ns-text-suggestion .ns-icon {
+  color: inherit;
+}
+
+.ns-records-content .sidebar-item .ns-icon.lucide,
+.ns-text-records .ns-text-suggestion .ns-icon.lucide {
+  stroke: currentColor;
+}
+
+.ns-records-content .sidebar-item .ns-icon:not(.lucide)[fill]:not([fill="none"]),
+.ns-text-records .ns-text-suggestion .ns-icon:not(.lucide)[fill]:not([fill="none"]) {
+  fill: currentColor;
 }
 
 /* ---- empty state: search matched nothing (flows lines 117-120) --------- */
@@ -199,6 +228,22 @@
   padding-right: var(--ns-space-3);
 }
 
+/* Air between the records and the scrollbar. Needs the same weight as the
+   `> [class*="col-"]` reset above, which otherwise zeroes this padding and
+   lets the tiles run straight into the bar. The gutter is reserved so the
+   content doesn't shift sideways when the bar appears. */
+.ns-records-content-wrapper .ns-records-content > .ns-records-inner {
+  padding-right: var(--ns-space-6);
+  scrollbar-gutter: stable;
+}
+
+/* A section filtered out by search renders nothing, but its wrapper stays in
+   the flex column and still claims a 20px gap — stacked, those pushed the
+   first match halfway down the pane. Empty wrappers take no space. */
+.ns-records-content .ns-records-inner > div:empty {
+  display: none;
+}
+
 .ns-records-content .ns-records-inner > .ns-mb-2 {
   margin-bottom: 0;
 }
@@ -240,8 +285,10 @@
 
 /* ---- footer actions (flows lines 124-127) ------------------------------ */
 
+/* No rule above the actions; they share the editor's 16px side inset so the
+   buttons line up with the search field and records above them. */
 .ns-select-records-form .ns-select-records-actions {
-  border-top: 1px solid var(--ns-rule);
+  padding: 0 var(--ns-space-8) var(--ns-space-8);
 }
 
 .ns-select-records-form .ns-record-actions {
@@ -295,11 +342,6 @@
   padding: var(--ns-space-6) var(--ns-space-4);
   margin-bottom: 0 !important;
   border-bottom: 1px solid var(--ns-rule);
-  transition: background-color 0.15s linear;
-}
-
-.ns-text-records > div:not([class]):hover {
-  background-color: var(--ns-surface-2);
 }
 
 /* field label above each input (flows line 92) — uppercase micro-label */
@@ -335,12 +377,13 @@
   color: var(--ns-amber-700);
 }
 
-/* ---- remove button = 40px square icon button (flows lines 98-100) ------ */
+/* ---- remove button = field-height square icon button (flows lines 98-100) ------ */
 
 .ns-text-records .ns-close-icon,
 .ns-select-records-form .ns-close-icon {
-  width: var(--ns-control-lg);
-  height: var(--ns-control-lg);
+  /* same box as the fields beside it, so the row reads as one line */
+  width: var(--ns-control);
+  height: var(--ns-control);
   flex: none;
   display: grid;
   place-items: center;
@@ -354,6 +397,13 @@
     background-color 0.15s linear,
     border-color 0.15s linear,
     color 0.15s linear;
+}
+
+/* the glyph stays secondary to the field it removes */
+.ns-text-records .ns-close-icon .ns-icon,
+.ns-select-records-form .ns-close-icon .ns-icon {
+  width: 14px;
+  height: 14px;
 }
 
 .ns-text-records .ns-close-icon.ns-ms-1 {
@@ -379,8 +429,13 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--ns-space-4);
   margin: 0;
-  /* the heading below owns the gap above the tiles */
   padding-top: 0;
+}
+
+/* tiles that follow record rows need air between the last row's hairline and
+   the tile tops; right under the heading, the heading's margin already does it */
+.ns-text-records > div:not([class]) ~ .row {
+  margin-top: var(--ns-space-8);
 }
 
 .ns-text-records .row > [class*="col-"] {
@@ -408,6 +463,7 @@
      equal padding reads top-heavy. */
   padding: var(--ns-space-5) var(--ns-space-4) var(--ns-space-6);
   text-align: center;
+  color: var(--ns-text-3);
   background-color: var(--ns-surface);
   border: 1px solid var(--ns-border);
   border-radius: var(--ns-radius);
@@ -415,12 +471,14 @@
   cursor: pointer;
   transition:
     background-color 0.15s linear,
-    border-color 0.15s linear;
+    border-color 0.15s linear,
+    color 0.15s linear;
 }
 
 .ns-text-records .ns-text-suggestion:hover {
-  background-color: var(--ns-surface-2);
+  background-color: var(--ns-surface-3);
   border-color: var(--ns-border-strong);
+  color: var(--ns-text);
 }
 
 /* The body leading (1.55) leaves ~4.5px of half-leading under a single-line
@@ -430,13 +488,68 @@
   font-size: calc(var(--ns-size-micro) - 1px);
   font-weight: var(--ns-weight-medium);
   line-height: 1.2;
-  color: var(--ns-text-2);
 }
 
 /* spacing inside a tile comes from the flex `gap` alone; this utility margin
    used to stack on top of it and double the icon-to-label distance */
 .ns-text-records .ns-text-suggestion .ns-text.ns-mt-1 {
   margin-top: 0;
+}
+
+/* ---- custom key/value records ------------------------------------------
+   Rows reuse the record-row contract above; the line holds two equal fields
+   plus the remove button. */
+
+/* custom pairs stack as one list: no hairline between them, and tighter
+   vertical padding since the divider no longer separates them */
+.ns-custom-records > div:not([class]) {
+  padding-top: var(--ns-space-2);
+  padding-bottom: var(--ns-space-2);
+  border-bottom: none;
+}
+
+.ns-custom-records__line > .ns-input__wrapper {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* full-width dashed "add" row — reads as a slot waiting to be filled */
+.ns-custom-records__add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ns-space-3);
+  width: 100%;
+  height: var(--ns-control-lg);
+  margin-top: var(--ns-space-6);
+  padding: 0 var(--ns-space-8);
+  font-family: var(--ns-font-family);
+  font-size: var(--ns-size-meta);
+  font-weight: var(--ns-weight-medium);
+  color: var(--ns-text-2);
+  background: transparent;
+  border: 1px dashed var(--ns-border-strong);
+  border-radius: var(--ns-radius);
+  cursor: pointer;
+  transition:
+    background-color 0.15s linear,
+    border-color 0.15s linear,
+    color 0.15s linear;
+}
+
+.ns-custom-records__add .ns-icon {
+  stroke: currentColor;
+}
+
+.ns-custom-records__add:hover {
+  background-color: var(--ns-surface-2);
+  border-color: var(--ns-text-faint);
+  color: var(--ns-text);
+}
+
+.ns-custom-records__add:focus-visible {
+  outline: 2px solid var(--ns-blue-500);
+  outline-offset: 2px;
 }
 
 /* =========================================================================
@@ -456,18 +569,14 @@
   .ns-records-content .ns-records-sidebar {
     flex-direction: row;
     overflow-x: auto;
-    scrollbar-width: thin;
+    overflow-y: hidden;
+    scrollbar-width: none;
   }
 
   .ns-records-content .ns-records-sidebar .sidebar-item {
     flex: none;
+    width: auto;
     white-space: nowrap;
-    border-bottom: none;
-    border-right: 1px solid var(--ns-rule);
-  }
-
-  .ns-records-content .ns-records-sidebar .sidebar-item:last-child {
-    border-right: none;
   }
 }
 
@@ -504,18 +613,14 @@
   .ns-records-content .ns-records-sidebar {
     flex-direction: row;
     overflow-x: auto;
-    scrollbar-width: thin;
+    overflow-y: hidden;
+    scrollbar-width: none;
   }
 
   .ns-records-content .ns-records-sidebar .sidebar-item {
     flex: none;
+    width: auto;
     white-space: nowrap;
-    border-bottom: none;
-    border-right: 1px solid var(--ns-rule);
-  }
-
-  .ns-records-content .ns-records-sidebar .sidebar-item:last-child {
-    border-right: none;
   }
 }
 

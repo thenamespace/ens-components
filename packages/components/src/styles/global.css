@@ -112,16 +112,31 @@
   color: var(--ns-color-fg);
 }
 
-/* Thin, square scrollbars (design `.scroll-thin`) */
+/* Thin scrollbars (design `.scroll-thin`): no painted track, just a rounded
+   thumb, so the bar reads as a light indicator rather than a grey rail glued
+   to the content. */
+.ns-styled-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ns-text-faintest) transparent;
+}
+
 .ns-styled-scrollbar::-webkit-scrollbar {
   -webkit-appearance: none;
   width: 6px;
-  background-color: var(--ns-surface-3);
+  background-color: transparent;
+}
+
+.ns-styled-scrollbar::-webkit-scrollbar-track {
+  background-color: transparent;
 }
 
 .ns-styled-scrollbar::-webkit-scrollbar-thumb {
   background-color: var(--ns-text-faintest);
-  border-radius: 0;
+  border-radius: 999px;
+}
+
+.ns-styled-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ns-text-faint);
 }
 
 /* =========================================================================

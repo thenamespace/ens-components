@@ -20,7 +20,9 @@
   background-color: var(--ns-surface-4);
   background-size: cover;
   background-position: center;
-  border-radius: var(--ns-radius);
+  /* only the top corners follow the form frame (its radius minus the 1px
+     border); the bottom edge meets the form body square */
+  border-radius: calc(var(--ns-radius) - 1px) calc(var(--ns-radius) - 1px) 0 0;
   border-bottom: 1px solid var(--ns-border);
   overflow: visible;
 }
@@ -256,4 +258,11 @@ button.ns-image-action-plus {
   height: 100%;
   display: grid;
   place-items: center;
+}
+
+/* the upload glyphs on the header / avatar slots draw lighter than lucide's
+   default 2px stroke, so they read as a quiet affordance */
+.ns-header-record-placeholder .ns-icon,
+.ns-avatar-record-placeholder .ns-icon {
+  stroke-width: 1.5;
 }

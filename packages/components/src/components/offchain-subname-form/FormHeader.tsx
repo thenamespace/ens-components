@@ -13,8 +13,8 @@ export const FormHeader = ({ isUpdateMode, label, parentName, showFullName, titl
   const defaultTitle = isUpdateMode ? "Update subname" : "Create subname";
 
   return (
-    <div className="ns-text-center mb-3">
-      <Text size="lg" weight="bold" className="mb-1">
+    <div className="ns-form-header">
+      <Text size="xl" weight="bold">
         {title ?? defaultTitle}
       </Text>
       {showFullName && (
@@ -23,7 +23,7 @@ export const FormHeader = ({ isUpdateMode, label, parentName, showFullName, titl
         </Text>
       )}
       {subtitle && (
-        <Text size="sm" color="grey" className="mt-1">
+        <Text size="sm" color="grey">
           {subtitle}
         </Text>
       )}

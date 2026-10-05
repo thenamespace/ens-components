@@ -1,12 +1,11 @@
 import React, { useRef, useState } from "react";
 import "./DurationPicker.css";
-import { Button, Text } from "@/components/atoms";
+import { Button } from "@/components/atoms";
 import {
   MIN_REGISTRATION_SECONDS,
   secondsFromYears,
   secondsToDateInput,
   roundDurationWithDay,
-  formatDurationSummary,
   yearsFromSeconds,
 } from "@/utils/date";
 
@@ -124,9 +123,6 @@ export const DurationPicker: React.FC<DurationPickerProps> = ({
         </div>
       )}
       <div className="ns-duration-picker__footer">
-        <Text size="xs" color="grey">
-          {formatDurationSummary(durationSeconds)} registration.&nbsp;
-        </Text>
         <button
           type="button"
           className="ns-duration-picker__toggle"

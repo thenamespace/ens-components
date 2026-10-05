@@ -5,15 +5,26 @@
    Square, hairline, shadowless.
    ========================================================================= */
 
+/* The fee rows sit directly on the card — no inner box — in every flow, so
+   registration and subname mint read the same. */
 .ens-registration-pricing {
-  border-radius: var(--ns-radius);
-  background-color: var(--ns-surface);
-  border: 1px solid var(--ns-border);
-  padding: var(--ns-space-10);
+  background-color: transparent;
+  border: none;
+  padding: 0;
+}
+
+/* Layout lives here, not in host utility classes: Bootstrap's `mt-*` /
+   `align-items-*` are `!important` and used to override this rhythm on hosts
+   that load it. Picker → fees is a group break; fee rows pair tightly. */
+.ens-registration-pricing .ens-expiry-picker {
+  margin-bottom: var(--ns-space-8);
 }
 
 /* ---- fee rows ---------------------------------------------------------- */
 .ens-registration-pricing .pricing-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
   gap: var(--ns-space-6);
   /* let a long label/value pair wrap rather than overflow at ~330px */
   flex-wrap: wrap;
@@ -34,12 +45,21 @@
 }
 
 /* ---- total ------------------------------------------------------------- */
+.ens-registration-pricing .pricing-row + .pricing-row {
+  margin-top: var(--ns-space-3);
+}
+
+/* "Total" sits on the amount's baseline, not centred between the ETH and
+   the USD lines */
 .ens-registration-pricing .total-fee {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: var(--ns-space-6);
   border-top: 1px solid var(--ns-rule);
   padding-top: var(--ns-space-6);
   gap: var(--ns-space-6);
   flex-wrap: wrap;
-  align-items: flex-start;
 }
 
 .ens-registration-pricing .pricing-total-label {
@@ -51,7 +71,7 @@
 .ens-registration-pricing .pricing-total-values {
   display: flex;
   flex-direction: column;
-  gap: var(--ns-space-1);
+  gap: var(--ns-space-2);
   margin-left: auto;
   min-width: 0;
 }
@@ -66,13 +86,10 @@
 
 .ens-registration-pricing .pricing-total-usd {
   font-family: var(--ns-font-mono);
-  font-size: var(--ns-size-micro);
-  color: var(--ns-text-faint);
+  /* same size as the fee values, so the fiat figure is readable at a glance */
+  font-size: var(--ns-size-meta);
+  color: var(--ns-text-3);
   line-height: var(--ns-leading-tight);
 }
 
-@media (max-width: 600px) {
-  .ens-registration-pricing {
-    padding: var(--ns-space-8);
-  }
-}
+

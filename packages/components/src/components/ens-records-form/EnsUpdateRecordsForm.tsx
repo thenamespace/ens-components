@@ -166,7 +166,7 @@ export const EnsUpdateRecordsForm = ({
           onRecordsUpdated={records => setRecordsTemplate(records)}
           avatarUpload={avatarUpload}
           actionButtons={
-            <div style={{ padding: 10, paddingTop: 0 }}>
+            <div>
               {validationError && (
                 <div style={{marginTop: -12}}>
                   <Alert variant="error">{validationError}</Alert>

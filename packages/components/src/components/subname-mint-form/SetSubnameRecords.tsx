@@ -49,7 +49,7 @@ export const SetSubnameRecords: React.FC<SetSubnameRecordsProps> = ({
       onRecordsUpdated={onRecordsChange}
       avatarUpload={avatarUpload}
       actionButtons={
-        <div style={{ padding: 15, paddingTop: 0 }}>
+        <div>
           {error && <Alert variant="error">{error}</Alert>}
           <div className="d-flex" style={{ gap: "8px", width: "100%" }}>
             <Button
