@@ -1,5 +1,5 @@
 import { EnsRecords } from "@/types";
-import { Address } from "viem";
+import { Address, Hash } from "viem";
 
 export enum ProcessSteps {
   Start = 0,
@@ -24,3 +24,10 @@ export interface RegistrationState {
   referrer?: Address;
   isLoading?: boolean;
 }
+
+export type CommitmentSender = (state: RegistrationState) => Promise<Hash>;
+
+export type RegistrationSender = (
+  state: RegistrationState,
+  onSent: (hash: Hash) => void,
+) => Promise<{ txHash: Hash; price: string; extraFeeWei?: bigint }>;

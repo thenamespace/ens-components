@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Button, Text, Icon } from "../../atoms";
-import { ProcessSteps, RegistrationState } from "./types";
+import { ProcessSteps, RegistrationSender, RegistrationState } from "./types";
 import {
   RegistrationRequest,
   useRegisterENS,
@@ -34,6 +34,7 @@ interface RegistrationStepProps {
   isTestnet: boolean;
   onStateUpdated: (state: RegistrationState) => void;
   onSuccess?: (data: RegistrationSuccessData) => void;
+  sendRegistration?: RegistrationSender;
 }
 
 export const RegistrationStep: React.FC<RegistrationStepProps> = ({
@@ -41,6 +42,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
   isTestnet,
   onStateUpdated,
   onSuccess,
+  sendRegistration,
 }) => {
   const [btnState, setBtnState] = useState({ waitingWallet: false, waitingTx: false });
   const { address } = useAccount();
@@ -54,6 +56,8 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
     setError(null);
     let tx: Hash | null = null;
     let registrationPrice = 0;
+    let registrationCost = "";
+    let extraFeeWei = 0n;
 
     try {
       setBtnState({ waitingWallet: true, waitingTx: false });
@@ -67,9 +71,19 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
         referrer: state.referrer,
       };
 
-      const regData = await sendRegisterTx(request);
-      tx = regData.txHash;
-      registrationPrice = formatFloat(regData.price.eth, 5);
+      if (sendRegistration) {
+        const sent = await sendRegistration(state, (hash) =>
+          setCommitTxStatus({ sent: true, completed: false, hash }),
+        );
+        tx = sent.txHash;
+        registrationCost = sent.price;
+        extraFeeWei = sent.extraFeeWei ?? 0n;
+      } else {
+        const regData = await sendRegisterTx(request);
+        tx = regData.txHash;
+        registrationPrice = formatFloat(regData.price.eth, 5);
+        registrationCost = registrationPrice.toString();
+      }
       setCommitTxStatus({ sent: true, completed: false, hash: tx });
 
       onStateUpdated({
@@ -101,7 +115,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
 
       const registerFeeWei = receipt.gasUsed * (receipt.effectiveGasPrice || 0n);
       const commitFeeWei = state.commitment?.feeWei ?? 0n;
-      const totalFeeWei = registerFeeWei + commitFeeWei;
+      const totalFeeWei = registerFeeWei + commitFeeWei + extraFeeWei;
       const transactionFeesEth = formatEther(totalFeeWei);
       const totalCost = (registrationPrice + parseFloat(transactionFeesEth)).toString();
 
@@ -121,7 +135,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
         setCommitTxStatus({ sent: false, completed: false, hash: "" });
         onSuccess?.({
           durationLabel: formatDurationSummary(state.durationInSeconds),
-          registrationCost: registrationPrice.toString(),
+          registrationCost,
           transactionFees: transactionFeesEth,
           total: totalCost,
           expiryDate: formattedExpiryDate,

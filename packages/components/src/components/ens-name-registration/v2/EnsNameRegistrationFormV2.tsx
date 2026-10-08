@@ -10,7 +10,9 @@ import { RegistrationSummary } from "../RegistrationSummary";
 import { SetNameRecords } from "../SetNameRecords";
 import { SuccessScreen } from "../registration";
 import type { EnsNameRegistrationFormProps } from "../ENSNameRegistrationForm";
-import { RegistrationProcessV2 } from "./RegistrationProcessV2";
+import { RegistrationProcess } from "../RegistrationProcess";
+import { ProcessSteps, type RegistrationState } from "../registration";
+import { useEnsV2RegistrationSenders } from "./useEnsV2RegistrationSenders";
 import {
   buildEnsV2RegisterCalls,
   ENSV2_MIN_REGISTRATION_SECONDS,
@@ -20,8 +22,10 @@ import {
   getEnsV2RegistrationDeployment,
   getEnsV2RegistrationPrice,
   getNameResolver,
+  findResumableEnsV2Commitment,
   isEnsV2NameAvailable,
   makeEnsV2Commitment,
+  randomSecret,
 } from "./ensv2-register";
 import "../ENSNamesRegistrarComponent.css";
 
@@ -220,6 +224,32 @@ const EnsNameRegistrationFormV2Content = ({
     </>
   );
 
+  const senders = useEnsV2RegistrationSenders(deployment, token, ensRecords);
+  const [processState, setProcessState] = useState<Partial<RegistrationState> | null>(null);
+
+  const startProcess = async () => {
+    const resumed =
+      publicClient && address
+        ? await findResumableEnsV2Commitment(
+            publicClient,
+            deployment,
+            address as Address,
+            label,
+            durationSeconds,
+          ).catch(() => null)
+        : null;
+    setProcessState(
+      resumed
+        ? {
+            secret: resumed.secret,
+            step: resumed.ready ? ProcessSteps.TimerCompleted : ProcessSteps.TimerStarted,
+            commitment: { completed: true, time: Date.now() },
+          }
+        : { secret: randomSecret() },
+    );
+    setStep(Step.Progress);
+  };
+
   const reset = () => {
     setLabel("");
     setDurationSeconds(secondsFromYears(new Date(), 1));
@@ -271,7 +301,7 @@ const EnsNameRegistrationFormV2Content = ({
           onPriceChange={() => {}}
           onNameValidationChange={setNameValidation}
           onSetProfile={() => setShowProfile(true)}
-          onStart={() => setStep(Step.Progress)}
+          onStart={startProcess}
           onConnectWallet={props.onConnectWallet}
           checkAvailability={(l) =>
             publicClient
@@ -282,25 +312,26 @@ const EnsNameRegistrationFormV2Content = ({
           startDisabled={price === undefined || insufficient}
         />
       )}
-      {step === Step.Progress && (
-        <RegistrationProcessV2
-          deployment={deployment}
+      {step === Step.Progress && processState && (
+        <RegistrationProcess
+          isTestnet={props.isTestnet || false}
           label={label}
-          durationSeconds={durationSeconds}
-          token={token}
+          durationInSeconds={durationSeconds}
           records={ensRecords}
-          onBack={() => setStep(Step.Summary)}
+          initialState={processState}
+          sendCommitment={senders.sendCommitment}
+          sendRegistration={senders.sendRegistration}
+          onBack={(clearState?: boolean) => {
+            if (clearState) reset();
+            setStep(Step.Summary);
+          }}
           onStart={props.onRegistrationStart}
-          onSuccess={(result) => {
-            const expiry = new Date(Date.now() + durationSeconds * 1000).toLocaleDateString();
-            const data = {
-              durationLabel: durationLabel(durationSeconds),
-              registrationCost: formatTokenAmount(result.price, token.decimals, token.symbol),
-              transactionFees: result.transactionFees,
-              total: result.transactionFees,
-              expiryDate: expiry,
-            };
-            setSuccess({ price: data.registrationCost, transactionFees: data.transactionFees, expiryDate: expiry });
+          onSuccess={(data) => {
+            setSuccess({
+              price: data.registrationCost,
+              transactionFees: data.transactionFees,
+              expiryDate: data.expiryDate,
+            });
             props.onRegistrationSuccess?.(data);
             setStep(Step.Success);
           }}

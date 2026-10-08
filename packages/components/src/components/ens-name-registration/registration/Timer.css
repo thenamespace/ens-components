@@ -30,11 +30,11 @@
 
 /* track — overrides the inline presentation attribute */
 .ens-names-register-timer-svg circle {
-  stroke: var(--ns-surface-3);
+  stroke: var(--ns-border-strong);
 }
 
-.ens-names-register-timer-progress {
-  stroke: var(--ns-blue-600);
+.ens-names-register-timer-svg .ens-names-register-timer-progress {
+  stroke: var(--ns-name-ink);
   stroke-linecap: butt;
   transition: stroke-dashoffset 0.5s linear;
 }

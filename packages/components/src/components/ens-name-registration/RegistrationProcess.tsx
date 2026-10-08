@@ -13,6 +13,8 @@ import {
   CommitmentStep,
   TimerStep,
   RegistrationStep,
+  type CommitmentSender,
+  type RegistrationSender,
 } from "./registration";
 import { generateEnsRegistrationSecret } from "./ensRegistrationUtils";
 import { Address } from "viem";
@@ -34,6 +36,9 @@ interface RegistrationProcessProps {
   onSuccess?: (data: RegistrationSuccessData) => void;
   onStart?: (hash: string) => void;
   referrer?: Address;
+  sendCommitment?: CommitmentSender;
+  sendRegistration?: RegistrationSender;
+  initialState?: Partial<RegistrationState>;
 }
 
 const getBlankRegistrationState = (
@@ -64,6 +69,9 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
   onSuccess,
   onStart,
   referrer,
+  sendCommitment,
+  sendRegistration,
+  initialState,
 }) => {
   const { chain } = useAccount();
   const { switchChain } = useSwitchChain();
@@ -73,7 +81,10 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
   const shouldSwitchNetwork = chain && !isOnCorrectNetwork;
 
   const [registrationState, setRegistrationState] = useState<RegistrationState>(
-    () => getBlankRegistrationState(label, durationInSeconds, records, isTestnet, referrer)
+    () => ({
+      ...getBlankRegistrationState(label, durationInSeconds, records, isTestnet, referrer),
+      ...initialState,
+    })
   );
   const [showConfirmClose, setShowConfirmClose] = useState(false);
 
@@ -145,6 +156,7 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
             <CommitmentStep
               state={registrationState}
               isTestnet={isTestnet}
+              sendCommitment={sendCommitment}
               onStateUpdated={(state) => {
                 if (state.step === ProcessSteps.CommitmentSent) {
                   onStart?.(`${state.label}.eth`);
@@ -162,6 +174,7 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
               isTestnet={isTestnet}
               onStateUpdated={setRegistrationState}
               onSuccess={onSuccess}
+              sendRegistration={sendRegistration}
             />
           </div>
         </>

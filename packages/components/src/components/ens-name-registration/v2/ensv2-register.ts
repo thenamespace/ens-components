@@ -364,3 +364,54 @@ export const estimateEnsV2RegistrationFees = async (
     shortfallToken: tokenBalance >= params.price ? 0n : params.price - tokenBalance,
   };
 };
+
+const MAX_COMMITMENT_AGE_SECONDS = 86_400;
+
+type SavedCommitment = { secret: Hex; durationSeconds: number };
+
+const commitmentKey = (chainId: number, owner: Address, label: string) =>
+  `ns-ensv2-commitment:${chainId}:${owner.toLowerCase()}:${label}`;
+
+export const saveEnsV2Commitment = (
+  chainId: number,
+  owner: Address,
+  label: string,
+  value: SavedCommitment | null,
+) => {
+  try {
+    const key = commitmentKey(chainId, owner, label);
+    if (value) localStorage.setItem(key, JSON.stringify(value));
+    else localStorage.removeItem(key);
+  } catch {}
+};
+
+export const findResumableEnsV2Commitment = async (
+  client: PublicClient,
+  deployment: EnsV2RegistrationDeployment,
+  owner: Address,
+  label: string,
+  durationSeconds: number,
+): Promise<{ secret: Hex; ready: boolean } | null> => {
+  let saved: SavedCommitment | null = null;
+  try {
+    const raw = localStorage.getItem(commitmentKey(deployment.chainId, owner, label));
+    saved = raw ? (JSON.parse(raw) as SavedCommitment) : null;
+  } catch {}
+  if (!saved || saved.durationSeconds !== durationSeconds) return null;
+
+  const resolver = await getNameResolver(client, deployment, owner, label);
+  const commitment = makeEnsV2Commitment({
+    label,
+    owner,
+    secret: saved.secret,
+    resolver: resolver.address,
+    duration: BigInt(durationSeconds),
+  });
+  const readyAt = await getEnsV2CommitmentReadyAt(client, deployment, commitment);
+  const now = Math.floor(Date.now() / 1000);
+  if (readyAt === null || now > readyAt + MAX_COMMITMENT_AGE_SECONDS - 60) {
+    saveEnsV2Commitment(deployment.chainId, owner, label, null);
+    return null;
+  }
+  return { secret: saved.secret, ready: now >= readyAt };
+};
