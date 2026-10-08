@@ -26,6 +26,7 @@ import { ProfileSelector } from "./ProfileSelector";
 import { MintFormActions } from "./MintFormActions";
 import { MintSuccess } from "./MintSuccess";
 import { TransactionPendingScreen } from "../ens-name-registration/registration/TransactionPendingScreen";
+import { SubnameMintFormV2 } from "./v2/SubnameMintFormV2";
 
 enum MintDeniedError {
   MinterNotTakenOwner = "MINTER_NOT_TOKEN_OWNER",
@@ -46,6 +47,8 @@ export interface MintSuccessData {
   parentName: string;
   txHash: string;
   price: string;
+  /** Symbol `price` is in. Defaults to ETH. */
+  priceCurrency?: string;
   transactionFees: string;
   records: EnsRecords;
 }
@@ -75,11 +78,16 @@ interface SubnameMintFormProps {
   onSubnameMinted?: (data: SubnameMintedData) => void;
   txConfirmations?: number;
   onConnectWallet?: () => void;
+  /** 1 (default): Namespace ENSv1 listings. 2: ENSv2 activations, paid in ETH or USDC. */
+  version?: 1 | 2;
 }
 
 const MIN_ENS_LEN = 1;
 
-export const SubnameMintForm = ({
+export const SubnameMintForm = ({ version = 1, ...props }: SubnameMintFormProps) =>
+  version === 2 ? <SubnameMintFormV2 {...props} /> : <SubnameMintFormV1 {...props} />;
+
+const SubnameMintFormV1 = ({
   parentName,
   label,
   isTestnet,

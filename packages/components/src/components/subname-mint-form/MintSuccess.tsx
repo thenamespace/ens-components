@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import Confetti from "react-confetti";
-import { Button, Text } from "../atoms";
+import { Button, Identicon, Text } from "../atoms";
 import { MintSuccessData } from "./SubnameMintForm";
 import {
   getEnsAppUrl,
   getBlockExplorerTransactionUrl,
   getBlockExplorerName,
 } from "@/utils";
-import finishImage from "../../assets/finish.png";
 import "../ens-name-registration/registration/SuccessScreen.css";
 
 export interface MintSuccessProps {
@@ -65,6 +64,7 @@ export const MintSuccess: React.FC<MintSuccessProps> = ({
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
+  const currency = data.priceCurrency ?? "ETH";
   const priceNum = parseFloat(data.price);
   const feesNum = parseFloat(data.transactionFees);
   const isFree = priceNum === 0;
@@ -100,95 +100,95 @@ export const MintSuccess: React.FC<MintSuccessProps> = ({
         className="ens-registration-success-card"
         style={{ position: "relative", zIndex: 1 }}
       >
-        <div className="ens-registration-success-illustration">
-          <img src={finishImage} alt="Success Illustration" />
-        </div>
+        <div className="ens-registration-success-band">MINTED</div>
 
-        <div className="ens-registration-success-title-section">
-          <Text size="sm" color="grey" className="mb-2">
-            Hooray! You've minted
-          </Text>
-          <Text size="lg" weight="bold">
-            {data.fullName}
-          </Text>
-        </div>
+        <div className="ens-registration-success-body">
+          <div className="ens-registration-success-title-section">
+            <Identicon seed={data.fullName} size={44} />
+            <span className="ens-registration-success-name">{data.fullName}</span>
+          </div>
 
-        <div className="ens-registration-success-summary">
-          <div className="ens-registration-success-summary-row">
-            <Text size="sm" color="grey">
-              Mint price
-            </Text>
-            <Text size="sm" color="grey">
-              {isFree ? "Free" : `${formatEthValue(data.price)} ETH`}
-            </Text>
-          </div>
-          <div className="ens-registration-success-summary-row">
-            <Text size="sm" color="grey">
-              Transaction fees
-            </Text>
-            <Text size="sm" color="grey">
-              {formatTxFees(data.transactionFees)} ETH
-            </Text>
-          </div>
-          <div className="ens-registration-success-summary-row ens-registration-success-total">
-            <Text size="lg" weight="bold">
-              Total
-            </Text>
-            <div className="ens-registration-success-total-amount">
-              <Text size="lg" weight="bold">
-                {isFree && feesNum === 0
+          <div className="ens-registration-success-summary">
+            <div className="ens-registration-success-summary-row">
+              <Text size="sm" color="grey">
+                Mint price
+              </Text>
+              <Text size="sm" color="grey">
+                {isFree
                   ? "Free"
-                  : `${formatTotal()} ETH`}
+                  : currency === "ETH"
+                    ? `${formatEthValue(data.price)} ETH`
+                    : `${data.price} ${currency}`}
               </Text>
             </div>
+            {feesNum > 0 && (
+              <div className="ens-registration-success-summary-row">
+                <Text size="sm" color="grey">
+                  Transaction fees
+                </Text>
+                <Text size="sm" color="grey">
+                  {formatTxFees(data.transactionFees)} ETH
+                </Text>
+              </div>
+            )}
+            {currency === "ETH" && (
+              <div className="ens-registration-success-summary-row ens-registration-success-total">
+                <Text size="lg" weight="bold">
+                  Total
+                </Text>
+                <div className="ens-registration-success-total-amount">
+                  <Text size="lg" weight="bold">
+                    {isFree && feesNum === 0 ? "Free" : `${formatTotal()} ETH`}
+                  </Text>
+                </div>
+              </div>
+            )}
+            <div className="ens-registration-success-summary-row">
+              <a
+                href={getBlockExplorerTransactionUrl(chainId, data.txHash)}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: "none" }}
+              >
+                <Text size="xs" color="grey">
+                  View on {getBlockExplorerName(chainId)} ↗
+                </Text>
+              </a>
+            </div>
           </div>
-          <div className="ens-registration-success-summary-row">
-            <a
-              href={getBlockExplorerTransactionUrl(chainId, data.txHash)}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ textDecoration: "none" }}
+
+          <div className="ens-registration-success-actions">
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (onViewName) {
+                  onViewName();
+                } else {
+                  window.open(
+                    getEnsAppUrl(data.fullName, isTestnet),
+                    "_blank",
+                    "noopener,noreferrer"
+                  );
+                }
+              }}
+              className="ens-registration-success-view-name-btn"
             >
-              <Text size="xs" color="grey">
-                View on {getBlockExplorerName(chainId)} ↗
-              </Text>
-            </a>
-          </div>
-        </div>
-
-        <div className="ens-update-records-form-actions">
-          <Button
-            variant="outline"
-            size="md"
-            onClick={() => {
-              if (onViewName) {
-                onViewName();
-              } else {
-                window.open(
-                  getEnsAppUrl(data.fullName, isTestnet),
-                  "_blank",
-                  "noopener,noreferrer"
-                );
-              }
-            }}
-          >
-            View Name
-          </Button>
-          {onMintAnother && (
-            <Button variant="outline" size="md" onClick={onMintAnother}>
-              Mint Another
+              View Name
             </Button>
-          )}
+            {onMintAnother && (
+              <Button
+                variant="outline"
+                onClick={onMintAnother}
+                className="ens-registration-success-register-another-btn"
+              >
+                Mint Another
+              </Button>
+            )}
+          </div>
+          <Button onClick={() => onClose?.()} size="lg" className="ns-wd-100 mt-2">
+            Great!
+          </Button>
         </div>
-
-        <Button
-          variant="solid"
-          size="lg"
-          onClick={() => onClose?.()}
-          className="ns-wd-100 mt-2"
-        >
-          Great!
-        </Button>
       </div>
     </div>
   );

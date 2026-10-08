@@ -28,6 +28,12 @@ export interface PricingDisplayProps {
     minSeconds?: number;
   };
   ethUsdRate?: number | null;
+  /** Symbol the price and total are shown in. Defaults to ETH. */
+  currency?: string;
+  /** USD value of the total when it isn't priced in ETH (e.g. a USDC quote). */
+  totalUsd?: string;
+  /** Rendered above the price rows, e.g. a payment token selector. */
+  paymentTokenPicker?: React.ReactNode;
   className?: string;
 }
 
@@ -37,14 +43,20 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
   total,
   expiryPicker,
   ethUsdRate,
+  currency = "ETH",
+  totalUsd: totalUsdOverride,
+  paymentTokenPicker,
   className = "",
 }) => {
   const totalLoading = total.isChecking || primaryFee.isChecking || networkFees?.isChecking;
 
-  const totalUsd = React.useMemo(
+  const ethTotalUsd = React.useMemo(
     () => computeUsd(total.amount, total.weiAmount, ethUsdRate, !!totalLoading),
     [ethUsdRate, total.amount, total.weiAmount, totalLoading]
   );
+  const totalUsd = totalLoading
+    ? null
+    : (totalUsdOverride ?? (currency === "ETH" ? ethTotalUsd : null));
 
   return (
     <div className={`ens-registration-pricing ${className}`}>
@@ -57,6 +69,7 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
           />
         </div>
       )}
+      {paymentTokenPicker && <div className="mb-2">{paymentTokenPicker}</div>}
       <div className="d-flex justify-content-between align-items-center mb-1 pricing-row">
         <Text size="sm" color="grey" className="pricing-label">
           {primaryFee.label}
@@ -67,7 +80,7 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
           ) : isSentinel(primaryFee.amount) ? (
             primaryFee.amount
           ) : (
-            `${primaryFee.amount} ETH`
+            `${primaryFee.amount} ${currency}`
           )}
         </Text>
       </div>
@@ -98,7 +111,7 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
             ) : isSentinel(total.amount) ? (
               total.amount
             ) : (
-              `${total.amount} ETH`
+              `${total.amount} ${currency}`
             )}
           </Text>
           <Text size="xs" color="grey" className="pricing-total-usd">

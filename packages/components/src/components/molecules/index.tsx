@@ -10,3 +10,4 @@ export * from "./connect-and-set-chain/ConnectAndSetChain";
 export * from "./progress-bar/ProgressBar";
 export * from "./pricing-display/PricingDisplay";
 export * from "./duration-picker/DurationPicker";
+export * from "./token-select/TokenSelect";
