@@ -29,6 +29,7 @@ export interface EnsRecordsFormProps {
   onGreat?: () => void
   onTransactionSent?: (hash: Hash) => void
   txConfirmations?: number
+  version?: 1 | 2
 }
 
 export const EnsRecordsForm = ({
@@ -44,7 +45,8 @@ export const EnsRecordsForm = ({
   onGreat,
   onRecordsUpdated,
   onTransactionSent,
-  txConfirmations
+  txConfirmations,
+  version = 1,
 }: EnsRecordsFormProps) => {
   const mainnetChainId = isTestnet ? sepolia.id : mainnet.id;
   const resolverChain = resolverChainId ? resolverChainId : mainnetChainId;
@@ -56,6 +58,7 @@ export const EnsRecordsForm = ({
   const { isResolverSupported, getResolverAddress, setUpdateRecordsTx } = useENSResolver({
     resolverChainId: resolverChain,
     isTestnet,
+    version,
   });
   const [resolverState, setResolverState] = useState<{
     address?: Address;

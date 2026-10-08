@@ -1,6 +1,6 @@
 {
   "name": "@thenamespace/ens-components",
-  "version": "2.2.0",
+  "version": "2.3.0-alpha.0",
   "description": "",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -73,7 +73,7 @@
     "rollup-plugin-esbuild": "^6.2.1",
     "rollup-plugin-postcss": "^4.0.2",
     "typescript": "^5.9.2",
-    "viem": "^2.46.3",
+    "viem": "2.56.0",
     "wagmi": "^2.19.5"
   },
   "dependencies": {

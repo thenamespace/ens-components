@@ -8,3 +8,5 @@ export * from "./blockExplorer";
 export * from "./async";
 export * from "./date";
 export * from "./pricing";
+export * from "./resolver-records";
+export * from "./send-calls";

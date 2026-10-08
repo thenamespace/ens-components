@@ -7,7 +7,7 @@ import { getBlockExplorerTransactionUrl, getBlockExplorerName } from "@/utils";
 
 interface TransactionPendingScreenProps {
   message?: string;
-  hash: Hash;
+  hash?: Hash;
   isCompleted: boolean;
   isTestnet?: boolean;
   chainId?: number;
@@ -51,6 +51,7 @@ export const TransactionPendingScreen: React.FC<TransactionPendingScreenProps> =
         {message || "Your transaction has been sent!"}
       </Text>
       <ProgressBar progress={progressStep} />
+      {hash && (
       <a
         href={getBlockExplorerTransactionUrl(effectiveChainId, hash)}
         target="_blank"
@@ -74,6 +75,7 @@ export const TransactionPendingScreen: React.FC<TransactionPendingScreenProps> =
         <Icon name="globe" size={13} />
         View on {getBlockExplorerName(effectiveChainId)}
       </a>
+      )}
     </div>
   );
 };

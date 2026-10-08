@@ -11,6 +11,7 @@ interface SuccessScreenProps {
   transactionFees: string; // ETH value as string
   total: string; // ETH value as string
   expiryDate: string;
+  currency?: string;
   isTestnet?: boolean;
   onGreat?: () => void;
   onRegisterAnother: () => void;
@@ -24,6 +25,7 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
   transactionFees,
   total,
   expiryDate,
+  currency = "ETH",
   isTestnet = false,
   onGreat,
   onRegisterAnother,
@@ -84,7 +86,9 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
             <div className="ens-registration-success-summary-row">
               <Text size="sm" color="grey">{durationLabel} registration</Text>
               <Text size="sm" color="grey">
-                {parseFloat(registrationCost).toFixed(4)} ETH
+                {currency === "ETH"
+                  ? `${parseFloat(registrationCost).toFixed(4)} ETH`
+                  : `${registrationCost} ${currency}`}
               </Text>
             </div>
             <div className="ens-registration-success-summary-row">
@@ -93,6 +97,7 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
                 {parseFloat(transactionFees).toFixed(4)} ETH
               </Text>
             </div>
+            {currency === "ETH" && (
             <div className="ens-registration-success-summary-row ens-registration-success-total">
               <Text size="lg" weight="bold">
                 Total
@@ -103,6 +108,7 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
                 </Text>
               </div>
             </div>
+            )}
             <div className="ens-registration-success-summary-row ens-registration-success-expiry">
               <Text size="sm" color="grey">Name Expires</Text>
               <Text size="sm" color="grey">

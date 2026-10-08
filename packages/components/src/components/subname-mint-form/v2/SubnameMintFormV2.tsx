@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Text, ShurikenSpinner } from "@/components/atoms";
+import { Button, Text, ShurikenSpinner } from "@/components/atoms";
 import {
   PricingDisplay,
   Alert,
@@ -16,7 +16,16 @@ import {
   zeroAddress,
 } from "viem";
 import { normalize } from "viem/ens";
-import { deepCopy, getEnsRecordsDiff } from "@/utils";
+import {
+  deepCopy,
+  detectResolverStyle,
+  formatTokenAmount as formatAmount,
+  getEnsRecordsDiff,
+  paidFees,
+  sendCallsWithFallback,
+  type ResolverStyle,
+  usdFromRaw,
+} from "@/utils";
 import { useEthDollarValue } from "@/hooks";
 import { secondsFromYears } from "@/utils/date";
 import type { EnsRecords } from "@/types";
@@ -33,6 +42,7 @@ import {
   type EnsV2MintQuote,
   estimateEnsV2MintFees,
   type EnsV2MintFees,
+  canWriteEnsV2RecordsAtMint,
   getEnsV2ActivationResolver,
   getEnsV2Deployment,
   ONE_YEAR,
@@ -59,94 +69,6 @@ export interface SubnameMintFormV2Props {
   onConnectWallet?: () => void;
 }
 
-const formatAmount = (amount: bigint, decimals: number, symbol: string) => {
-  const value = Number(formatUnits(amount, decimals));
-  if (value === 0) return "0";
-  const digits = symbol === "ETH" ? 5 : 2;
-  const min = 10 ** -digits;
-  return value < min ? `>${min}` : value.toFixed(digits);
-};
-
-const usdFromRaw = (raw: bigint) => (Number(raw) / 1e12).toFixed(2);
-
-/** Sends the calls in one atomic wallet request when supported, else one by one. */
-const sendMintCalls = async (
-  walletClient: WalletClient,
-  publicClient: PublicClient,
-  calls: EnsV2Call[],
-  chainId: number,
-  onSubmitted: (hash: Hash) => void,
-): Promise<Hash[]> => {
-  let atomic = false;
-  if (calls.length > 1) {
-    try {
-      const capabilities = await walletClient.getCapabilities({
-        account: walletClient.account,
-        chainId,
-      });
-      const status = (capabilities as { atomic?: { status?: string } })?.atomic
-        ?.status;
-      atomic = status === "supported" || status === "ready";
-    } catch {
-      atomic = false;
-    }
-  }
-
-  if (atomic) {
-    const { id } = await walletClient.sendCalls({
-      // biome-ignore lint/style/noNonNullAssertion: wagmi's wallet client always has an account
-      account: walletClient.account!,
-      calls,
-      chain: walletClient.chain,
-      forceAtomic: true,
-    });
-    const result = await walletClient.waitForCallsStatus({ id });
-    const hashes = [
-      ...new Set((result.receipts ?? []).map((r) => r.transactionHash)),
-    ];
-    const hash = hashes[hashes.length - 1];
-    if (result.status !== "success" || !hash)
-      throw new Error("The mint transaction failed.");
-    onSubmitted(hash);
-    return hashes;
-  }
-
-  const hashes: Hash[] = [];
-  for (const call of calls) {
-    const hash = await walletClient.sendTransaction({
-      ...call,
-      chain: walletClient.chain,
-      // biome-ignore lint/style/noNonNullAssertion: wagmi's wallet client always has an account
-      account: walletClient.account!,
-    });
-    onSubmitted(hash);
-    const receipt = await publicClient.waitForTransactionReceipt({ hash });
-    if (receipt.status !== "success")
-      throw new Error("A mint transaction reverted.");
-    hashes.push(hash);
-  }
-  if (hashes.length === 0) throw new Error("Nothing to send.");
-  return hashes;
-};
-
-/** Gas actually paid across the mint's transactions, in ETH. */
-const paidFees = async (publicClient: PublicClient, hashes: Hash[]) => {
-  try {
-    const receipts = await Promise.all(
-      hashes.map((hash) => publicClient.getTransactionReceipt({ hash })),
-    );
-    const wei = receipts.reduce(
-      (sum, r) => sum + r.gasUsed * (r.effectiveGasPrice ?? 0n),
-      0n,
-    );
-    return formatUnits(wei, 18);
-  } catch {
-    return "0";
-  }
-};
-
-// ENSv2 subname minting: same screens as the ENSv1 form, priced in USD and
-// paid in a token the issuer accepts (ETH or USDC).
 export const SubnameMintFormV2 = (props: SubnameMintFormV2Props) => {
   const deployment = getEnsV2Deployment(Boolean(props.isTestnet));
   if (!deployment) {
@@ -203,6 +125,7 @@ const SubnameMintFormV2Content = ({
     error: string | null;
   }>({ isChecking: false, data: null, error: null });
   const [payments, setPayments] = useState<Record<string, bigint>>({});
+  const [quoteAttempt, setQuoteAttempt] = useState(0);
   const [resolver, setResolver] = useState<Address | null>(null);
 
   const [ensRecordTemplate, setEnsRecordsTemplate] = useState<EnsRecords>({
@@ -217,14 +140,19 @@ const SubnameMintFormV2Content = ({
     () => getEnsRecordsDiff(ensRecords, ensRecordTemplate).isDifferent,
     [ensRecords, ensRecordTemplate],
   );
-  // Records go through the Namespace resolver's multicall; a custom resolver
-  // has its own interface, so records are left to the owner.
+  const [resolverStyle, setResolverStyle] = useState<ResolverStyle | null>(null);
+  const [customRecordsWritable, setCustomRecordsWritable] = useState<boolean | null>(null);
+  const isNamespaceResolver =
+    resolver !== null && resolver.toLowerCase() === deployment.resolver.toLowerCase();
   const canSetRecords =
     resolver !== null &&
-    resolver.toLowerCase() === deployment.resolver.toLowerCase();
+    resolverStyle !== null &&
+    (isNamespaceResolver || customRecordsWritable === true);
 
   const [minting, setMinting] = useState<{
     isWaitingWallet: boolean;
+    pending?: boolean;
+    title?: string;
     txHash: Hash | null;
     completed: boolean;
   }>({ isWaitingWallet: false, txHash: null, completed: false });
@@ -237,9 +165,18 @@ const SubnameMintFormV2Content = ({
       .catch(() => setResolver(null));
   }, [deployment, parentName]);
 
+  useEffect(() => {
+    if (!resolver || !publicClient) {
+      setResolverStyle(null);
+      return;
+    }
+    detectResolverStyle(publicClient, resolver)
+      .then(setResolverStyle)
+      .catch(() => setResolverStyle(null));
+  }, [resolver, publicClient]);
+
   const duration = quote.data?.expirable === false ? ONE_YEAR : BigInt(durationSeconds);
 
-  // Quote the label (debounced) whenever it, the wallet or the duration changes.
   useEffect(() => {
     if (!publicClient || label.length < MIN_ENS_LEN) {
       setQuote({ isChecking: false, data: null, error: null });
@@ -284,7 +221,61 @@ const SubnameMintFormV2Content = ({
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [publicClient, deployment, parentName, label, connectedAddress, durationSeconds]);
+  }, [
+    publicClient,
+    deployment,
+    parentName,
+    label,
+    connectedAddress,
+    durationSeconds,
+    quoteAttempt,
+  ]);
+
+  useEffect(() => {
+    const q = quote.data;
+    if (
+      isNamespaceResolver ||
+      !resolver ||
+      !resolverStyle ||
+      !publicClient ||
+      !connectedAddress ||
+      !q?.available ||
+      !q.canMint ||
+      q.proofsUnavailable.length > 0 ||
+      quote.isChecking
+    ) {
+      setCustomRecordsWritable(null);
+      return;
+    }
+    let cancelled = false;
+    canWriteEnsV2RecordsAtMint(publicClient, deployment, {
+      parentName,
+      label,
+      owner: connectedAddress,
+      duration: q.expirable ? BigInt(durationSeconds) : ONE_YEAR,
+      priceUsdRaw: q.priceUsdRaw,
+      extraData: q.extraData,
+      resolver,
+      resolverStyle,
+    }).then((writable) => {
+      if (!cancelled) setCustomRecordsWritable(writable);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    isNamespaceResolver,
+    resolver,
+    resolverStyle,
+    publicClient,
+    connectedAddress,
+    quote.data,
+    quote.isChecking,
+    deployment,
+    parentName,
+    label,
+    durationSeconds,
+  ]);
 
   const [fees, setFees] = useState<{
     isChecking: boolean;
@@ -298,7 +289,6 @@ const SubnameMintFormV2Content = ({
   const paymentAmount = payments[tokenSymbol];
   const needsAmount = quote.data?.priceUsdRaw !== 0n;
 
-  // Estimate gas for the exact calls a mint would send (approve, register, records).
   useEffect(() => {
     if (
       !publicClient ||
@@ -325,6 +315,7 @@ const SubnameMintFormV2Content = ({
           extraData: quote.data!.extraData,
           records: canSetRecords ? ensRecords : { addresses: [], texts: [] },
           resolver,
+          resolverStyle: resolverStyle ?? "simplified",
         });
         const data = await estimateEnsV2MintFees(
           publicClient,
@@ -368,11 +359,15 @@ const SubnameMintFormV2Content = ({
   };
 
   const data = quote.data;
+  const proofsMissing = (data?.proofsUnavailable.length ?? 0) > 0;
   const blockingMessage =
-    data && !data.canMint && !data.reserved ? data.deniedMessage : null;
+    data && !proofsMissing && !data.canMint && !data.reserved
+      ? data.deniedMessage
+      : null;
   const isAvailableForMint = Boolean(
     label.length >= MIN_ENS_LEN &&
       data &&
+      !proofsMissing &&
       data.available &&
       data.canMint &&
       !quote.isChecking,
@@ -408,28 +403,38 @@ const SubnameMintFormV2Content = ({
     setMinting({ isWaitingWallet: true, txHash: null, completed: false });
 
     try {
+      const freshAmount = isFree
+        ? 0n
+        : await quoteEnsV2Payment(publicClient, deployment, data.priceUsdRaw, token);
       const calls = await prepareEnsV2MintCalls(publicClient, deployment, {
         parentName,
         label,
         owner: connectedAddress,
         duration,
         token,
-        amount: amount ?? 0n,
+        amount: freshAmount,
         extraData: data.extraData,
         records: canSetRecords ? ensRecords : { addresses: [], texts: [] },
         resolver,
+        resolverStyle: resolverStyle ?? "simplified",
       });
-      const hashes = await sendMintCalls(
+      const hashes = await sendCallsWithFallback(
         walletClient,
         publicClient,
         calls,
         chainId,
-        (submitted) =>
-          setMinting({ isWaitingWallet: false, txHash: submitted, completed: false }),
+        ({ hash, call }) =>
+          setMinting({
+            isWaitingWallet: false,
+            pending: true,
+            title: call?.title,
+            txHash: hash,
+            completed: false,
+          }),
       );
       const hash = hashes[hashes.length - 1];
       const transactionFees = await paidFees(publicClient, hashes);
-      setMinting({ isWaitingWallet: false, txHash: hash, completed: true });
+      setMinting({ isWaitingWallet: false, pending: true, txHash: hash, completed: true });
 
       const price = isFree ? "0" : priceDisplay;
       const success: MintSuccessData = {
@@ -483,14 +488,14 @@ const SubnameMintFormV2Content = ({
     );
   }
 
-  if (minting.txHash) {
+  if (minting.pending) {
     return (
       <div style={{ padding: 15 }}>
         <Text className="ns-text-center mb-3" weight="bold">
-          Minting {label}.{parentName}
+          {minting.title ?? `Minting ${label}.${parentName}`}
         </Text>
         <TransactionPendingScreen
-          hash={minting.txHash}
+          hash={minting.txHash ?? undefined}
           isCompleted={minting.completed}
           chainId={chainId}
           message="Your subname is being minted!"
@@ -563,7 +568,6 @@ const SubnameMintFormV2Content = ({
       {isAvailableForMint && (
         <>
           <PricingDisplay
-            className="mt-2"
             currency={isFree ? undefined : token.symbol}
             paymentTokenPicker={
               isFree ? undefined : (
@@ -603,6 +607,28 @@ const SubnameMintFormV2Content = ({
         </>
       )}
 
+      {proofsMissing && !quote.isChecking && (
+        <div className="mt-2">
+          <Alert variant="error" position="vertical">
+            <Text size="sm">
+              Couldn't verify the{" "}
+              {data?.proofsUnavailable
+                .map((p) => (p === "whitelist" ? "whitelist" : "reservations"))
+                .join(" and ")}{" "}
+              for this name. Try again.
+            </Text>
+            <Button
+              className="mt-2"
+              size="sm"
+              variant="outline"
+              onClick={() => setQuoteAttempt((n) => n + 1)}
+            >
+              Try again
+            </Button>
+          </Alert>
+        </div>
+      )}
+
       {quote.error && (
         <div className="mt-2">
           <Alert variant="error" position="vertical">
@@ -627,7 +653,7 @@ const SubnameMintFormV2Content = ({
         </div>
       )}
 
-      {minting.isWaitingWallet && !minting.txHash && (
+      {minting.isWaitingWallet && !minting.pending && (
         <div className="d-flex justify-content-center mt-2">
           <ShurikenSpinner size={16} />
         </div>

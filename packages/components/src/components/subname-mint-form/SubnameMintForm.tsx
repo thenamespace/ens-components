@@ -47,7 +47,6 @@ export interface MintSuccessData {
   parentName: string;
   txHash: string;
   price: string;
-  /** Symbol `price` is in. Defaults to ETH. */
   priceCurrency?: string;
   transactionFees: string;
   records: EnsRecords;
@@ -78,7 +77,6 @@ interface SubnameMintFormProps {
   onSubnameMinted?: (data: SubnameMintedData) => void;
   txConfirmations?: number;
   onConnectWallet?: () => void;
-  /** 1 (default): Namespace ENSv1 listings. 2: ENSv2 activations, paid in ETH or USDC. */
   version?: 1 | 2;
 }
 

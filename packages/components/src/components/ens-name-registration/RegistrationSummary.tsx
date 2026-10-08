@@ -53,6 +53,9 @@ export interface RegistrationSummaryProps {
   onSetProfile?: () => void;
   onStart?: () => void;
   onConnectWallet?: () => void;
+  checkAvailability?: (label: string) => Promise<boolean>;
+  pricing?: React.ReactNode;
+  startDisabled?: boolean;
 }
 
 export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
@@ -74,6 +77,9 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
   onSetProfile,
   onStart,
   onConnectWallet,
+  checkAvailability: checkAvailabilityOverride,
+  pricing,
+  startDisabled,
 }) => {
   const { isConnected } = useAccount();
   const { ethUsdRate } = useEthDollarValue();
@@ -102,7 +108,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
 
   const checkAvailability = async (labelToCheck: string) => {
     try {
-      const available = await isEnsAvailable(labelToCheck);
+      const available = await (checkAvailabilityOverride ?? isEnsAvailable)(labelToCheck);
       onNameValidationChange({ isChecking: false, isTaken: !available });
     } catch {
       onNameValidationChange({
@@ -114,6 +120,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
   };
 
   const checkRegistrationPrice = async (labelToCheck: string, durationSecs: number) => {
+    if (pricing !== undefined) return;
     try {
       const rentPrice = await getRegistrationPrice(labelToCheck, durationSecs);
       onPriceChange({ isChecking: false, eth: rentPrice.eth, wei: rentPrice.wei });
@@ -172,6 +179,10 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
 
   const handleDurationChange = (newSeconds: number) => {
     if (newSeconds < MIN_REGISTRATION_SECONDS) return;
+    if (pricing !== undefined) {
+      onDurationChange(newSeconds);
+      return;
+    }
     onPriceChange({ ...price, isChecking: true });
     onDurationChange(newSeconds);
     debouncedCheckPrice(label, newSeconds);
@@ -186,7 +197,10 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
   );
 
   const nextBtnDisabled =
-    label.length < MIN_ENS_LEN || nameValidation.isChecking || nameValidation.isTaken;
+    label.length < MIN_ENS_LEN ||
+    nameValidation.isChecking ||
+    nameValidation.isTaken ||
+    Boolean(startDisabled);
 
   const totalPriceLoading = transactionFees?.isChecking || price.isChecking;
   // Fee estimation only kicks off once the registration price resolves, so
@@ -256,7 +270,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
 
       {isNameAvailable && (
         <>
-          <PricingDisplay
+          {pricing ?? <PricingDisplay
             primaryFee={{
               label: "Registration Fee",
               amount: regPrice,
@@ -278,7 +292,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
               minSeconds: MIN_REGISTRATION_SECONDS,
             }}
             ethUsdRate={ethUsdRate}
-          />
+          />}
 
           <div
             className="ens-profile-selector"

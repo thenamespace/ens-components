@@ -1,6 +1,11 @@
 // re-export higher-level components (organisms/layout) here as they are added
 export { SelectRecordsForm } from "./select-records-form/SelectRecordsForm";
 export { EnsNameRegistrationForm } from "./ens-name-registration/ENSNameRegistrationForm";
+export {
+  ENSV2_REGISTRATION_SEPOLIA,
+  getEnsV2RegistrationDeployment,
+  isEnsV2NameAvailable,
+} from "./ens-name-registration/v2/ensv2-register";
 export { EnsRecordsForm } from "./ens-records-form/EnsRecordsForm";
 export { SubnameMintForm } from "./subname-mint-form/SubnameMintForm";
 export { SubnameMintFormV2 } from "./subname-mint-form/v2/SubnameMintFormV2";

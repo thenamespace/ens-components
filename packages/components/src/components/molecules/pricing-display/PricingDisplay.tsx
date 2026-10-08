@@ -28,11 +28,8 @@ export interface PricingDisplayProps {
     minSeconds?: number;
   };
   ethUsdRate?: number | null;
-  /** Symbol the price and total are shown in. Defaults to ETH. */
   currency?: string;
-  /** USD value of the total when it isn't priced in ETH (e.g. a USDC quote). */
   totalUsd?: string;
-  /** Rendered above the price rows, e.g. a payment token selector. */
   paymentTokenPicker?: React.ReactNode;
   className?: string;
 }

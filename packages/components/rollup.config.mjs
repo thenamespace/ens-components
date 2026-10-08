@@ -47,12 +47,21 @@ export default [
   {
     input: "src/index.tsx",
     external: externals,
-    output: {
-      file: "dist/index.js",
-      format: "es",
-      sourcemap: true,
-      inlineDynamicImports: true,
-    },
+    output: [
+      {
+        file: "dist/index.js",
+        format: "es",
+        sourcemap: true,
+        inlineDynamicImports: true,
+      },
+      {
+        file: "dist/index.cjs",
+        format: "cjs",
+        sourcemap: true,
+        inlineDynamicImports: true,
+        exports: "named",
+      },
+    ],
     plugins: [
       alias({ entries: aliasEntries }),
       nodeResolve({
@@ -86,12 +95,21 @@ export default [
   {
     input: "src/styles.ts",
     external: externals,
-    output: {
-      file: "dist/styles.js",
-      format: "es",
-      sourcemap: true,
-      inlineDynamicImports: true,
-    },
+    output: [
+      {
+        file: "dist/styles.js",
+        format: "es",
+        sourcemap: true,
+        inlineDynamicImports: true,
+      },
+      {
+        file: "dist/styles.cjs",
+        format: "cjs",
+        sourcemap: true,
+        inlineDynamicImports: true,
+        exports: "named",
+      },
+    ],
     plugins: [
       alias({ entries: aliasEntries }),
       nodeResolve({

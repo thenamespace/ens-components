@@ -5,7 +5,6 @@ import "./TokenSelect.css";
 
 export interface TokenSelectOption {
   symbol: string;
-  /** Amount to pay in this token, already formatted (e.g. "0.0031"). */
   amount?: string;
 }
 
@@ -17,7 +16,6 @@ export interface TokenSelectProps {
   disabled?: boolean;
 }
 
-/** Payment token picker: a labelled row whose value opens a dropdown of tokens. */
 export const TokenSelect: React.FC<TokenSelectProps> = ({
   label = "Pay with",
   value,

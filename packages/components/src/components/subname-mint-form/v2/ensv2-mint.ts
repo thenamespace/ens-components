@@ -11,12 +11,8 @@ import {
   zeroAddress,
   zeroHash,
 } from "viem";
-import { getCoderByCoinType } from "@ensdomains/address-encoder";
-import { encode } from "@ensdomains/content-hash";
 import type { EnsRecords } from "@/types";
-
-// ENSv2 subname minting through Namespace's ActivationManager + SubnameIssuer
-// (thenamespace/onchain-subnames). Sepolia only for now.
+import { encodeRecordsUpdate, getEnsRecordsDiff, type ResolverStyle } from "@/utils";
 
 export interface EnsV2PaymentToken {
   symbol: string;
@@ -81,14 +77,13 @@ const erc20Abi = parseAbi([
   "function allowance(address owner, address spender) view returns (uint256)",
   "function approve(address spender, uint256 amount) returns (bool)",
 ]);
-const resolverAbi = parseAbi([
-  "function multicallForSubname(string parentLabel, string label, bytes[] calls) returns (bytes[] results)",
-  "function setText(string parentLabel, string label, string key, string value)",
-  "function setAddr(string parentLabel, string label, uint256 coinType, bytes value)",
-  "function setContenthash(string parentLabel, string label, bytes hash)",
-]);
 
 const STATUS_REGISTERED = 2;
+// Headroom for oracle moves: extra ETH is refunded, ERC-20 pulls only the price.
+const PAYMENT_BUFFER_BPS = 200n;
+
+export const withPaymentBuffer = (amount: bigint) =>
+  amount + (amount * PAYMENT_BUFFER_BPS) / 10_000n;
 export const ONE_YEAR = 31_536_000n;
 
 // Order matches Types.DeniedReason in the ActivationManager.
@@ -107,32 +102,33 @@ const DENIED_MESSAGES: Record<number, string> = {
 export interface EnsV2MintQuote {
   available: boolean;
   canMint: boolean;
-  /** Why minting is denied, when it is. */
   deniedMessage: string | null;
   reserved: boolean;
   expirable: boolean;
-  /** USD price with 12 decimals. */
   priceUsdRaw: bigint;
-  /** Whitelist/reservation claims the register call needs. */
   extraData: Hex;
+  proofsUnavailable: ("whitelist" | "reservation")[];
 }
 
 const splitName = (fullParent: string) => fullParent.replace(/\.eth$/, "");
 
 const fetchJson = async <T>(url: string): Promise<T | null> => {
-  const res = await fetch(url);
-  if (!res.ok) return null;
-  return (await res.json()) as T;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    return (await res.json()) as T;
+  } catch {
+    return null;
+  }
 };
 
-// Whitelist and reservation features check Merkle claims served by the manager.
 const buildExtraData = async (
   client: PublicClient,
   deployment: EnsV2Deployment,
   activationId: Hex,
   label: string,
   minter: Address,
-): Promise<Hex> => {
+): Promise<{ extraData: Hex; proofsUnavailable: EnsV2MintQuote["proofsUnavailable"] }> => {
   const [[, whitelistRoot], reservationRoot] = await Promise.all([
     client.readContract({
       address: deployment.whitelistFeature,
@@ -149,11 +145,13 @@ const buildExtraData = async (
   ]);
 
   const claims: { feature: Address; data: Hex }[] = [];
+  const proofsUnavailable: EnsV2MintQuote["proofsUnavailable"] = [];
   if (whitelistRoot !== zeroHash) {
     const proof = await fetchJson<{ whitelisted: boolean; claim: Hex }>(
       `${deployment.managerApiUrl}/whitelist/${whitelistRoot}/proof?address=${minter}`,
     );
-    if (proof?.whitelisted)
+    if (!proof) proofsUnavailable.push("whitelist");
+    else if (proof.whitelisted)
       claims.push({ feature: deployment.whitelistFeature, data: proof.claim });
   }
   // While a reservation root is set every mint needs a claim, reserved or not.
@@ -161,12 +159,12 @@ const buildExtraData = async (
     const proof = await fetchJson<{ claim: Hex }>(
       `${deployment.managerApiUrl}/reservation/${reservationRoot}/proof?label=${encodeURIComponent(label)}`,
     );
-    if (proof)
-      claims.push({ feature: deployment.reservationFeature, data: proof.claim });
+    if (!proof) proofsUnavailable.push("reservation");
+    else claims.push({ feature: deployment.reservationFeature, data: proof.claim });
   }
 
-  if (claims.length === 0) return "0x";
-  return encodeAbiParameters(
+  if (claims.length === 0) return { extraData: "0x", proofsUnavailable };
+  const extraData = encodeAbiParameters(
     [
       {
         type: "tuple[]",
@@ -178,9 +176,9 @@ const buildExtraData = async (
     ],
     [claims],
   );
+  return { extraData, proofsUnavailable };
 };
 
-/** Price and eligibility of `label.parentName` for `minter`. */
 export const quoteEnsV2Mint = async (
   client: PublicClient,
   deployment: EnsV2Deployment,
@@ -199,9 +197,9 @@ export const quoteEnsV2Mint = async (
     functionName: "activationIdOf",
     args: [keccak256(toBytes(parentLabel))],
   });
-  const extraData =
+  const { extraData, proofsUnavailable } =
     activationId === zeroHash
-      ? "0x"
+      ? { extraData: "0x" as Hex, proofsUnavailable: [] }
       : await buildExtraData(
           client,
           deployment,
@@ -239,10 +237,10 @@ export const quoteEnsV2Mint = async (
     expirable: quote.expiration === 0,
     priceUsdRaw: quote.price,
     extraData,
+    proofsUnavailable,
   };
 };
 
-/** Amount of `token` (in its own units) the issuer charges for a USD price. */
 export const quoteEnsV2Payment = (
   client: PublicClient,
   deployment: EnsV2Deployment,
@@ -258,7 +256,6 @@ export const quoteEnsV2Payment = (
         args: [priceUsdRaw, token.address],
       });
 
-/** The activation's resolver; zero means the Namespace default. */
 export const getEnsV2ActivationResolver = async (
   deployment: EnsV2Deployment,
   parentName: string,
@@ -271,65 +268,13 @@ export const getEnsV2ActivationResolver = async (
   return !resolver || resolver === zeroAddress ? deployment.resolver : resolver;
 };
 
-/** Resolver calls that write `records` for `label.parentName` in one multicall. */
-export const encodeEnsV2Records = (
-  parentName: string,
-  label: string,
-  records: EnsRecords,
-): Hex[] => {
-  const parentLabel = splitName(parentName);
-  const calls: Hex[] = [];
-  for (const text of records.texts) {
-    calls.push(
-      encodeFunctionData({
-        abi: resolverAbi,
-        functionName: "setText",
-        args: [parentLabel, label, text.key, text.value],
-      }),
-    );
-  }
-  for (const address of records.addresses) {
-    const coder = getCoderByCoinType(address.coinType);
-    if (!coder) throw new Error(`Coin type ${address.coinType} isn't supported`);
-    calls.push(
-      encodeFunctionData({
-        abi: resolverAbi,
-        functionName: "setAddr",
-        args: [
-          parentLabel,
-          label,
-          BigInt(address.coinType),
-          toHex(coder.decode(address.value)),
-        ],
-      }),
-    );
-  }
-  if (records.contenthash) {
-    calls.push(
-      encodeFunctionData({
-        abi: resolverAbi,
-        functionName: "setContenthash",
-        args: [
-          parentLabel,
-          label,
-          `0x${encode(records.contenthash.protocol, records.contenthash.value)}`,
-        ],
-      }),
-    );
-  }
-  return calls;
-};
-
 export interface EnsV2Call {
   to: Address;
   data: Hex;
   value: bigint;
+  title?: string;
 }
 
-/**
- * The calls that mint `label.parentName` and pay with `token`: an ERC20 approve
- * when the allowance is short, the register, then the records (if any).
- */
 export const prepareEnsV2MintCalls = async (
   client: PublicClient,
   deployment: EnsV2Deployment,
@@ -343,6 +288,7 @@ export const prepareEnsV2MintCalls = async (
     extraData: Hex;
     records: EnsRecords;
     resolver: Address | null;
+    resolverStyle: ResolverStyle;
   },
 ): Promise<EnsV2Call[]> => {
   const parentLabel = splitName(params.parentName);
@@ -362,9 +308,10 @@ export const prepareEnsV2MintCalls = async (
         data: encodeFunctionData({
           abi: erc20Abi,
           functionName: "approve",
-          args: [deployment.issuer, params.amount],
+          args: [deployment.issuer, withPaymentBuffer(params.amount)],
         }),
         value: 0n,
+        title: `Approving ${params.token.symbol}`,
       });
   }
 
@@ -385,23 +332,21 @@ export const prepareEnsV2MintCalls = async (
         params.token.address,
       ],
     }),
-    value: isNative ? params.amount : 0n,
+    value: isNative ? withPaymentBuffer(params.amount) : 0n,
+    title: `Minting ${params.label}.${params.parentName}`,
   });
 
-  const recordCalls = encodeEnsV2Records(
-    params.parentName,
-    params.label,
-    params.records,
-  );
-  if (recordCalls.length > 0 && params.resolver)
+  const diff = getEnsRecordsDiff({ addresses: [], texts: [] }, params.records);
+  if (diff.isDifferent && params.resolver)
     calls.push({
-      to: params.resolver,
-      data: encodeFunctionData({
-        abi: resolverAbi,
-        functionName: "multicallForSubname",
-        args: [parentLabel, params.label, recordCalls],
-      }),
+      ...encodeRecordsUpdate(
+        params.resolverStyle,
+        params.resolver,
+        `${params.label}.${params.parentName}`,
+        diff,
+      ),
       value: 0n,
+      title: "Setting records",
     });
 
   return calls;
@@ -412,18 +357,11 @@ const erc20BalanceAbi = parseAbi([
 ]);
 
 export interface EnsV2MintFees {
-  /** Estimated gas cost of every mint call, in wei. */
   feeWei: bigint;
-  /** How much more ETH (wei) and payment token the wallet needs; 0 when covered. */
   shortfallEthWei: bigint;
   shortfallToken: bigint;
 }
 
-/**
- * Estimates gas for the mint calls by simulating them in order (the approve,
- * register and records depend on each other), with a large ETH balance so an
- * underfunded wallet still gets an estimate. Balances are checked separately.
- */
 export const estimateEnsV2MintFees = async (
   client: PublicClient,
   account: Address,
@@ -454,7 +392,8 @@ export const estimateEnsV2MintFees = async (
 
   const gas = results.reduce((sum, r) => sum + r.gasUsed, 0n);
   const feeWei = gas * (fees.maxFeePerGas ?? fees.gasPrice ?? 0n);
-  const ethNeeded = feeWei + (isNative ? payment.amount : 0n);
+  const ethNeeded =
+    feeWei + calls.reduce((sum, call) => sum + call.value, 0n);
   return {
     feeWei,
     shortfallEthWei: ethBalance >= ethNeeded ? 0n : ethNeeded - ethBalance,
@@ -463,4 +402,39 @@ export const estimateEnsV2MintFees = async (
         ? 0n
         : payment.amount - tokenBalance,
   };
+};
+
+export const canWriteEnsV2RecordsAtMint = async (
+  client: PublicClient,
+  deployment: EnsV2Deployment,
+  params: {
+    parentName: string;
+    label: string;
+    owner: Address;
+    duration: bigint;
+    priceUsdRaw: bigint;
+    extraData: Hex;
+    resolver: Address;
+    resolverStyle: ResolverStyle;
+  },
+): Promise<boolean> => {
+  try {
+    const eth = deployment.paymentTokens.find((t) => t.address === zeroAddress);
+    if (!eth) return false;
+    const amount = await quoteEnsV2Payment(client, deployment, params.priceUsdRaw, eth);
+    const calls = await prepareEnsV2MintCalls(client, deployment, {
+      ...params,
+      token: eth,
+      amount,
+      records: { addresses: [], texts: [{ key: "description", value: "-" }] },
+    });
+    const { results } = await client.simulateCalls({
+      account: params.owner,
+      calls,
+      stateOverrides: [{ address: params.owner, balance: 10n ** 30n }],
+    });
+    return results.every((r) => r.status === "success");
+  } catch {
+    return false;
+  }
 };
