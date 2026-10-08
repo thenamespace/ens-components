@@ -66,7 +66,6 @@ export function EnsRegistrationSection({ isTestnet, onIsTestnetChange }: { isTes
             avatarUploadDomain={values.avatarUploadDomain || undefined}
             onConnectWallet={openConnectModal}
             onClose={() => setMountKey((k) => k + 1)}
-            onRegistrationSuccess={() => setMountKey((k) => k + 1)}
           />
         </DemoPanel>
       </div>

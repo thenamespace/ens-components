@@ -57,7 +57,6 @@ export function SubnameMintSection({ isTestnet, onIsTestnetChange }: { isTestnet
             subtitle={values.subtitle || "Get a subname, and join Namespace Ninjas."}
             onConnectWallet={openConnectModal}
             onCancel={() => setMountKey((k) => k + 1)}
-            onSuccess={() => setMountKey((k) => k + 1)}
           />
         </DemoPanel>
         <div className="code-col">
