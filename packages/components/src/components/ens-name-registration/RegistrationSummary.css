@@ -13,6 +13,38 @@
   display: block;
 }
 
+/* ---- Header rhythm ---------------------------------------------------
+   Banner, title and subtitle used to stack with zero gap, so the heading sat
+   on the illustration. Give the banner air, pair title + subtitle tightly,
+   and let the input start a new group below them. */
+.ens-registration-summary > .d-flex:first-child {
+  margin-bottom: var(--ns-space-8);
+}
+
+.ens-registration-summary > .text-center {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-2);
+  margin-bottom: var(--ns-space-10);
+}
+
+/* the status line belongs to the input; the primary action is a separate
+   step, so it gets clearly more room than the status does */
+.ens-registration-summary > .ns-name-status {
+  margin-top: var(--ns-space-5);
+}
+
+.ens-registration-summary > .ns-btn {
+  margin-top: var(--ns-space-10);
+}
+
+/* Every group below the input (duration + fees, profile CTA, action) is
+   separated by the same 20px, so the card reads as a column of steps. */
+.ens-registration-summary > .ens-registration-pricing,
+.ens-registration-summary > .ens-profile-selector {
+  margin-top: var(--ns-space-10);
+}
+
 /* ---- Name input (lines 197–202) --------------------------------------
    48px row, strong hairline, mono name ink. The `.eth` suffix is plain
    mono text — the old grey suffix box is gone. */
@@ -39,6 +71,14 @@
 
 .ens-name-input .ns-input__prefix {
   left: var(--ns-space-8);
+}
+
+/* The generic input rule (`.ns-input__wrapper:has(.ns-input__prefix)
+   .ns-input`) outranks the 44px above and assumes an 18px icon at 14px; this
+   field's 20px icon sits at 16px, so typed names ran into the magnifier.
+   Match that selector's weight and clear the icon: 16 + 20 + 10. */
+.ens-name-input.ns-input__wrapper:has(.ns-input__prefix) .ns-input {
+  padding-left: calc(var(--ns-space-8) + 20px + var(--ns-space-5));
 }
 
 .ens-name-input .ns-input__prefix .ns-icon {
@@ -81,8 +121,16 @@
 .ens-registration-form-container .ens-profile-selector {
   border: 1px solid var(--ns-border);
   border-radius: var(--ns-radius);
-  padding: var(--ns-space-8) var(--ns-space-10);
+  padding: var(--ns-space-7) var(--ns-space-8);
   background-color: var(--ns-surface-3);
+  transition:
+    background-color 0.15s linear,
+    border-color 0.15s linear;
+}
+
+.ens-registration-form-container .ens-profile-selector:hover {
+  background-color: var(--ns-surface-4);
+  border-color: var(--ns-border-strong);
 }
 
 .ens-registration-form-container .ens-profile-selector > .d-flex {
@@ -109,16 +157,28 @@
   transform: rotate(150deg);
 }
 
-/* 30px solid blue chevron block (line 242) */
+/* Quiet chevron: the solid ink block competed with the primary button
+   right below it. It wakes up with the row on hover. */
 .ens-profile-selector .profile-cta-arrow {
   width: 30px;
   height: 30px;
   flex: none;
   display: grid;
   place-items: center;
-  border-radius: var(--ns-radius);
-  background-color: var(--ns-blue-600);
-  color: var(--ns-surface);
+  border-radius: calc(var(--ns-radius) - 2px);
+  background-color: var(--ns-surface);
+  border: 1px solid var(--ns-border);
+  color: var(--ns-text-3);
+  transition:
+    color 0.15s linear,
+    border-color 0.15s linear,
+    transform 0.15s ease-out;
+}
+
+.ens-profile-selector:hover .profile-cta-arrow {
+  color: var(--ns-text);
+  border-color: var(--ns-border-strong);
+  transform: translateX(2px);
 }
 
 /* ---- Narrow containers (plan §5) — the webapp's ~330px modals -------- */

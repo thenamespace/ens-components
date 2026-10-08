@@ -61,7 +61,7 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
   return (
     <div className={`ens-registration-pricing ${className}`}>
       {expiryPicker && (
-        <div className="ens-expiry-picker mb-2">
+        <div className="ens-expiry-picker">
           <DurationPicker
             durationSeconds={expiryPicker.durationSeconds}
             onDurationChange={expiryPicker.onDurationChange}
@@ -70,7 +70,7 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
         </div>
       )}
       {paymentTokenPicker && <div className="mb-2">{paymentTokenPicker}</div>}
-      <div className="d-flex justify-content-between align-items-center mb-1 pricing-row">
+      <div className="pricing-row">
         <Text size="sm" color="grey" className="pricing-label">
           {primaryFee.label}
         </Text>
@@ -85,7 +85,7 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
         </Text>
       </div>
       {networkFees && (
-        <div className="d-flex justify-content-between align-items-center mb-1 pricing-row">
+        <div className="pricing-row">
           <Text size="sm" color="grey" className="pricing-label">
             Est. network fees
           </Text>
@@ -100,7 +100,7 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
           </Text>
         </div>
       )}
-      <div className="d-flex justify-content-between align-items-center mt-2 total-fee">
+      <div className="total-fee">
         <Text size="lg" weight="bold" className="pricing-total-label">
           Total
         </Text>

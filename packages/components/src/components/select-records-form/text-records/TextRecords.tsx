@@ -8,15 +8,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon, Input, Text, Textarea } from "@/components/atoms";
 import { capitalize } from "@/utils";
 
-interface CustomDraft {
-  id: string;
-  key: string;
-  value: string;
-}
-
-const SUPPORTED_KEY_SET = new Set(supportedTexts.map(t => t.key));
-const genDraftId = () => `${Date.now()}-${Math.random()}`;
-
 interface TextRecordsProps {
   initialTexts: EnsTextRecord[];
   texts: EnsTextRecord[];
@@ -49,92 +40,9 @@ export const TextRecords = ({
   }, [texts]);
 
   const [lastAddedKey, setLastAddedKey] = useState<string | null>(null);
-  const [customDrafts, setCustomDrafts] = useState<CustomDraft[]>([]);
-  const [lastAddedDraftId, setLastAddedDraftId] = useState<string | null>(null);
   const inputRefs = useRef<
     Record<string, HTMLInputElement | HTMLTextAreaElement | null>
   >({});
-
-  const draftKeys = useMemo(
-    () => new Set(customDrafts.map(d => d.key).filter(Boolean)),
-    [customDrafts]
-  );
-
-  const committedCustomTexts = useMemo(
-    () => texts.filter(t => !SUPPORTED_KEY_SET.has(t.key) && !draftKeys.has(t.key)),
-    [texts, draftKeys]
-  );
-
-  const isValidDraftKey = (key: string, draftId: string): boolean => {
-    if (!key.trim()) return false;
-    if (SUPPORTED_KEY_SET.has(key)) return false;
-    if (committedCustomTexts.some(t => t.key === key)) return false;
-    if (customDrafts.some(d => d.id !== draftId && d.key === key)) return false;
-    return true;
-  };
-
-  const handleAddCustomDraft = () => {
-    const id = genDraftId();
-    setCustomDrafts(prev => [...prev, { id, key: "", value: "" }]);
-    setLastAddedDraftId(id);
-  };
-
-  useEffect(() => {
-    if (!lastAddedDraftId) return;
-    const el = inputRefs.current[lastAddedDraftId];
-    if (!el) return;
-    el.scrollIntoView({ behavior: "smooth", block: "center" });
-    el.focus();
-    setLastAddedDraftId(null);
-  }, [customDrafts, lastAddedDraftId]);
-
-  const handleCustomDraftKeyChange = (draftId: string, newKey: string) => {
-    const draft = customDrafts.find(d => d.id === draftId)!;
-    const oldKey = draft.key;
-    const updatedDrafts = customDrafts.map(d =>
-      d.id === draftId ? { ...d, key: newKey } : d
-    );
-    setCustomDrafts(updatedDrafts);
-
-    let newTexts = oldKey ? texts.filter(t => t.key !== oldKey) : [...texts];
-    const isValid =
-      newKey.trim() &&
-      !SUPPORTED_KEY_SET.has(newKey) &&
-      !newTexts.filter(t => !SUPPORTED_KEY_SET.has(t.key)).some(t => t.key === newKey) &&
-      updatedDrafts.filter(d => d.id !== draftId).every(d => d.key !== newKey);
-    if (isValid) {
-      newTexts = [...newTexts, { key: newKey, value: draft.value }];
-    }
-    onTextsChanged(newTexts);
-  };
-
-  const handleCustomDraftValueChange = (draftId: string, newValue: string) => {
-    const draft = customDrafts.find(d => d.id === draftId)!;
-    setCustomDrafts(prev =>
-      prev.map(d => (d.id === draftId ? { ...d, value: newValue } : d))
-    );
-    if (draft.key && texts.some(t => t.key === draft.key)) {
-      onTextsChanged(
-        texts.map(t => (t.key === draft.key ? { ...t, value: newValue } : t))
-      );
-    }
-  };
-
-  const handleRemoveCustomDraft = (draftId: string) => {
-    const draft = customDrafts.find(d => d.id === draftId)!;
-    setCustomDrafts(prev => prev.filter(d => d.id !== draftId));
-    if (draft.key && texts.some(t => t.key === draft.key)) {
-      onTextsChanged(texts.filter(t => t.key !== draft.key));
-    }
-  };
-
-  const handleCommittedCustomValueChange = (key: string, value: string) => {
-    onTextsChanged(texts.map(t => (t.key === key ? { ...t, value } : t)));
-  };
-
-  const handleRemoveCommittedCustom = (key: string) => {
-    onTextsChanged(texts.filter(t => t.key !== key));
-  };
 
   useEffect(() => {
     if (lastAddedKey && inputRefs.current[lastAddedKey]) {
@@ -222,14 +130,10 @@ export const TextRecords = ({
     );
   }, [searchFilter]);
 
-  const isGeneralCategory = category === TextRecordCategory.General;
-  const hasCustomContent =
-    isGeneralCategory &&
-    (committedCustomTexts.length > 0 || customDrafts.length > 0);
 
   // Mirrors the early return below; reported so the parent knows whether any
   // section survived the search filter.
-  const isVisible = filteredItems.length > 0 || hasCustomContent;
+  const isVisible = filteredItems.length > 0;
   useEffect(() => {
     onVisibilityChange?.(isVisible);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -297,7 +201,13 @@ export const TextRecords = ({
                 <div
                   onClick={() => handleRemoveText(record.key)}
                   className="ns-close-icon ns-ms-1"
-                  style={{ marginTop: isDescription ? "8px" : "0" }}
+                  // the bio's textarea is taller than the button: pin the button
+                  // to its top edge instead of centring it
+                  style={
+                    isDescription
+                      ? { alignSelf: "flex-start", marginTop: 0 }
+                      : { marginTop: 0 }
+                  }
                 >
                   <Icon name="x" size={18} />
                 </div>
@@ -305,69 +215,6 @@ export const TextRecords = ({
             </div>
           );
         })}
-      {isGeneralCategory && committedCustomTexts.map(custom => (
-        <div key={custom.key} style={{ marginBottom: 10 }}>
-          <Text
-            style={{ marginBottom: "4px" }}
-            color="grey"
-            size="xs"
-            weight="medium"
-          >
-            {custom.key}
-          </Text>
-          <div style={{ width: "100%" }} className="d-flex align-items-center">
-            <Input
-              style={{ width: "100%" }}
-              onChange={e => handleCommittedCustomValueChange(custom.key, e.target.value)}
-              prefix={<Icon name="edit" size={18} color="grey" />}
-              value={custom.value}
-              placeholder="Value"
-            />
-            <div
-              onClick={() => handleRemoveCommittedCustom(custom.key)}
-              className="ns-close-icon ns-ms-1"
-            >
-              <Icon name="x" size={18} />
-            </div>
-          </div>
-        </div>
-      ))}
-      {isGeneralCategory && customDrafts.map(draft => {
-        const keyIsInvalid = draft.key.trim().length > 0 && !isValidDraftKey(draft.key, draft.id);
-        return (
-          <div key={draft.id} style={{ marginBottom: 10 }}>
-            <div className="d-flex align-items-center" style={{ gap: 6 }}>
-              <Input
-                ref={(el: HTMLInputElement | null) => {
-                  inputRefs.current[draft.id] = el;
-                }}
-                style={{ flex: 1 }}
-                value={draft.key}
-                onChange={e => handleCustomDraftKeyChange(draft.id, e.target.value)}
-                placeholder="Key (e.g. custom.record)"
-                error={keyIsInvalid}
-              />
-              <Input
-                style={{ flex: 1 }}
-                value={draft.value}
-                onChange={e => handleCustomDraftValueChange(draft.id, e.target.value)}
-                placeholder="Value"
-              />
-              <div
-                onClick={() => handleRemoveCustomDraft(draft.id)}
-                className="ns-close-icon"
-              >
-                <Icon name="x" size={18} />
-              </div>
-            </div>
-            {keyIsInvalid && (
-              <Text size="xs" color="grey" style={{ marginTop: 4 }}>
-                Key is reserved or already in use
-              </Text>
-            )}
-          </div>
-        );
-      })}
       <div className="row g-2">
         {filteredItems
           .filter(
@@ -389,16 +236,6 @@ export const TextRecords = ({
               </div>
             </div>
           ))}
-        {isGeneralCategory && (
-          <div className="col col-lg-3 col-sm-6 col-6">
-            <div className="ns-text-suggestion" onClick={handleAddCustomDraft}>
-              <Icon size={16} color="grey" name="circle-help" />
-              <Text className="ns-mt-1" size="xs" weight="medium">
-                Custom
-              </Text>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

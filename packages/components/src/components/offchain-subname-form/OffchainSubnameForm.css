@@ -8,7 +8,10 @@
     border: 1px solid var(--ns-border-strong);
     border-radius: var(--ns-radius);
     width: 100%;
-    max-width: 500px;
+    max-width: var(--ns-frame-width);
+    /* the 1px frame counts inside the width, so every card is exactly
+       --ns-frame-width wide */
+    box-sizing: border-box;
 }
 
 /* A query container is a containing block for `position: fixed` descendants,

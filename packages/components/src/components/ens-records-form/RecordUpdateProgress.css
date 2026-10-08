@@ -14,7 +14,7 @@
 
 .record-update-screen-card {
   width: 100%;
-  max-width: 480px;
+  max-width: var(--ns-frame-width);
   padding: 0 0 var(--ns-space-14);
   text-align: center;
   position: relative;

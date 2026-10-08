@@ -8,7 +8,7 @@ export interface ProfileSelectorProps {
 export const ProfileSelector = ({ onSelect }: ProfileSelectorProps) => {
   return (
     <div
-      className="ens-profile-selector mt-2"
+      className="ens-profile-selector"
       onClick={onSelect}
       style={{ cursor: "pointer" }}
     >

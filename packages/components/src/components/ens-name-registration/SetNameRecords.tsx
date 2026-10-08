@@ -43,7 +43,7 @@ export const SetNameRecords: React.FC<SetNameRecordsProps> = ({
       onRecordsUpdated={onRecordsChange}
       avatarUpload={avatarUpload}
       actionButtons={
-        <div style={{ padding: 15, paddingTop: 0 }}>
+        <div>
           {error && (
             <Alert variant="error">
               {error}

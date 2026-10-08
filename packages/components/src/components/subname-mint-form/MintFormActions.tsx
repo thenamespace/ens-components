@@ -63,7 +63,7 @@ export const MintFormActions = ({
   );
 
   return (
-    <div className="ens-update-records-form-actions mt-2">
+    <div className="ens-update-records-form-actions">
       <Button
         variant="outline"
         size="lg"
