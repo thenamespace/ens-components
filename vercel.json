@@ -1,0 +1,35 @@
+{
+  "headers": [
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\"; profile=\"https://www.rfc-editor.org/info/rfc9727\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\"; title=\"LLM-friendly summary\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\"; title=\"LLM full API reference\", </.well-known/openapi.yaml>; rel=\"service-desc\"; type=\"application/openapi+yaml\""
+        }
+      ]
+    },
+    {
+      "source": "/index.html",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\"; profile=\"https://www.rfc-editor.org/info/rfc9727\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\"; title=\"LLM-friendly summary\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\"; title=\"LLM full API reference\", </.well-known/openapi.yaml>; rel=\"service-desc\"; type=\"application/openapi+yaml\""
+        }
+      ]
+    },
+    {
+      "source": "/.well-known/api-catalog",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/linkset+json; profile=\"https://www.rfc-editor.org/info/rfc9727\""
+        },
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\"; profile=\"https://www.rfc-editor.org/info/rfc9727\""
+        }
+      ]
+    }
+  ]
+}
