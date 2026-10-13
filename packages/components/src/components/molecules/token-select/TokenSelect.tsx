@@ -1,6 +1,7 @@
 import React from "react";
 import { Icon, Text } from "@/components/atoms";
 import { Dropdown } from "../dropdown/Dropdown";
+import { TokenIcon } from "./TokenIcon";
 import "./TokenSelect.css";
 
 export interface TokenSelectOption {
@@ -14,6 +15,7 @@ export interface TokenSelectProps {
   options: TokenSelectOption[];
   onChange: (symbol: string) => void;
   disabled?: boolean;
+  inline?: boolean;
 }
 
 export const TokenSelect: React.FC<TokenSelectProps> = ({
@@ -22,16 +24,15 @@ export const TokenSelect: React.FC<TokenSelectProps> = ({
   options,
   onChange,
   disabled,
-}) => (
-  <div className="ns-token-select d-flex justify-content-between align-items-center">
-    <Text size="sm" color="grey">
-      {label}
-    </Text>
+  inline,
+}) => {
+  const dropdown = (
     <Dropdown
       align="end"
       disabled={disabled}
       trigger={
         <span className="ns-token-select__trigger">
+          <TokenIcon symbol={value} />
           <Text size="sm" weight="medium">
             {value}
           </Text>
@@ -48,7 +49,10 @@ export const TokenSelect: React.FC<TokenSelectProps> = ({
             onClick={() => onChange(option.symbol)}
             type="button"
           >
-            <span>{option.symbol}</span>
+            <span className="ns-token-select__symbol">
+              <TokenIcon symbol={option.symbol} />
+              {option.symbol}
+            </span>
             {option.amount && (
               <span className="ns-token-select__amount">{option.amount}</span>
             )}
@@ -56,7 +60,18 @@ export const TokenSelect: React.FC<TokenSelectProps> = ({
         ))}
       </div>
     </Dropdown>
-  </div>
-);
+  );
+
+  if (inline) return dropdown;
+
+  return (
+    <div className="ns-token-select d-flex justify-content-between align-items-center">
+      <Text size="sm" color="grey">
+        {label}
+      </Text>
+      {dropdown}
+    </div>
+  );
+};
 
 export default TokenSelect;

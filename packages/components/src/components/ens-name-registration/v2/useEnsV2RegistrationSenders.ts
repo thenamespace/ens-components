@@ -1,17 +1,23 @@
+import { useRef } from "react";
 import type { Address, Hash, Hex, PublicClient, WalletClient } from "viem";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import type { EnsRecords } from "@/types";
-import { formatTokenAmount, sendCallsWithFallback } from "@/utils";
+import { formatTokenAmount, sendCallsWithFallback, supportsAtomicBatch } from "@/utils";
 import type { CommitmentSender, RegistrationSender } from "../registration";
 import {
+  buildEnsV2ApproveCall,
   buildEnsV2CommitCall,
   buildEnsV2RegisterCalls,
+  buildEnsV2ResolverDeployCall,
+  encodeEnsV2InitialRecords,
   type EnsV2RegistrationDeployment,
   type EnsV2RegistrationToken,
+  getEnsV2Allowance,
   getEnsV2RegistrationPrice,
   getNameResolver,
   makeEnsV2Commitment,
   saveEnsV2Commitment,
+  withOwnerEthAddress,
 } from "./ensv2-register";
 
 export const useEnsV2RegistrationSenders = (
@@ -30,9 +36,73 @@ export const useEnsV2RegistrationSenders = (
     return { publicClient, walletClient: walletClient as WalletClient, owner: address as Address };
   };
 
+  // The standalone resolver deploy already wrote the records; registration must not repeat them.
+  const recordsWrittenRef = useRef(false);
+
+  const sendTransaction = async (call: { to: Address; data: Hex; value: bigint }) => {
+    const { publicClient, walletClient } = clients();
+    const hash = await walletClient.sendTransaction({
+      to: call.to,
+      data: call.data,
+      value: call.value,
+      account: walletClient.account!,
+      chain: walletClient.chain,
+    });
+    return {
+      hash,
+      wait: async () => {
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+        if (receipt.status !== "success") throw new Error("The transaction reverted.");
+      },
+    };
+  };
+
+  const getPrerequisites = async (label: string, durationSeconds: number) => {
+    const { publicClient, walletClient, owner } = clients();
+    const [atomic, resolver, price] = await Promise.all([
+      supportsAtomicBatch(walletClient, chainId),
+      getNameResolver(publicClient, deployment, owner),
+      getEnsV2RegistrationPrice(publicClient, deployment, label, BigInt(durationSeconds), token),
+    ]);
+    if (atomic) return { needsResolver: false, needsApproval: false, price };
+    const allowance = await getEnsV2Allowance(publicClient, deployment, token, owner);
+    return { needsResolver: !resolver.deployed, needsApproval: allowance < price, price };
+  };
+
+  const sendResolverDeploy = async (label: string) => {
+    const { publicClient, owner } = clients();
+    const resolver = await getNameResolver(publicClient, deployment, owner);
+    const recordCalls = encodeEnsV2InitialRecords(
+      `${label}.eth`,
+      withOwnerEthAddress(records, owner),
+    );
+    const sent = await sendTransaction(
+      buildEnsV2ResolverDeployCall(deployment, owner, resolver.salt, recordCalls),
+    );
+    return {
+      hash: sent.hash,
+      wait: async () => {
+        await sent.wait();
+        recordsWrittenRef.current = true;
+      },
+    };
+  };
+
+  const sendApproval = async (label: string, durationSeconds: number) => {
+    const { publicClient } = clients();
+    const price = await getEnsV2RegistrationPrice(
+      publicClient,
+      deployment,
+      label,
+      BigInt(durationSeconds),
+      token,
+    );
+    return sendTransaction(buildEnsV2ApproveCall(deployment, token, price));
+  };
+
   const sendCommitment: CommitmentSender = async (state) => {
     const { publicClient, walletClient, owner } = clients();
-    const resolver = await getNameResolver(publicClient, deployment, owner, state.label);
+    const resolver = await getNameResolver(publicClient, deployment, owner);
     const commitment = makeEnsV2Commitment({
       label: state.label,
       owner,
@@ -65,7 +135,7 @@ export const useEnsV2RegistrationSenders = (
       duration,
       token,
     );
-    const resolver = await getNameResolver(publicClient, deployment, owner, state.label);
+    const resolver = await getNameResolver(publicClient, deployment, owner);
     const calls = await buildEnsV2RegisterCalls(publicClient, deployment, {
       label: state.label,
       owner,
@@ -76,7 +146,9 @@ export const useEnsV2RegistrationSenders = (
       price,
       resolverDeployed: resolver.deployed,
       resolverSalt: resolver.salt,
-      records,
+      records: recordsWrittenRef.current
+        ? { addresses: [], texts: [] }
+        : withOwnerEthAddress(records, owner),
     });
     const hashes = await sendCallsWithFallback(
       walletClient,
@@ -103,5 +175,5 @@ export const useEnsV2RegistrationSenders = (
     };
   };
 
-  return { sendCommitment, sendRegistration };
+  return { getPrerequisites, sendApproval, sendCommitment, sendRegistration, sendResolverDeploy };
 };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Confetti from "react-confetti";
-import { Button, Identicon, Text } from "../../atoms";
+import { Button, Identicon, Tag, Text } from "../../atoms";
 import { getEnsAppUrl } from "@/utils";
 import "./SuccessScreen.css";
 
@@ -31,17 +31,17 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
   onRegisterAnother,
   onViewName,
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [containerSize, setContainerSize] = useState({
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [cardSize, setCardSize] = useState({
     width: 0,
     height: 0,
   });
 
   useEffect(() => {
     const updateSize = () => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        setContainerSize({
+      if (cardRef.current) {
+        const rect = cardRef.current.getBoundingClientRect();
+        setCardSize({
           width: rect.width,
           height: rect.height,
         });
@@ -54,34 +54,25 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="ens-registration-success-container"
-      style={{ position: "relative", overflow: "hidden" }}
-    >
-      {containerSize.width > 0 && containerSize.height > 0 && (
-        <Confetti
-          width={containerSize.width}
-          height={containerSize.height}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            zIndex: 0,
-            pointerEvents: "none",
-          }}
-        />
-      )}
-
-      <div className="ens-registration-success-card" style={{ position: "relative", zIndex: 1 }}>
-        <div className="ens-registration-success-band">REGISTERED</div>
-
+    <div className="ens-registration-success-container">
+      <div className="ens-registration-success-card" ref={cardRef}>
+        {cardSize.width > 0 && cardSize.height > 0 && (
+          <Confetti
+            width={cardSize.width}
+            height={cardSize.height}
+            recycle={false}
+            numberOfPieces={150}
+            style={{ position: "absolute", top: 0, left: 0, zIndex: 2, pointerEvents: "none" }}
+          />
+        )}
         <div className="ens-registration-success-body">
           <div className="ens-registration-success-title-section">
             <Identicon seed={`${ensName}.eth`} size={44} />
-            <span className="ens-registration-success-name">{ensName}.eth</span>
+            <div className="ens-registration-success-name-col">
+              <Tag tone="blue">REGISTERED</Tag>
+              <span className="ens-registration-success-name">{ensName}.eth</span>
+            </div>
           </div>
-
           <div className="ens-registration-success-summary">
             <div className="ens-registration-success-summary-row">
               <Text size="sm" color="grey">{durationLabel} registration</Text>
@@ -117,6 +108,7 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
             </div>
           </div>
 
+          <div className="ens-registration-success-buttons">
           <div className="ens-registration-success-actions">
             <Button
               variant="outline"
@@ -139,9 +131,10 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
               View Name
             </Button>
           </div>
-          <Button onClick={() => onGreat?.()} size="lg" className="ns-wd-100 mt-2">
+          <Button onClick={() => onGreat?.()} size="lg" className="ns-wd-100">
             Great!
           </Button>
+          </div>
         </div>
       </div>
     </div>

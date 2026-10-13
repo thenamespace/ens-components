@@ -23,18 +23,6 @@
   padding: 0;
 }
 
-/* ---- Ink band (lines 282–284) ---------------------------------------- */
-.ens-registration-success-band {
-  height: 96px;
-  display: grid;
-  place-items: center;
-  background-color: var(--ns-name-ink);
-  font-family: var(--ns-font-mono);
-  font-size: var(--ns-size-micro);
-  letter-spacing: var(--ns-track-caps);
-  color: var(--ns-blue-300);
-}
-
 .ens-registration-success-body {
   padding: var(--ns-space-14);
   display: flex;
@@ -43,6 +31,14 @@
 }
 
 /* ---- Identity row (lines 286–289) ------------------------------------ */
+.ens-registration-success-name-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ns-space-3);
+  min-width: 0;
+}
+
 .ens-registration-success-title-section {
   display: flex;
   align-items: center;
@@ -122,6 +118,12 @@
 }
 
 /* ---- Actions (lines 297–300) ----------------------------------------- */
+.ens-registration-success-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+}
+
 .ens-registration-success-actions {
   display: flex;
   gap: var(--ns-space-4);
@@ -147,9 +149,6 @@
     gap: var(--ns-space-10);
   }
 
-  .ens-registration-success-band {
-    height: 72px;
-  }
 
   .ens-registration-success-actions {
     flex-direction: column;

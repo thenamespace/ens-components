@@ -4,7 +4,7 @@ import { normalize } from "viem/ens";
 
 import { debounce, formatEth } from "@/utils";
 import { MIN_REGISTRATION_SECONDS } from "@/utils/date";
-import { Button, Icon, Input, Text, ShurikenSpinner } from "@/components";
+import { Button, Icon, Input, Text } from "@/components";
 import { PricingDisplay } from "@/components/molecules";
 import ninjaImage from "../../assets/banner.png";
 import shurikenImage from "../../assets/shuriken.svg";
@@ -196,6 +196,10 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
     [label.length, nameValidation.isChecking, nameValidation.isTaken]
   );
 
+  const nameTooShort = label.length < MIN_ENS_LEN;
+  const nameTaken = !nameTooShort && !nameValidation.isChecking && nameValidation.isTaken;
+  const nameInputState = isNameAvailable ? "ok" : nameTaken ? "bad" : null;
+
   const nextBtnDisabled =
     label.length < MIN_ENS_LEN ||
     nameValidation.isChecking ||
@@ -231,7 +235,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
         value={label}
         onChange={(e) => handleNameChanged(e.target.value)}
         size="lg"
-        wrapperClassName="ens-name-input"
+        wrapperClassName={`ens-name-input${nameInputState ? ` ens-name-input--${nameInputState}` : ""}`}
         prefix={<Icon color="grey" size={20} name="search" />}
         suffix={
           <Text weight="medium" size="sm" color="grey">
@@ -240,33 +244,18 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
         }
       />
 
-      {/* One status line for every state, so "available" and "not available"
-          read identically — a status dot plus a micro label. */}
-      <div className="ns-name-status">
-        {label.length < MIN_ENS_LEN ? (
-          <>
-            <span className="ns-dot" />
-            <span className="ns-name-status__text">
-              Minimum length is {MIN_ENS_LEN} characters
-            </span>
-          </>
-        ) : nameValidation.isChecking ? (
-          <>
-            <ShurikenSpinner size={14} />
-            <span className="ns-name-status__text">Checking availability</span>
-          </>
-        ) : nameValidation.isTaken ? (
-          <>
-            <span className="ns-dot ns-dot--bad" />
-            <span className="ns-name-status__text">{label}.eth is not available</span>
-          </>
-        ) : (
-          <>
-            <span className="ns-dot ns-dot--ok" />
-            <span className="ns-name-status__text">{label}.eth is available</span>
-          </>
-        )}
-      </div>
+      {nameTooShort && (
+        <div className="ns-name-status">
+          <span className="ns-dot" />
+          <span className="ns-name-status__text">Minimum length is {MIN_ENS_LEN} characters</span>
+        </div>
+      )}
+      {nameTaken && (
+        <div className="ns-name-status">
+          <span className="ns-dot ns-dot--bad" />
+          <span className="ns-name-status__text">{label}.eth is not available</span>
+        </div>
+      )}
 
       {isNameAvailable && (
         <>

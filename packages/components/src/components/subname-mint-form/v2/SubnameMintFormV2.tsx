@@ -572,6 +572,7 @@ const SubnameMintFormV2Content = ({
             paymentTokenPicker={
               isFree ? undefined : (
                 <TokenSelect
+                  inline
                   value={token.symbol}
                   onChange={setTokenSymbol}
                   options={deployment.paymentTokens

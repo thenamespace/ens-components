@@ -40,6 +40,12 @@
   background: var(--ns-surface-3);
 }
 
+.ns-token-select__symbol {
+  display: inline-flex;
+  gap: var(--ns-space-3);
+  align-items: center;
+}
+
 .ns-token-select__amount {
   font-family: var(--ns-font-mono, monospace);
   color: var(--ns-text-faint, var(--ns-text-2));

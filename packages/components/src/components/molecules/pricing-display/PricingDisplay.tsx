@@ -66,7 +66,6 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
           />
         </div>
       )}
-      {paymentTokenPicker && <div className="mb-2">{paymentTokenPicker}</div>}
       <div className="pricing-row">
         <Text size="sm" color="grey" className="pricing-label">
           {primaryFee.label}
@@ -102,18 +101,23 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
           Total
         </Text>
         <div className="pricing-total-values" style={{ textAlign: "right" }}>
-          <Text size="lg" weight="bold" className="pricing-total-value">
-            {totalLoading ? (
-              <ShurikenSpinner size={18} />
-            ) : isSentinel(total.amount) ? (
-              total.amount
-            ) : (
-              `${total.amount} ${currency}`
-            )}
-          </Text>
-          <Text size="xs" color="grey" className="pricing-total-usd">
-            {totalUsd ? `≈ $${totalUsd}` : NBSP}
-          </Text>
+          <div className="pricing-total-amount">
+            <Text size="lg" weight="bold" className="pricing-total-value">
+              {totalLoading ? (
+                <ShurikenSpinner size={18} />
+              ) : isSentinel(total.amount) || paymentTokenPicker ? (
+                total.amount
+              ) : (
+                `${total.amount} ${currency}`
+              )}
+            </Text>
+            {paymentTokenPicker}
+          </div>
+          {(!paymentTokenPicker || totalUsd) && (
+            <Text size="xs" color="grey" className="pricing-total-usd">
+              {totalUsd ? `≈ $${totalUsd}` : NBSP}
+            </Text>
+          )}
         </div>
       </div>
     </div>

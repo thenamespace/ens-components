@@ -17,10 +17,26 @@ export const formatTokenAmount = (amount: bigint, decimals: number, symbol: stri
   if (value === 0) return "0";
   const digits = symbol === "ETH" ? 5 : 2;
   const min = 10 ** -digits;
-  return value < min ? `>${min}` : value.toFixed(digits);
+  return value < min ? `<${min}` : value.toFixed(digits);
 };
 
 export const usdFromRaw = (raw: bigint) => (Number(raw) / 1e12).toFixed(2);
+
+export const supportsAtomicBatch = async (
+  walletClient: WalletClient,
+  chainId: number,
+): Promise<boolean> => {
+  try {
+    const capabilities = await walletClient.getCapabilities({
+      account: walletClient.account,
+      chainId,
+    });
+    const status = (capabilities as { atomic?: { status?: string } })?.atomic?.status;
+    return status === "supported" || status === "ready";
+  } catch {
+    return false;
+  }
+};
 
 export const sendCallsWithFallback = async (
   walletClient: WalletClient,
@@ -29,20 +45,7 @@ export const sendCallsWithFallback = async (
   chainId: number,
   onProgress: (progress: SendProgress) => void,
 ): Promise<Hash[]> => {
-  let atomic = false;
-  if (calls.length > 1) {
-    try {
-      const capabilities = await walletClient.getCapabilities({
-        account: walletClient.account,
-        chainId,
-      });
-      const status = (capabilities as { atomic?: { status?: string } })?.atomic
-        ?.status;
-      atomic = status === "supported" || status === "ready";
-    } catch {
-      atomic = false;
-    }
-  }
+  const atomic = calls.length > 1 && (await supportsAtomicBatch(walletClient, chainId));
 
   if (atomic) {
     const { id } = await walletClient.sendCalls({

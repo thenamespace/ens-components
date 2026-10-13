@@ -12,7 +12,12 @@ import {
   zeroHash,
 } from "viem";
 import type { EnsRecords } from "@/types";
-import { encodeRecordsUpdate, getEnsRecordsDiff, type ResolverStyle } from "@/utils";
+import {
+  encodeRecordsUpdate,
+  estimateEffectiveGasPrice,
+  getEnsRecordsDiff,
+  type ResolverStyle,
+} from "@/utils";
 
 export interface EnsV2PaymentToken {
   symbol: string;
@@ -369,13 +374,13 @@ export const estimateEnsV2MintFees = async (
   payment: { token: EnsV2PaymentToken; amount: bigint },
 ): Promise<EnsV2MintFees> => {
   const isNative = payment.token.address === zeroAddress;
-  const [{ results }, fees, ethBalance, tokenBalance] = await Promise.all([
+  const [{ results }, gasPrice, ethBalance, tokenBalance] = await Promise.all([
     client.simulateCalls({
       account,
       calls,
       stateOverrides: [{ address: account, balance: 10n ** 30n }],
     }),
-    client.estimateFeesPerGas(),
+    estimateEffectiveGasPrice(client),
     client.getBalance({ address: account }),
     isNative || payment.amount === 0n
       ? Promise.resolve(0n)
@@ -391,7 +396,7 @@ export const estimateEnsV2MintFees = async (
   if (failed) throw new Error("The mint would fail.");
 
   const gas = results.reduce((sum, r) => sum + r.gasUsed, 0n);
-  const feeWei = gas * (fees.maxFeePerGas ?? fees.gasPrice ?? 0n);
+  const feeWei = gas * gasPrice;
   const ethNeeded =
     feeWei + calls.reduce((sum, call) => sum + call.value, 0n);
   return {

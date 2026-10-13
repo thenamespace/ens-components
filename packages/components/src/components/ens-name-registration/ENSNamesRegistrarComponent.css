@@ -16,6 +16,15 @@
   height: fit-content;
   border-radius: var(--ns-radius);
   border: 1px solid var(--ns-border-strong);
+  position: relative;
+}
+
+.ens-registration-form-container .ens-registration-floating-alert {
+  position: absolute;
+  top: var(--ns-space-6);
+  left: var(--ns-space-8);
+  right: var(--ns-space-8);
+  z-index: 2;
 }
 
 .ens-registration-form-container.no-border {

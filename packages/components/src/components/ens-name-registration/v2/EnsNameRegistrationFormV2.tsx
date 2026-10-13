@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { formatUnits, type Address, type PublicClient, zeroAddress } from "viem";
+import { type Address, formatEther, formatUnits, type PublicClient, zeroAddress } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
 import { Text } from "@/components/atoms";
 import { Alert, PricingDisplay, TokenSelect } from "@/components/molecules";
+import { useEthDollarValue } from "@/hooks";
 import type { EnsRecords } from "@/types";
 import { deepCopy, formatTokenAmount, getEnsRecordsDiff } from "@/utils";
 import { secondsFromYears } from "@/utils/date";
@@ -13,6 +14,11 @@ import type { EnsNameRegistrationFormProps } from "../ENSNameRegistrationForm";
 import { RegistrationProcess } from "../RegistrationProcess";
 import { ProcessSteps, type RegistrationState } from "../registration";
 import { useEnsV2RegistrationSenders } from "./useEnsV2RegistrationSenders";
+import {
+  buildEnsV2PrerequisiteSteps,
+  EnsV2PrerequisitesSteps,
+  type EnsV2PrerequisiteStep,
+} from "./EnsV2PrerequisitesSteps";
 import {
   buildEnsV2RegisterCalls,
   ENSV2_MIN_REGISTRATION_SECONDS,
@@ -26,6 +32,7 @@ import {
   isEnsV2NameAvailable,
   makeEnsV2Commitment,
   randomSecret,
+  withOwnerEthAddress,
 } from "./ensv2-register";
 import "../ENSNamesRegistrarComponent.css";
 
@@ -34,6 +41,7 @@ const ESTIMATE_SECRET = "0x00000000000000000000000000000000000000000000000000000
 
 enum Step {
   Summary,
+  Prerequisites,
   Progress,
   Success,
 }
@@ -70,6 +78,7 @@ const EnsNameRegistrationFormV2Content = ({
   const publicClient = usePublicClient({ chainId: deployment.chainId }) as
     | PublicClient
     | undefined;
+  const { ethUsdRate } = useEthDollarValue();
 
   const [label, setLabel] = useState(getLabel(props.name));
   const [step, setStep] = useState(Step.Summary);
@@ -146,7 +155,7 @@ const EnsNameRegistrationFormV2Content = ({
     const run = async () => {
       try {
         const owner = address as Address;
-        const resolver = await getNameResolver(publicClient, deployment, owner, label);
+        const resolver = await getNameResolver(publicClient, deployment, owner);
         const params = {
           label,
           owner,
@@ -160,7 +169,7 @@ const EnsNameRegistrationFormV2Content = ({
           price,
           resolverDeployed: resolver.deployed,
           resolverSalt: resolver.salt,
-          records: ensRecords,
+          records: withOwnerEthAddress(ensRecords, owner),
         });
         const data = await estimateEnsV2RegistrationFees(publicClient, deployment, {
           owner,
@@ -184,6 +193,16 @@ const EnsNameRegistrationFormV2Content = ({
     price === undefined ? "N/A" : formatTokenAmount(price, token.decimals, token.symbol);
   const feesDisplay =
     fees.data?.feeWei == null ? "N/A" : formatTokenAmount(fees.data.feeWei, 18, "ETH");
+  // Payment tokens are stablecoins, so the fee counts as $1 per token.
+  const totalUsd =
+    price === undefined
+      ? undefined
+      : (
+          Number(formatUnits(price, token.decimals)) +
+          (fees.data?.feeWei != null && ethUsdRate
+            ? Number(formatEther(fees.data.feeWei)) * ethUsdRate
+            : 0)
+        ).toFixed(2);
   const insufficient = Boolean(
     fees.data && (fees.data.shortfallEthWei > 0n || fees.data.shortfallToken > 0n),
   );
@@ -194,6 +213,7 @@ const EnsNameRegistrationFormV2Content = ({
         currency={token.symbol}
         paymentTokenPicker={
           <TokenSelect
+            inline
             value={token.symbol}
             onChange={setTokenSymbol}
             options={deployment.paymentTokens
@@ -207,27 +227,51 @@ const EnsNameRegistrationFormV2Content = ({
         primaryFee={{ label: "Registration Fee", amount: priceDisplay, isChecking: prices.isChecking }}
         networkFees={{ amount: feesDisplay, isChecking: fees.isChecking }}
         total={{ amount: priceDisplay, isChecking: prices.isChecking }}
-        totalUsd={price === undefined ? undefined : Number(formatUnits(price, token.decimals)).toFixed(2)}
+        totalUsd={totalUsd}
         expiryPicker={{
           durationSeconds,
           onDurationChange: setDurationSeconds,
           minSeconds: ENSV2_MIN_REGISTRATION_SECONDS,
         }}
       />
-      {insufficient && (
-        <div className="mt-2">
-          <Alert variant="warning">
-            <Text size="sm">Insufficient funds</Text>
-          </Alert>
-        </div>
-      )}
     </>
   );
 
   const senders = useEnsV2RegistrationSenders(deployment, token, ensRecords);
   const [processState, setProcessState] = useState<Partial<RegistrationState> | null>(null);
 
+  const [prerequisiteSteps, setPrerequisiteSteps] = useState<EnsV2PrerequisiteStep[]>([]);
+
+  const notifyStart = async <T,>(sending: Promise<T>) => {
+    const sent = await sending;
+    props.onRegistrationStart?.(`${label}.eth`);
+    return sent;
+  };
+
   const startProcess = async () => {
+    const steps = await senders
+      .getPrerequisites(label, durationSeconds)
+      .then((needs) =>
+        buildEnsV2PrerequisiteSteps({
+          ...needs,
+          token,
+          sendResolverDeploy: () => notifyStart(senders.sendResolverDeploy(label)),
+          sendApproval: () => notifyStart(senders.sendApproval(label, durationSeconds)),
+        }),
+      )
+      .catch((err) => {
+        console.error(err);
+        return [];
+      });
+    if (steps.length > 0) {
+      setPrerequisiteSteps(steps);
+      setStep(Step.Prerequisites);
+      return;
+    }
+    await enterProcess();
+  };
+
+  const enterProcess = async () => {
     const resumed =
       publicClient && address
         ? await findResumableEnsV2Commitment(
@@ -284,6 +328,13 @@ const EnsNameRegistrationFormV2Content = ({
           }
         />
       )}
+      {step === Step.Summary && !showProfile && insufficient && (
+        <div className="ens-registration-floating-alert">
+          <Alert variant="warning">
+            <Text size="sm">Insufficient funds</Text>
+          </Alert>
+        </div>
+      )}
       {step === Step.Summary && !showProfile && (
         <RegistrationSummary
           label={label}
@@ -310,6 +361,14 @@ const EnsNameRegistrationFormV2Content = ({
           }
           pricing={pricing}
           startDisabled={price === undefined || insufficient}
+        />
+      )}
+      {step === Step.Prerequisites && (
+        <EnsV2PrerequisitesSteps
+          steps={prerequisiteSteps}
+          isTestnet={props.isTestnet || false}
+          onBack={() => setStep(Step.Summary)}
+          onCompleted={enterProcess}
         />
       )}
       {step === Step.Progress && processState && (

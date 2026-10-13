@@ -4,16 +4,16 @@ import {
   encodeFunctionData,
   type Hex,
   keccak256,
-  namehash,
   pad,
   parseAbi,
   type PublicClient,
+  stringToHex,
   toHex,
   zeroAddress,
   zeroHash,
 } from "viem";
 import type { EnsRecords } from "@/types";
-import { encodeRecordSetters, getEnsRecordsDiff } from "@/utils";
+import { encodeRecordSetters, estimateEffectiveGasPrice, getEnsRecordsDiff } from "@/utils";
 
 export interface EnsV2RegistrationToken {
   symbol: string;
@@ -77,6 +77,9 @@ const erc20Abi = parseAbi([
 ]);
 
 const ALL_ROLES = 0x1111111111111111111111111111111111111111111111111111111111111111n;
+const OWNED_RESOLVER_VERSION = 0n;
+const COIN_TYPE_ETH = 60;
+
 /** Storage slot of ETHRegistrar.commitmentAt (after Ownable._owner and rentPriceOracle). */
 const COMMITMENT_AT_SLOT = 2n;
 const PRICE_BUFFER_BPS = 300n;
@@ -122,15 +125,23 @@ export const getEnsV2RegistrationPrice = async (
   return base + premium;
 };
 
-const nameResolverSalt = (name: string) => BigInt(namehash(name));
+// One resolver per owner, shared by all their names; same salt as ENS's computeOwnedResolverSalt.
+const ownedResolverSalt = (owner: Address) =>
+  BigInt(
+    keccak256(
+      encodeAbiParameters(
+        [{ type: "bytes32" }, { type: "address" }, { type: "uint256" }],
+        [keccak256(stringToHex("OwnedResolver")), owner, OWNED_RESOLVER_VERSION],
+      ),
+    ),
+  );
 
 export const getNameResolver = async (
   client: PublicClient,
   deployment: EnsV2RegistrationDeployment,
   owner: Address,
-  label: string,
 ) => {
-  const salt = nameResolverSalt(`${label}.eth`);
+  const salt = ownedResolverSalt(owner);
   const address = await client.readContract({
     address: deployment.verifiableFactory,
     abi: factoryAbi,
@@ -207,6 +218,67 @@ export const getEnsV2CommitmentReadyAt = async (
   return committedAt === 0n ? null : Number(committedAt + minAge);
 };
 
+export const getEnsV2Allowance = (
+  client: PublicClient,
+  deployment: EnsV2RegistrationDeployment,
+  token: EnsV2RegistrationToken,
+  owner: Address,
+) =>
+  client.readContract({
+    address: token.address,
+    abi: erc20Abi,
+    functionName: "allowance",
+    args: [owner, deployment.registrar],
+  });
+
+// The buffer absorbs price drift before register; the registrar pulls only the actual price.
+export const buildEnsV2ApproveCall = (
+  deployment: EnsV2RegistrationDeployment,
+  token: EnsV2RegistrationToken,
+  price: bigint,
+): EnsV2Call => ({
+  to: token.address,
+  data: encodeFunctionData({
+    abi: erc20Abi,
+    functionName: "approve",
+    args: [deployment.registrar, price + (price * PRICE_BUFFER_BPS) / 10_000n],
+  }),
+  value: 0n,
+  title: `Approving ${token.symbol}`,
+});
+
+export const buildEnsV2ResolverDeployCall = (
+  deployment: EnsV2RegistrationDeployment,
+  owner: Address,
+  salt: bigint,
+  recordCalls: Hex[],
+): EnsV2Call => ({
+  to: deployment.verifiableFactory,
+  data: encodeFunctionData({
+    abi: factoryAbi,
+    functionName: "deployProxy",
+    args: [
+      deployment.permissionedResolverImplementation,
+      salt,
+      encodeFunctionData({
+        abi: resolverInitAbi,
+        functionName: "initialize",
+        args: [[{ account: owner, roleBitmap: ALL_ROLES }], recordCalls],
+      }),
+    ],
+  }),
+  value: 0n,
+  title: "Setting up resolver",
+});
+
+export const withOwnerEthAddress = (records: EnsRecords, owner: Address): EnsRecords =>
+  records.addresses.some((a) => a.coinType === COIN_TYPE_ETH)
+    ? records
+    : { ...records, addresses: [...records.addresses, { coinType: COIN_TYPE_ETH, value: owner }] };
+
+export const encodeEnsV2InitialRecords = (name: string, records: EnsRecords) =>
+  encodeRecordSetters("permissioned", name, getEnsRecordsDiff({ addresses: [], texts: [] }, records));
+
 export const buildEnsV2RegisterCalls = async (
   client: PublicClient,
   deployment: EnsV2RegistrationDeployment,
@@ -219,51 +291,17 @@ export const buildEnsV2RegisterCalls = async (
   },
 ): Promise<EnsV2Call[]> => {
   const name = `${params.label}.eth`;
-  const recordCalls = encodeRecordSetters(
-    "permissioned",
-    name,
-    getEnsRecordsDiff({ addresses: [], texts: [] }, params.records),
-  );
+  const recordCalls = encodeEnsV2InitialRecords(name, params.records);
   const calls: EnsV2Call[] = [];
 
-  const maxPrice = params.price + (params.price * PRICE_BUFFER_BPS) / 10_000n;
-  const allowance = await client.readContract({
-    address: params.token.address,
-    abi: erc20Abi,
-    functionName: "allowance",
-    args: [params.owner, deployment.registrar],
-  });
+  const allowance = await getEnsV2Allowance(client, deployment, params.token, params.owner);
   if (allowance < params.price)
-    calls.push({
-      to: params.token.address,
-      data: encodeFunctionData({
-        abi: erc20Abi,
-        functionName: "approve",
-        args: [deployment.registrar, maxPrice],
-      }),
-      value: 0n,
-      title: `Approving ${params.token.symbol}`,
-    });
+    calls.push(buildEnsV2ApproveCall(deployment, params.token, params.price));
 
   if (!params.resolverDeployed)
-    calls.push({
-      to: deployment.verifiableFactory,
-      data: encodeFunctionData({
-        abi: factoryAbi,
-        functionName: "deployProxy",
-        args: [
-          deployment.permissionedResolverImplementation,
-          params.resolverSalt,
-          encodeFunctionData({
-            abi: resolverInitAbi,
-            functionName: "initialize",
-            args: [[{ account: params.owner, roleBitmap: ALL_ROLES }], recordCalls],
-          }),
-        ],
-      }),
-      value: 0n,
-      title: "Setting up resolver",
-    });
+    calls.push(
+      buildEnsV2ResolverDeployCall(deployment, params.owner, params.resolverSalt, recordCalls),
+    );
 
   calls.push({
     to: deployment.registrar,
@@ -325,7 +363,7 @@ export const estimateEnsV2RegistrationFees = async (
   );
   const maturedAt = BigInt(Math.floor(Date.now() / 1000) - 3600);
 
-  const [simulation, commitGas, fees, ethBalance, tokenBalance] = await Promise.all([
+  const [simulation, commitGas, gasPrice, ethBalance, tokenBalance] = await Promise.all([
     client
       .simulateCalls({
       account: params.owner,
@@ -342,7 +380,7 @@ export const estimateEnsV2RegistrationFees = async (
       account: params.owner,
       ...buildEnsV2CommitCall(deployment, params.commitment),
     }),
-    client.estimateFeesPerGas(),
+    estimateEffectiveGasPrice(client),
     client.getBalance({ address: params.owner }),
     client.readContract({
       address: params.token.address,
@@ -355,8 +393,7 @@ export const estimateEnsV2RegistrationFees = async (
   const results = simulation?.results;
   const feeWei =
     results && results.every((r) => r.status === "success")
-      ? results.reduce((sum, r) => sum + r.gasUsed, commitGas) *
-        (fees.maxFeePerGas ?? fees.gasPrice ?? 0n)
+      ? results.reduce((sum, r) => sum + r.gasUsed, commitGas) * gasPrice
       : null;
   return {
     feeWei,
@@ -399,7 +436,7 @@ export const findResumableEnsV2Commitment = async (
   } catch {}
   if (!saved || saved.durationSeconds !== durationSeconds) return null;
 
-  const resolver = await getNameResolver(client, deployment, owner, label);
+  const resolver = await getNameResolver(client, deployment, owner);
   const commitment = makeEnsV2Commitment({
     label,
     owner,
