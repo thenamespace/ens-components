@@ -38,6 +38,27 @@ export const supportsAtomicBatch = async (
   }
 };
 
+export const sendTransactionWithReceipt = async (
+  walletClient: WalletClient,
+  publicClient: PublicClient,
+  call: WalletCall,
+) => {
+  const hash = await walletClient.sendTransaction({
+    to: call.to,
+    data: call.data,
+    value: call.value,
+    chain: walletClient.chain,
+    account: walletClient.account!,
+  });
+  return {
+    hash,
+    wait: async () => {
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      if (receipt.status !== "success") throw new Error("The transaction reverted.");
+    },
+  };
+};
+
 export const sendCallsWithFallback = async (
   walletClient: WalletClient,
   publicClient: PublicClient,

@@ -13,14 +13,9 @@ import { encode } from "@ensdomains/content-hash";
 import type { EnsAddressRecord, EnsContenthashRecord, EnsTextRecord } from "@/types";
 import type { EnsRecordsDiff } from "./records";
 
-export type ResolverStyle = "node" | "permissioned" | "simplified";
+export type ResolverStyle = "node" | "permissioned";
 
-const PERMISSIONED_RESOLVER_INTERFACE = "0x8c2427cc";
-
-/** Namespace SimplifiedResolver deployments; it has no ERC-165 id of its own. */
-export const SIMPLIFIED_RESOLVERS: Address[] = [
-  "0x99908150E5d1023B8a69A0870B6983acF6f8Cf7C",
-];
+const NAME_SETTER_INTERFACES = ["0x8c2427cc", "0xc7279f88"] as const;
 
 const erc165Abi = parseAbi([
   "function supportsInterface(bytes4 interfaceId) view returns (bool)",
@@ -40,40 +35,26 @@ const permissionedAbi = parseAbi([
   "function multicall(bytes[] calls) returns (bytes[])",
 ]);
 
-const simplifiedAbi = parseAbi([
-  "function setText(string parentLabel, string label, string key, string value)",
-  "function setAddr(string parentLabel, string label, uint256 coinType, bytes value)",
-  "function setContenthash(string parentLabel, string label, bytes hash)",
-  "function multicallForSubname(string parentLabel, string label, bytes[] calls) returns (bytes[] results)",
-]);
-
 export const detectResolverStyle = async (
   client: PublicClient,
   resolver: Address,
 ): Promise<ResolverStyle> => {
-  if (SIMPLIFIED_RESOLVERS.some((r) => r.toLowerCase() === resolver.toLowerCase()))
-    return "simplified";
-  try {
-    const permissioned = await client.readContract({
-      address: resolver,
-      abi: erc165Abi,
-      functionName: "supportsInterface",
-      args: [PERMISSIONED_RESOLVER_INTERFACE],
-    });
-    if (permissioned) return "permissioned";
-  } catch {
-  }
-  return "node";
+  const supported = await Promise.all(
+    NAME_SETTER_INTERFACES.map((id) =>
+      client
+        .readContract({
+          address: resolver,
+          abi: erc165Abi,
+          functionName: "supportsInterface",
+          args: [id],
+        })
+        .catch(() => false),
+    ),
+  );
+  return supported.some(Boolean) ? "permissioned" : "node";
 };
 
 export const dnsEncodeName = (name: string): Hex => toHex(packetToBytes(name));
-
-const splitSubname = (name: string) => {
-  const parts = name.split(".");
-  if (parts.length !== 3 || parts[2] !== "eth")
-    throw new Error(`${name} isn't a label.parent.eth subname`);
-  return { label: parts[0], parentLabel: parts[1] };
-};
 
 const addressBytes = (record: EnsAddressRecord): Hex => {
   const coder = getCoderByCoinType(record.coinType);
@@ -111,29 +92,6 @@ const settersFor = (style: ResolverStyle, name: string): Setters => {
           abi: permissionedAbi,
           functionName: "setContenthash",
           args: [dnsName, value],
-        }),
-    };
-  }
-  if (style === "simplified") {
-    const { parentLabel, label } = splitSubname(name);
-    return {
-      text: (t) =>
-        encodeFunctionData({
-          abi: simplifiedAbi,
-          functionName: "setText",
-          args: [parentLabel, label, t.key, t.value],
-        }),
-      address: (coinType, value) =>
-        encodeFunctionData({
-          abi: simplifiedAbi,
-          functionName: "setAddr",
-          args: [parentLabel, label, BigInt(coinType), value],
-        }),
-      contenthash: (value) =>
-        encodeFunctionData({
-          abi: simplifiedAbi,
-          functionName: "setContenthash",
-          args: [parentLabel, label, value],
         }),
     };
   }
@@ -193,17 +151,6 @@ export const encodeRecordsUpdate = (
   diff: EnsRecordsDiff,
 ): { to: Address; data: Hex } => {
   const calls = encodeRecordSetters(style, name, diff);
-  if (style === "simplified") {
-    const { parentLabel, label } = splitSubname(name);
-    return {
-      to: resolver,
-      data: encodeFunctionData({
-        abi: simplifiedAbi,
-        functionName: "multicallForSubname",
-        args: [parentLabel, label, calls],
-      }),
-    };
-  }
   return {
     to: resolver,
     data: encodeFunctionData({

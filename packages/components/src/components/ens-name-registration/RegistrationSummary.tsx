@@ -232,6 +232,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
         </Text>
       </div>
       <Input
+        data-testid="ens-name-input"
         value={label}
         onChange={(e) => handleNameChanged(e.target.value)}
         size="lg"
@@ -285,6 +286,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
 
           <div
             className="ens-profile-selector"
+            data-testid="registration-set-profile"
             onClick={onSetProfile}
             style={{ cursor: "pointer" }}
           >
@@ -326,6 +328,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
         </Button>
       ) : (
         <Button
+          data-testid="registration-next"
           style={{ width: "100%" }}
           size="lg"
           disabled={nextBtnDisabled}

@@ -42,6 +42,7 @@ import {
   type EnsV2MintQuote,
   estimateEnsV2MintFees,
   type EnsV2MintFees,
+  type EnsV2MintResolver,
   canWriteEnsV2RecordsAtMint,
   getEnsV2ActivationResolver,
   getEnsV2Deployment,
@@ -67,6 +68,7 @@ export interface SubnameMintFormV2Props {
   onSubnameMinted?: (data: SubnameMintedData) => void;
   txConfirmations?: number;
   onConnectWallet?: () => void;
+  resolver?: Address;
 }
 
 export const SubnameMintFormV2 = (props: SubnameMintFormV2Props) => {
@@ -98,6 +100,7 @@ const SubnameMintFormV2Content = ({
   onSuccess,
   onSubnameMinted,
   onConnectWallet,
+  resolver: resolverProp,
   deployment,
 }: SubnameMintFormV2Props & { deployment: EnsV2Deployment }) => {
   const { chainId } = deployment;
@@ -126,7 +129,7 @@ const SubnameMintFormV2Content = ({
   }>({ isChecking: false, data: null, error: null });
   const [payments, setPayments] = useState<Record<string, bigint>>({});
   const [quoteAttempt, setQuoteAttempt] = useState(0);
-  const [resolver, setResolver] = useState<Address | null>(null);
+  const [parentResolver, setParentResolver] = useState<Address | null | undefined>(undefined);
 
   const [ensRecordTemplate, setEnsRecordsTemplate] = useState<EnsRecords>({
     addresses: [],
@@ -140,14 +143,24 @@ const SubnameMintFormV2Content = ({
     () => getEnsRecordsDiff(ensRecords, ensRecordTemplate).isDifferent,
     [ensRecords, ensRecordTemplate],
   );
+  const resolverAddress =
+    parentResolver === undefined ? null : (parentResolver ?? resolverProp ?? deployment.sharedResolver);
+  const isDefaultResolver = parentResolver === null && !resolverProp;
   const [resolverStyle, setResolverStyle] = useState<ResolverStyle | null>(null);
   const [customRecordsWritable, setCustomRecordsWritable] = useState<boolean | null>(null);
-  const isNamespaceResolver =
-    resolver !== null && resolver.toLowerCase() === deployment.resolver.toLowerCase();
+  const mintResolver = useMemo<EnsV2MintResolver | null>(
+    () =>
+      resolverAddress && resolverStyle
+        ? {
+            address: resolverAddress,
+            style: resolverStyle,
+            requested: parentResolver ? zeroAddress : resolverAddress,
+          }
+        : null,
+    [resolverAddress, resolverStyle, parentResolver],
+  );
   const canSetRecords =
-    resolver !== null &&
-    resolverStyle !== null &&
-    (isNamespaceResolver || customRecordsWritable === true);
+    mintResolver !== null && (isDefaultResolver || customRecordsWritable === true);
 
   const [minting, setMinting] = useState<{
     isWaitingWallet: boolean;
@@ -160,20 +173,21 @@ const SubnameMintFormV2Content = ({
   const [successData, setSuccessData] = useState<MintSuccessData | null>(null);
 
   useEffect(() => {
+    setParentResolver(undefined);
     getEnsV2ActivationResolver(deployment, parentName)
-      .then(setResolver)
-      .catch(() => setResolver(null));
+      .then(setParentResolver)
+      .catch(() => setParentResolver(null));
   }, [deployment, parentName]);
 
   useEffect(() => {
-    if (!resolver || !publicClient) {
+    if (!resolverAddress || !publicClient) {
       setResolverStyle(null);
       return;
     }
-    detectResolverStyle(publicClient, resolver)
+    detectResolverStyle(publicClient, resolverAddress)
       .then(setResolverStyle)
       .catch(() => setResolverStyle(null));
-  }, [resolver, publicClient]);
+  }, [resolverAddress, publicClient]);
 
   const duration = quote.data?.expirable === false ? ONE_YEAR : BigInt(durationSeconds);
 
@@ -234,9 +248,8 @@ const SubnameMintFormV2Content = ({
   useEffect(() => {
     const q = quote.data;
     if (
-      isNamespaceResolver ||
-      !resolver ||
-      !resolverStyle ||
+      !mintResolver ||
+      isDefaultResolver ||
       !publicClient ||
       !connectedAddress ||
       !q?.available ||
@@ -255,8 +268,7 @@ const SubnameMintFormV2Content = ({
       duration: q.expirable ? BigInt(durationSeconds) : ONE_YEAR,
       priceUsdRaw: q.priceUsdRaw,
       extraData: q.extraData,
-      resolver,
-      resolverStyle,
+      resolver: mintResolver,
     }).then((writable) => {
       if (!cancelled) setCustomRecordsWritable(writable);
     });
@@ -264,9 +276,8 @@ const SubnameMintFormV2Content = ({
       cancelled = true;
     };
   }, [
-    isNamespaceResolver,
-    resolver,
-    resolverStyle,
+    mintResolver,
+    isDefaultResolver,
     publicClient,
     connectedAddress,
     quote.data,
@@ -293,6 +304,7 @@ const SubnameMintFormV2Content = ({
     if (
       !publicClient ||
       !connectedAddress ||
+      !mintResolver ||
       !quoteReady ||
       !quote.data ||
       (needsAmount && paymentAmount === undefined)
@@ -314,8 +326,7 @@ const SubnameMintFormV2Content = ({
           amount,
           extraData: quote.data!.extraData,
           records: canSetRecords ? ensRecords : { addresses: [], texts: [] },
-          resolver,
-          resolverStyle: resolverStyle ?? "simplified",
+          resolver: mintResolver,
         });
         const data = await estimateEnsV2MintFees(
           publicClient,
@@ -343,7 +354,7 @@ const SubnameMintFormV2Content = ({
     tokenSymbol,
     durationSeconds,
     ensRecords,
-    resolver,
+    mintResolver,
     canSetRecords,
   ]);
 
@@ -397,9 +408,11 @@ const SubnameMintFormV2Content = ({
   );
 
   const handleMint = async () => {
-    if (!data || !publicClient || !walletClient || !connectedAddress) return;
+    const resolver = mintResolver;
+    if (!data || !publicClient || !walletClient || !connectedAddress || !resolver) return;
     if (amount === undefined && !isFree) return;
     setError(null);
+
     setMinting({ isWaitingWallet: true, txHash: null, completed: false });
 
     try {
@@ -416,7 +429,6 @@ const SubnameMintFormV2Content = ({
         extraData: data.extraData,
         records: canSetRecords ? ensRecords : { addresses: [], texts: [] },
         resolver,
-        resolverStyle: resolverStyle ?? "simplified",
       });
       const hashes = await sendCallsWithFallback(
         walletClient,
@@ -667,6 +679,7 @@ const SubnameMintFormV2Content = ({
           !isAvailableForMint ||
           (amount === undefined && !isFree) ||
           !walletClient ||
+          !mintResolver ||
           hasInsufficientFunds
         }
         isWaitingWallet={minting.isWaitingWallet}

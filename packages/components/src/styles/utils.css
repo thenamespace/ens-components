@@ -185,3 +185,13 @@
     padding: var(--ns-space-8);
   }
 }
+
+/* `noBorder` on a form: the root drops its frame. The scope wrapper is
+   display: contents, for forms that render one of several roots. */
+.ns-no-border,
+.ns-no-border-scope > * {
+  border: none !important;
+}
+.ns-no-border-scope {
+  display: contents;
+}

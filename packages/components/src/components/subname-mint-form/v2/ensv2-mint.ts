@@ -29,7 +29,7 @@ export interface EnsV2Deployment {
   chainId: number;
   manager: Address;
   issuer: Address;
-  resolver: Address;
+  sharedResolver: Address;
   ethRegistry: Address;
   whitelistFeature: Address;
   reservationFeature: Address;
@@ -41,7 +41,7 @@ export const ENSV2_SEPOLIA: EnsV2Deployment = {
   chainId: 11155111,
   manager: "0xB9DF8b94a2C39790d8Cf716A67260515436e58c5",
   issuer: "0x67a196439075a670fc17b34bC908F6CAaA6b1904",
-  resolver: "0x99908150E5d1023B8a69A0870B6983acF6f8Cf7C",
+  sharedResolver: "0x7C48b782cF9c132441844aEBA8b46EC2d80ca067",
   ethRegistry: "0xD4eBcbBdF463C9c45784603Db0dDD499BC44A8B4",
   whitelistFeature: "0x1f4Da48832F23860Ce465f83bEdEbC13e7D5012d",
   reservationFeature: "0xeb4dF26099aF1bD834Bc1B9BBF25E065232871f6",
@@ -269,9 +269,14 @@ export const getEnsV2ActivationResolver = async (
     `${deployment.managerApiUrl}/activations/label/${encodeURIComponent(splitName(parentName))}`,
   );
   const resolver = history?.[0]?.resolver;
-  if (!history?.length) return null;
-  return !resolver || resolver === zeroAddress ? deployment.resolver : resolver;
+  return resolver && resolver !== zeroAddress ? resolver : null;
 };
+
+export interface EnsV2MintResolver {
+  address: Address;
+  style: ResolverStyle;
+  requested: Address;
+}
 
 export interface EnsV2Call {
   to: Address;
@@ -292,8 +297,7 @@ export const prepareEnsV2MintCalls = async (
     amount: bigint;
     extraData: Hex;
     records: EnsRecords;
-    resolver: Address | null;
-    resolverStyle: ResolverStyle;
+    resolver: EnsV2MintResolver;
   },
 ): Promise<EnsV2Call[]> => {
   const parentLabel = splitName(params.parentName);
@@ -330,7 +334,7 @@ export const prepareEnsV2MintCalls = async (
           parentLabel,
           label: params.label,
           owner: params.owner,
-          resolver: zeroAddress,
+          resolver: params.resolver.requested,
           duration: params.duration,
           extraData: params.extraData,
         },
@@ -342,11 +346,11 @@ export const prepareEnsV2MintCalls = async (
   });
 
   const diff = getEnsRecordsDiff({ addresses: [], texts: [] }, params.records);
-  if (diff.isDifferent && params.resolver)
+  if (diff.isDifferent)
     calls.push({
       ...encodeRecordsUpdate(
-        params.resolverStyle,
-        params.resolver,
+        params.resolver.style,
+        params.resolver.address,
         `${params.label}.${params.parentName}`,
         diff,
       ),
@@ -419,8 +423,7 @@ export const canWriteEnsV2RecordsAtMint = async (
     duration: bigint;
     priceUsdRaw: bigint;
     extraData: Hex;
-    resolver: Address;
-    resolverStyle: ResolverStyle;
+    resolver: EnsV2MintResolver;
   },
 ): Promise<boolean> => {
   try {

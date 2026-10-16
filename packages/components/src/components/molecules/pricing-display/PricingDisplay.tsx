@@ -26,6 +26,7 @@ export interface PricingDisplayProps {
     durationSeconds: number;
     onDurationChange: (seconds: number) => void;
     minSeconds?: number;
+    startSeconds?: number;
   };
   ethUsdRate?: number | null;
   currency?: string;
@@ -63,6 +64,7 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
             durationSeconds={expiryPicker.durationSeconds}
             onDurationChange={expiryPicker.onDurationChange}
             minSeconds={expiryPicker.minSeconds}
+            startSeconds={expiryPicker.startSeconds}
           />
         </div>
       )}
@@ -70,7 +72,7 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
         <Text size="sm" color="grey" className="pricing-label">
           {primaryFee.label}
         </Text>
-        <Text size="sm" color="grey" className="pricing-value">
+        <Text size="sm" color="grey" className="pricing-value" data-testid="pricing-primary-fee">
           {primaryFee.isChecking ? (
             <ShurikenSpinner size={14} />
           ) : isSentinel(primaryFee.amount) ? (
@@ -102,7 +104,7 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
         </Text>
         <div className="pricing-total-values" style={{ textAlign: "right" }}>
           <div className="pricing-total-amount">
-            <Text size="lg" weight="bold" className="pricing-total-value">
+            <Text size="lg" weight="bold" className="pricing-total-value" data-testid="pricing-total">
               {totalLoading ? (
                 <ShurikenSpinner size={18} />
               ) : isSentinel(total.amount) || paymentTokenPicker ? (

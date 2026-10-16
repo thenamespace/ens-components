@@ -38,7 +38,7 @@ export function NavWalletButton() {
             <div className="nav-wallet-avatar-placeholder" />
           )}
         </div>
-        <span className="nav-wallet-addr">{ensName ?? short}</span>
+        <span className="nav-wallet-addr" data-testid="nav-wallet-address">{ensName ?? short}</span>
         <button
           className="nav-wallet-disconnect"
           onClick={() => disconnect()}
@@ -51,7 +51,7 @@ export function NavWalletButton() {
   }
 
   return (
-    <button className="nav-wallet-btn" onClick={openConnectModal}>
+    <button className="nav-wallet-btn" data-testid="nav-connect-wallet" onClick={openConnectModal}>
       Connect Wallet
     </button>
   );

@@ -7,13 +7,18 @@ import {
   pad,
   parseAbi,
   type PublicClient,
-  stringToHex,
   toHex,
   zeroAddress,
   zeroHash,
 } from "viem";
 import type { EnsRecords } from "@/types";
-import { encodeRecordSetters, estimateEffectiveGasPrice, getEnsRecordsDiff } from "@/utils";
+import {
+  buildOwnedResolverDeployCall,
+  encodeRecordSetters,
+  estimateEffectiveGasPrice,
+  getEnsRecordsDiff,
+  getOwnedResolver,
+} from "@/utils";
 
 export interface EnsV2RegistrationToken {
   symbol: string;
@@ -61,23 +66,13 @@ const registrarAbi = parseAbi([
   "function MIN_COMMITMENT_AGE() view returns (uint64)",
   "function register(string label, address owner, bytes32 secret, address subregistry, address resolver, uint64 duration, address paymentToken, bytes32 referrer) returns (uint256 tokenId)",
 ]);
-const factoryAbi = parseAbi([
-  "function predictProxyAddress(address sender, uint256 salt) view returns (address)",
-  "function deployProxy(address implementation, uint256 salt, bytes data) returns (address)",
-]);
-const resolverInitAbi = parseAbi([
-  "struct Grant { address account; uint256 roleBitmap; }",
-  "function initialize(Grant[] grants, bytes[] calls)",
-  "function multicall(bytes[] calls) returns (bytes[])",
-]);
+const resolverMulticallAbi = parseAbi(["function multicall(bytes[] calls) returns (bytes[])"]);
 const erc20Abi = parseAbi([
   "function allowance(address owner, address spender) view returns (uint256)",
   "function approve(address spender, uint256 amount) returns (bool)",
   "function balanceOf(address owner) view returns (uint256)",
 ]);
 
-const ALL_ROLES = 0x1111111111111111111111111111111111111111111111111111111111111111n;
-const OWNED_RESOLVER_VERSION = 0n;
 const COIN_TYPE_ETH = 60;
 
 /** Storage slot of ETHRegistrar.commitmentAt (after Ownable._owner and rentPriceOracle). */
@@ -123,33 +118,6 @@ export const getEnsV2RegistrationPrice = async (
     args: [label, duration, token.address],
   });
   return base + premium;
-};
-
-// One resolver per owner, shared by all their names; same salt as ENS's computeOwnedResolverSalt.
-const ownedResolverSalt = (owner: Address) =>
-  BigInt(
-    keccak256(
-      encodeAbiParameters(
-        [{ type: "bytes32" }, { type: "address" }, { type: "uint256" }],
-        [keccak256(stringToHex("OwnedResolver")), owner, OWNED_RESOLVER_VERSION],
-      ),
-    ),
-  );
-
-export const getNameResolver = async (
-  client: PublicClient,
-  deployment: EnsV2RegistrationDeployment,
-  owner: Address,
-) => {
-  const salt = ownedResolverSalt(owner);
-  const address = await client.readContract({
-    address: deployment.verifiableFactory,
-    abi: factoryAbi,
-    functionName: "predictProxyAddress",
-    args: [owner, salt],
-  });
-  const code = await client.getCode({ address });
-  return { address, deployed: Boolean(code && code !== "0x"), salt };
 };
 
 export interface EnsV2RegistrationParams {
@@ -231,7 +199,6 @@ export const getEnsV2Allowance = (
     args: [owner, deployment.registrar],
   });
 
-// The buffer absorbs price drift before register; the registrar pulls only the actual price.
 export const buildEnsV2ApproveCall = (
   deployment: EnsV2RegistrationDeployment,
   token: EnsV2RegistrationToken,
@@ -245,30 +212,6 @@ export const buildEnsV2ApproveCall = (
   }),
   value: 0n,
   title: `Approving ${token.symbol}`,
-});
-
-export const buildEnsV2ResolverDeployCall = (
-  deployment: EnsV2RegistrationDeployment,
-  owner: Address,
-  salt: bigint,
-  recordCalls: Hex[],
-): EnsV2Call => ({
-  to: deployment.verifiableFactory,
-  data: encodeFunctionData({
-    abi: factoryAbi,
-    functionName: "deployProxy",
-    args: [
-      deployment.permissionedResolverImplementation,
-      salt,
-      encodeFunctionData({
-        abi: resolverInitAbi,
-        functionName: "initialize",
-        args: [[{ account: owner, roleBitmap: ALL_ROLES }], recordCalls],
-      }),
-    ],
-  }),
-  value: 0n,
-  title: "Setting up resolver",
 });
 
 export const withOwnerEthAddress = (records: EnsRecords, owner: Address): EnsRecords =>
@@ -300,7 +243,7 @@ export const buildEnsV2RegisterCalls = async (
 
   if (!params.resolverDeployed)
     calls.push(
-      buildEnsV2ResolverDeployCall(deployment, params.owner, params.resolverSalt, recordCalls),
+      buildOwnedResolverDeployCall(deployment, params.owner, params.resolverSalt, recordCalls),
     );
 
   calls.push({
@@ -327,7 +270,7 @@ export const buildEnsV2RegisterCalls = async (
     calls.push({
       to: params.resolver,
       data: encodeFunctionData({
-        abi: resolverInitAbi,
+        abi: resolverMulticallAbi,
         functionName: "multicall",
         args: [recordCalls],
       }),
@@ -436,7 +379,7 @@ export const findResumableEnsV2Commitment = async (
   } catch {}
   if (!saved || saved.durationSeconds !== durationSeconds) return null;
 
-  const resolver = await getNameResolver(client, deployment, owner);
+  const resolver = await getOwnedResolver(client, deployment, owner);
   const commitment = makeEnsV2Commitment({
     label,
     owner,

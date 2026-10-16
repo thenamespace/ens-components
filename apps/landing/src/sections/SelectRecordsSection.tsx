@@ -15,6 +15,7 @@ const [records, setRecords] = useState<EnsRecords>({ addresses: [], texts: [] })
 <SelectRecordsForm
   records={records}
   onRecordsUpdated={setRecords}
+  noBorder={true}
 />`;
 
 export function SelectRecordsSection() {
@@ -33,7 +34,7 @@ export function SelectRecordsSection() {
           <CodePanel title="SelectRecordsForm.tsx" code={SELECT_RECORDS_CODE} />
         </div>
         <DemoPanel>
-          <SelectRecordsForm records={records} onRecordsUpdated={setRecords} />
+          <SelectRecordsForm records={records} onRecordsUpdated={setRecords} noBorder />
         </DemoPanel>
       </div>
     </section>

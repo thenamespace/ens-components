@@ -186,6 +186,7 @@ export const CommitmentStep: React.FC<CommitmentStepProps> = ({
             </Text>
             {!isCompleted && (
               <Button
+                data-testid="commit-button"
                 disabled={btnDisabled}
                 onClick={() => handleCommitment()}
                 className="mt-3 ns-wd-100"

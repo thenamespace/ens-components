@@ -202,7 +202,12 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
             Your name is not registered until you've completed the second transaction. You have 23
             hours remaining to complete it.
           </Text>
-          <Button disabled={btnDisabled} onClick={handleRegistration} className="mt-3 ns-wd-100">
+          <Button
+            data-testid="register-button"
+            disabled={btnDisabled}
+            onClick={handleRegistration}
+            className="mt-3 ns-wd-100"
+          >
             {btnLabel}
           </Button>
           <ContractErrorLabel error={error} />

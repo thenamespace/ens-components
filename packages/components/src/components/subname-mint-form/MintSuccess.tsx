@@ -105,7 +105,9 @@ export const MintSuccess: React.FC<MintSuccessProps> = ({
         <div className="ens-registration-success-body">
           <div className="ens-registration-success-title-section">
             <Identicon seed={data.fullName} size={44} />
-            <span className="ens-registration-success-name">{data.fullName}</span>
+            <span className="ens-registration-success-name" data-testid="mint-success-name">
+              {data.fullName}
+            </span>
           </div>
 
           <div className="ens-registration-success-summary">

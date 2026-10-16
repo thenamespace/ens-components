@@ -78,12 +78,17 @@ interface SubnameMintFormProps {
   txConfirmations?: number;
   onConnectWallet?: () => void;
   version?: 1 | 2;
+  noBorder?: boolean;
+  resolver?: Address;
 }
 
 const MIN_ENS_LEN = 1;
 
-export const SubnameMintForm = ({ version = 1, ...props }: SubnameMintFormProps) =>
-  version === 2 ? <SubnameMintFormV2 {...props} /> : <SubnameMintFormV1 {...props} />;
+export const SubnameMintForm = ({ version = 1, noBorder, ...props }: SubnameMintFormProps) => (
+  <div className={noBorder ? "ns-no-border-scope" : undefined} style={{ display: "contents" }}>
+    {version === 2 ? <SubnameMintFormV2 {...props} /> : <SubnameMintFormV1 {...props} />}
+  </div>
+);
 
 const SubnameMintFormV1 = ({
   parentName,

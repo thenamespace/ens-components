@@ -70,7 +70,9 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
             <Identicon seed={`${ensName}.eth`} size={44} />
             <div className="ens-registration-success-name-col">
               <Tag tone="blue">REGISTERED</Tag>
-              <span className="ens-registration-success-name">{ensName}.eth</span>
+              <span className="ens-registration-success-name" data-testid="registration-success-name">
+                {ensName}.eth
+              </span>
             </div>
           </div>
           <div className="ens-registration-success-summary">

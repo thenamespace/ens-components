@@ -1,7 +1,6 @@
 import type { PublicClient } from "viem";
 
-// eth_maxPriorityFeePerGas can be far below what wallets actually tip (0.001 vs ~1 gwei on
-// Sepolia), so the tip comes from recent blocks instead.
+// eth_maxPriorityFeePerGas can be ~1000x below what wallets tip, so the tip comes from recent blocks.
 export const estimateEffectiveGasPrice = async (
   client: PublicClient
 ): Promise<bigint> => {

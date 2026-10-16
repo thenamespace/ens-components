@@ -181,6 +181,7 @@ export const EnsUpdateRecordsForm = ({
                   Cancel
                 </Button>
                 <Button
+                  data-testid="records-next"
                   disabled={!hasDifference}
                   size="lg"
                   onClick={handleNext}

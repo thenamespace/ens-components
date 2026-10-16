@@ -5,7 +5,7 @@ import { Text } from "@/components/atoms";
 import { Alert, PricingDisplay, TokenSelect } from "@/components/molecules";
 import { useEthDollarValue } from "@/hooks";
 import type { EnsRecords } from "@/types";
-import { deepCopy, formatTokenAmount, getEnsRecordsDiff } from "@/utils";
+import { deepCopy, formatTokenAmount, getEnsRecordsDiff, getOwnedResolver } from "@/utils";
 import { secondsFromYears } from "@/utils/date";
 import { RegistrationSummary } from "../RegistrationSummary";
 import { SetNameRecords } from "../SetNameRecords";
@@ -27,7 +27,6 @@ import {
   estimateEnsV2RegistrationFees,
   getEnsV2RegistrationDeployment,
   getEnsV2RegistrationPrice,
-  getNameResolver,
   findResumableEnsV2Commitment,
   isEnsV2NameAvailable,
   makeEnsV2Commitment,
@@ -155,7 +154,7 @@ const EnsNameRegistrationFormV2Content = ({
     const run = async () => {
       try {
         const owner = address as Address;
-        const resolver = await getNameResolver(publicClient, deployment, owner);
+        const resolver = await getOwnedResolver(publicClient, deployment, owner);
         const params = {
           label,
           owner,
@@ -193,7 +192,6 @@ const EnsNameRegistrationFormV2Content = ({
     price === undefined ? "N/A" : formatTokenAmount(price, token.decimals, token.symbol);
   const feesDisplay =
     fees.data?.feeWei == null ? "N/A" : formatTokenAmount(fees.data.feeWei, 18, "ETH");
-  // Payment tokens are stablecoins, so the fee counts as $1 per token.
   const totalUsd =
     price === undefined
       ? undefined
@@ -366,6 +364,7 @@ const EnsNameRegistrationFormV2Content = ({
       {step === Step.Prerequisites && (
         <EnsV2PrerequisitesSteps
           steps={prerequisiteSteps}
+          subtitle="Complete these before your ENS registration"
           isTestnet={props.isTestnet || false}
           onBack={() => setStep(Step.Summary)}
           onCompleted={enterProcess}

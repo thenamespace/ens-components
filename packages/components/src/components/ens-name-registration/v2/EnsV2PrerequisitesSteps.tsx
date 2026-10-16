@@ -22,6 +22,17 @@ export interface EnsV2PrerequisiteStep {
   send: () => Promise<SentTransaction>;
 }
 
+export const resolverDeployStep = (
+  send: () => Promise<SentTransaction>,
+): EnsV2PrerequisiteStep => ({
+  key: "resolver",
+  title: "Deploy Resolver",
+  heading: "Your Own Resolver",
+  description:
+    "ENSv2 gives your wallet its own resolver, which stores the records of every name you register. You deploy it once and reuse it for all your names.",
+  send,
+});
+
 export const buildEnsV2PrerequisiteSteps = ({
   needsResolver,
   needsApproval,
@@ -38,15 +49,7 @@ export const buildEnsV2PrerequisiteSteps = ({
   sendApproval: () => Promise<SentTransaction>;
 }): EnsV2PrerequisiteStep[] => {
   const steps: EnsV2PrerequisiteStep[] = [];
-  if (needsResolver)
-    steps.push({
-      key: "resolver",
-      title: "Deploy Resolver",
-      heading: "Your Own Resolver",
-      description:
-        "ENSv2 gives your wallet its own resolver, which stores the records of every name you register. You deploy it once and reuse it for all your names.",
-      send: sendResolverDeploy,
-    });
+  if (needsResolver) steps.push(resolverDeployStep(sendResolverDeploy));
   if (needsApproval)
     steps.push({
       key: "approval",
@@ -60,6 +63,7 @@ export const buildEnsV2PrerequisiteSteps = ({
 
 interface EnsV2PrerequisitesStepsProps {
   steps: EnsV2PrerequisiteStep[];
+  subtitle: string;
   isTestnet?: boolean;
   onBack: () => void;
   onCompleted: () => void;
@@ -67,7 +71,7 @@ interface EnsV2PrerequisitesStepsProps {
 
 export const EnsV2PrerequisitesSteps: React.FC<
   EnsV2PrerequisitesStepsProps
-> = ({ steps, isTestnet, onBack, onCompleted }) => {
+> = ({ steps, subtitle, isTestnet, onBack, onCompleted }) => {
   const [current, setCurrent] = useState(0);
   const [waitingWallet, setWaitingWallet] = useState(false);
   const [tx, setTx] = useState<{ hash: Hash; completed: boolean } | null>(null);
@@ -158,7 +162,7 @@ export const EnsV2PrerequisitesSteps: React.FC<
           Additional Steps Required
         </Text>
         <Text size="xs" color="grey">
-          Complete these before your ENS registration
+          {subtitle}
         </Text>
       </div>
       {steps.map((step, index) => (
@@ -185,6 +189,7 @@ export const EnsV2PrerequisitesSteps: React.FC<
                   {step.description}
                 </Text>
                 <Button
+                  data-testid="prerequisite-send"
                   disabled={waitingWallet}
                   onClick={() => handleSend(step)}
                   className="mt-3 ns-wd-100"

@@ -44,6 +44,7 @@ interface OffchainSubnameFormProps {
   avatarUploadDomain?: string;
   onSubnameCreated?: (data: OffchainSubnameCreatedData) => Promise<void> | void;
   onSubnameUpdated?: (data: OffchainSubnameCreatedData) => Promise<void> | void;
+  noBorder?: boolean;
 }
 
 const MIN_ENS_LEN = 1;
@@ -60,6 +61,7 @@ export const OffchainSubnameForm = ({
   onCancel,
   onSubnameCreated,
   onSubnameUpdated,
+  noBorder,
 }: OffchainSubnameFormProps) => {
   const client = offchainManager;
 
@@ -332,7 +334,7 @@ export const OffchainSubnameForm = ({
   const errorMessage = createError || checkError;
 
   return (
-    <div className="ns-offchain-subname-form">
+    <div className={`ns-offchain-subname-form${noBorder ? " ns-no-border" : ""}`}>
       <div className="ns-form-stack">
         {!hideTitle && (
           <FormHeader
