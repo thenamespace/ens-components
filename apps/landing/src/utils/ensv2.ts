@@ -68,8 +68,9 @@ export const getEnsV2Owner = async (client: PublicClient, name: string): Promise
 
 /**
  * Reads the supported text and address records through the universal resolver,
- * which handles both node-keyed and name-aware ENSv2 resolvers. Resolvio only
- * indexes mainnet, so testnet names are read on-chain. Non-EVM addresses (BTC, SOL)
+ * which handles both node-keyed and name-aware ENSv2 resolvers and falls back to
+ * ENSv1 for names that live there. Resolvio only indexes mainnet, so testnet
+ * names are read on-chain. Non-EVM addresses (BTC, SOL)
  * are skipped because they need chain-specific decoding.
  */
 export const fetchEnsV2Records = async (client: PublicClient, name: string) => {

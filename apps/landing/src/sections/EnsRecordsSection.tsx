@@ -42,6 +42,7 @@ async function fetchEnsProfile(name: string) {
 
 const ENS_REGISTRY = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e" as const;
 const NAME_WRAPPER  = "0xD4416b13d2b3a9aBae7AcD5D6C2BbDBE25686401" as const;
+const SEPOLIA_NAME_WRAPPER = "0x0635513f179D50A207757E05759CbD106d7dFcE8" as const;
 
 const REGISTRY_ABI = [{
   name: "owner", type: "function", stateMutability: "view",
@@ -91,18 +92,21 @@ export function EnsRecordsSection({ isTestnet, version }: { isTestnet: boolean; 
   };
 
   const lookupOwner = async (name: string): Promise<string> => {
-    if (isTestnet) return getEnsV2Owner(sepoliaPc!, name);
+    if (isTestnet && version === 2) return getEnsV2Owner(sepoliaPc!, name);
+    // ENSv1 shares the registry address across chains; only the wrapper differs.
+    const client = isTestnet ? sepoliaPc! : pc!;
+    const wrapper = isTestnet ? SEPOLIA_NAME_WRAPPER : NAME_WRAPPER;
     const node = namehash(name);
-    const registryOwner = await pc!.readContract({
+    const registryOwner = await client.readContract({
       address: ENS_REGISTRY,
       abi: REGISTRY_ABI,
       functionName: "owner",
       args: [node],
     });
-    if (registryOwner.toLowerCase() === NAME_WRAPPER.toLowerCase()) {
+    if (registryOwner.toLowerCase() === wrapper.toLowerCase()) {
       const tokenId = BigInt(node);
-      const wrapperOwner = await pc!.readContract({
-        address: NAME_WRAPPER,
+      const wrapperOwner = await client.readContract({
+        address: wrapper,
         abi: WRAPPER_ABI,
         functionName: "ownerOf",
         args: [tokenId],
@@ -199,7 +203,7 @@ export function EnsRecordsSection({ isTestnet, version }: { isTestnet: boolean; 
                   isTestnet={isTestnet}
                   version={version}
                   resolverAddress={values.resolverAddress || undefined}
-                  resolverChainId={values.resolverChainId || undefined}
+                  // resolverChainId is left to the form, which infers it from isTestnet.
                   noBorder={values.noBorder}
                   txConfirmations={values.txConfirmations || undefined}
                   avatarUploadDomain={values.avatarUploadDomain || undefined}

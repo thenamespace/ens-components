@@ -8,6 +8,7 @@ import { DemoPanel } from "../components/DemoPanel";
 import { PropsEditor } from "../components/PropsEditor";
 import { generateCode } from "../components/generateCode";
 import type { PropDef } from "../components/types";
+import { getParentOverride } from "../utils/parentOverride";
 
 const MINT_DEFS: PropDef[] = [
   { key: "name",      type: "string",  default: "ninjabase.eth", tip: "The ENS name users will mint subnames under", required: true, readonly: true },
@@ -18,7 +19,7 @@ const MINT_DEFS: PropDef[] = [
 
 export function SubnameMintSection({ isTestnet, version }: { isTestnet: boolean; version: 1 | 2 }) {
   const { openConnectModal } = useConnectModal();
-  const parentName = isTestnet ? "arti.eth" : "ninjabase.eth";
+  const parentName = isTestnet ? (getParentOverride() ?? "arti.eth") : "ninjabase.eth";
   const [values, setValues] = useState<Record<string, any>>(() => ({
     ...Object.fromEntries(MINT_DEFS.map((d) => [d.key, d.default])),
     name: parentName,

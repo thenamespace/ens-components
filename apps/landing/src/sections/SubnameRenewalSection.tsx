@@ -11,9 +11,10 @@ import { PropsEditor } from "../components/PropsEditor";
 import { Chip, KitButton, TestKit, TestStep } from "../components/TestKit";
 import { generateCode } from "../components/generateCode";
 import type { PropDef } from "../components/types";
+import { getParentOverride } from "../utils/parentOverride";
 import { fetchJson, type ManagerActivation, type ManagerSubname, SEPOLIA_ETH_FAUCET } from "../utils/testTokens";
 
-const PARENT = "arti.eth";
+const PARENT = getParentOverride() ?? "arti.eth";
 const PERMANENT = 18446744073709551615n;
 
 const SUB_RENEW_DEFS: PropDef[] = [
