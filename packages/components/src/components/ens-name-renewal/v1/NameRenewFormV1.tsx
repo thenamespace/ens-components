@@ -422,7 +422,7 @@ export const NameRenewFormV1 = ({
         {insufficient && (
           <div className="mt-2">
             <Alert variant="warning">
-              <Text size="sm">Insufficient funds</Text>
+              <Text size="sm" data-testid="insufficient-funds">Insufficient funds</Text>
             </Alert>
           </div>
         )}

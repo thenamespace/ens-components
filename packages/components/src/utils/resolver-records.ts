@@ -13,7 +13,14 @@ import { encode } from "@ensdomains/content-hash";
 import type { EnsAddressRecord, EnsContenthashRecord, EnsTextRecord } from "@/types";
 import type { EnsRecordsDiff } from "./records";
 
-export type ResolverStyle = "node" | "permissioned";
+/**
+ * How a resolver keys its record setters:
+ * - "node": standard ENS, by namehash.
+ * - "permissioned": ENSv2 name-aware resolvers, by DNS-encoded name.
+ * - "subname": Namespace SimplifiedResolver, by parent label and label of a
+ *   `label.parent.eth` subname, authorized against the subname's live ENSv2 owner.
+ */
+export type ResolverStyle = "node" | "permissioned" | "subname";
 
 const NAME_SETTER_INTERFACES = ["0x8c2427cc", "0xc7279f88"] as const;
 
@@ -26,6 +33,14 @@ const nodeAbi = parseAbi([
   "function setAddr(bytes32 node, uint256 coinType, bytes value)",
   "function setContenthash(bytes32 node, bytes hash)",
   "function multicall(bytes[] data) returns (bytes[])",
+]);
+
+const subnameAbi = parseAbi([
+  "function ethRegistry() view returns (address)",
+  "function setText(string parentLabel, string label, string key, string value)",
+  "function setAddr(string parentLabel, string label, uint256 coinType, bytes value)",
+  "function setContenthash(string parentLabel, string label, bytes hash)",
+  "function multicallForSubname(string parentLabel, string label, bytes[] calls) returns (bytes[])",
 ]);
 
 const permissionedAbi = parseAbi([
@@ -51,7 +66,20 @@ export const detectResolverStyle = async (
         .catch(() => false),
     ),
   );
-  return supported.some(Boolean) ? "permissioned" : "node";
+  if (supported.some(Boolean)) return "permissioned";
+  // SimplifiedResolver reports only the standard interfaces; ethRegistry() is unique to it.
+  const isSubnameResolver = await client
+    .readContract({ address: resolver, abi: subnameAbi, functionName: "ethRegistry" })
+    .then(() => true, () => false);
+  return isSubnameResolver ? "subname" : "node";
+};
+
+/** Splits `label.parent.eth` into the labels SimplifiedResolver keys records by. */
+const subnameLabels = (name: string) => {
+  const labels = name.split(".");
+  if (labels.length !== 3 || labels[2] !== "eth")
+    throw new Error(`${name} isn't a subname of a .eth name, which this resolver requires`);
+  return { label: labels[0], parentLabel: labels[1] };
 };
 
 export const dnsEncodeName = (name: string): Hex => toHex(packetToBytes(name));
@@ -72,6 +100,29 @@ type Setters = {
 };
 
 const settersFor = (style: ResolverStyle, name: string): Setters => {
+  if (style === "subname") {
+    const { parentLabel, label } = subnameLabels(name);
+    return {
+      text: (t) =>
+        encodeFunctionData({
+          abi: subnameAbi,
+          functionName: "setText",
+          args: [parentLabel, label, t.key, t.value],
+        }),
+      address: (coinType, value) =>
+        encodeFunctionData({
+          abi: subnameAbi,
+          functionName: "setAddr",
+          args: [parentLabel, label, BigInt(coinType), value],
+        }),
+      contenthash: (value) =>
+        encodeFunctionData({
+          abi: subnameAbi,
+          functionName: "setContenthash",
+          args: [parentLabel, label, value],
+        }),
+    };
+  }
   if (style === "permissioned") {
     const dnsName = dnsEncodeName(name);
     return {
@@ -151,6 +202,17 @@ export const encodeRecordsUpdate = (
   diff: EnsRecordsDiff,
 ): { to: Address; data: Hex } => {
   const calls = encodeRecordSetters(style, name, diff);
+  if (style === "subname") {
+    const { parentLabel, label } = subnameLabels(name);
+    return {
+      to: resolver,
+      data: encodeFunctionData({
+        abi: subnameAbi,
+        functionName: "multicallForSubname",
+        args: [parentLabel, label, calls],
+      }),
+    };
+  }
   return {
     to: resolver,
     data: encodeFunctionData({

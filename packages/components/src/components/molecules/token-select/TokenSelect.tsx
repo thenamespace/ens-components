@@ -31,7 +31,7 @@ export const TokenSelect: React.FC<TokenSelectProps> = ({
       align="end"
       disabled={disabled}
       trigger={
-        <span className="ns-token-select__trigger">
+        <span className="ns-token-select__trigger" data-testid="token-select" data-value={value}>
           <TokenIcon symbol={value} />
           <Text size="sm" weight="medium">
             {value}
@@ -44,6 +44,7 @@ export const TokenSelect: React.FC<TokenSelectProps> = ({
         {options.map(option => (
           <button
             className="ns-token-select__item"
+            data-testid={`token-option-${option.symbol}`}
             data-selected={option.symbol === value}
             key={option.symbol}
             onClick={() => onChange(option.symbol)}

@@ -391,14 +391,15 @@ const SubnameMintFormV2Content = ({
       ? "N/A"
       : formatAmount(amount, token.decimals, token.symbol);
 
-  const feeEth = fees.data ? Number(formatUnits(fees.data.feeWei, 18)) : 0;
-  const feesDisplay = fees.failed
+  const feeUnknown = fees.failed || fees.data?.feeWei === null;
+  const feeEth = fees.data?.feeWei != null ? Number(formatUnits(fees.data.feeWei, 18)) : 0;
+  const feesDisplay = feeUnknown
     ? "N/A"
     : formatAmount(fees.data?.feeWei ?? 0n, 18, "ETH");
   const payingEth = token.symbol === "ETH" || isFree;
   const totalDisplay = (() => {
     if (!payingEth) return priceDisplay;
-    if (fees.failed) return isFree ? "N/A" : priceDisplay;
+    if (feeUnknown) return isFree ? "N/A" : priceDisplay;
     const priceEth = isFree || amount === undefined ? 0 : Number(formatUnits(amount, 18));
     const sum = priceEth + feeEth;
     return sum === 0 ? "Free" : formatAmount(BigInt(Math.round(sum * 1e18)), 18, "ETH");
@@ -643,7 +644,7 @@ const SubnameMintFormV2Content = ({
       )}
 
       {quote.error && (
-        <div className="mt-2">
+        <div className="mt-2" data-testid="form-error">
           <Alert variant="error" position="vertical">
             <Text size="sm">{quote.error}</Text>
           </Alert>
@@ -651,7 +652,7 @@ const SubnameMintFormV2Content = ({
       )}
 
       {error && (
-        <div className="mt-2">
+        <div className="mt-2" data-testid="form-error">
           <Alert variant="error" position="vertical">
             <Text size="sm">{error}</Text>
           </Alert>
@@ -661,7 +662,7 @@ const SubnameMintFormV2Content = ({
       {hasInsufficientFunds && (
         <div className="mt-2">
           <Alert variant="warning">
-            <Text size="sm">Insufficient funds</Text>
+            <Text size="sm" data-testid="insufficient-funds">Insufficient funds</Text>
           </Alert>
         </div>
       )}

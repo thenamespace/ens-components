@@ -64,6 +64,7 @@ export const SetSubnameRecords: React.FC<SetSubnameRecordsProps> = ({
               Cancel
             </Button>
             <Button
+              data-testid="records-save"
               disabled={!hasChanges}
               size="lg"
               style={{ flex: 1 }}

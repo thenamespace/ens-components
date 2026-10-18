@@ -9,6 +9,7 @@ export const ProfileSelector = ({ onSelect }: ProfileSelectorProps) => {
   return (
     <div
       className="ens-profile-selector"
+      data-testid="mint-set-profile"
       onClick={onSelect}
       style={{ cursor: "pointer" }}
     >

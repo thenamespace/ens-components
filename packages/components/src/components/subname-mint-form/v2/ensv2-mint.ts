@@ -366,7 +366,8 @@ const erc20BalanceAbi = parseAbi([
 ]);
 
 export interface EnsV2MintFees {
-  feeWei: bigint;
+  /** Null when the calls can't be simulated because the wallet lacks the payment token. */
+  feeWei: bigint | null;
   shortfallEthWei: bigint;
   shortfallToken: bigint;
 }
@@ -378,12 +379,14 @@ export const estimateEnsV2MintFees = async (
   payment: { token: EnsV2PaymentToken; amount: bigint },
 ): Promise<EnsV2MintFees> => {
   const isNative = payment.token.address === zeroAddress;
-  const [{ results }, gasPrice, ethBalance, tokenBalance] = await Promise.all([
-    client.simulateCalls({
-      account,
-      calls,
-      stateOverrides: [{ address: account, balance: 10n ** 30n }],
-    }),
+  const [simulation, gasPrice, ethBalance, tokenBalance] = await Promise.all([
+    client
+      .simulateCalls({
+        account,
+        calls,
+        stateOverrides: [{ address: account, balance: 10n ** 30n }],
+      })
+      .catch(() => null),
     estimateEffectiveGasPrice(client),
     client.getBalance({ address: account }),
     isNative || payment.amount === 0n
@@ -396,8 +399,15 @@ export const estimateEnsV2MintFees = async (
         }),
   ]);
 
-  const failed = results.find((r) => r.status !== "success");
-  if (failed) throw new Error("The mint would fail.");
+  const shortfallToken =
+    isNative || tokenBalance >= payment.amount ? 0n : payment.amount - tokenBalance;
+  const results = simulation?.results;
+  if (!results || results.some((r) => r.status !== "success")) {
+    // Without enough of the token the transfer reverts in simulation; report the
+    // shortfall so the form can say so instead of offering a failing transaction.
+    if (shortfallToken > 0n) return { feeWei: null, shortfallEthWei: 0n, shortfallToken };
+    throw new Error("The mint would fail.");
+  }
 
   const gas = results.reduce((sum, r) => sum + r.gasUsed, 0n);
   const feeWei = gas * gasPrice;
@@ -406,10 +416,7 @@ export const estimateEnsV2MintFees = async (
   return {
     feeWei,
     shortfallEthWei: ethBalance >= ethNeeded ? 0n : ethNeeded - ethBalance,
-    shortfallToken:
-      isNative || tokenBalance >= payment.amount
-        ? 0n
-        : payment.amount - tokenBalance,
+    shortfallToken,
   };
 };
 

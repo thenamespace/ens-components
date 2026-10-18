@@ -858,7 +858,7 @@ const SubnameMintFormContent = ({
       {hasInsufficientFunds && (
         <div>
           <Alert variant="warning">
-            <Text size="sm">Insufficient funds</Text>
+            <Text size="sm" data-testid="insufficient-funds">Insufficient funds</Text>
           </Alert>
         </div>
       )}

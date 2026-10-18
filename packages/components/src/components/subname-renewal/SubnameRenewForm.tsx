@@ -411,12 +411,13 @@ const SubnameRenewFormContent = ({
     : amount === undefined
       ? "N/A"
       : formatTokenAmount(amount, token.decimals, token.symbol);
-  const feesDisplay = fees.failed
+  const feeUnknown = fees.failed || fees.data?.feeWei === null;
+  const feesDisplay = feeUnknown
     ? "N/A"
     : formatTokenAmount(fees.data?.feeWei ?? 0n, 18, "ETH");
   const payingEth = token.address === zeroAddress || isFree;
   const totalDisplay = (() => {
-    if (!payingEth || fees.failed) return priceDisplay;
+    if (!payingEth || feeUnknown) return priceDisplay;
     const sum =
       (isFree || amount === undefined ? 0n : amount) +
       (fees.data?.feeWei ?? 0n);
@@ -525,14 +526,14 @@ const SubnameRenewFormContent = ({
       )}
 
       {quote.error && (
-        <div className="mt-2">
+        <div className="mt-2" data-testid="form-error">
           <Alert variant="error" position="vertical">
             <Text size="sm">{quote.error}</Text>
           </Alert>
         </div>
       )}
       {error && (
-        <div className="mt-2">
+        <div className="mt-2" data-testid="form-error">
           <Alert variant="error" position="vertical">
             <Text size="sm">{error}</Text>
           </Alert>
@@ -541,7 +542,7 @@ const SubnameRenewFormContent = ({
       {insufficient && (
         <div className="mt-2">
           <Alert variant="warning">
-            <Text size="sm">Insufficient funds</Text>
+            <Text size="sm" data-testid="insufficient-funds">Insufficient funds</Text>
           </Alert>
         </div>
       )}

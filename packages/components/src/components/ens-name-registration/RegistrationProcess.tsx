@@ -88,6 +88,10 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
   );
   const [showConfirmClose, setShowConfirmClose] = useState(false);
 
+  /** Exposed as `data-status` so tests can wait for a step instead of its button. */
+  const stepStatus = (from: ProcessSteps, done: ProcessSteps) =>
+    registrationState.step >= done ? "completed" : registrationState.step >= from ? "current" : "pending";
+
   useEffect(() => {
     setRegistrationState((prev) => ({ ...prev, records }));
   }, [records]);
@@ -152,7 +156,7 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
 
       {isOnCorrectNetwork && (
         <>
-          <div className="mt-2">
+          <div className="mt-2" data-testid="registration-step-commit" data-status={stepStatus(ProcessSteps.Start, ProcessSteps.CommitmentCompleted)}>
             <CommitmentStep
               state={registrationState}
               isTestnet={isTestnet}
@@ -165,10 +169,10 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
               }}
             />
           </div>
-          <div className="mt-2">
+          <div className="mt-2" data-testid="registration-step-timer" data-status={stepStatus(ProcessSteps.CommitmentCompleted, ProcessSteps.TimerCompleted)}>
             <TimerStep state={registrationState} onTimerCompleted={handleTimerPassed} />
           </div>
-          <div className="mt-2">
+          <div className="mt-2" data-testid="registration-step-register" data-status={stepStatus(ProcessSteps.TimerCompleted, ProcessSteps.RegistrationCompleted)}>
             <RegistrationStep
               state={registrationState}
               isTestnet={isTestnet}

@@ -329,7 +329,7 @@ const EnsNameRegistrationFormV2Content = ({
       {step === Step.Summary && !showProfile && insufficient && (
         <div className="ens-registration-floating-alert">
           <Alert variant="warning">
-            <Text size="sm">Insufficient funds</Text>
+            <Text size="sm" data-testid="insufficient-funds">Insufficient funds</Text>
           </Alert>
         </div>
       )}

@@ -121,6 +121,7 @@ export const AddressRecords = ({
                 className="d-flex align-items-center"
               >
                 <Input
+                  data-testid={`address-record-input-${record.coinType}`}
                   ref={(el: HTMLInputElement | null) => {
                     inputRefs.current[record.coinType] = el;
                   }}
@@ -157,6 +158,7 @@ export const AddressRecords = ({
             <div key={record.coinType} className="col col-lg-3 col-sm-6 col-6">
               <div
                 className="ns-text-suggestion"
+                data-testid={`address-record-add-${record.coinType}`}
                 onClick={() => handleAddressAdded(record.coinType)}
               >
                 <ChainIcon size={16} chain={record.chainName} />
