@@ -1,49 +1,73 @@
-import { testWithSynpress } from "@synthetixio/synpress";
-import { MetaMask, metaMaskFixtures } from "@synthetixio/synpress/playwright";
-import { type Address, getAddress } from "viem";
-import walletSetup from "../wallet-setup/basic.setup";
+import { writeFileSync } from "node:fs";
+import { test as base, expect, type Locator, type Page } from "@playwright/test";
+import type { Address } from "viem";
+import { type BatchMode, TestWallet } from "../wallet/TestWallet";
+import { env } from "./env";
 
-/**
- * MetaMask reports EIP-5792 atomic batching for EOAs and answers `wallet_sendCalls`
- * with a smart-account upgrade screen that Synpress has no helper for. Hiding the
- * capability makes the components fall back to one transaction per wallet prompt,
- * which keeps the prompt sequence deterministic. The atomic path is not covered.
- */
-const disableAtomicBatching = () => {
-  const patched = new WeakSet<object>();
-  const patch = (provider: any) => {
-    if (!provider || patched.has(provider)) return;
-    patched.add(provider);
-    const request = provider.request.bind(provider);
-    provider.request = (args: { method: string }) =>
-      args?.method === "wallet_getCapabilities"
-        ? Promise.reject(Object.assign(new Error("Method not supported"), { code: 4200 }))
-        : request(args);
-  };
-  window.addEventListener("eip6963:announceProvider", (e: any) => patch(e.detail?.provider));
-  window.addEventListener("ethereum#initialized", () => patch((window as any).ethereum));
-  patch((window as any).ethereum);
-};
-
-export const test = testWithSynpress(metaMaskFixtures(walletSetup)).extend<{
-  wallet: MetaMask;
-  /** Opens the landing page with MetaMask connected and returns the wallet address. */
-  connect: () => Promise<Address>;
+export const test = base.extend<{
+  /** How the wallet answers EIP-5792 batching; override per describe with `test.use`. */
+  batchMode: BatchMode;
+  wallet: TestWallet;
+  /** Opens the landing page (optionally with a query string) and connects the test wallet. */
+  connect: (path?: string) => Promise<Address>;
 }>({
-  wallet: async ({ context, metamaskPage, extensionId }, use) => {
-    await use(new MetaMask(context, metamaskPage, walletSetup.walletPassword, extensionId));
+  batchMode: ["sequential", { option: true }],
+  wallet: async ({ page, batchMode }, use, testInfo) => {
+    test.skip(!env.privateKey, "Set E2E_PRIVATE_KEY, see apps/e2e/.env.example");
+    const wallet = new TestWallet(env.privateKey!, env.rpcUrl, batchMode);
+    await wallet.install(page);
+    await use(wallet);
+    // What the app asked the wallet for, and what it got back, is the first thing to check on failure.
+    if (testInfo.status !== testInfo.expectedStatus) {
+      const path = testInfo.outputPath("wallet-requests.json");
+      writeFileSync(path, JSON.stringify(wallet.requests, (_, v) => (typeof v === "bigint" ? v.toString() : v), 2));
+      await testInfo.attach("wallet-requests", { path, contentType: "application/json" });
+    }
   },
   connect: async ({ page, wallet }, use) => {
-    await use(async () => {
-      await page.addInitScript(disableAtomicBatching);
-      await page.goto("/");
+    await use(async (path = "/") => {
+      await page.goto(path);
+      // The sticky nav sits over buttons Playwright scrolls to the top edge and swallows their clicks.
+      await page.addStyleTag({ content: "nav.nav { position: static !important; }" });
       await page.getByTestId("nav-connect-wallet").click();
-      await page.getByRole("dialog").getByRole("button", { name: /metamask/i }).first().click();
-      await wallet.connectToDapp();
-      await page.getByTestId("nav-wallet-address").waitFor();
-      return getAddress(await wallet.getAccountAddress());
+      await page.getByRole("dialog").getByRole("button", { name: /E2E Wallet/ }).click();
+      await expect(page.getByTestId("nav-wallet-address")).toBeVisible();
+      return wallet.address;
     });
   },
 });
 
-export { expect } from "@playwright/test";
+/** Flips the nav ENSv1 / ENSv2 switch to `version`. */
+export const useEnsVersion = async (page: Page, version: 1 | 2) => {
+  const toggle = page.getByTestId("ens-version-switch");
+  if ((await toggle.getAttribute("aria-checked")) !== String(version === 2)) await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-checked", String(version === 2));
+};
+
+/**
+ * Clicks the button `testId` once it enables. Fails right away, instead of timing
+ * out, when the form says the wallet is short of funds or shows an error.
+ */
+export const clickWhenEnabled = async (scope: Locator, testId: string, timeout = 90_000) => {
+  const button = scope.locator(`[data-testid="${testId}"]:enabled`);
+  const insufficient = scope.getByTestId("insufficient-funds");
+  const error = scope.getByTestId("form-error");
+  await expect(button.or(insufficient).or(error).first()).toBeVisible({ timeout });
+  if (await insufficient.isVisible()) throw new Error("The test wallet has insufficient funds for this flow.");
+  if (await error.isVisible()) throw new Error(`Form error: ${await error.innerText()}`);
+  await button.click();
+};
+
+/**
+ * Waits for a flow to finish: the success element `successTestId` showing `text`, or
+ * fails early with the message of the form error that appeared instead.
+ */
+export const expectOutcome = async (scope: Locator, successTestId: string, text: string, timeout = 4 * 60_000) => {
+  const success = scope.getByTestId(successTestId);
+  const error = scope.getByTestId("form-error").or(scope.getByTestId("contract-error")).first();
+  await expect(success.or(error).first()).toBeVisible({ timeout });
+  if (await error.isVisible()) throw new Error(`Form error: ${await error.innerText()}`);
+  await expect(success).toHaveText(text);
+};
+
+export { expect };

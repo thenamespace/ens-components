@@ -4,14 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "wallet:cache": "synpress test/wallet-setup",
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@ensdomains/content-hash": "3.1.0-rc.1",
     "@playwright/test": "^1.64.0",
-    "@synthetixio/synpress": "4.1.2",
     "@types/node": "^26.6.5",
     "dotenv": "^18.0.7",
     "typescript": "^5.9.3",
