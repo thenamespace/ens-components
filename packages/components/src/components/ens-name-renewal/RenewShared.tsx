@@ -3,6 +3,7 @@ import {
   Button,
   Icon,
   Identicon,
+  Tag,
   Input,
   ShurikenSpinner,
   Text,
@@ -14,6 +15,13 @@ import {
 } from "@/utils";
 import "../ens-name-registration/registration/SuccessScreen.css";
 import "../subname-mint-form/SubnameMintForm.css";
+
+/** Fees as 5-decimal ETH, matching the mint success screen; tiny amounts read "<0.00001". */
+const formatFeeEth = (value: string) => {
+  const num = parseFloat(value);
+  if (!num) return "0";
+  return num < 0.00001 ? "<0.00001" : num.toFixed(5);
+};
 
 export const labelFromName = (name?: string) =>
   name ? name.replace(/\.eth$/, "").split(".")[0] : "";
@@ -147,16 +155,18 @@ export const RenewSuccess = ({
 }) => (
   <div className="ens-registration-success-container">
     <div className="ens-registration-success-card">
-      <div className="ens-registration-success-band">RENEWED</div>
       <div className="ens-registration-success-body">
         <div className="ens-registration-success-title-section">
           <Identicon seed={data.fullName} size={44} />
-          <span
-            className="ens-registration-success-name"
-            data-testid="renew-success-name"
-          >
-            {data.fullName}
-          </span>
+          <div className="ens-registration-success-name-col">
+            <Tag tone="blue">RENEWED</Tag>
+            <span
+              className="ens-registration-success-name"
+              data-testid="renew-success-name"
+            >
+              {data.fullName}
+            </span>
+          </div>
         </div>
         <div className="ens-registration-success-summary">
           <div className="ens-registration-success-summary-row">
@@ -174,7 +184,7 @@ export const RenewSuccess = ({
               Transaction fees
             </Text>
             <Text size="sm" color="grey">
-              {data.transactionFees} ETH
+              {formatFeeEth(data.transactionFees)} ETH
             </Text>
           </div>
           <div className="ens-registration-success-summary-row">

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { TxProgress } from "@/types";
 import { Hash } from "viem";
-import { ProgressBar } from "../molecules";
 import { Button, Text, Icon } from "../atoms";
-import { getBlockExplorerTransactionUrl, getBlockExplorerName, getEnsAppUrl } from "@/utils";
+import { getEnsAppUrl } from "@/utils";
+import { TransactionPendingScreen } from "../ens-name-registration/registration/TransactionPendingScreen";
 import finishLogo from "../../assets/finish.png";
 import "./RecordUpdateProgress.css";
 
@@ -28,34 +28,6 @@ export const RecordUpdateProgress: React.FC<RecordUpdateProgressProps> = ({
   onRetry,
   onViewName,
 }) => {
-  const [progressStep, setProgressStep] = useState(0);
-
-  // Update progress based on transaction status
-  useEffect(() => {
-    if (status === TxProgress.Success) {
-      setProgressStep(100);
-      return;
-    }
-
-    if (status === TxProgress.Failed) {
-      setProgressStep(0);
-      return;
-    }
-
-    // Animate progress while pending
-    const int = setInterval(() => {
-      setProgressStep((prev) => {
-        if (prev >= 98) {
-          return 50; // Reset to 50% to show it's still pending
-        }
-        return prev + 0.4;
-      });
-    }, 100);
-
-    return () => clearInterval(int);
-  }, [status]);
-
-
   // Show success screen
   if (status === TxProgress.Success) {
     return (
@@ -144,24 +116,8 @@ export const RecordUpdateProgress: React.FC<RecordUpdateProgressProps> = ({
 
   // Show pending progress
   return (
-    <div style={{padding:25}}>
-      <div className="ns-text-center">
-        <Text weight="medium">Transaction in Progress</Text>
-        <Text color="grey" size="xs" className="mt-2">
-          Your transaction has been sent!
-        </Text>
-        <ProgressBar progress={progressStep} />
-        <a
-          href={getBlockExplorerTransactionUrl(chainId, tx)}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ textDecoration: "none" }}
-        >
-          <Text className="mt-2" size="xs" color="grey">
-            Check on {getBlockExplorerName(chainId)}
-          </Text>
-        </a>
-      </div>
+    <div style={{ padding: 25 }}>
+      <TransactionPendingScreen chainId={chainId} hash={tx} isCompleted={false} />
     </div>
   );
 };

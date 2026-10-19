@@ -8,7 +8,7 @@ import {
   useSwitchChain,
   useWalletClient,
 } from "wagmi";
-import { ShurikenSpinner, Text } from "@/components/atoms";
+import { Text } from "@/components/atoms";
 import {
   Alert,
   isUserDeniedError,
@@ -424,11 +424,6 @@ export const NameRenewFormV1 = ({
             <Alert variant="warning">
               <Text size="sm" data-testid="insufficient-funds">Insufficient funds</Text>
             </Alert>
-          </div>
-        )}
-        {sending.isWaitingWallet && (
-          <div className="d-flex justify-content-center mt-2">
-            <ShurikenSpinner size={16} />
           </div>
         )}
 

@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Hash } from "viem";
 import { mainnet, sepolia } from "viem/chains";
+import { useAccount } from "wagmi";
 import { Text, Icon } from "../../atoms";
 import { ProgressBar } from "../../molecules";
-import { getBlockExplorerTransactionUrl, getBlockExplorerName } from "@/utils";
+import {
+  getBlockExplorerAddressUrl,
+  getBlockExplorerName,
+  getBlockExplorerTransactionUrl,
+} from "@/utils";
 
 interface TransactionPendingScreenProps {
   message?: string;
@@ -21,9 +26,17 @@ export const TransactionPendingScreen: React.FC<TransactionPendingScreenProps> =
   chainId,
 }) => {
   const [progressStep, setProgressStep] = useState(0);
+  const { address } = useAccount();
   
   // Derive chainId from isTestnet if not provided
   const effectiveChainId = chainId ?? (isTestnet ? sepolia.id : mainnet.id);
+  // A batched send (EIP-5792) has no hash until it is mined; until then the
+  // wallet's own explorer page shows the pending transaction.
+  const explorerUrl = hash
+    ? getBlockExplorerTransactionUrl(effectiveChainId, hash)
+    : address
+      ? getBlockExplorerAddressUrl(effectiveChainId, address)
+      : null;
 
   useEffect(() => {
     if (isCompleted) {
@@ -51,9 +64,9 @@ export const TransactionPendingScreen: React.FC<TransactionPendingScreenProps> =
         {message || "Your transaction has been sent!"}
       </Text>
       <ProgressBar progress={progressStep} />
-      {hash && (
+      {explorerUrl && (
       <a
-        href={getBlockExplorerTransactionUrl(effectiveChainId, hash)}
+        href={explorerUrl}
         target="_blank"
         rel="noopener noreferrer"
         style={{

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Text, ShurikenSpinner } from "@/components/atoms";
+import { Button, Text } from "@/components/atoms";
 import {
   PricingDisplay,
   Alert,
@@ -664,12 +664,6 @@ const SubnameMintFormV2Content = ({
           <Alert variant="warning">
             <Text size="sm" data-testid="insufficient-funds">Insufficient funds</Text>
           </Alert>
-        </div>
-      )}
-
-      {minting.isWaitingWallet && !minting.pending && (
-        <div className="d-flex justify-content-center mt-2">
-          <ShurikenSpinner size={16} />
         </div>
       )}
 

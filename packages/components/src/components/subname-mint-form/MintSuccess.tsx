@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Confetti from "react-confetti";
-import { Button, Identicon, Text } from "../atoms";
+import { Button, Identicon, Tag, Text } from "../atoms";
 import { MintSuccessData } from "./SubnameMintForm";
 import {
   getEnsAppUrl,
@@ -22,7 +22,7 @@ export interface MintSuccessProps {
 const formatEthValue = (value: string, isFree?: boolean): string => {
   const num = parseFloat(value);
   if (isFree || num === 0) return "Free";
-  if (num < 0.00001) return ">0.00001";
+  if (num < 0.00001) return "<0.00001";
   return num.toFixed(5);
 };
 
@@ -30,7 +30,7 @@ const formatEthValue = (value: string, isFree?: boolean): string => {
 const formatTxFees = (value: string): string => {
   const num = parseFloat(value);
   if (num === 0) return "0";
-  if (num < 0.00001) return ">0.00001";
+  if (num < 0.00001) return "<0.00001";
   return num.toFixed(5);
 };
 
@@ -100,14 +100,15 @@ export const MintSuccess: React.FC<MintSuccessProps> = ({
         className="ens-registration-success-card"
         style={{ position: "relative", zIndex: 1 }}
       >
-        <div className="ens-registration-success-band">MINTED</div>
-
         <div className="ens-registration-success-body">
           <div className="ens-registration-success-title-section">
             <Identicon seed={data.fullName} size={44} />
-            <span className="ens-registration-success-name" data-testid="mint-success-name">
-              {data.fullName}
-            </span>
+            <div className="ens-registration-success-name-col">
+              <Tag tone="blue">MINTED</Tag>
+              <span className="ens-registration-success-name" data-testid="mint-success-name">
+                {data.fullName}
+              </span>
+            </div>
           </div>
 
           <div className="ens-registration-success-summary">
