@@ -39,12 +39,12 @@ export interface EnsV2Deployment {
 
 export const ENSV2_SEPOLIA: EnsV2Deployment = {
   chainId: 11155111,
-  manager: "0xB9DF8b94a2C39790d8Cf716A67260515436e58c5",
-  issuer: "0x67a196439075a670fc17b34bC908F6CAaA6b1904",
+  manager: "0x0bFCcbd5815332F7ea27ba71BD593B0799110bDE",
+  issuer: "0x5200fd33Cf7952c518f1123797fBA2ce0D77bFC0",
   sharedResolver: "0x7C48b782cF9c132441844aEBA8b46EC2d80ca067",
   ethRegistry: "0xD4eBcbBdF463C9c45784603Db0dDD499BC44A8B4",
-  whitelistFeature: "0x1f4Da48832F23860Ce465f83bEdEbC13e7D5012d",
-  reservationFeature: "0xeb4dF26099aF1bD834Bc1B9BBF25E065232871f6",
+  whitelistFeature: "0x48B7c6054836DC0B2291B3b3F2D313e84b4Cc678",
+  reservationFeature: "0x5111d49E9B0E02C26F350A585073A36F38758EAf",
   managerApiUrl: "https://manager.namespace.ninja/api/v1",
   paymentTokens: [
     { symbol: "ETH", address: zeroAddress, decimals: 18 },

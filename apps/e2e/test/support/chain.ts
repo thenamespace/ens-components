@@ -30,10 +30,10 @@ export const V1 = {
 export const V2 = {
   ethRegistry: "0xD4eBcbBdF463C9c45784603Db0dDD499BC44A8B4",
   registrar: "0xf633e7fc17e2bbe0d0965d18ec1821dcb754a3d3",
-  manager: "0xB9DF8b94a2C39790d8Cf716A67260515436e58c5",
-  issuer: "0x67a196439075a670fc17b34bC908F6CAaA6b1904",
-  whitelistFeature: "0x1f4Da48832F23860Ce465f83bEdEbC13e7D5012d",
-  reservationFeature: "0xeb4dF26099aF1bD834Bc1B9BBF25E065232871f6",
+  manager: "0x0bFCcbd5815332F7ea27ba71BD593B0799110bDE",
+  issuer: "0x5200fd33Cf7952c518f1123797fBA2ce0D77bFC0",
+  whitelistFeature: "0x48B7c6054836DC0B2291B3b3F2D313e84b4Cc678",
+  reservationFeature: "0x5111d49E9B0E02C26F350A585073A36F38758EAf",
 } as const satisfies Record<string, Address>;
 /** ENSv2 universal resolver; it falls back to ENSv1 too, so it resolves names of both versions. */
 export const UNIVERSAL_RESOLVER: Address = "0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe";
