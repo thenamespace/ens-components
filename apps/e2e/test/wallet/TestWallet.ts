@@ -62,6 +62,7 @@ export class TestWallet {
   private connected = false;
   private rejections = 0;
   private pages = new Set<Page>();
+  private sent: Hash[] = [];
 
   constructor(
     privateKey: Hex,
@@ -195,8 +196,19 @@ export class TestWallet {
     }
   }
 
-  private sendTransaction(tx: { to?: Address; data?: Hex; value?: Hex; gas?: Hex }): Promise<Hash> {
-    return this.walletClient.sendTransaction({
+  /**
+   * Waits until this wallet's own RPC has mined everything it sent before. The app
+   * waits for receipts on its own RPC, which can be a block ahead; estimating the next
+   * call against a node that hasn't seen e.g. an approval yet would make it revert.
+   */
+  private async settlePrevious() {
+    await Promise.all(this.sent.map((hash) => this.publicClient.waitForTransactionReceipt({ hash })));
+    this.sent = [];
+  }
+
+  private async sendTransaction(tx: { to?: Address; data?: Hex; value?: Hex; gas?: Hex }): Promise<Hash> {
+    await this.settlePrevious();
+    const hash = await this.walletClient.sendTransaction({
       account: this.account,
       chain: sepolia,
       to: tx.to,
@@ -204,6 +216,8 @@ export class TestWallet {
       value: tx.value ? hexToBigInt(tx.value) : undefined,
       gas: tx.gas ? hexToBigInt(tx.gas) : undefined,
     });
+    this.sent.push(hash);
+    return hash;
   }
 
   /**
@@ -212,13 +226,14 @@ export class TestWallet {
    * the delegation persists and later batches reuse it.
    */
   private async sendAtomicBatch(calls: CallParam[]): Promise<Hash> {
+    await this.settlePrevious();
     const code = await this.publicClient.getCode({ address: this.address });
     const delegated = code?.toLowerCase() === concatHex([DELEGATION_PREFIX, SIMPLE_7702_ACCOUNT]).toLowerCase();
     const authorizationList = delegated
       ? undefined
       : [await this.walletClient.signAuthorization({ account: this.account, contractAddress: SIMPLE_7702_ACCOUNT, executor: "self" })];
 
-    return this.walletClient.sendTransaction({
+    const hash = await this.walletClient.sendTransaction({
       account: this.account,
       chain: sepolia,
       to: this.address,
@@ -235,6 +250,8 @@ export class TestWallet {
       }),
       authorizationList,
     });
+    this.sent.push(hash);
+    return hash;
   }
 
   /** The batch id is the transaction hash, so its status is that transaction's receipt. */
