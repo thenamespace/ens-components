@@ -15,7 +15,6 @@ import { OffchainSubnameSection } from "./sections/OffchainSubnameSection";
 import { SubnameMintSection } from "./sections/SubnameMintSection";
 import { EnsRenewalSection } from "./sections/EnsRenewalSection";
 import { SubnameRenewalSection } from "./sections/SubnameRenewalSection";
-import { TransactionModalSection } from "./sections/TransactionModalSection";
 import { ReportBugSection } from "./sections/ReportBugSection";
 import { FAQSection } from "./sections/FAQSection";
 import { SwitchChainModal } from "./components/SwitchChainModal";
@@ -236,8 +235,6 @@ export function App() {
           <SubnameMintSection isTestnet={isTestnet} version={ensVersion} />
           <div className="section-divider" />
           <SubnameRenewalSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} onRenewParent={renewParent} version={ensVersion} onVersionChange={setEnsVersion} />
-          <div className="section-divider" />
-          <TransactionModalSection isTestnet={isTestnet} />
           <div className="section-divider" />
           <FAQSection />
           <div className="section-divider" />
