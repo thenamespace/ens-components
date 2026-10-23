@@ -40,3 +40,10 @@ export type { OffchainSubnameCreatedData } from "./offchain-subname-form/Offchai
 export * from "./atoms";
 export * from "./molecules";
 export { TransactionPendingScreen } from "./ens-name-registration/registration/TransactionPendingScreen";
+export { TransactionProgress, TransactionModal } from "./transaction-progress";
+export type {
+  TransactionProgressProps,
+  TransactionProgressStatus,
+  TransactionDetail,
+  TransactionModalProps,
+} from "./transaction-progress";

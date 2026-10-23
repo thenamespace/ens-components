@@ -9,6 +9,7 @@ const COMPONENT_LINKS = [
   { label: "Offchain Subnames", href: "#offchain-subname" },
   { label: "Onchain Subnames",  href: "#subname-mint" },
   { label: "Subname Renewal",   href: "#subname-renewal" },
+  { label: "Transaction Modal", href: "#transaction-modal" },
 ];
 
 export function ComponentsDropdown() {

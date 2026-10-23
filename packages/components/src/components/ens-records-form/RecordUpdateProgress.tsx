@@ -117,7 +117,15 @@ export const RecordUpdateProgress: React.FC<RecordUpdateProgressProps> = ({
   // Show pending progress
   return (
     <div style={{ padding: 25 }}>
-      <TransactionPendingScreen chainId={chainId} hash={tx} isCompleted={false} />
+      <TransactionPendingScreen
+        chainId={chainId}
+        hash={tx}
+        isCompleted={false}
+        details={[
+          { label: "Name", value: ensName },
+          { label: "Action", value: "Update Records" },
+        ]}
+      />
     </div>
   );
 };

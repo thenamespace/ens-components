@@ -371,14 +371,14 @@ const SubnameRenewFormContent = ({
   if (sending.pending) {
     return (
       <div style={{ padding: 15 }}>
-        <Text className="ns-text-center mb-3" weight="bold">
-          {sending.title ?? `Renewing ${fullName}`}
-        </Text>
         <TransactionPendingScreen
           hash={sending.txHash ?? undefined}
           isCompleted={sending.completed}
           chainId={chainId}
-          message="Your subname is being renewed!"
+          details={[
+            { label: "Name", value: fullName },
+            { label: "Action", value: sending.title ?? "Renew Subname" },
+          ]}
         />
       </div>
     );

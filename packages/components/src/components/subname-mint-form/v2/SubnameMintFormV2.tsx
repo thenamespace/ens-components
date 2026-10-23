@@ -504,14 +504,14 @@ const SubnameMintFormV2Content = ({
   if (minting.pending) {
     return (
       <div style={{ padding: 15 }}>
-        <Text className="ns-text-center mb-3" weight="bold">
-          {minting.title ?? `Minting ${label}.${parentName}`}
-        </Text>
         <TransactionPendingScreen
           hash={minting.txHash ?? undefined}
           isCompleted={minting.completed}
           chainId={chainId}
-          message="Your subname is being minted!"
+          details={[
+            { label: "Name", value: `${label}.${parentName}` },
+            { label: "Action", value: minting.title ?? "Mint Subname" },
+          ]}
         />
       </div>
     );

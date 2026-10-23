@@ -202,7 +202,7 @@ export const EnsV2PrerequisitesSteps: React.FC<
             {index === current && tx && (
               <TransactionPendingScreen
                 isTestnet={isTestnet}
-                message="Your transaction has been sent! Once the progress bar completes, this step is completed."
+                details={[{ label: "Action", value: step.title }]}
                 hash={tx.hash}
                 isCompleted={tx.completed}
               />

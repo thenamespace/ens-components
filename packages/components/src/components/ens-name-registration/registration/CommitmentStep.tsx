@@ -201,7 +201,10 @@ export const CommitmentStep: React.FC<CommitmentStepProps> = ({
       {commitTxStatus.sent && (
         <TransactionPendingScreen
           isTestnet={isTestnet}
-          message="Your transaction has been sent! Once the progress bar completes, first registration step is completed."
+          details={[
+            { label: "Name", value: `${state.label}.eth` },
+            { label: "Action", value: "Commitment" },
+          ]}
           hash={commitTxStatus.hash as Hash}
           isCompleted={commitTxStatus.completed}
         />

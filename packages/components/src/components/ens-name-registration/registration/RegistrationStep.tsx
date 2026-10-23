@@ -216,7 +216,10 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
       {commitTxStatus.sent && (
         <TransactionPendingScreen
           isTestnet={isTestnet}
-          message="Your transaction has been sent! Once the progress bar completes, your registration will be confirmed."
+          details={[
+            { label: "Name", value: `${state.label}.eth` },
+            { label: "Action", value: "Complete Registration" },
+          ]}
           hash={commitTxStatus.hash as Hash}
           isCompleted={commitTxStatus.completed}
         />

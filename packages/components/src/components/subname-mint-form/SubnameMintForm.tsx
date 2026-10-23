@@ -731,14 +731,14 @@ const SubnameMintFormContent = ({
   if (mintStep === MintStep.Minting && mintState.txHash) {
     return (
       <div style={{padding: 15}}>
-        <Text className="ns-text-center mb-3" weight="bold">
-          Minting {label}.{parentName}
-        </Text>
         <TransactionPendingScreen
           hash={mintState.txHash as Hash}
           isCompleted={mintState.txCompleted}
           chainId={chainId}
-          message="Your subname is being minted!"
+          details={[
+            { label: "Name", value: `${label}.${parentName}` },
+            { label: "Action", value: "Mint Subname" },
+          ]}
         />
       </div>
     );

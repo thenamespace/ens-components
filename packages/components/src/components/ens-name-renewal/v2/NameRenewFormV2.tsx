@@ -354,14 +354,14 @@ const NameRenewFormV2Content = ({
   if (sending.pending) {
     return (
       <div style={{ padding: 15 }}>
-        <Text className="ns-text-center mb-3" weight="bold">
-          {sending.title ?? `Renewing ${label}.eth`}
-        </Text>
         <TransactionPendingScreen
           hash={sending.txHash ?? undefined}
           isCompleted={sending.completed}
           chainId={chainId}
-          message="Your name is being renewed!"
+          details={[
+            { label: "Name", value: `${label}.eth` },
+            { label: "Action", value: sending.title ?? "Renew Name" },
+          ]}
         />
       </div>
     );

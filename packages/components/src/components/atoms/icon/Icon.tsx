@@ -74,7 +74,8 @@ export type IconName =
   | "chevron-up"
   | "chevron-down"
   | "chevron-left"
-  | "circle-help";
+  | "circle-help"
+  | "external-link";
 
 const icons: Record<IconName, IconComponent> = {
   person: User,
@@ -112,6 +113,7 @@ const icons: Record<IconName, IconComponent> = {
   "chevron-down": LucideIcons.ChevronDown,
   "chevron-left": LucideIcons.ChevronLeft,
   "circle-help": LucideIcons.CircleHelp,
+  "external-link": LucideIcons.ExternalLink,
 };
 
 export interface IconProps {

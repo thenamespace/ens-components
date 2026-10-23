@@ -295,14 +295,14 @@ export const NameRenewFormV1 = ({
     return (
       <div className={wrapperClass}>
         <div style={{ padding: 15 }}>
-          <Text className="ns-text-center mb-3" weight="bold">
-            Renewing {label}.eth
-          </Text>
           <TransactionPendingScreen
             hash={sending.txHash ?? undefined}
             isCompleted={sending.completed}
             chainId={chainId}
-            message="Your name is being renewed!"
+            details={[
+              { label: "Name", value: `${label}.eth` },
+              { label: "Action", value: "Renew Name" },
+            ]}
           />
         </div>
       </div>
