@@ -1,6 +1,7 @@
 import { Address, Hash, formatEther, parseEther } from "viem";
 import { usePublicClient, useWalletClient } from "wagmi";
 import { MintTransactionResponse } from "@thenamespace/mint-manager/dist/types";
+import { estimateEffectiveGasPrice } from "@/utils";
 
 interface MintSubnameResult {
   txHash: Hash;
@@ -96,22 +97,7 @@ export const useMintSubname = ({ chainId }: { chainId: number }) => {
           : {}),
       });
 
-      // Compute maxFeePerGas matching typical wallet behaviour:
-      // maxFeePerGas = 2 * baseFeePerGas + priorityFee
-      // where priorityFee is at least 1.5 Gwei (MetaMask "medium" floor).
-      let gasPriceWei: bigint;
-      try {
-        const [block, priorityFee] = await Promise.all([
-          publicClient.getBlock({ blockTag: "latest" }),
-          publicClient.estimateMaxPriorityFeePerGas().catch(() => 0n),
-        ]);
-        const baseFee = block.baseFeePerGas ?? (await publicClient.getGasPrice());
-        const minPriorityFee = 1_500_000_000n; // 1.5 Gwei floor
-        const effectivePriorityFee = priorityFee > minPriorityFee ? priorityFee : minPriorityFee;
-        gasPriceWei = baseFee * 2n + effectivePriorityFee;
-      } catch {
-        gasPriceWei = await publicClient.getGasPrice();
-      }
+      const gasPriceWei = await estimateEffectiveGasPrice(publicClient);
 
       // Calculate total fee
       const totalFeeWei = gasEstimate * gasPriceWei;
