@@ -26,8 +26,12 @@ export interface PricingDisplayProps {
     durationSeconds: number;
     onDurationChange: (seconds: number) => void;
     minSeconds?: number;
+    startSeconds?: number;
   };
   ethUsdRate?: number | null;
+  currency?: string;
+  totalUsd?: string;
+  paymentTokenPicker?: React.ReactNode;
   className?: string;
 }
 
@@ -37,14 +41,20 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
   total,
   expiryPicker,
   ethUsdRate,
+  currency = "ETH",
+  totalUsd: totalUsdOverride,
+  paymentTokenPicker,
   className = "",
 }) => {
   const totalLoading = total.isChecking || primaryFee.isChecking || networkFees?.isChecking;
 
-  const totalUsd = React.useMemo(
+  const ethTotalUsd = React.useMemo(
     () => computeUsd(total.amount, total.weiAmount, ethUsdRate, !!totalLoading),
     [ethUsdRate, total.amount, total.weiAmount, totalLoading]
   );
+  const totalUsd = totalLoading
+    ? null
+    : (totalUsdOverride ?? (currency === "ETH" ? ethTotalUsd : null));
 
   return (
     <div className={`ens-registration-pricing ${className}`}>
@@ -54,6 +64,7 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
             durationSeconds={expiryPicker.durationSeconds}
             onDurationChange={expiryPicker.onDurationChange}
             minSeconds={expiryPicker.minSeconds}
+            startSeconds={expiryPicker.startSeconds}
           />
         </div>
       )}
@@ -61,13 +72,13 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
         <Text size="sm" color="grey" className="pricing-label">
           {primaryFee.label}
         </Text>
-        <Text size="sm" color="grey" className="pricing-value">
+        <Text size="sm" color="grey" className="pricing-value" data-testid="pricing-primary-fee">
           {primaryFee.isChecking ? (
             <ShurikenSpinner size={14} />
           ) : isSentinel(primaryFee.amount) ? (
             primaryFee.amount
           ) : (
-            `${primaryFee.amount} ETH`
+            `${primaryFee.amount} ${currency}`
           )}
         </Text>
       </div>
@@ -92,18 +103,23 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
           Total
         </Text>
         <div className="pricing-total-values" style={{ textAlign: "right" }}>
-          <Text size="lg" weight="bold" className="pricing-total-value">
-            {totalLoading ? (
-              <ShurikenSpinner size={18} />
-            ) : isSentinel(total.amount) ? (
-              total.amount
-            ) : (
-              `${total.amount} ETH`
-            )}
-          </Text>
-          <Text size="xs" color="grey" className="pricing-total-usd">
-            {totalUsd ? `≈ $${totalUsd}` : NBSP}
-          </Text>
+          <div className="pricing-total-amount">
+            <Text size="lg" weight="bold" className="pricing-total-value" data-testid="pricing-total">
+              {totalLoading ? (
+                <ShurikenSpinner size={18} />
+              ) : isSentinel(total.amount) || paymentTokenPicker ? (
+                total.amount
+              ) : (
+                `${total.amount} ${currency}`
+              )}
+            </Text>
+            {paymentTokenPicker}
+          </div>
+          {(!paymentTokenPicker || totalUsd) && (
+            <Text size="xs" color="grey" className="pricing-total-usd">
+              {totalUsd ? `≈ $${totalUsd}` : NBSP}
+            </Text>
+          )}
         </div>
       </div>
     </div>

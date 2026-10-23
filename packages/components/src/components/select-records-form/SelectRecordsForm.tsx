@@ -59,6 +59,7 @@ export interface SelectRecordsFormProps {
   onRecordsUpdated: (records: EnsRecords) => void;
   actionButtons?: React.ReactNode;
   avatarUpload?: AvatarUploadContext;
+  noBorder?: boolean;
 }
 
 export const SelectRecordsForm = ({
@@ -66,6 +67,7 @@ export const SelectRecordsForm = ({
   onRecordsUpdated,
   actionButtons,
   avatarUpload,
+  noBorder,
 }: SelectRecordsFormProps) => {
   const [initialRecords] = useState<EnsRecords>(deepCopy(records));
   const [activeUploadTarget, setActiveUploadTarget] = useState<ImageRecordType | null>(
@@ -443,7 +445,7 @@ export const SelectRecordsForm = ({
   };
 
   return (
-    <div className="ns-select-records-form">
+    <div className={`ns-select-records-form${noBorder ? " ns-no-border" : ""}`}>
       {/* Avatar and header */}
       <div style={{ marginBottom: 30 }}>
         <ImageRecords

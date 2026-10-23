@@ -33,15 +33,15 @@ const FAQ_ITEMS = [
     question: "How do I get an API key for offchain subnames?",
     answer: (
       <>
-        Connect your wallet on the{" "}
-        <a href="https://dev.namespace.ninja" target="_blank" rel="noreferrer">
-          Developer Portal
+        Connect your wallet on{" "}
+        <a href="https://app.namespace.ninja/offchain" target="_blank" rel="noreferrer">
+          app.namespace.ninja/offchain
         </a>{" "}
         and generate an API key for your ENS name.
       </>
     ),
     schemaAnswer:
-      "Connect your wallet on the Developer Portal (dev.namespace.ninja) and generate an API key for your ENS name.",
+      "Connect your wallet on app.namespace.ninja/offchain and generate an API key for your ENS name.",
   },
   {
     question: "Can I customise the component appearance?",

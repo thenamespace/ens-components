@@ -63,6 +63,16 @@
   border-color: var(--ns-focus-ring);
 }
 
+.ens-name-input--ok .ns-input,
+.ens-name-input--ok .ns-input:focus {
+  border-color: var(--ns-dot-ok);
+}
+
+.ens-name-input--bad .ns-input,
+.ens-name-input--bad .ns-input:focus {
+  border-color: var(--ns-dot-bad);
+}
+
 .ens-name-input .ns-input::placeholder {
   color: var(--ns-text-faint);
   opacity: 1;

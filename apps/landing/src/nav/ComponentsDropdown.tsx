@@ -3,10 +3,12 @@ import { ChevronDown } from "lucide-react";
 
 const COMPONENT_LINKS = [
   { label: "ENS Registration",  href: "#ens-registration" },
+  { label: "ENS Renewal",       href: "#ens-renewal" },
   { label: "ENS Records",       href: "#ens-records" },
   { label: "Select Records",    href: "#select-records" },
   { label: "Offchain Subnames", href: "#offchain-subname" },
   { label: "Onchain Subnames",  href: "#subname-mint" },
+  { label: "Subname Renewal",   href: "#subname-renewal" },
 ];
 
 export function ComponentsDropdown() {

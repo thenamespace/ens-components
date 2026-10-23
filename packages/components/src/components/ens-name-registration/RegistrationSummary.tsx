@@ -4,7 +4,7 @@ import { normalize } from "viem/ens";
 
 import { debounce, formatEth } from "@/utils";
 import { MIN_REGISTRATION_SECONDS } from "@/utils/date";
-import { Button, Icon, Input, Text, ShurikenSpinner } from "@/components";
+import { Button, Icon, Input, Text } from "@/components";
 import { PricingDisplay } from "@/components/molecules";
 import ninjaImage from "../../assets/banner.png";
 import shurikenImage from "../../assets/shuriken.svg";
@@ -53,6 +53,9 @@ export interface RegistrationSummaryProps {
   onSetProfile?: () => void;
   onStart?: () => void;
   onConnectWallet?: () => void;
+  checkAvailability?: (label: string) => Promise<boolean>;
+  pricing?: React.ReactNode;
+  startDisabled?: boolean;
 }
 
 export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
@@ -74,6 +77,9 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
   onSetProfile,
   onStart,
   onConnectWallet,
+  checkAvailability: checkAvailabilityOverride,
+  pricing,
+  startDisabled,
 }) => {
   const { isConnected } = useAccount();
   const { ethUsdRate } = useEthDollarValue();
@@ -102,7 +108,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
 
   const checkAvailability = async (labelToCheck: string) => {
     try {
-      const available = await isEnsAvailable(labelToCheck);
+      const available = await (checkAvailabilityOverride ?? isEnsAvailable)(labelToCheck);
       onNameValidationChange({ isChecking: false, isTaken: !available });
     } catch {
       onNameValidationChange({
@@ -114,6 +120,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
   };
 
   const checkRegistrationPrice = async (labelToCheck: string, durationSecs: number) => {
+    if (pricing !== undefined) return;
     try {
       const rentPrice = await getRegistrationPrice(labelToCheck, durationSecs);
       onPriceChange({ isChecking: false, eth: rentPrice.eth, wei: rentPrice.wei });
@@ -172,6 +179,10 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
 
   const handleDurationChange = (newSeconds: number) => {
     if (newSeconds < MIN_REGISTRATION_SECONDS) return;
+    if (pricing !== undefined) {
+      onDurationChange(newSeconds);
+      return;
+    }
     onPriceChange({ ...price, isChecking: true });
     onDurationChange(newSeconds);
     debouncedCheckPrice(label, newSeconds);
@@ -185,8 +196,15 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
     [label.length, nameValidation.isChecking, nameValidation.isTaken]
   );
 
+  const nameTooShort = label.length < MIN_ENS_LEN;
+  const nameTaken = !nameTooShort && !nameValidation.isChecking && nameValidation.isTaken;
+  const nameInputState = isNameAvailable ? "ok" : nameTaken ? "bad" : null;
+
   const nextBtnDisabled =
-    label.length < MIN_ENS_LEN || nameValidation.isChecking || nameValidation.isTaken;
+    label.length < MIN_ENS_LEN ||
+    nameValidation.isChecking ||
+    nameValidation.isTaken ||
+    Boolean(startDisabled);
 
   const totalPriceLoading = transactionFees?.isChecking || price.isChecking;
   // Fee estimation only kicks off once the registration price resolves, so
@@ -214,10 +232,11 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
         </Text>
       </div>
       <Input
+        data-testid="ens-name-input"
         value={label}
         onChange={(e) => handleNameChanged(e.target.value)}
         size="lg"
-        wrapperClassName="ens-name-input"
+        wrapperClassName={`ens-name-input${nameInputState ? ` ens-name-input--${nameInputState}` : ""}`}
         prefix={<Icon color="grey" size={20} name="search" />}
         suffix={
           <Text weight="medium" size="sm" color="grey">
@@ -226,37 +245,22 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
         }
       />
 
-      {/* One status line for every state, so "available" and "not available"
-          read identically — a status dot plus a micro label. */}
-      <div className="ns-name-status">
-        {label.length < MIN_ENS_LEN ? (
-          <>
-            <span className="ns-dot" />
-            <span className="ns-name-status__text">
-              Minimum length is {MIN_ENS_LEN} characters
-            </span>
-          </>
-        ) : nameValidation.isChecking ? (
-          <>
-            <ShurikenSpinner size={14} />
-            <span className="ns-name-status__text">Checking availability</span>
-          </>
-        ) : nameValidation.isTaken ? (
-          <>
-            <span className="ns-dot ns-dot--bad" />
-            <span className="ns-name-status__text">{label}.eth is not available</span>
-          </>
-        ) : (
-          <>
-            <span className="ns-dot ns-dot--ok" />
-            <span className="ns-name-status__text">{label}.eth is available</span>
-          </>
-        )}
-      </div>
+      {nameTooShort && (
+        <div className="ns-name-status">
+          <span className="ns-dot" />
+          <span className="ns-name-status__text">Minimum length is {MIN_ENS_LEN} characters</span>
+        </div>
+      )}
+      {nameTaken && (
+        <div className="ns-name-status">
+          <span className="ns-dot ns-dot--bad" />
+          <span className="ns-name-status__text">{label}.eth is not available</span>
+        </div>
+      )}
 
       {isNameAvailable && (
         <>
-          <PricingDisplay
+          {pricing ?? <PricingDisplay
             primaryFee={{
               label: "Registration Fee",
               amount: regPrice,
@@ -278,10 +282,11 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
               minSeconds: MIN_REGISTRATION_SECONDS,
             }}
             ethUsdRate={ethUsdRate}
-          />
+          />}
 
           <div
             className="ens-profile-selector"
+            data-testid="registration-set-profile"
             onClick={onSetProfile}
             style={{ cursor: "pointer" }}
           >
@@ -323,6 +328,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
         </Button>
       ) : (
         <Button
+          data-testid="registration-next"
           style={{ width: "100%" }}
           size="lg"
           disabled={nextBtnDisabled}

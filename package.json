@@ -13,7 +13,8 @@
     "landing": "turbo run dev --filter=landing",
     "lint": "turbo run lint",
     "format": "prettier --write .",
-    "format:check": "turbo run format:check"
+    "format:check": "turbo run format:check",
+    "e2e": "pnpm --filter e2e test"
   },
   "devDependencies": {
     "turbo": "^2.3.3",

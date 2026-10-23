@@ -61,7 +61,13 @@ export const SetNameRecords: React.FC<SetNameRecordsProps> = ({
             >
               Cancel
             </Button>
-            <Button disabled={!hasChanges} size="lg" style={{ flex: 1 }} onClick={handleSave}>
+            <Button
+              data-testid="records-save"
+              disabled={!hasChanges}
+              size="lg"
+              style={{ flex: 1 }}
+              onClick={handleSave}
+            >
               Save
             </Button>
           </div>

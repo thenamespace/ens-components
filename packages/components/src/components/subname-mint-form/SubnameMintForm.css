@@ -93,6 +93,10 @@
     gap: var(--ns-space-4);
 }
 
+.ns-subname-mint-form .ens-update-records-form-actions {
+    margin-top: var(--ns-space-10);
+}
+
 .ens-update-records-form-actions button {
     flex: 1;
     max-width: 50%;
