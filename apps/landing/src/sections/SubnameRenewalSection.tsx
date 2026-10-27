@@ -62,8 +62,10 @@ export function SubnameRenewalSection({
 
 
   useEffect(() => {
-    fetchJson<ManagerActivation[]>(`/activations/label/${parentLabel}`).then((rows) => setActivation(rows?.[0] ?? null));
-  }, [parentLabel]);
+    fetchJson<ManagerActivation[]>(`/activations/label/${parentLabel}`, isTestnet).then((rows) =>
+      setActivation(rows?.[0] ?? null),
+    );
+  }, [parentLabel, isTestnet]);
 
   const loadMine = useCallback(() => {
     if (!address) {
@@ -71,10 +73,10 @@ export function SubnameRenewalSection({
       return;
     }
     const parent = keccak256(toBytes(parentLabel)).toLowerCase();
-    fetchJson<ManagerSubname[]>(`/subnames/owner/${address.toLowerCase()}`).then((rows) =>
+    fetchJson<ManagerSubname[]>(`/subnames/owner/${address.toLowerCase()}`, isTestnet).then((rows) =>
       setMine((rows ?? []).filter((s) => s.parent.toLowerCase() === parent)),
     );
-  }, [address, parentLabel]);
+  }, [address, parentLabel, isTestnet]);
 
   useEffect(loadMine, [loadMine]);
 

@@ -8,9 +8,10 @@ import {
   zeroAddress,
   zeroHash,
 } from "viem";
+import { mainnet, sepolia } from "viem/chains";
+import { getEnsV2Contracts } from "@thenamespace/addresses";
 import { estimateEffectiveGasPrice } from "@/utils";
 import {
-  ENSV2_REGISTRATION_SEPOLIA,
   type EnsV2Call,
   type EnsV2RegistrationToken,
 } from "../../ens-name-registration/v2/ensv2-register";
@@ -25,16 +26,18 @@ export interface EnsV2RenewalDeployment {
   paymentTokens: EnsV2RegistrationToken[];
 }
 
-export const ENSV2_RENEWAL_SEPOLIA: EnsV2RenewalDeployment = {
-  chainId: ENSV2_REGISTRATION_SEPOLIA.chainId,
-  registrar: ENSV2_REGISTRATION_SEPOLIA.registrar,
-  renewerV1: "0xf2ece44980778966b8a0fccb3a9e339440f6e045",
-  ethRegistry: "0xD4eBcbBdF463C9c45784603Db0dDD499BC44A8B4",
-  paymentTokens: ENSV2_REGISTRATION_SEPOLIA.paymentTokens,
+export const getEnsV2RenewalDeployment = (
+  isTestnet: boolean,
+): EnsV2RenewalDeployment => {
+  const ens = getEnsV2Contracts(isTestnet);
+  return {
+    chainId: isTestnet ? sepolia.id : mainnet.id,
+    registrar: ens.ethRegistrar,
+    renewerV1: ens.ethRenewerV1,
+    ethRegistry: ens.ethRegistry,
+    paymentTokens: ens.paymentTokens,
+  };
 };
-
-export const getEnsV2RenewalDeployment = (isTestnet: boolean) =>
-  isTestnet ? ENSV2_RENEWAL_SEPOLIA : null;
 
 const renewerAbi = parseAbi([
   "struct RenewData { string label; uint64 duration; bytes32 referrer; }",

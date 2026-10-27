@@ -52,17 +52,6 @@ const shortAddress = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
 
 export const NameRenewFormV2 = (props: NameRenewFormProps) => {
   const deployment = getEnsV2RenewalDeployment(Boolean(props.isTestnet));
-  if (!deployment) {
-    return (
-      <div className="ns-subname-mint-form">
-        <Alert variant="error" position="vertical">
-          <Text size="sm">
-            ENSv2 renewals are only available on Sepolia for now.
-          </Text>
-        </Alert>
-      </div>
-    );
-  }
   return (
     <div className={`ns-subname-mint-form ${props.className ?? ""}`}>
       <NameRenewFormV2Content {...props} deployment={deployment} />

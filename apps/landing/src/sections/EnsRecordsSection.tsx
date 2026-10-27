@@ -92,9 +92,9 @@ export function EnsRecordsSection({ isTestnet, version }: { isTestnet: boolean; 
   };
 
   const lookupOwner = async (name: string): Promise<string> => {
-    if (isTestnet && version === 2) return getEnsV2Owner(sepoliaPc!, name);
-    // ENSv1 shares the registry address across chains; only the wrapper differs.
     const client = isTestnet ? sepoliaPc! : pc!;
+    if (version === 2) return getEnsV2Owner(client, name, isTestnet);
+    // ENSv1 shares the registry address across chains; only the wrapper differs.
     const wrapper = isTestnet ? SEPOLIA_NAME_WRAPPER : NAME_WRAPPER;
     const node = namehash(name);
     const registryOwner = await client.readContract({
@@ -127,9 +127,10 @@ export function EnsRecordsSection({ isTestnet, version }: { isTestnet: boolean; 
         setLookupError("You are not permitted to edit records, try adding a name you own");
         return;
       }
-      const records = isTestnet
-        ? await fetchEnsV2Records(sepoliaPc!, name)
-        : await fetchEnsProfile(name);
+      const records =
+        version === 2 || isTestnet
+          ? await fetchEnsV2Records(isTestnet ? sepoliaPc! : pc!, name, isTestnet)
+          : await fetchEnsProfile(name);
       setExistingRecords(records);
       setSubmittedName(name);
     } catch (err: any) {

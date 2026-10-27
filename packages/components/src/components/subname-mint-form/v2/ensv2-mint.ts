@@ -11,6 +11,11 @@ import {
   zeroAddress,
   zeroHash,
 } from "viem";
+import { mainnet, sepolia } from "viem/chains";
+import {
+  getEnsV2Contracts,
+  getNamespaceV2Contracts,
+} from "@thenamespace/addresses";
 import type { EnsRecords } from "@/types";
 import {
   encodeRecordsUpdate,
@@ -37,27 +42,26 @@ export interface EnsV2Deployment {
   paymentTokens: EnsV2PaymentToken[];
 }
 
-export const ENSV2_SEPOLIA: EnsV2Deployment = {
-  chainId: 11155111,
-  manager: "0x0bFCcbd5815332F7ea27ba71BD593B0799110bDE",
-  issuer: "0x5200fd33Cf7952c518f1123797fBA2ce0D77bFC0",
-  sharedResolver: "0x7C48b782cF9c132441844aEBA8b46EC2d80ca067",
-  ethRegistry: "0xD4eBcbBdF463C9c45784603Db0dDD499BC44A8B4",
-  whitelistFeature: "0x48B7c6054836DC0B2291B3b3F2D313e84b4Cc678",
-  reservationFeature: "0x5111d49E9B0E02C26F350A585073A36F38758EAf",
-  managerApiUrl: "https://manager.namespace.ninja/api/v1",
-  paymentTokens: [
-    { symbol: "ETH", address: zeroAddress, decimals: 18 },
-    {
-      symbol: "USDC",
-      address: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
-      decimals: 6,
-    },
-  ],
+/** Null until Namespace's ENSv2 contracts are deployed on the network. */
+export const getEnsV2Deployment = (
+  isTestnet: boolean,
+): EnsV2Deployment | null => {
+  const namespace = getNamespaceV2Contracts(isTestnet);
+  if (!namespace) return null;
+  return {
+    chainId: isTestnet ? sepolia.id : mainnet.id,
+    manager: namespace.activationManager,
+    issuer: namespace.subnameIssuer,
+    sharedResolver: namespace.sharedResolver,
+    ethRegistry: getEnsV2Contracts(isTestnet).ethRegistry,
+    whitelistFeature: namespace.features.whitelist,
+    reservationFeature: namespace.features.reservation,
+    managerApiUrl: isTestnet
+      ? "https://staging.manager.namespace.ninja/api/v1"
+      : "https://manager.namespace.ninja/api/v1",
+    paymentTokens: namespace.paymentTokens,
+  };
 };
-
-export const getEnsV2Deployment = (isTestnet: boolean) =>
-  isTestnet ? ENSV2_SEPOLIA : null;
 
 const managerAbi = parseAbi([
   "struct MintQuote { bool canMint; uint256 price; uint8 denied; uint8 expiration; bytes32 activationId; address subregistry; }",

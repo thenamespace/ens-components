@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@thenamespace/addresses": "^1.2.0",
     "@thenamespace/ens-components": "workspace:*",
     "@thenamespace/offchain-manager": "^1.0.13",
     "@rainbow-me/rainbowkit": "^2.2.8",

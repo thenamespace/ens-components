@@ -11,11 +11,8 @@ import {
   zeroAddress,
 } from "viem";
 import { namehash, packetToBytes } from "viem/ens";
+import { getEnsV2Contracts } from "@thenamespace/addresses";
 import { supportedAddresses, supportedTexts } from "@thenamespace/ens-components";
-
-// ENSv2 on Sepolia: the .eth registry and the universal resolver.
-const ENSV2_ETH_REGISTRY: Address = "0xD4eBcbBdF463C9c45784603Db0dDD499BC44A8B4";
-const ENSV2_UNIVERSAL_RESOLVER: Address = "0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe";
 
 const registryAbi = parseAbi([
   "function getTokenId(uint256 anyId) view returns (uint256)",
@@ -36,11 +33,15 @@ const isEvmCoinType = (coinType: number) => coinType === 60 || coinType >= 0x800
  * Owner of a .eth name or subname in ENSv2, lowercased; zero address when unregistered.
  * Walks the registry tree from the .eth registry down to the name's parent registry.
  */
-export const getEnsV2Owner = async (client: PublicClient, name: string): Promise<string> => {
+export const getEnsV2Owner = async (
+  client: PublicClient,
+  name: string,
+  isTestnet: boolean,
+): Promise<string> => {
   const labels = name.split(".");
   if (labels.length < 2 || labels[labels.length - 1] !== "eth") return zeroAddress;
 
-  let registry = ENSV2_ETH_REGISTRY;
+  let registry: Address = getEnsV2Contracts(isTestnet).ethRegistry;
   for (const label of labels.slice(1, -1).reverse()) {
     registry = await client.readContract({
       address: registry,
@@ -73,7 +74,8 @@ export const getEnsV2Owner = async (client: PublicClient, name: string): Promise
  * names are read on-chain. Non-EVM addresses (BTC, SOL)
  * are skipped because they need chain-specific decoding.
  */
-export const fetchEnsV2Records = async (client: PublicClient, name: string) => {
+export const fetchEnsV2Records = async (client: PublicClient, name: string, isTestnet: boolean) => {
+  const universalResolver = getEnsV2Contracts(isTestnet).universalResolver;
   const dnsName = toHex(packetToBytes(name));
   const node = namehash(name);
   const evmCoins = supportedAddresses.filter((a) => isEvmCoinType(a.coinType));
@@ -87,7 +89,7 @@ export const fetchEnsV2Records = async (client: PublicClient, name: string) => {
   ];
   const results = await client.multicall({
     contracts: calls.map((data) => ({
-      address: ENSV2_UNIVERSAL_RESOLVER,
+      address: universalResolver,
       abi: universalResolverAbi,
       functionName: "resolve" as const,
       args: [dnsName, data] as const,

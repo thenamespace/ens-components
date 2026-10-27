@@ -57,15 +57,6 @@ const durationLabel = (seconds: number) => {
 
 export const EnsNameRegistrationFormV2 = (props: EnsNameRegistrationFormProps) => {
   const deployment = getEnsV2RegistrationDeployment(Boolean(props.isTestnet));
-  if (!deployment) {
-    return (
-      <div className="ens-registration-form-container">
-        <Alert variant="error" position="vertical">
-          <Text size="sm">ENSv2 registration is only available on Sepolia for now.</Text>
-        </Alert>
-      </div>
-    );
-  }
   return <EnsNameRegistrationFormV2Content {...props} deployment={deployment} />;
 };
 

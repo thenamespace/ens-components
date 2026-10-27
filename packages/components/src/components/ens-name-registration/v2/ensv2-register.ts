@@ -11,6 +11,8 @@ import {
   zeroAddress,
   zeroHash,
 } from "viem";
+import { mainnet, sepolia } from "viem/chains";
+import { getEnsV2Contracts } from "@thenamespace/addresses";
 import type { EnsRecords } from "@/types";
 import {
   buildOwnedResolverDeployCall,
@@ -34,27 +36,18 @@ export interface EnsV2RegistrationDeployment {
   paymentTokens: EnsV2RegistrationToken[];
 }
 
-export const ENSV2_REGISTRATION_SEPOLIA: EnsV2RegistrationDeployment = {
-  chainId: 11155111,
-  registrar: "0xf633e7fc17e2bbe0d0965d18ec1821dcb754a3d3",
-  verifiableFactory: "0xda70306c98e97ece36f997a21368e53298572991",
-  permissionedResolverImplementation: "0x115eb53f0c60696633855f90b138178fb40b2b2c",
-  paymentTokens: [
-    {
-      symbol: "USDC",
-      address: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
-      decimals: 6,
-    },
-    {
-      symbol: "DAI",
-      address: "0xf6fac8a58a0be13b9197f27c41b73162fe32572b",
-      decimals: 18,
-    },
-  ],
+export const getEnsV2RegistrationDeployment = (
+  isTestnet: boolean,
+): EnsV2RegistrationDeployment => {
+  const ens = getEnsV2Contracts(isTestnet);
+  return {
+    chainId: isTestnet ? sepolia.id : mainnet.id,
+    registrar: ens.ethRegistrar,
+    verifiableFactory: ens.verifiableFactory,
+    permissionedResolverImplementation: ens.permissionedResolverImpl,
+    paymentTokens: ens.paymentTokens,
+  };
 };
-
-export const getEnsV2RegistrationDeployment = (isTestnet: boolean) =>
-  isTestnet ? ENSV2_REGISTRATION_SEPOLIA : null;
 
 export const ENSV2_MIN_REGISTRATION_SECONDS = 2_419_200;
 

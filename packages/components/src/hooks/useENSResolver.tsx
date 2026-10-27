@@ -2,7 +2,7 @@ import { Address, namehash, parseAbi, PublicClient } from "viem";
 import { mainnet, sepolia } from "viem/chains";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { ABIS } from "./abis";
-import { getEnsContracts } from "@thenamespace/addresses";
+import { getEnsContracts, getEnsV2Contracts } from "@thenamespace/addresses";
 import {
     convertToMulticallResolverData,
     detectResolverStyle,
@@ -12,7 +12,6 @@ import {
     equalsIgnoreCase,
 } from "@/utils";
 
-const ENSV2_UNIVERSAL_RESOLVER: Address = "0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe";
 const universalResolverAbi = parseAbi([
     "function findResolver(bytes name) view returns (address resolver, bytes32 node, uint256 offset)",
 ]);
@@ -94,7 +93,7 @@ export const useENSResolver = ({
     const getResolverAddress = async (name: string): Promise<Address> => {
         if (version === 2) {
             const [resolver] = await mainnetClient!.readContract({
-                address: ENSV2_UNIVERSAL_RESOLVER,
+                address: getEnsV2Contracts(isTestnet).universalResolver,
                 abi: universalResolverAbi,
                 functionName: "findResolver",
                 args: [dnsEncodeName(name)],

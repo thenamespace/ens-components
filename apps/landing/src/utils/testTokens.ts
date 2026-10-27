@@ -2,13 +2,13 @@ import { useState } from "react";
 import { formatUnits, parseAbi, parseUnits, type Address } from "viem";
 import { sepolia } from "viem/chains";
 import { useAccount, usePublicClient, useReadContracts, useSwitchChain, useWriteContract } from "wagmi";
+import { getEnsV2Deployment } from "@thenamespace/ens-components";
 
 // ENSv2's Sepolia mock DAI has an open mint, so testers can fund themselves.
 export const SEPOLIA_DAI: Address = "0xf6fac8a58a0be13b9197f27c41b73162fe32572b";
 export const SEPOLIA_USDC: Address = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
 export const SEPOLIA_ETH_FAUCET = "https://cloud.google.com/application/web3/faucet/ethereum/sepolia";
 export const SEPOLIA_USDC_FAUCET = "https://faucet.circle.com";
-export const MANAGER_API = "https://manager.namespace.ninja/api/v1";
 
 const DAI_MINT_AMOUNT = parseUnits("1000", 18);
 
@@ -87,9 +87,11 @@ export interface ManagerActivation {
   active: boolean;
 }
 
-export const fetchJson = async <T,>(path: string): Promise<T | null> => {
+export const fetchJson = async <T,>(path: string, isTestnet: boolean): Promise<T | null> => {
+  const managerApiUrl = getEnsV2Deployment(isTestnet)?.managerApiUrl;
+  if (!managerApiUrl) return null;
   try {
-    const res = await fetch(`${MANAGER_API}${path}`);
+    const res = await fetch(`${managerApiUrl}${path}`);
     return res.ok ? ((await res.json()) as T) : null;
   } catch {
     return null;

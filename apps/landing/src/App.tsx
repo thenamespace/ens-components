@@ -148,15 +148,8 @@ export function App() {
   const [isTestnet, setIsTestnetState] = useState(true);
   const [ensVersion, setEnsVersionState] = useState<1 | 2>(2);
 
-  // ENSv2 is Sepolia-only, so the version and the network move together.
-  const setIsTestnet = (testnet: boolean) => {
-    setIsTestnetState(testnet);
-    if (!testnet) setEnsVersionState(1);
-  };
-  const setEnsVersion = (version: 1 | 2) => {
-    setEnsVersionState(version);
-    if (version === 2) setIsTestnetState(true);
-  };
+  const setIsTestnet = (testnet: boolean) => setIsTestnetState(testnet);
+  const setEnsVersion = (version: 1 | 2) => setEnsVersionState(version);
   const [renewRequest, setRenewRequest] = useState<{ name: string; at: number }>();
 
   const renewParent = (name: string) => {
@@ -186,7 +179,7 @@ export function App() {
           <ComponentsDropdown />
           <a className="nav-link" href="https://t.me/+zRyLIQoGGU9iNzIy" target="_blank" rel="noreferrer">Report a bug</a>
           <div className="nav-sep" />
-          <EnsVersionSwitch version={ensVersion} onChange={setEnsVersion} v2Disabled={!isTestnet} />
+          <EnsVersionSwitch version={ensVersion} onChange={setEnsVersion} />
           <NavWalletButton />
         </div>
       </nav>

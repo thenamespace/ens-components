@@ -2,7 +2,6 @@
 export { SelectRecordsForm } from "./select-records-form/SelectRecordsForm";
 export { EnsNameRegistrationForm } from "./ens-name-registration/ENSNameRegistrationForm";
 export {
-  ENSV2_REGISTRATION_SEPOLIA,
   getEnsV2RegistrationDeployment,
   isEnsV2NameAvailable,
 } from "./ens-name-registration/v2/ensv2-register";
@@ -11,7 +10,6 @@ export { SubnameMintForm } from "./subname-mint-form/SubnameMintForm";
 export { SubnameMintFormV2 } from "./subname-mint-form/v2/SubnameMintFormV2";
 export type { SubnameMintFormV2Props } from "./subname-mint-form/v2/SubnameMintFormV2";
 export {
-  ENSV2_SEPOLIA,
   getEnsV2Deployment,
   quoteEnsV2Mint,
   quoteEnsV2Payment,
@@ -25,7 +23,6 @@ export { NameRenewForm } from "./ens-name-renewal/NameRenewForm";
 export type { NameRenewFormProps } from "./ens-name-renewal/NameRenewForm";
 export type { RenewalSuccessData } from "./ens-name-renewal/RenewShared";
 export {
-  ENSV2_RENEWAL_SEPOLIA,
   getEnsV2RenewalDeployment,
   getEnsV2RenewalTarget,
   getEnsV2RenewPrice,
