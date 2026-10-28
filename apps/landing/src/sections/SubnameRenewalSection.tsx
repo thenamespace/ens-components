@@ -110,13 +110,8 @@ export function SubnameRenewalSection({
           >
             {version === 1 ? (
               <TestStep title="Switch to ENSv2">
-                <p>Onchain subname renewals are an ENSv2 feature and run on Sepolia for now.</p>
+                <p>Onchain subname renewals are an ENSv2 feature.</p>
                 <KitButton onClick={() => onVersionChange(2)}>Use ENSv2</KitButton>
-              </TestStep>
-            ) : !isTestnet ? (
-              <TestStep title="Switch to Sepolia">
-                <p>Subname renewals run on Sepolia for now.</p>
-                <KitButton onClick={() => onIsTestnetChange(true)}>Use Sepolia</KitButton>
               </TestStep>
             ) : (
               <TestStep title={`Check ${PARENT}`}>
@@ -141,10 +136,20 @@ export function SubnameRenewalSection({
                 )}
               </TestStep>
             )}
+            {!isTestnet && (
+              <TestStep title="Mainnet costs real money">
+                <p>Switch the playground to Sepolia to test for free.</p>
+                <KitButton onClick={() => onIsTestnetChange(true)}>Use Sepolia</KitButton>
+              </TestStep>
+            )}
             <TestStep title="Get a subname">
-              <p>Mint one in the section above, pay with Sepolia ETH, then pick it here.</p>
+              <p>
+                {isTestnet
+                  ? "Mint one in the section above, pay with Sepolia ETH, then pick it here."
+                  : "Mint one in the section above, then pick it here."}
+              </p>
               <KitButton href="#subname-mint">Mint a subname</KitButton>
-              <KitButton href={SEPOLIA_ETH_FAUCET}>ETH faucet ↗</KitButton>
+              {isTestnet && <KitButton href={SEPOLIA_ETH_FAUCET}>ETH faucet ↗</KitButton>}
             </TestStep>
             <TestStep title="Choose the subname">
               {!address ? (

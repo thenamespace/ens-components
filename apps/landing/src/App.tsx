@@ -27,7 +27,7 @@ const WEBSITE_SCHEMA = {
   "@type": "WebSite",
   name: "ENS Components by Namespace",
   url: "https://enscomponents.com",
-  description: "Interactive documentation and live playground for @thenamespace/ens-components — production-ready React components for ENS name registration, record editing, and subname issuance.",
+  description: "Interactive documentation and live playground for @thenamespace/ens-components — production-ready React components for ENS name registration, renewal, record editing, and subname issuance.",
   publisher: {
     "@type": "Organization",
     name: "Namespace",
@@ -47,7 +47,7 @@ const HOWTO_SCHEMA = {
   "@context": "https://schema.org",
   "@type": "HowTo",
   name: "How to install and use ENS Components in a React app",
-  description: "Add ENS name registration, record editing, and subname issuance to any React app in minutes using @thenamespace/ens-components.",
+  description: "Add ENS name registration, renewal, record editing, and subname issuance to any React app in minutes using @thenamespace/ens-components.",
   supply: [
     { "@type": "HowToSupply", name: "Node.js project" },
     { "@type": "HowToSupply", name: "React 19+ app" },
@@ -99,7 +99,7 @@ const PRODUCT_SCHEMA = {
   applicationCategory: "DeveloperApplication",
   operatingSystem: "Web",
   description:
-    "Production-ready React components for ENS name registration, record editing, and subname issuance.",
+    "Production-ready React components for ENS name registration, renewal, record editing, and subname issuance.",
   url: SITE_URL,
   offers: {
     "@type": "Offer",
@@ -121,7 +121,7 @@ const SOURCE_CODE_SCHEMA = {
   "@type": "SoftwareSourceCode",
   name: "@thenamespace/ens-components",
   description:
-    "Production-ready React component library for ENS name registration, profile record editing, and subname issuance.",
+    "Production-ready React component library for ENS name registration, renewal, profile record editing, and subname issuance.",
   url: "https://github.com/thenamespace/ens-components",
   codeRepository: "https://github.com/thenamespace/ens-components",
   programmingLanguage: [
