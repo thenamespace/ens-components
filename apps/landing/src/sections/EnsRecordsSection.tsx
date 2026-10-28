@@ -17,7 +17,6 @@ class ErrorBoundary extends Component<{ onReset: () => void; children: ReactNode
 import { useAccount } from "wagmi";
 import { usePublicClient } from "wagmi";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { namehash } from "viem/ens";
 import { EnsRecordsForm } from "@thenamespace/ens-components";
 import { BookOpenText } from "lucide-react";
 import { SectionHeader } from "../components/SectionHeader";
@@ -28,43 +27,15 @@ import { generateCode } from "../components/generateCode";
 import type { PropDef } from "../components/types";
 import { fetchEnsV2Records, getEnsV2Owner } from "../utils/ensv2";
 
-const RESOLVIO = "https://resolvio.namespace.ninja";
-
-async function fetchEnsProfile(name: string) {
-  const res = await fetch(`${RESOLVIO}/ens/v2/profile/${encodeURIComponent(name)}`);
-  if (!res.ok) throw new Error("ENS name not found or has no records");
-  const data = await res.json();
-  return {
-    addresses: (data.addresses || []).filter((a: any) => a.exists).map((a: any) => ({ coinType: a.coin, value: a.value })),
-    texts: (data.texts || []).filter((t: any) => t.exists).map((t: any) => ({ key: t.key, value: t.value })),
-  };
-}
-
-const ENS_REGISTRY = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e" as const;
-const NAME_WRAPPER  = "0xD4416b13d2b3a9aBae7AcD5D6C2BbDBE25686401" as const;
-const SEPOLIA_NAME_WRAPPER = "0x0635513f179D50A207757E05759CbD106d7dFcE8" as const;
-
-const REGISTRY_ABI = [{
-  name: "owner", type: "function", stateMutability: "view",
-  inputs: [{ name: "node", type: "bytes32" }],
-  outputs: [{ name: "", type: "address" }],
-}] as const;
-
-const WRAPPER_ABI = [{
-  name: "ownerOf", type: "function", stateMutability: "view",
-  inputs: [{ name: "id", type: "uint256" }],
-  outputs: [{ name: "", type: "address" }],
-}] as const;
-
 const ENS_RECORDS_DEFS: PropDef[] = [
-  { key: "name",            type: "string",  default: "yourname.eth",          required: true, readonly: true, tip: "Full ENS name, including a DNS name imported into ENS" },
+  { key: "name",            type: "string",  default: "yourname.eth",          required: true, readonly: true, tip: "Full .eth name" },
   { key: "existingRecords", type: "string",  default: "Existing name records",  required: true, readonly: true, tip: "Current on-chain records pre-loaded from the ENS resolver" },
   { key: "noBorder",        type: "boolean", default: true,                     tip: "Remove the card border and shadow wrapper" },
   { key: "resolverAddress", type: "string",  default: "", readonly: true,       tip: "Optional. Auto-detected from the ENS registry if not provided" },
   { key: "resolverChainId", type: "number",  default: 1,  readonly: true,       tip: "Optional. Inferred from isTestnet if not provided" },
 ];
 
-export function EnsRecordsSection({ isTestnet, version }: { isTestnet: boolean; version: 1 | 2 }) {
+export function EnsRecordsSection({ isTestnet }: { isTestnet: boolean }) {
   const { isConnected, address } = useAccount();
   const { openConnectModal } = useConnectModal();
   const pc = usePublicClient({ chainId: 1 });
@@ -86,34 +57,9 @@ export function EnsRecordsSection({ isTestnet, version }: { isTestnet: boolean; 
   const displayValues = {
     ...values,
     name: submittedName || "yourname.eth",
-    existingRecords: submittedName ? "{ addresses: [...], texts: [...] }" : "(fetched via Resolvio)",
+    existingRecords: submittedName ? "{ addresses: [...], texts: [...] }" : "(fetched onchain)",
     resolverAddress: "",
     resolverChainId: 0,
-  };
-
-  const lookupOwner = async (name: string): Promise<string> => {
-    const client = isTestnet ? sepoliaPc! : pc!;
-    if (version === 2) return getEnsV2Owner(client, name, isTestnet);
-    // ENSv1 shares the registry address across chains; only the wrapper differs.
-    const wrapper = isTestnet ? SEPOLIA_NAME_WRAPPER : NAME_WRAPPER;
-    const node = namehash(name);
-    const registryOwner = await client.readContract({
-      address: ENS_REGISTRY,
-      abi: REGISTRY_ABI,
-      functionName: "owner",
-      args: [node],
-    });
-    if (registryOwner.toLowerCase() === wrapper.toLowerCase()) {
-      const tokenId = BigInt(node);
-      const wrapperOwner = await client.readContract({
-        address: wrapper,
-        abi: WRAPPER_ABI,
-        functionName: "ownerOf",
-        args: [tokenId],
-      });
-      return (wrapperOwner as string).toLowerCase();
-    }
-    return (registryOwner as string).toLowerCase();
   };
 
   const handleLookup = async () => {
@@ -122,15 +68,13 @@ export function EnsRecordsSection({ isTestnet, version }: { isTestnet: boolean; 
     setLoading(true);
     setLookupError("");
     try {
-      const owner = await lookupOwner(name);
+      const client = isTestnet ? sepoliaPc! : pc!;
+      const owner = await getEnsV2Owner(client, name, isTestnet);
       if (owner !== address?.toLowerCase()) {
         setLookupError("You are not permitted to edit records, try adding a name you own");
         return;
       }
-      const records =
-        version === 2 || isTestnet
-          ? await fetchEnsV2Records(isTestnet ? sepoliaPc! : pc!, name, isTestnet)
-          : await fetchEnsProfile(name);
+      const records = await fetchEnsV2Records(client, name, isTestnet);
       setExistingRecords(records);
       setSubmittedName(name);
     } catch (err: any) {
@@ -153,7 +97,6 @@ export function EnsRecordsSection({ isTestnet, version }: { isTestnet: boolean; 
     `isTestnet={${isTestnet}}`,
     `name="${submittedName || "yourname.eth"}"`,
     "existingRecords={existingRecords}",
-    `version={${version}}`,
   ]);
 
   return (
@@ -162,20 +105,20 @@ export function EnsRecordsSection({ isTestnet, version }: { isTestnet: boolean; 
         icon={BookOpenText}
         name="ENS Records"
         title="Edit Profile Records"
-        desc="Full-featured editor for .eth names and DNS names imported into ENS. Reads existing records and writes changes back via a resolver transaction."
+        desc="Full-featured editor for .eth names. Reads existing records and writes changes back via a resolver transaction."
       />
       <div className="component-grid">
         <DemoPanel>
           {!submittedName ? (
             <div className="ens-lookup-wrap">
-              <p className="ens-lookup-title">Enter your ENS or imported DNS name</p>
+              <p className="ens-lookup-title">Enter your ENS name</p>
               <p className="ens-lookup-sub">Load your current records to edit them</p>
               <input
                 className="ens-lookup-input"
                 data-testid="records-lookup-input"
                 type="text"
                 value={ensName}
-                placeholder="yourname.eth or example.com"
+                placeholder="yourname.eth"
                 onChange={(e) => setEnsName(e.target.value.toLowerCase())}
                 onKeyDown={(e) => e.key === "Enter" && isConnected && !loading && handleLookup()}
               />
@@ -202,7 +145,6 @@ export function EnsRecordsSection({ isTestnet, version }: { isTestnet: boolean; 
                   key={`${submittedName}-${String(isTestnet)}-${values.resolverAddress}`}
                   name={submittedName}
                   isTestnet={isTestnet}
-                  version={version}
                   resolverAddress={values.resolverAddress || undefined}
                   // resolverChainId is left to the form, which infers it from isTestnet.
                   noBorder={values.noBorder}

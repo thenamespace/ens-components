@@ -1,5 +1,5 @@
 import { writeFileSync } from "node:fs";
-import { test as base, expect, type Locator, type Page } from "@playwright/test";
+import { test as base, expect, type Locator } from "@playwright/test";
 import type { Address } from "viem";
 import { type BatchMode, TestWallet } from "../wallet/TestWallet";
 import { env } from "./env";
@@ -29,6 +29,11 @@ export const test = base.extend<{
       await page.goto(path);
       // The sticky nav sits over buttons Playwright scrolls to the top edge and swallows their clicks.
       await page.addStyleTag({ content: "nav.nav { position: static !important; }" });
+      // The playground opens on mainnet; switch to Sepolia before connecting so the
+      // wrong-network prompt never shows.
+      const network = page.getByTestId("network-switch");
+      if ((await network.getAttribute("aria-checked")) === "true") await network.click();
+      await expect(network).toHaveAttribute("aria-checked", "false");
       await page.getByTestId("nav-connect-wallet").click();
       await page.getByRole("dialog").getByRole("button", { name: /E2E Wallet/ }).click();
       await expect(page.getByTestId("nav-wallet-address")).toBeVisible();
@@ -36,13 +41,6 @@ export const test = base.extend<{
     });
   },
 });
-
-/** Flips the nav ENSv1 / ENSv2 switch to `version`. */
-export const useEnsVersion = async (page: Page, version: 1 | 2) => {
-  const toggle = page.getByTestId("ens-version-switch");
-  if ((await toggle.getAttribute("aria-checked")) !== String(version === 2)) await toggle.click();
-  await expect(toggle).toHaveAttribute("aria-checked", String(version === 2));
-};
 
 /**
  * Clicks the button `testId` once it enables. Fails right away, instead of timing

@@ -27,7 +27,7 @@ interface UpdateRecordsRequest {
 export const useENSResolver = ({
     resolverChainId,
     isTestnet,
-    version = 1,
+    version = 2,
 }: {
     resolverChainId: number;
     isTestnet?: boolean;

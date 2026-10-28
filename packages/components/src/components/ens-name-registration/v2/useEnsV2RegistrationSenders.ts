@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import type { Address, Hash, Hex, PublicClient, WalletClient } from "viem";
+import { type Address, type Hash, type Hex, type PublicClient, type WalletClient, zeroHash } from "viem";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import type { EnsRecords } from "@/types";
 import {
@@ -19,7 +19,9 @@ import {
   type EnsV2RegistrationDeployment,
   type EnsV2RegistrationToken,
   getEnsV2Allowance,
+  getEnsV2Referrer,
   getEnsV2RegistrationPrice,
+  loadEnsV2Commitment,
   makeEnsV2Commitment,
   saveEnsV2Commitment,
   withOwnerEthAddress,
@@ -29,6 +31,7 @@ export const useEnsV2RegistrationSenders = (
   deployment: EnsV2RegistrationDeployment,
   token: EnsV2RegistrationToken,
   records: EnsRecords,
+  referrerAddress?: Address,
 ) => {
   const { chainId } = deployment;
   const { address } = useAccount();
@@ -92,12 +95,14 @@ export const useEnsV2RegistrationSenders = (
   const sendCommitment: CommitmentSender = async (state) => {
     const { publicClient, walletClient, owner } = clients();
     const resolver = await getOwnedResolver(publicClient, deployment, owner);
+    const referrer = getEnsV2Referrer(referrerAddress);
     const commitment = makeEnsV2Commitment({
       label: state.label,
       owner,
       secret: state.secret as Hex,
       resolver: resolver.address,
       duration: BigInt(state.durationInSeconds),
+      referrer,
     });
     const call = buildEnsV2CommitCall(deployment, commitment);
     const hash = await walletClient.sendTransaction({
@@ -110,6 +115,7 @@ export const useEnsV2RegistrationSenders = (
     saveEnsV2Commitment(chainId, owner, state.label, {
       secret: state.secret as Hex,
       durationSeconds: state.durationInSeconds,
+      referrer,
     });
     return hash;
   };
@@ -125,12 +131,17 @@ export const useEnsV2RegistrationSenders = (
       token,
     );
     const resolver = await getOwnedResolver(publicClient, deployment, owner);
+    // Register with the referrer the commit used, or the commitment won't match.
+    const saved = loadEnsV2Commitment(chainId, owner, state.label);
+    const referrer =
+      saved?.secret === state.secret ? (saved.referrer ?? zeroHash) : getEnsV2Referrer(referrerAddress);
     const calls = await buildEnsV2RegisterCalls(publicClient, deployment, {
       label: state.label,
       owner,
       secret: state.secret as Hex,
       resolver: resolver.address,
       duration,
+      referrer,
       token,
       price,
       resolverDeployed: resolver.deployed,

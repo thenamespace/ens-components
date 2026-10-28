@@ -2,7 +2,7 @@
 
 # ENS Components
 
-**Drop-in React components for ENS name registration, record editing, and subname issuance.**
+**Drop-in React components for ENS name registration, renewal, record editing, and subname issuance on ENSv2.**
 
 [![npm](https://img.shields.io/npm/v/@thenamespace/ens-components)](https://www.npmjs.com/package/@thenamespace/ens-components)
 [![license](https://img.shields.io/npm/l/@thenamespace/ens-components)](LICENSE)
@@ -21,18 +21,14 @@
 
 | Component | What it does |
 |-----------|-------------|
-| `EnsNameRegistrationForm` | Full `.eth` registration flow — search, commit, wait, register |
+| `EnsNameRegistrationForm` | Register a `.eth` name — search, commit, wait, register. Paid in USDC or DAI |
+| `NameRenewForm` | Renew a `.eth` name in USDC or DAI |
 | `EnsRecordsForm` | Edit resolver records (addresses, text, contenthash, avatar) for a name you own |
 | `SelectRecordsForm` | Standalone record composer — no wallet or transaction required |
-| `SubnameMintForm` | Mint onchain subnames from a Namespace listing |
+| `SubnameMintForm` | Mint onchain subnames under a name activated on Namespace |
+| `SubnameRenewForm` | Renew onchain subnames |
 | `OffchainSubnameForm` | Create and update gasless offchain subnames via the Namespace API |
-
-`EnsRecordsForm`, `SubnameMintForm`, and `OffchainSubnameForm` accept both native
-`.eth` names and DNS names that have been imported into ENS, such as `example.com`.
-The relevant Namespace listing or API key must already be configured for the parent
-name. `EnsNameRegistrationForm` remains `.eth`-only because it uses the ENS ETH
-Registrar Controller; import DNS names into ENS before passing them to the other
-components.
+| `TransactionProgress` / `TransactionModal` | The progress screen the forms use, available for your own transactions |
 
 ---
 
@@ -90,11 +86,30 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
 ---
 
+## ENSv2
+
+Registration, renewal, records, and onchain subnames all run on ENSv2, on mainnet or on Sepolia
+with `isTestnet`. The one ENSv1 flow still in use is minting under an old Namespace listing:
+pass `version={1}` to `SubnameMintForm` for those parents.
+
+Wallets that support atomic batching (EIP-5792) sign the token approval, resolver deployment,
+and main transaction in one prompt; other wallets send them one at a time.
+
+### Upgrading to 3.0
+
+`version` now defaults to `2` on `EnsNameRegistrationForm`, `NameRenewForm`, `EnsRecordsForm`,
+and `SubnameMintForm`. If you mint under an old Namespace listing, pass `version={1}` to
+`SubnameMintForm`. `TransactionPendingScreen` no longer takes a `message` prop.
+
+---
+
 ## Components
 
 ### EnsNameRegistrationForm
 
-Guides users through the full `.eth` registration flow: search → commit → wait → register.
+Guides users through registering a `.eth` name: search → commit → wait → register. Paid in
+USDC or DAI. Each owner gets their own resolver for their records, deployed with their first
+registration.
 
 ```tsx
 import { EnsNameRegistrationForm } from "@thenamespace/ens-components";
@@ -109,13 +124,43 @@ import { EnsNameRegistrationForm } from "@thenamespace/ens-components";
 | Prop | Type | Description |
 |------|------|-------------|
 | `isTestnet` | `boolean` | Use Sepolia instead of mainnet |
-| `referrer` | `string` | Registration referrer wallet address |
+| `referrer` | `string` | Registration referrer wallet address. Defaults to Namespace's referrer |
 | `noBorder` | `boolean` | Remove the card border |
 | `title` | `string` | Override the form heading |
 | `subtitle` | `string` | Override the subtitle |
 | `bannerImage` | `string` | Custom banner image URL |
 | `hideBanner` | `boolean` | Hide the banner entirely |
 | `onConnectWallet` | `() => void` | Called when the user needs to connect a wallet |
+
+---
+
+### NameRenewForm
+
+Renews a `.eth` name in one step, paid in USDC or DAI. It shows the current expiry, prices the
+extension, and sends the transaction. Anyone can renew any name; the owner keeps it.
+
+```tsx
+import { NameRenewForm } from "@thenamespace/ens-components";
+
+<NameRenewForm
+  name="alice.eth"
+  onRenewalSuccess={(data) => console.log(data.fullName, data.newExpiry)}
+/>
+```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `name` | `string` | `alice` or `alice.eth`. Leave empty to let the user type a name |
+| `isTestnet` | `boolean` | Use Sepolia instead of mainnet |
+| `referrer` | `string` | Renewal referrer wallet address. Defaults to Namespace's referrer |
+| `noBorder` | `boolean` | Remove the card border |
+| `title` | `string` | Override the form heading |
+| `subtitle` | `string` | Override the subtitle |
+| `onConnectWallet` | `() => void` | Called when the user needs to connect a wallet |
+| `onCancel` | `() => void` | Called when the user cancels |
+| `onRenewalSuccess` | `(data: RenewalSuccessData) => void` | Called after the renewal confirms |
+
+`RenewalSuccessData` is `{ fullName, txHash, price, priceCurrency, transactionFees, newExpiry }`.
 
 ---
 
@@ -135,7 +180,7 @@ import { EnsRecordsForm } from "@thenamespace/ens-components";
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `name` | `string` | ENS name to edit (`.eth` or a DNS name imported into ENS) |
+| `name` | `string` | ENS name to edit |
 | `existingRecords` | `EnsRecords` | Current on-chain records |
 | `isTestnet` | `boolean` | Use Sepolia instead of mainnet |
 | `noBorder` | `boolean` | Remove the card border |
@@ -164,7 +209,10 @@ const [records, setRecords] = useState({ addresses: [], texts: [] });
 
 ### SubnameMintForm
 
-Full minting flow for onchain subnames — price lookup, profile records, and the mint transaction.
+Full minting flow for onchain subnames — price lookup, profile records, and the mint
+transaction. The parent must be a `.eth` name activated for subnames on
+[app.namespace.ninja](https://app.namespace.ninja). The user picks the payment token: ETH,
+USDC, or DAI (ETH or USDC on Sepolia).
 
 ```tsx
 import { SubnameMintForm } from "@thenamespace/ens-components";
@@ -178,17 +226,52 @@ import { SubnameMintForm } from "@thenamespace/ens-components";
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `parentName` | `string` | ENS parent (`.eth` or ENS-imported DNS) with an active Namespace listing |
+| `version` | `1 \| 2` | `1` for a parent on an old Namespace listing. Defaults to `2` |
+| `parentName` | `string` | Activated parent name. Old listings may also be DNS names imported into ENS |
 | `isTestnet` | `boolean` | Use Sepolia instead of mainnet |
+| `resolver` | `Address` | Resolver for the new subname when the activation doesn't set one. Defaults to Namespace's shared resolver |
+| `noBorder` | `boolean` | Remove the card border |
 | `txConfirmations` | `number` | Block confirmations to wait after tx |
 | `onConnectWallet` | `() => void` | Called when the user needs to connect |
 | `onCancel` | `() => void` | Called when the user cancels |
 
 ---
 
+### SubnameRenewForm
+
+Extends subnames minted under an activated name, at the price the parent's owner set. It
+checks the subname, the parent, and the issuer before offering a transaction, and warns
+when the subname would outlive its parent. Anyone can renew any subname; the renewal
+extends it for its owner.
+
+```tsx
+import { SubnameRenewForm } from "@thenamespace/ens-components";
+
+<SubnameRenewForm
+  parentName="yourname.eth"
+  label="alice"
+  onRenewalSuccess={(data) => console.log(data.fullName, data.newExpiry)}
+/>
+```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `parentName` | `string` | Activated parent name, e.g. `yourname.eth` |
+| `label` | `string` | Subname label. Leave empty to let the user type one |
+| `isTestnet` | `boolean` | Use Sepolia instead of mainnet |
+| `noBorder` | `boolean` | Remove the card border |
+| `title` | `string` | Override the form heading |
+| `subtitle` | `string` | Override the subtitle |
+| `onConnectWallet` | `() => void` | Called when the user needs to connect a wallet |
+| `onCancel` | `() => void` | Called when the user cancels |
+| `onRenewalSuccess` | `(data: RenewalSuccessData) => void` | Called after the renewal confirms |
+| `onRenewParent` | `() => void` | Shows a link to renew the parent when the subname would outlive it |
+
+---
+
 ### OffchainSubnameForm
 
-Create and update gasless offchain subnames through the Namespace API. Requires an API key from [dev.namespace.ninja](https://dev.namespace.ninja).
+Create and update gasless offchain subnames through the Namespace API. Requires an API key from [app.namespace.ninja/offchain](https://app.namespace.ninja/offchain).
 
 ```tsx
 import { OffchainSubnameForm } from "@thenamespace/ens-components";
@@ -231,6 +314,29 @@ npm install @thenamespace/offchain-manager
 
 ---
 
+### TransactionProgress and TransactionModal
+
+The progress screen every form shows while a transaction confirms, available for your own
+transactions. Use `TransactionProgress` inline or `TransactionModal` in a modal.
+
+```tsx
+import { TransactionModal } from "@thenamespace/ens-components";
+
+<TransactionModal
+  isOpen={isOpen}
+  onClose={() => setIsOpen(false)}
+  status={status} // "pending" | "success" | "failed"
+  hash={txHash}
+  details={[{ label: "Name", value: "alice.eth" }]}
+/>
+```
+
+Props: `status`, `hash`, `chainId`, `isTestnet`, `title`, `description`, `details`, `duration`
+(milliseconds the rail takes to reach 90% while pending), and `className`. `TransactionModal`
+adds `isOpen`, `onClose`, and `footer`.
+
+---
+
 ## Theming
 
 All colors, radii, and spacing are CSS variables. Override them in your own stylesheet to match your brand:
@@ -258,7 +364,8 @@ ui-components/
 │   └── components/        # @thenamespace/ens-components  (published to npm)
 └── apps/
     ├── storybook/         # Storybook 8 component explorer  (port 6006)
-    └── landing/           # Interactive demo & docs         (port 4000)
+    ├── landing/           # Interactive demo & docs         (port 4000)
+    └── e2e/               # Playwright suite against Sepolia
 ```
 
 ## Local development
@@ -278,6 +385,9 @@ pnpm --filter @thenamespace/ens-components build
 
 # Build everything in dependency order
 turbo run build
+
+# Run the Sepolia end-to-end suite (setup in apps/e2e/README.md)
+pnpm e2e
 ```
 
 ---
@@ -286,6 +396,6 @@ turbo run build
 
 - **Live demo** — [enscomponents.com](https://enscomponents.com)
 - **npm** — [@thenamespace/ens-components](https://www.npmjs.com/package/@thenamespace/ens-components)
-- **API keys** — [dev.namespace.ninja](https://dev.namespace.ninja)
+- **API keys** — [app.namespace.ninja/offchain](https://app.namespace.ninja/offchain)
 - **Namespace** — [namespace.ninja](https://namespace.ninja)
 - **Builders Telegram** — [t.me/+u2X1_QbR-CVmMGIy](https://t.me/+u2X1_QbR-CVmMGIy)

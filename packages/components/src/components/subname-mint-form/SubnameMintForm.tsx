@@ -77,6 +77,7 @@ interface SubnameMintFormProps {
   onSubnameMinted?: (data: SubnameMintedData) => void;
   txConfirmations?: number;
   onConnectWallet?: () => void;
+  /** 2 (default) mints under an ENSv2 activation, 1 under an old Namespace listing. */
   version?: 1 | 2;
   noBorder?: boolean;
   resolver?: Address;
@@ -84,7 +85,7 @@ interface SubnameMintFormProps {
 
 const MIN_ENS_LEN = 1;
 
-export const SubnameMintForm = ({ version = 1, noBorder, ...props }: SubnameMintFormProps) => (
+export const SubnameMintForm = ({ version = 2, noBorder, ...props }: SubnameMintFormProps) => (
   <div className={noBorder ? "ns-no-border-scope" : undefined} style={{ display: "contents" }}>
     {version === 2 ? <SubnameMintFormV2 {...props} /> : <SubnameMintFormV1 {...props} />}
   </div>

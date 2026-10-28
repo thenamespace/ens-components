@@ -1,11 +1,10 @@
 # `@thenamespace/ens-components`
 
-Production-ready React components for ENS name registration, record editing, and subname issuance.
+Production-ready React components for ENS name registration, renewal, record editing, and subname issuance on ENSv2.
 
 [![npm](https://img.shields.io/npm/v/@thenamespace/ens-components)](https://www.npmjs.com/package/@thenamespace/ens-components)
 
-Record editing and onchain/offchain subname flows support native `.eth` names and
-DNS names imported into ENS, such as `example.com`. The `.eth` registration form is limited to `.eth` registrations.
+Try every component live at [enscomponents.com](https://enscomponents.com).
 
 ## Install
 
@@ -18,7 +17,7 @@ pnpm add @thenamespace/ens-components
 Peer dependencies (you likely already have these):
 
 ```bash
-npm install react react-dom wagmi viem
+npm install react react-dom wagmi viem @tanstack/react-query
 ```
 
 ## Quick start
@@ -67,89 +66,196 @@ export default function App() {
 }
 ```
 
+Every onchain flow runs on ENSv2, on mainnet or on Sepolia with `isTestnet`. The one ENSv1 flow still in use is
+minting under an old Namespace listing: pass `version={1}` to `SubnameMintForm` for those parents.
+
+### Upgrading to 3.0
+
+`version` now defaults to `2` on `EnsNameRegistrationForm`, `NameRenewForm`, `EnsRecordsForm`, and `SubnameMintForm`.
+If you mint under an old Namespace listing, pass `version={1}` to `SubnameMintForm`. `TransactionPendingScreen` no
+longer takes a `message` prop.
+
 ---
 
 ## Components
 
 ### `EnsNameRegistrationForm`
 
-Full `.eth` name registration flow: search → commit → wait → register.
+Registers a `.eth` name: search → commit → wait → register. Paid in USDC or DAI.
 
 ```tsx
 <EnsNameRegistrationForm
-  isTestnet={false}
-  onNameRegistered={name => console.log("Registered:", name)}
+  avatarUploadDomain="app.example.com"
+  onRegistrationSuccess={result => console.log(result.expiryDate)}
 />
 ```
 
-| Prop               | Type                     | Description                            |
-| ------------------ | ------------------------ | -------------------------------------- |
-| `isTestnet`        | `boolean`                | Use Sepolia testnet contracts          |
-| `onNameRegistered` | `(name: string) => void` | Callback after successful registration |
+| Prop                    | Type                                        | Description                                                     |
+| ----------------------- | ------------------------------------------- | --------------------------------------------------------------- |
+| `name`                  | `string`                                    | Pre-fill the name to register                                   |
+| `isTestnet`             | `boolean`                                   | Use Sepolia instead of mainnet                                  |
+| `referrer`              | `Address`                                   | Registration referrer address. Defaults to Namespace's referrer |
+| `avatarUploadDomain`    | `string`                                    | Your app's hostname, used for avatar upload signing             |
+| `onRegistrationStart`   | `(name: string) => void`                    | Called when the first transaction is sent                       |
+| `onRegistrationSuccess` | `(result: RegistrationSuccessData) => void` | Called after registration                                       |
+| `onClose`               | `(isSuccess: boolean) => void`              | Called when the user closes the form                            |
+| `onConnectWallet`       | `() => void`                                | Called when the user needs to connect a wallet                  |
+
+Also accepts `title`, `subtitle`, `bannerImage`, `bannerWidth`, `hideBanner`, `noBorder`, and `className`.
+
+---
+
+### `NameRenewForm`
+
+Renews a `.eth` name in one step, paid in USDC or DAI. Anyone can renew any name; the owner keeps it.
+
+```tsx
+<NameRenewForm
+  name="alice.eth"
+  onRenewalSuccess={data => console.log(data.newExpiry)}
+/>
+```
+
+| Prop               | Type                                 | Description                                                  |
+| ------------------ | ------------------------------------ | ------------------------------------------------------------ |
+| `name`             | `string`                             | `alice` or `alice.eth`. Leave empty to let the user type one |
+| `isTestnet`        | `boolean`                            | Use Sepolia instead of mainnet                               |
+| `referrer`         | `Address`                            | Renewal referrer. Defaults to Namespace's                    |
+| `onRenewalSuccess` | `(data: RenewalSuccessData) => void` | Called after the renewal confirms                            |
+| `onConnectWallet`  | `() => void`                         | Called when the user needs to connect a wallet               |
+| `onCancel`         | `() => void`                         | Called when the user cancels                                 |
+
+Also accepts `title`, `subtitle`, `noBorder`, and `className`.
 
 ---
 
 ### `EnsRecordsForm`
 
-Edit all resolver records for an ENS name — addresses, text records, contenthash, avatar, and header image.
+Edit all resolver records for an ENS name: addresses, text records, contenthash, avatar, and header image.
 
 ```tsx
 <EnsRecordsForm
   name="alice.eth"
   existingRecords={{ texts: [], addresses: [] }}
-  isTestnet={false}
-  onRecordsSaved={records => console.log(records)}
+  onRecordsUpdated={diff => console.log(diff)}
 />
 ```
 
-| Prop              | Type                            | Description                                               |
-| ----------------- | ------------------------------- | --------------------------------------------------------- |
-| `name`            | `string`                        | ENS name to edit (`.eth` or a DNS name imported into ENS) |
-| `existingRecords` | `EnsRecords`                    | Current on-chain records to pre-populate                  |
-| `isTestnet`       | `boolean`                       | Use Sepolia testnet contracts                             |
-| `onRecordsSaved`  | `(records: EnsRecords) => void` | Callback after records are saved                          |
+| Prop                 | Type                             | Description                                         |
+| -------------------- | -------------------------------- | --------------------------------------------------- |
+| `name`               | `string`                         | ENS name to edit                                    |
+| `existingRecords`    | `EnsRecords`                     | Current on-chain records to pre-populate            |
+| `isTestnet`          | `boolean`                        | Use Sepolia instead of mainnet                      |
+| `resolverAddress`    | `Address`                        | Skip the resolver lookup and use this one           |
+| `avatarUploadDomain` | `string`                         | Your app's hostname, used for avatar upload signing |
+| `onRecordsUpdated`   | `(diff: EnsRecordsDiff) => void` | Called after the records are saved                  |
+| `onTransactionSent`  | `(hash: Hash) => void`           | Called when the transaction is sent                 |
+| `onCancel`           | `() => void`                     | Called when the user cancels                        |
+
+Also accepts `resolverChainId`, `txConfirmations`, `onGreat`, `noBorder`, and `className`.
 
 ---
 
 ### `SubnameMintForm`
 
-Mint an onchain subname from a Namespace listing.
+Mint an onchain subname under a `.eth` name activated on [app.namespace.ninja](https://app.namespace.ninja).
+The user picks the payment token: ETH, USDC, or DAI (ETH or USDC on Sepolia).
 
 ```tsx
 <SubnameMintForm
   parentName="alice.eth"
-  isTestnet={false}
-  onSubnameMinted={subname => console.log("Minted:", subname)}
+  onSuccess={data => console.log("Minted:", `${data.label}.${data.parentName}`)}
 />
 ```
 
-| Prop              | Type                        | Description                                                    |
-| ----------------- | --------------------------- | -------------------------------------------------------------- |
-| `parentName`      | `string`                    | ENS parent (`.eth` or ENS-imported DNS) with an active listing |
-| `isTestnet`       | `boolean`                   | Use Sepolia testnet contracts                                  |
-| `onSubnameMinted` | `(subname: string) => void` | Callback after mint                                            |
+| Prop                 | Type                              | Description                                                            |
+| -------------------- | --------------------------------- | ---------------------------------------------------------------------- |
+| `version`            | `1 \| 2`                          | `1` for a parent on an old Namespace listing. Defaults to `2`          |
+| `parentName`         | `string`                          | Activated parent. Old listings may also be DNS names imported into ENS |
+| `label`              | `string`                          | Pre-fill the subname label                                             |
+| `isTestnet`          | `boolean`                         | Use Sepolia instead of mainnet                                         |
+| `resolver`           | `Address`                         | Resolver for the subname when the activation doesn't set one           |
+| `avatarUploadDomain` | `string`                          | Your app's hostname, used for avatar upload signing                    |
+| `onSuccess`          | `(data: MintSuccessData) => void` | Called after the mint confirms                                         |
+| `onConnectWallet`    | `() => void`                      | Called when the user needs to connect a wallet                         |
+| `onCancel`           | `() => void`                      | Called when the user cancels                                           |
+
+Also accepts `title`, `subtitle`, `txConfirmations`, `onSubnameMinted`, and `noBorder`.
+
+---
+
+### `SubnameRenewForm`
+
+Renew a subname minted under an activated name, at the price the parent's owner set. It warns when the subname
+would outlive its parent.
+
+```tsx
+<SubnameRenewForm
+  parentName="alice.eth"
+  label="bob"
+  onRenewalSuccess={data => console.log(data.newExpiry)}
+/>
+```
+
+| Prop               | Type                                 | Description                                                        |
+| ------------------ | ------------------------------------ | ------------------------------------------------------------------ |
+| `parentName`       | `string`                             | Activated parent name                                              |
+| `label`            | `string`                             | Subname label. Leave empty to let the user type one                |
+| `isTestnet`        | `boolean`                            | Use Sepolia instead of mainnet                                     |
+| `onRenewalSuccess` | `(data: RenewalSuccessData) => void` | Called after the renewal confirms                                  |
+| `onRenewParent`    | `() => void`                         | Shows a link to renew the parent when the subname would outlive it |
+| `onConnectWallet`  | `() => void`                         | Called when the user needs to connect a wallet                     |
+| `onCancel`         | `() => void`                         | Called when the user cancels                                       |
+
+Also accepts `title`, `subtitle`, `noBorder`, and `className`.
 
 ---
 
 ### `OffchainSubnameForm`
 
-Create or update an offchain subname through the Namespace API.
+Create or update a gasless offchain subname through the Namespace API. Get an API key for the parent
+name on [app.namespace.ninja/offchain](https://app.namespace.ninja/offchain).
 
 ```tsx
-<OffchainSubnameForm
-  name="alice.eth"
-  apiKeyOrToken="YOUR_NAMESPACE_API_KEY"
-  isTestnet={false}
-  onSubnameSaved={subname => console.log("Saved:", subname)}
+import { createOffchainClient } from "@thenamespace/offchain-manager";
+
+const offchainManager = createOffchainClient({
+  mode: "mainnet",
+  domainApiKeys: { "alice.eth": "YOUR_NAMESPACE_API_KEY" },
+});
+
+<OffchainSubnameForm name="alice.eth" offchainManager={offchainManager} />;
+```
+
+| Prop               | Type                      | Description                                  |
+| ------------------ | ------------------------- | -------------------------------------------- |
+| `name`             | `string`                  | Parent ENS name (`.eth` or ENS-imported DNS) |
+| `offchainManager`  | `OffchainClient`          | Client from `createOffchainClient()`         |
+| `label`            | `string`                  | Pre-fill and lock the subname label          |
+| `isTestnet`        | `boolean`                 | Use Sepolia instead of mainnet               |
+| `onSubnameCreated` | `(data) => Promise<void>` | Called after a new subname is submitted      |
+| `onSubnameUpdated` | `(data) => Promise<void>` | Called after an existing subname is updated  |
+
+Also accepts `title`, `subtitle`, `hideTitle`, `avatarUploadDomain`, `onCancel`, and `noBorder`.
+
+---
+
+### `TransactionProgress` and `TransactionModal`
+
+The progress screen the forms show while a transaction confirms, available for your own transactions.
+
+```tsx
+<TransactionModal
+  isOpen={isOpen}
+  onClose={() => setIsOpen(false)}
+  status="pending" // "pending" | "success" | "failed"
+  hash={txHash}
+  details={[{ label: "Name", value: "alice.eth" }]}
 />
 ```
 
-| Prop             | Type                        | Description                                  |
-| ---------------- | --------------------------- | -------------------------------------------- |
-| `name`           | `string`                    | Parent ENS name (`.eth` or ENS-imported DNS) |
-| `apiKeyOrToken`  | `string`                    | Namespace API key or SIWE token              |
-| `isTestnet`      | `boolean`                   | Use Sepolia testnet contracts                |
-| `onSubnameSaved` | `(subname: string) => void` | Callback after save                          |
+Props: `status`, `hash`, `chainId`, `isTestnet`, `title`, `description`, `details`, `duration`, and
+`className`. `TransactionModal` adds `isOpen`, `onClose`, and `footer`.
 
 ---
 
@@ -174,6 +280,7 @@ import type {
   EnsTextRecord,
   EnsAddressRecord,
   EnsContenthashRecord,
+  RenewalSuccessData,
 } from "@thenamespace/ens-components";
 ```
 
@@ -181,14 +288,15 @@ import type {
 
 ## Theming
 
-Components use CSS variables that can be overridden:
+Components use `--ns-` prefixed CSS variables. The accent ramp derives from `--ns-ink`, and `--ns-radius`
+sets every corner:
 
 ```css
 :root {
-  --ns-color-primary: #5a4bff;
-  --ns-color-bg: #ffffff;
-  --ns-color-fg: #111111;
-  --ns-radius-md: 12px;
+  --ns-ink: #212121;
+  --ns-radius: 10px;
+  --ns-text: #1b1d1e;
+  --ns-surface: #ffffff;
   --ns-font-family: "DM Sans", sans-serif;
 }
 ```

@@ -7,7 +7,7 @@ export interface NameRenewFormProps {
   /** "alice" or "alice.eth". Leave empty to let the user type a name. */
   name?: string;
   isTestnet?: boolean;
-  /** 1 renews through the ENSv1 controller in ETH, 2 through the ENSv2 registrar in stablecoins. */
+  /** 2 (default) renews through the ENSv2 registrar in stablecoins, 1 through the ENSv1 controller in ETH. */
   version?: 1 | 2;
   referrer?: Address;
   title?: string;
@@ -20,7 +20,7 @@ export interface NameRenewFormProps {
 }
 
 export const NameRenewForm = ({
-  version = 1,
+  version = 2,
   noBorder,
   ...props
 }: NameRenewFormProps) => (
