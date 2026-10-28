@@ -1,99 +1,69 @@
-# Advanced Flows
+# Advanced
 
-Read this file when the user asks for anything beyond the default ENS registration quickstart:
+Read the section for the component you are wiring. Every snippet assumes the stylesheet import and wagmi providers from `SKILL.md`, and leaves out `onConnectWallet` and `avatarUploadDomain` for brevity. Keep both in real code.
 
-- ENSv1 vs ENSv2 (the `version` prop)
-- `.eth` name and subname renewals
-- ENS record editing
-- controlled record UIs
-- onchain subname minting
-- offchain Namespace subnames
-- the transaction progress screen
-- theming, banners, callbacks, or custom behavior
+## ENSv2 behavior
 
-## Prerequisites
+This applies to registration, renewal, subname minting and subname renewal. The only exception is `SubnameMintForm version={1}`.
 
-Base App should have this installed
+- **Networks:** mainnet, or Sepolia with `isTestnet`.
+- **Payment:** `.eth` registration and renewal are paid in USDC or DAI. Subname mints and renewals are paid in whatever the parent's activation accepts: ETH, USDC or DAI on mainnet, and ETH or USDC on Sepolia. The user picks the token inside the form, so don't hardcode a token or ask for one up front. Network fees are always ETH.
+- **Wallet prompts:** wallets with EIP-5792 atomic batching confirm each step in one prompt. Other wallets get one transaction per call, for example approving the token or deploying a resolver first. Both are expected. Never add your own approve step.
+- **Balances:** if the wallet holds too little of the chosen token, or too little ETH for gas, the form shows "Insufficient funds" and blocks the transaction. Don't add your own balance check.
 
-- `wagmi`
-- `viem`
-- `@tanstack/react-query`
-- `@thenamespace/ens-components`
-- `@thenamespace/ens-components/styles.css` imported once at the app root
-
-Assume the caller can already provide:
-
-- the ENS name or parent name for the flow
-- the app hostname for `avatarUploadDomain`
-
-Additional flow-specific prerequisites:
-
-- `EnsRecordsForm`: existing ENS records must be fetched before render
-- `SubnameMintForm`: the parent name must already have an active Namespace listing (version 1) or an ENSv2 activation on Namespace (version 2, set up at app.namespace.ninja)
-- `SubnameRenewForm`: the parent must have an ENSv2 activation on Namespace
-- `OffchainSubnameForm`: `@thenamespace/offchain-manager`, a configured `OffchainClient`, and a valid API key for the parent name (keys come from app.namespace.ninja/offchain)
-
-`EnsRecordsForm`, `SubnameMintForm`, and `OffchainSubnameForm` support native
-`.eth` names and DNS names already imported into ENS (for example `example.com`).
-`EnsNameRegistrationForm` cannot import or register DNS names; it only registers
-second-level `.eth` names through the ETH Registrar Controller.
-
-## ENSv1 And ENSv2
-
-`EnsNameRegistrationForm`, `NameRenewForm`, `EnsRecordsForm`, and `SubnameMintForm`
-take `version?: 1 | 2`. The default is `1`, so integrations written before ENSv2
-keep the ENSv1 flow. Pass `version={2}` only when the user asks for ENSv2 or the
-name already lives there.
-
-What changes with `version={2}`:
-
-| Component                 | Version 1                               | Version 2                                                                                           |
-| ------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `EnsNameRegistrationForm` | ETH Registrar Controller, paid in ETH   | ENSv2 ETH registrar, paid in USDC or DAI. One PermissionedResolver per owner, deployed on first use |
-| `NameRenewForm`           | ENSv1 controller, paid in ETH           | ENSv2 registrar, paid in USDC or DAI                                                                |
-| `EnsRecordsForm`          | Resolver found through the ENS registry | Resolver found through the ENSv2 Universal Resolver                                                 |
-| `SubnameMintForm`         | Namespace listing (mint-manager), ETH   | Namespace ENSv2 activation, paid in ETH, USDC, or DAI on mainnet; ETH or USDC on Sepolia            |
-
-Notes:
-
-- ENSv2 is available on mainnet and Sepolia (`isTestnet`).
-- The token picker only offers what the contracts accept. If the wallet holds too little of the chosen token, or too little ETH for gas, the form shows "Insufficient funds" and blocks the transaction.
-- Wallets that support EIP-5792 atomic batching sign one request per step. Other wallets send the same calls one at a time; ENSv2 registration then shows an "Additional Steps Required" screen (deploy the resolver, approve the payment token) before the commit.
-- `EnsRecordsForm` detects the resolver type in both versions (standard resolver, ENSv2 PermissionedResolver, or Namespace's SimplifiedResolver) and encodes the record setters to match.
-- `referrer` is ignored by version 2 registration. `NameRenewForm` passes it in both versions.
-- ENSv2 subname parents are `.eth` names. DNS names imported into ENS only work with version 1.
-
-## ENS Records
-
-Use `EnsRecordsForm` when the user already owns the ENS name and wants a ready-made record editor.
+## Registration: `EnsNameRegistrationForm`
 
 ```tsx
-import { EnsRecordsForm } from "@thenamespace/ens-components";
-
-<EnsRecordsForm
-  name="yourname.eth"
-  existingRecords={fetchedRecords}
-  avatarUploadDomain="app.example.com"
-  onRecordsUpdated={diff => {
-    console.log(diff);
-  }}
-/>;
+<EnsNameRegistrationForm
+  name="alice" // optional prefill
+  title="Register your name"
+  onRegistrationSuccess={result => console.log(result.registrationCost)}
+/>
 ```
 
-Important:
+- Flow: commit, wait, register, success screen. The duration picker switches between years and a calendar date. The minimum is 28 days, enforced by the registrar contract.
+- Each owner gets their own PermissionedResolver, which is deployed on their first registration as an extra step in the same flow. Records set during registration go there.
+- Registration ignores `referrer`. Don't pass it expecting registration rewards.
+- `onRegistrationSuccess` receives `{ durationLabel, expiryDate, registrationCost, transactionFees, total }`, all strings. `registrationCost` is the USDC or DAI amount. `transactionFees` and `total` are both the ETH network fees, so never show `total` as the price.
 
-- The caller must fetch `existingRecords` before rendering.
-- `name` may be a native `.eth` name or a DNS name imported into ENS.
-- Use this instead of `SelectRecordsForm` unless the user explicitly needs a controlled or embedded UI.
+Props: `name`, `isTestnet`, `title`, `subtitle`, `bannerImage`, `bannerWidth`, `hideBanner`, `noBorder`, `className`, `avatarUploadDomain`, `onRegistrationStart(name)`, `onRegistrationSuccess`, `onClose(isSuccess)`, `onConnectWallet`.
 
-## Controlled Records UI
-
-Use `SelectRecordsForm` when the user wants to manage record state themselves or embed the records editor inside a larger flow.
+## Renewal: `NameRenewForm`
 
 ```tsx
-import { SelectRecordsForm } from "@thenamespace/ens-components";
+<NameRenewForm
+  name="alice.eth"
+  onRenewalSuccess={data =>
+    console.log(data.newExpiry, data.price, data.priceCurrency)
+  }
+/>
+```
 
-const [records, setRecords] = useState({
+- `name` accepts `alice` or `alice.eth`. Omit it to let the user type a name.
+- Anyone can renew any name, and the owner keeps it. Don't gate the form on the connected wallet owning the name.
+- `referrer` is passed through to the renewal.
+
+Props: `name`, `isTestnet`, `referrer`, `title`, `subtitle`, `className`, `noBorder`, `onCancel`, `onConnectWallet`, `onRenewalSuccess(RenewalSuccessData)`.
+
+## Records: `EnsRecordsForm` and `SelectRecordsForm`
+
+```tsx
+<EnsRecordsForm
+  name="alice.eth"
+  existingRecords={records} // fetched before render
+  onRecordsUpdated={diff => console.log(diff)}
+/>
+```
+
+- Fetch the name's current records before rendering and pass them as `existingRecords` (the `EnsRecords` shape below). The form edits from that baseline and writes only what changed, so an empty placeholder for a name that has records hides them from the user.
+- The form finds the resolver through the ENSv2 Universal Resolver and works with standard resolvers, PermissionedResolvers and Namespace's SimplifiedResolver. Pass `resolverAddress` or `resolverChainId` only to override the lookup.
+
+Props: `name`, `existingRecords`, `isTestnet`, `resolverAddress`, `resolverChainId`, `txConfirmations`, `noBorder`, `className`, `avatarUploadDomain`, `onTransactionSent(hash)`, `onRecordsUpdated(diff)`, `onGreat`, `onCancel`.
+
+Use `SelectRecordsForm` only when the surrounding screen owns the record state or saving, such as a custom save button or a records step inside a larger flow. It sends no transactions.
+
+```tsx
+const [records, setRecords] = useState<EnsRecords>({
   addresses: [],
   texts: [],
 });
@@ -101,173 +71,110 @@ const [records, setRecords] = useState({
 <SelectRecordsForm
   records={records}
   onRecordsUpdated={setRecords}
-  avatarUpload={{
-    ensName: "yourname.eth",
-    siweDomain: "app.example.com",
-  }}
-  actionButtons={<button onClick={handleSave}>Save</button>}
+  avatarUpload={{ ensName: "alice.eth", siweDomain: "app.example.com" }}
+  actionButtons={<button onClick={save}>Save</button>}
 />;
 ```
 
-Use this when:
+Props: `records`, `onRecordsUpdated`, `avatarUpload` (`{ ensName, isTestnet?, siweDomain? }`), `actionButtons`, `noBorder`.
 
-- the user wants custom save buttons
-- the editor must live inside a custom registration flow
-- the surrounding screen owns the records state
-
-## Onchain Subnames
-
-Use `SubnameMintForm` when the parent ENS name has an active Namespace onchain listing and users should mint subnames onchain.
-
-```tsx
-import { SubnameMintForm } from "@thenamespace/ens-components";
-
-<SubnameMintForm
-  parentName="yourname.eth"
-  avatarUploadDomain="app.example.com"
-  onSuccess={data => {
-    console.log("Minted:", `${data.label}.${data.parentName}`);
-  }}
-/>;
-```
-
-Important:
-
-- The parent name must already have an active Namespace listing.
-- The parent may be a native `.eth` name or a DNS name imported into ENS.
-- The component handles chain-switch prompts.
-- `referrer` belongs to `EnsNameRegistrationForm`, not `SubnameMintForm`.
-
-### ENSv2 subnames
-
-Pass `version={2}` when the parent has an ENSv2 activation on Namespace.
+## Onchain subnames: `SubnameMintForm`
 
 ```tsx
 <SubnameMintForm
-  version={2}
   parentName="yourname.eth"
-  avatarUploadDomain="app.example.com"
-  onSuccess={data => {
-    console.log("Minted:", data.fullName, data.price, data.priceCurrency);
-  }}
+  onSuccess={data => console.log(data.fullName, data.price, data.priceCurrency)}
 />
 ```
 
-- The user picks the payment token. Mainnet activations can accept ETH, USDC, or DAI; Sepolia accepts ETH or USDC.
-- Whitelist and reservation proofs are fetched automatically. If they can't be fetched, the form says so and offers a retry.
-- `resolver` (version 2 only) sets the new subname's resolver when the parent's activation doesn't pin one. It defaults to Namespace's shared resolver.
-- `onSuccess` data includes `priceCurrency`, because the price may not be in ETH.
+- The parent must be a `.eth` name with a Namespace ENSv2 activation, which its owner sets up on app.namespace.ninja. The activation sets price, payment tokens, whitelist and reservations. The form fetches whitelist and reservation proofs itself.
+- `resolver` sets the new subname's resolver when the activation doesn't set one. It defaults to Namespace's shared resolver, and `version={1}` ignores it.
+- Pass `version={1}` only to mint under an old Namespace listing (`.eth` or a DNS name imported into ENS). That flow pays in ETH. Some of those listings live on Base or Optimism, so the app's wagmi config must include that chain. The form prompts the chain switch.
 
-## Offchain Subnames
+Props: `version`, `parentName`, `label`, `resolver`, `isTestnet`, `txConfirmations`, `title`, `subtitle`, `noBorder`, `avatarUploadDomain`, `onSuccess`, `onSubnameMinted`, `onCancel`, `onConnectWallet`.
 
-Use `OffchainSubnameForm` for gasless Namespace subnames.
+- `onSuccess` receives `{ fullName, label, parentName, txHash, price, priceCurrency?, transactionFees, records }`.
+- `onSubnameMinted` receives `{ fullSubname, label, parentName, records, price, transactionFees, ownerAddress, txHash, chainId }`.
 
-```tsx
-import { OffchainSubnameForm } from "@thenamespace/ens-components";
-import { createOffchainClient } from "@thenamespace/offchain-manager";
-
-const offchainManager = createOffchainClient({
-  mode: "mainnet",
-  domainApiKeys: {
-    "yourname.eth": "your-api-key",
-  },
-});
-
-<OffchainSubnameForm
-  offchainManager={offchainManager}
-  name="yourname.eth"
-  avatarUploadDomain="app.example.com"
-/>;
-```
-
-Important behavior:
-
-- The parent may be a native `.eth` name or a DNS name imported into ENS; the installed offchain SDK validates both.
-- The component uses `offchainManager.getSingleSubname()` for availability and update-mode detection.
-- If the subname already exists, it enters update mode with prefilled records.
-- If the user wants direct SDK CRUD, filtering, or record queries, use the `offchain-ens-subname-sdk` skill instead of this UI skill.
-
-### Offchain persistence callbacks
-
-Use callbacks only when the user wants custom behavior around submit, for example persistence control, analytics, or parent state refresh.
+## Subname renewal: `SubnameRenewForm`
 
 ```tsx
-<OffchainSubnameForm
-  name="yourname.eth"
-  offchainManager={offchainManager}
-  onSubnameCreated={async data => {
-    await offchainManager.createSubname({
-      parentName: data.parentName,
-      label: data.label,
-      addresses: data.addresses,
-      texts: data.texts,
-      owner: data.owner,
-    });
-  }}
-  onSubnameUpdated={async data => {
-    await offchainManager.updateSubname(data.fullSubname, {
-      addresses: data.addresses,
-      texts: data.texts,
-    });
-  }}
-/>
-```
-
-Note the current contract:
-
-- `onSubnameCreated` receives create-shaped data, including `owner`
-- `onSubnameUpdated` receives update-shaped data, without `owner`
-
-## Renewals
-
-### `.eth` names
-
-`NameRenewForm` shows the current expiry, prices the extension, and sends the renewal.
-Renewals are permissionless: anyone can extend any name, and the owner keeps it.
-
-```tsx
-import { NameRenewForm } from "@thenamespace/ens-components";
-
-<NameRenewForm
-  name="yourname.eth"
-  version={2}
-  onRenewalSuccess={data => {
-    console.log(data.fullName, data.newExpiry, data.price, data.priceCurrency);
-  }}
-/>;
-```
-
-- `name` accepts `alice` or `alice.eth`. Leave it empty to let the user type a name.
-- `version={1}` renews through the ENSv1 controller in ETH. `version={2}` renews through the ENSv2 registrar in USDC or DAI.
-- On Sepolia, ENS retired the ENSv1 controller, so Sepolia names renew with `version={2}`.
-
-### Onchain subnames
-
-`SubnameRenewForm` extends a subname minted under an ENSv2 activation, at the price the
-parent's owner configured. It is ENSv2-only and has no `version` prop.
-
-```tsx
-import { SubnameRenewForm } from "@thenamespace/ens-components";
-
 <SubnameRenewForm
   parentName="yourname.eth"
   label="alice"
-  onRenewParent={() => openParentRenewal()}
+  onRenewParent={() => setShowParentRenewal(true)}
   onRenewalSuccess={data => console.log(data.newExpiry)}
+/>
+```
+
+- `parentName` is the ENSv2-activated parent. Omit `label` to let the user type it.
+- The price is whatever the parent's owner set. Anyone can renew any subname, and the owner keeps it.
+- When the new expiry would outlive the parent, the form warns that the subname stops resolving once the parent expires. Pass `onRenewParent` to add a link in that warning, and wire it to a `NameRenewForm` for the parent.
+
+Props: `parentName`, `label`, `isTestnet`, `title`, `subtitle`, `className`, `noBorder`, `onCancel`, `onConnectWallet`, `onRenewalSuccess(RenewalSuccessData)`, `onRenewParent`.
+
+## Offchain subnames: `OffchainSubnameForm`
+
+The form only reads from Namespace: it checks availability, and if the subname already exists it switches to update mode with the records prefilled. It never writes. A subname exists only once your `onSubnameCreated` or `onSubnameUpdated` callback saves it. Without callbacks, the form shows success and nothing is created.
+
+Keep the API key on a server. It grants write access to every subname under the parent, so it must not ship in client code. Keys come from app.namespace.ninja/offchain.
+
+```tsx
+// Client: a keyless client is enough for the form's reads.
+import {
+  OffchainSubnameForm,
+  type OffchainSubnameCreatedData,
+} from "@thenamespace/ens-components";
+import { createOffchainClient } from "@thenamespace/offchain-manager";
+
+const offchainManager = createOffchainClient({ mode: "mainnet" }); // "sepolia" for testnet
+
+// The form shows success when this resolves and an error when it throws.
+async function saveSubname(data: OffchainSubnameCreatedData) {
+  const res = await fetch("/api/subnames", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error(await res.text());
+}
+
+<OffchainSubnameForm
+  name="yourname.eth"
+  offchainManager={offchainManager}
+  onSubnameCreated={saveSubname}
+  onSubnameUpdated={saveSubname}
 />;
 ```
 
-- Leave `label` empty to let the user type it.
-- Anyone can renew any subname; the owner keeps it. Whitelisted renewers may renew for free.
-- When the new expiry would outlive the parent name, the form warns that the subname stops resolving once the parent expires. Pass `onRenewParent` to show a "Renew <parent>" link in that warning.
+```ts
+// Server: authorize the request (who may create or edit which label) before writing.
+const offchain = createOffchainClient({
+  mode: "mainnet",
+  domainApiKeys: { "yourname.eth": process.env.NAMESPACE_API_KEY! },
+});
 
-Both forms call `onRenewalSuccess` with `RenewalSuccessData` (see Shared Shapes).
+const existing = await offchain.getSingleSubname(data.fullSubname);
+if (existing) {
+  await offchain.updateSubname(data.fullSubname, {
+    addresses: data.addresses,
+    texts: data.texts,
+  });
+} else {
+  const { parentName, label, addresses, texts, owner } = data;
+  await offchain.createSubname({ parentName, label, addresses, texts, owner });
+}
+```
 
-## Transaction Progress
+- Install `@thenamespace/offchain-manager` for `createOffchainClient`.
+- The parent can be a `.eth` name or a DNS name imported into ENS.
+- Both callbacks receive `{ label, parentName, fullSubname, addresses: { chain, value }[], texts: { key, value }[], owner? }`.
 
-Every flow now uses one progress screen: a rail that fills over time and holds at 90%
-until the transaction confirms, optional label/value rows, and an explorer link. It is
-exported for custom flows:
+Props: `offchainManager`, `name`, `label`, `title`, `subtitle`, `hideTitle`, `isTestnet`, `noBorder`, `avatarUploadDomain`, `onSubnameCreated`, `onSubnameUpdated`, `onCancel`.
+
+## Transaction progress
+
+Every form already uses this screen. Use it directly only for transactions your own code sends.
 
 ```tsx
 import {
@@ -278,11 +185,7 @@ import {
 <TransactionProgress
   status="pending" // "pending" | "success" | "failed"
   hash={txHash}
-  isTestnet={false}
-  details={[
-    { label: "Name", value: "alice.eth" },
-    { label: "Action", value: "Renew 1 year" },
-  ]}
+  details={[{ label: "Name", value: "alice.eth" }]}
 />;
 
 <TransactionModal
@@ -293,231 +196,40 @@ import {
 />;
 ```
 
-`TransactionPendingScreen` is still exported. It no longer accepts `message`, and `hash` is optional.
+- `TransactionProgress` props: `status`, `hash`, `chainId`, `isTestnet` (picks the Sepolia explorer when `chainId` isn't set), `title`, `description`, `details` (`{ label, value }[]`), `duration` (ms to reach 90% while pending, default 10000), `className`.
+- `TransactionModal` takes the same props plus `isOpen`, `onClose` and `footer`.
+- `TransactionPendingScreen` is still exported but no longer accepts `message`. Drop `message` from existing calls.
 
-## Theming And Presentation
+## Avatar and header upload
 
-> **v2.0.0 is a visual overhaul** (Namespace Flows design system: new
-> token layer, near-black accent, 10px corners, DM Sans/DM Mono). Component
-> props, hooks, exports and web3 flows are unchanged — no public API broke.
+Every form with a records step offers image upload. `SelectRecordsForm` offers it only when it gets the `avatarUpload` prop. The user signs a SIWE message for `avatarUploadDomain` (or `avatarUpload.siweDomain`). EOAs and deployed smart-contract wallets can both sign.
 
-### ThemeProvider
+- Avatar: 1:1 crop, max 2 MB. Header: rectangular crop, max 5 MB.
+- Formats: JPEG, PNG, GIF, WebP, SVG. Users can paste a URL instead.
 
-```tsx
-import { ThemeProvider, useTheme } from "@thenamespace/ens-components";
+## Theming
 
-<ThemeProvider initialTheme="dark" useDocument={true}>
-  {/* components here */}
-</ThemeProvider>;
-
-const { theme, toggleTheme } = useTheme();
-```
-
-### CSS variables
-
-The library ships a token layer (`styles/tokens.css`); every token is
-`--ns-`-prefixed so it cannot collide with host CSS. The design (v2, the
-Namespace Flows system) is light-only: warm off-white ground, a single
-near-black accent, 10px corners, no shadows, DM Sans for text and DM Mono for
-names, amounts, dates and hashes. Fonts load from Google Fonts inside the
-stylesheet itself, so no font setup is needed in the host app.
+Override `--ns-` tokens in the host CSS. Fonts (DM Sans, DM Mono) load from the stylesheet itself.
 
 ```css
 :root {
-  --ns-font-family: "DM Sans", system-ui, sans-serif;
-  --ns-font-mono: "DM Mono", ui-monospace, monospace;
-
-  --ns-bg: #fbfaf9; /* page ground — set it yourself on the host page */
+  --ns-ink: #212121; /* accent; the whole accent ramp derives from it */
+  --ns-radius: 10px; /* every corner */
+  --ns-bg: #fbfaf9; /* page ground */
   --ns-surface: #ffffff; /* card surface */
   --ns-text: #1b1d1e;
-  --ns-ink: #212121; /* the accent — the whole ramp derives from it */
-  --ns-radius: 10px; /* single radius lever */
-  --ns-link: #0080bc; /* links stay blue, separate from the accent */
+  --ns-link: #0080bc;
+  --ns-font-family: "DM Sans", system-ui, sans-serif;
+  --ns-font-mono: "DM Mono", ui-monospace, monospace;
 }
 ```
 
-Overriding works differently since v2:
+- Re-accent with `--ns-ink` and change corners with `--ns-radius`. Older names (`--ns-color-*`, `--ns-blue-*`, `--ns-radius-sm/md/lg`) are aliases, so don't use them as levers.
+- The library doesn't set the page background. Add `background: var(--ns-bg)` to the host page to match.
+- The design is light-only. `ThemeProvider initialTheme="dark"` and `useTheme()` exist, but the dark palette is unpolished, so don't present dark mode as a feature.
+- `noBorder` removes the card border. `className` is supported on the registration, records, renewal and progress components.
 
-- The accent ramp derives from `--ns-ink`. Re-accent by setting `--ns-ink`; the
-  legacy `--ns-blue-*` names still resolve because they alias the ink ramp.
-- Corners are controlled by the single `--ns-radius` token.
-- The legacy `--ns-color-*`, `--ns-radius-sm/md/lg`, and `--ns-alert-*`
-  variables remain as aliases, so older overrides keep working — but they are
-  no longer the primary levers.
-
-Dark theme: `ThemeProvider` still sets `data-theme="dark"` and legacy dark
-values are kept so the API keeps working, but the design ships light-only and
-the dark palette is unrefreshed — treat dark mode as best-effort, not polished.
-
-The library no longer forces the host page's `html` background. Consumers that
-want the design ground set `background: var(--ns-bg)` themselves.
-
-### Avatar and header upload
-
-All main flows support `avatarUploadDomain`. Pass the app hostname so the SIWE message matches the app the user is interacting with.
-
-- EOAs and deployed smart-contract wallets can authorize uploads
-- the SDK enforces the configured network before signing (and switches when the wallet supports it)
-- upload results expose a stable `url` field
-
-Constraints:
-
-- avatar: 1:1 crop, max 2 MB
-- header: rectangular crop, max 5 MB
-- formats: JPEG, PNG, GIF, WebP, SVG
-- manual URL entry is available as fallback
-
-### Banners and titles
-
-Use banner props on `EnsNameRegistrationForm`:
-
-```tsx
-<EnsNameRegistrationForm
-  title="Register your name"
-  subtitle="Secure your ENS identity"
-  bannerImage="/my-banner.png"
-  bannerWidth={400}
-  hideBanner={false}
-/>
-```
-
-Use title props on `SubnameMintForm` or `OffchainSubnameForm`:
-
-```tsx
-<SubnameMintForm title="Claim your subname" subtitle="Powered by yourproject.eth" />
-<OffchainSubnameForm title="Join our community" hideTitle={false} />
-```
-
-## Testnet
-
-Use `isTestnet={true}` for Sepolia and staging APIs:
-
-```tsx
-<EnsNameRegistrationForm isTestnet={true} avatarUploadDomain="app.example.com" />
-<EnsRecordsForm name="test.eth" existingRecords={records} isTestnet={true} />
-<SubnameMintForm parentName="yourname.eth" isTestnet={true} />
-```
-
-ENSv2 subname flows on Sepolia use Namespace's staging manager API (`staging.manager.namespace.ninja`); mainnet uses `manager.namespace.ninja`.
-
-## Exact Props To Check
-
-Use this section when the user asks for exact prop names or the main examples are not enough.
-
-### `EnsNameRegistrationForm`
-
-Key props:
-
-- `name`
-- `isTestnet`
-- `version` (`1 | 2`, default `1`)
-- `referrer` (version 1 only)
-- `bannerImage`, `hideBanner`, `title`, `subtitle`, `bannerWidth`
-- `noBorder`, `className`
-- `avatarUploadDomain`
-- `onRegistrationStart`, `onRegistrationSuccess`, `onClose`, `onConnectWallet`
-
-`onRegistrationSuccess` callback shape:
-
-```ts
-{
-  durationLabel: string; // e.g. "1 year" or "6 months, 3 days"
-  expiryDate: string; // formatted date string
-  registrationCost: string; // ETH in version 1; the USDC or DAI amount in version 2
-  transactionFees: string; // ETH
-  total: string; // ETH; in version 2 this is the network fees only
-}
-```
-
-> **Breaking change (v1.3+):** `expiryInYears: number` was removed. Use `durationLabel: string` instead.
-
-**Duration picker:** The form includes a built-in toggle between a years `+/−` picker (default) and a calendar date picker. Minimum registration is **28 days** — this is enforced by the ENS `ETHRegistrarController` contract and cannot be lowered.
-
-### `EnsRecordsForm`
-
-Key props:
-
-- `name`
-- `existingRecords`
-- `version` (`1 | 2`, default `1`)
-- `resolverChainId`, `resolverAddress`
-- `isTestnet`, `txConfirmations`
-- `noBorder`, `className`
-- `avatarUploadDomain`
-- `onTransactionSent`, `onRecordsUpdated`, `onGreat`, `onCancel`
-
-### `SelectRecordsForm`
-
-Key props:
-
-- `records`
-- `onRecordsUpdated`
-- `avatarUpload`
-- `actionButtons`
-- `noBorder`
-
-### `SubnameMintForm`
-
-Key props:
-
-- `parentName`
-- `label`
-- `version` (`1 | 2`, default `1`)
-- `resolver` (version 2 only)
-- `isTestnet`, `txConfirmations`
-- `title`, `subtitle`, `noBorder`
-- `avatarUploadDomain`
-- `onSubnameMinted`, `onSuccess`, `onCancel`, `onConnectWallet`
-
-`SubnameMintFormV2` is also exported. It is the version 2 form on its own, with the same props minus `version` and `noBorder`.
-
-### `OffchainSubnameForm`
-
-Key props:
-
-- `offchainManager`
-- `name`
-- `label`
-- `title`, `subtitle`, `hideTitle`
-- `isTestnet`
-- `noBorder`
-- `avatarUploadDomain`
-- `onSubnameCreated`, `onSubnameUpdated`, `onCancel`
-
-### `NameRenewForm`
-
-Key props:
-
-- `name`
-- `version` (`1 | 2`, default `1`)
-- `isTestnet`
-- `referrer`
-- `title`, `subtitle`, `className`, `noBorder`
-- `onRenewalSuccess`, `onCancel`, `onConnectWallet`
-
-### `SubnameRenewForm`
-
-Key props:
-
-- `parentName` (required)
-- `label`
-- `isTestnet`
-- `title`, `subtitle`, `className`, `noBorder`
-- `onRenewalSuccess`, `onRenewParent`, `onCancel`, `onConnectWallet`
-
-### `TransactionProgress` and `TransactionModal`
-
-Key props:
-
-- `status` (`"pending" | "success" | "failed"`, required)
-- `hash`, `chainId`, `isTestnet`
-- `title`, `description` (override the default copy for the status)
-- `details` (`{ label, value }[]` rows)
-- `duration` (ms to reach 90% while pending, default 10s)
-- `className`
-- `TransactionModal` adds `isOpen`, `onClose`, and `footer`
-
-## Shared Shapes
+## Shared shapes
 
 ```ts
 interface EnsRecords {
@@ -525,52 +237,26 @@ interface EnsRecords {
   texts: { key: string; value: string }[];
   contenthash?: { protocol: string; value: string };
 }
-```
 
-```ts
 interface RenewalSuccessData {
   fullName: string;
   txHash: string;
   price: string;
-  priceCurrency: string; // "ETH", "USDC", or "DAI"
+  priceCurrency: string; // "ETH", "USDC" or "DAI"
   transactionFees: string; // ETH
   newExpiry: string;
 }
 ```
 
-```ts
-interface OffchainSubnameCreatedData {
-  label: string;
-  parentName: string;
-  fullSubname: string;
-  addresses: Array<{ chain: ChainName; value: string }>;
-  texts: Array<{ key: string; value: string }>;
-  owner?: string;
-}
-```
+## Common issues
 
-## Dependencies
-
-Consumers must install:
-
-- `react`
-- `react-dom`
-- `wagmi`
-- `viem`
-- `@tanstack/react-query`
-- `@thenamespace/offchain-manager` for Offchain Subnames
-
-## Common Issues
-
-| Symptom                               | Likely cause                               | Fix                                                                         |
-| ------------------------------------- | ------------------------------------------ | --------------------------------------------------------------------------- |
-| Styles not applying                   | CSS not imported                           | Import `@thenamespace/ens-components/styles.css` once at the root           |
-| `CommitmentTooNew` error              | Register step called too quickly           | Wait the full 60s; the form handles this automatically                      |
-| Chain mismatch in `SubnameMintForm`   | Wallet on wrong network                    | Ensure the app's wagmi config includes the listing chain                    |
-| Avatar upload: wrong network          | Wallet chain != mainnet/sepolia for upload | App wagmi config must include the target chain; SDK will try to switch      |
-| 404 from `OffchainSubnameForm`        | API key tied to a different parent name    | Verify the API key belongs to the parent name passed as `name`              |
-| "Insufficient funds" on a v2 form     | Too little USDC/DAI/ETH, or ETH for gas    | Fund the wallet or pick another token; the form blocks the transaction      |
-| Several wallet prompts in ENSv2 flows | Wallet lacks EIP-5792 atomic batching      | Expected; each call is sent on its own. Batching wallets sign once per step |
-| "ENSv1 renewals have moved to ENSv2"  | ENS retired the ENSv1 controller there     | Use `NameRenewForm version={2}` on that network (Sepolia today)             |
-| "Couldn't verify the whitelist"       | Proof fetch from Namespace failed          | Use the form's Try again button                                             |
-| `useAccount` or storage errors in SSR | Client-only wallet code running during SSR | Guard provider code with `"use client"` and `typeof window !== "undefined"` |
+| Symptom                                         | Cause                                       | Fix                                                                            |
+| ----------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------ |
+| Forms unstyled                                  | Stylesheet not imported                     | Import `@thenamespace/ens-components/styles.css` once at the root              |
+| Offchain form shows success, no subname         | No `onSubnameCreated` / `onSubnameUpdated`  | Save the subname in the callbacks (see Offchain subnames)                      |
+| Unauthorized or 404 saving an offchain subname  | API key missing or for a different parent   | Use a key issued for the exact parent passed as `name`                         |
+| "Insufficient funds"                            | Too little of the token, or of ETH for gas  | Fund the wallet or pick another token in the form                              |
+| "Couldn't verify the whitelist"                 | Proof fetch from Namespace failed           | The user presses Try again in the form                                         |
+| Chain switch fails in `SubnameMintForm`         | Listing chain missing from the wagmi config | Add the chain (mainnet, Sepolia, Base or Optimism) to the wagmi config         |
+| Avatar upload asks for the wrong network        | Target chain missing from the wagmi config  | Include mainnet (or Sepolia) in the wagmi config; the SDK then switches        |
+| `window`, `localStorage` or wagmi errors in SSR | Wallet code running on the server           | Render the forms in `"use client"` components and keep wallet code client-only |
