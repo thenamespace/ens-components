@@ -4,9 +4,9 @@ export const SITE_URL = "https://enscomponents.com";
 
 const DEFAULT_TITLE = "ENS Components — React UI Library for ENS by Namespace";
 const DEFAULT_DESC =
-  "Production-ready React components for ENS name registration, record editing, and subname issuance. Five drop-in components built on wagmi and viem. Works with Next.js, Remix, and Vite.";
+  "Production-ready React components for ENS name registration, renewal, record editing, and subname issuance. Seven drop-in components for ENSv2, built on wagmi and viem. Works with Next.js, Remix, and Vite.";
 const DEFAULT_KEYWORDS =
-  "ENS components, React ENS, Ethereum Name Service React, ENS name registration, ENS records, ENS subnames, offchain subnames, onchain subnames, wagmi ENS, viem ENS, Web3 React components, ENS UI, @thenamespace/ens-components, Namespace, EnsNameRegistrationForm, EnsRecordsForm, SubnameMintForm, OffchainSubnameForm, SelectRecordsForm";
+  "ENS components, React ENS, Ethereum Name Service React, ENS name registration, ENS renewal, ENSv2, ENS records, ENS subnames, offchain subnames, onchain subnames, wagmi ENS, viem ENS, Web3 React components, ENS UI, @thenamespace/ens-components, Namespace, EnsNameRegistrationForm, NameRenewForm, EnsRecordsForm, SubnameMintForm, SubnameRenewForm, OffchainSubnameForm, SelectRecordsForm";
 const DEFAULT_IMAGE = `${SITE_URL}/preview.png`;
 
 interface SEOProps {

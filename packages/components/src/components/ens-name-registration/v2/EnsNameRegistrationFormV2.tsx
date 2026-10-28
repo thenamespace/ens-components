@@ -28,6 +28,7 @@ import {
   getEnsV2RegistrationDeployment,
   getEnsV2RegistrationPrice,
   findResumableEnsV2Commitment,
+  getEnsV2Referrer,
   isEnsV2NameAvailable,
   makeEnsV2Commitment,
   randomSecret,
@@ -152,6 +153,7 @@ const EnsNameRegistrationFormV2Content = ({
           secret: ESTIMATE_SECRET as `0x${string}`,
           resolver: resolver.address,
           duration: BigInt(durationSeconds),
+          referrer: getEnsV2Referrer(props.referrer),
         };
         const calls = await buildEnsV2RegisterCalls(publicClient, deployment, {
           ...params,
@@ -226,7 +228,7 @@ const EnsNameRegistrationFormV2Content = ({
     </>
   );
 
-  const senders = useEnsV2RegistrationSenders(deployment, token, ensRecords);
+  const senders = useEnsV2RegistrationSenders(deployment, token, ensRecords, props.referrer);
   const [processState, setProcessState] = useState<Partial<RegistrationState> | null>(null);
 
   const [prerequisiteSteps, setPrerequisiteSteps] = useState<EnsV2PrerequisiteStep[]>([]);

@@ -401,7 +401,7 @@ body { font-family: var(--lp-font); background: var(--lp-bg); color: var(--lp-te
 .side-switch:disabled .toggle-track { background: var(--lp-border-strong); border-color: var(--lp-border-strong); }
 .side-switch-label { font-size: 13px; font-weight: 500; color: var(--lp-text-faint); transition: color 0.15s; }
 .side-switch-label.active { color: var(--lp-text); font-weight: 600; }
-.side-switch.nav-version { margin-right: 8px; }
+.side-switch.mint-version { align-self: flex-start; }
 
 /* Toggle */
 .prop-toggle {

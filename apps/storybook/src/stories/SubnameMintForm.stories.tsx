@@ -50,7 +50,7 @@ type Story = StoryObj<typeof SubnameMintForm>;
 
 export const Default: Story = {
   args: {
-    parentName: "ninjabase.eth",
+    parentName: "arthy0.eth",
     isTestnet: false,
   },
   parameters: {
@@ -64,7 +64,7 @@ export const Default: Story = {
 
 export const Testnet: Story = {
   args: {
-    parentName: "ninjabase.eth",
+    parentName: "arti.eth",
     isTestnet: true,
   },
   parameters: {
@@ -76,13 +76,26 @@ export const Testnet: Story = {
 
 export const PrefilledLabel: Story = {
   args: {
-    parentName: "ninjabase.eth",
+    parentName: "arthy0.eth",
     isTestnet: false,
     label: "alice",
   },
   parameters: {
     docs: {
       description: { story: "Pre-filled with a subname label." },
+    },
+  },
+};
+
+export const OldListing: Story = {
+  args: {
+    parentName: "ninjabase.eth",
+    isTestnet: false,
+    version: 1,
+  },
+  parameters: {
+    docs: {
+      description: { story: "ENSv1 minting under an old Namespace listing (`version={1}`)." },
     },
   },
 };

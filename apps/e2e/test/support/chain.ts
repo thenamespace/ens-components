@@ -22,11 +22,6 @@ import { env } from "./env";
 
 // Sepolia deployments, kept independent of the component library so the tests
 // verify on-chain state rather than re-running the code under test.
-export const V1 = {
-  registry: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
-  baseRegistrar: "0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85",
-  controller: "0xfb3cE5D01e0f33f41DbB39035dB9745962F1f968",
-} as const satisfies Record<string, Address>;
 export const V2 = {
   ethRegistry: "0xD4eBcbBdF463C9c45784603Db0dDD499BC44A8B4",
   registrar: "0xf633e7fc17e2bbe0d0965d18ec1821dcb754a3d3",
@@ -40,12 +35,6 @@ export const UNIVERSAL_RESOLVER: Address = "0xeEeEEEeE14D718C2B47D9923Deab1335E1
 export const USDC: Address = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
 export const USDC_DECIMALS = 6;
 
-const v1RegistryAbi = parseAbi(["function owner(bytes32 node) view returns (address)"]);
-const v1BaseRegistrarAbi = parseAbi(["function controllers(address) view returns (bool)"]);
-const v1ControllerAbi = parseAbi([
-  "struct Price { uint256 base; uint256 premium; }",
-  "function rentPrice(string label, uint256 duration) view returns (Price price)",
-]);
 const v2RegistryAbi = parseAbi([
   "function getSubregistry(string label) view returns (address)",
   "function getTokenId(uint256 anyId) view returns (uint256)",
@@ -94,26 +83,10 @@ export const formatAmount = (amount: bigint, decimals: number, symbol: string) =
   return value < 10 ** -digits ? `<${10 ** -digits}` : value.toFixed(digits);
 };
 
-/** The ENSv1 registration form's ETH display: always 4 decimals. */
-export const formatEth4 = (wei: bigint) => {
-  const eth = Number(formatUnits(wei, 18));
-  return eth < 0.0001 ? "<0.0001" : eth.toFixed(4);
-};
-
 /** Short, lowercase, unique per run, and at least 5 characters so it stays in the base price tier. */
 export const uniqueLabel = (prefix: string) => `${prefix}${Date.now().toString(36)}`;
 
 // ── Registration ────────────────────────────────────────────────────────────
-
-export const getV1RentPrice = async (label: string, durationSeconds: number) => {
-  const { base, premium } = await client.readContract({
-    address: V1.controller,
-    abi: v1ControllerAbi,
-    functionName: "rentPrice",
-    args: [label, BigInt(durationSeconds)],
-  });
-  return base + premium;
-};
 
 export const getV2RegisterPrice = async (label: string, durationSeconds: number, token: Address = USDC) => {
   const [base, premium] = await client.readContract({
@@ -125,26 +98,10 @@ export const getV2RegisterPrice = async (label: string, durationSeconds: number,
   return base + premium;
 };
 
-/**
- * Whether the ENSv1 controller the components use may register names. ENS toggles
- * Sepolia's base registrar controllers while it works on ENSv2; when this one is
- * removed every registration reverts after the commit.
- */
-export const isV1ControllerAuthorized = () =>
-  client.readContract({
-    address: V1.baseRegistrar,
-    abi: v1BaseRegistrarAbi,
-    functionName: "controllers",
-    args: [V1.controller],
-  });
-
 export const getUsdcBalance = (owner: Address) =>
   client.readContract({ address: USDC, abi: erc20Abi, functionName: "balanceOf", args: [owner] });
 
 // ── Ownership and expiry ────────────────────────────────────────────────────
-
-export const getV1Owner = (name: string) =>
-  client.readContract({ address: V1.registry, abi: v1RegistryAbi, functionName: "owner", args: [namehash(name)] });
 
 /** The ENSv2 registry holding `name`'s leaf label, walking down from the .eth registry. */
 const getV2Registry = async (name: string): Promise<Address> => {
