@@ -13,7 +13,12 @@ export enum ProcessSteps {
 
 export interface RegistrationState {
   step: ProcessSteps;
-  commitment: { tx?: string; completed: boolean; time: number; feeWei?: bigint };
+  commitment: {
+    tx?: string;
+    completed: boolean;
+    time: number;
+    feeWei?: bigint;
+  };
   timerStartedAt: number;
   registration: { tx?: string; completed: boolean };
   label: string;
@@ -29,5 +34,5 @@ export type CommitmentSender = (state: RegistrationState) => Promise<Hash>;
 
 export type RegistrationSender = (
   state: RegistrationState,
-  onSent: (hash: Hash) => void,
+  onSent: (hash: Hash) => void
 ) => Promise<{ txHash: Hash; price: string; extraFeeWei?: bigint }>;

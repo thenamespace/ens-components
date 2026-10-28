@@ -34,12 +34,17 @@ function readCache(): number | null {
 
 function writeCache(rate: number) {
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ rate, fetchedAt: Date.now() }));
+    localStorage.setItem(
+      CACHE_KEY,
+      JSON.stringify({ rate, fetchedAt: Date.now() })
+    );
   } catch {}
 }
 
 export function useEthDollarValue(): { ethUsdRate: number | null } {
-  const [ethUsdRate, setEthUsdRate] = useState<number | null>(() => readCache());
+  const [ethUsdRate, setEthUsdRate] = useState<number | null>(() =>
+    readCache()
+  );
 
   const cacheHit = ethUsdRate !== null;
 

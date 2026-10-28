@@ -31,7 +31,11 @@ export const TokenSelect: React.FC<TokenSelectProps> = ({
       align="end"
       disabled={disabled}
       trigger={
-        <span className="ns-token-select__trigger" data-testid="token-select" data-value={value}>
+        <span
+          className="ns-token-select__trigger"
+          data-testid="token-select"
+          data-value={value}
+        >
           <TokenIcon symbol={value} />
           <Text size="sm" weight="medium">
             {value}

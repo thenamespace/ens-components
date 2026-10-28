@@ -9,7 +9,14 @@ interface FormHeaderProps {
   subtitle?: string;
 }
 
-export const FormHeader = ({ isUpdateMode, label, parentName, showFullName, title, subtitle }: FormHeaderProps) => {
+export const FormHeader = ({
+  isUpdateMode,
+  label,
+  parentName,
+  showFullName,
+  title,
+  subtitle,
+}: FormHeaderProps) => {
   const defaultTitle = isUpdateMode ? "Update subname" : "Create subname";
 
   return (

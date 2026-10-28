@@ -4,7 +4,7 @@ export function generateCode(
   componentName: string,
   defs: PropDef[],
   values: Record<string, any>,
-  extraLines: string[] = [],
+  extraLines: string[] = []
 ): string {
   const propLines: string[] = [];
   for (const def of defs) {

@@ -94,7 +94,9 @@
   font-size: var(--ns-size-h4);
   line-height: 1;
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
 .ns-modal__close:hover {
   color: var(--ns-text);

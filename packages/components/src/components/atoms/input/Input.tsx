@@ -4,8 +4,10 @@ import "./Input.css";
 export type InputType = "text" | "number";
 export type InputSize = "sm" | "md" | "lg";
 
-export interface InputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size" | "prefix"> {
+export interface InputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "size" | "prefix"
+> {
   type?: InputType;
   size?: InputSize;
   prefix?: React.ReactNode;
@@ -13,7 +15,7 @@ export interface InputProps
   disabled?: boolean;
   error?: boolean;
   dataTestId?: string;
-  wrapperClassName?: string
+  wrapperClassName?: string;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(

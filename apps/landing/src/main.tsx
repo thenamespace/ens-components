@@ -12,6 +12,6 @@ if (container) {
       <WalletConnectProvider>
         <App />
       </WalletConnectProvider>
-    </HelmetProvider>,
+    </HelmetProvider>
   );
 }

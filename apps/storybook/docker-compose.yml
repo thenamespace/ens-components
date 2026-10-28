@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   storybook:
@@ -7,4 +7,3 @@ services:
       - "3000:3000"
     container_name: ui-components-storybook
     restart: unless-stopped
-

@@ -62,7 +62,13 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
             height={cardSize.height}
             recycle={false}
             numberOfPieces={150}
-            style={{ position: "absolute", top: 0, left: 0, zIndex: 2, pointerEvents: "none" }}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              zIndex: 2,
+              pointerEvents: "none",
+            }}
           />
         )}
         <div className="ens-registration-success-body">
@@ -70,14 +76,19 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
             <Identicon seed={`${ensName}.eth`} size={44} />
             <div className="ens-registration-success-name-col">
               <Tag tone="blue">REGISTERED</Tag>
-              <span className="ens-registration-success-name" data-testid="registration-success-name">
+              <span
+                className="ens-registration-success-name"
+                data-testid="registration-success-name"
+              >
                 {ensName}.eth
               </span>
             </div>
           </div>
           <div className="ens-registration-success-summary">
             <div className="ens-registration-success-summary-row">
-              <Text size="sm" color="grey">{durationLabel} registration</Text>
+              <Text size="sm" color="grey">
+                {durationLabel} registration
+              </Text>
               <Text size="sm" color="grey">
                 {currency === "ETH"
                   ? `${parseFloat(registrationCost).toFixed(4)} ETH`
@@ -85,25 +96,29 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
               </Text>
             </div>
             <div className="ens-registration-success-summary-row">
-              <Text size="sm" color="grey">Transaction fees</Text>
+              <Text size="sm" color="grey">
+                Transaction fees
+              </Text>
               <Text size="sm" color="grey">
                 {parseFloat(transactionFees).toFixed(4)} ETH
               </Text>
             </div>
             {currency === "ETH" && (
-            <div className="ens-registration-success-summary-row ens-registration-success-total">
-              <Text size="lg" weight="bold">
-                Total
-              </Text>
-              <div className="ens-registration-success-total-amount">
+              <div className="ens-registration-success-summary-row ens-registration-success-total">
                 <Text size="lg" weight="bold">
-                  {parseFloat(total).toFixed(4)} ETH
+                  Total
                 </Text>
+                <div className="ens-registration-success-total-amount">
+                  <Text size="lg" weight="bold">
+                    {parseFloat(total).toFixed(4)} ETH
+                  </Text>
+                </div>
               </div>
-            </div>
             )}
             <div className="ens-registration-success-summary-row ens-registration-success-expiry">
-              <Text size="sm" color="grey">Name Expires</Text>
+              <Text size="sm" color="grey">
+                Name Expires
+              </Text>
               <Text size="sm" color="grey">
                 {expiryDate}
               </Text>
@@ -111,35 +126,38 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
           </div>
 
           <div className="ens-registration-success-buttons">
-          <div className="ens-registration-success-actions">
-            <Button
-              variant="outline"
-              onClick={onRegisterAnother}
-              className="ens-registration-success-register-another-btn"
-            >
-              Register another
+            <div className="ens-registration-success-actions">
+              <Button
+                variant="outline"
+                onClick={onRegisterAnother}
+                className="ens-registration-success-register-another-btn"
+              >
+                Register another
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (onViewName) {
+                    onViewName();
+                  } else {
+                    window.open(
+                      getEnsAppUrl(`${ensName}.eth`, isTestnet),
+                      "_blank",
+                      "noopener,noreferrer"
+                    );
+                  }
+                }}
+                className="ens-registration-success-view-name-btn"
+              >
+                View Name
+              </Button>
+            </div>
+            <Button onClick={() => onGreat?.()} size="lg" className="ns-wd-100">
+              Great!
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (onViewName) {
-                  onViewName();
-                } else {
-                  window.open(getEnsAppUrl(`${ensName}.eth`, isTestnet), "_blank", "noopener,noreferrer");
-                }
-              }}
-              className="ens-registration-success-view-name-btn"
-            >
-              View Name
-            </Button>
-          </div>
-          <Button onClick={() => onGreat?.()} size="lg" className="ns-wd-100">
-            Great!
-          </Button>
           </div>
         </div>
       </div>
     </div>
   );
 };
-

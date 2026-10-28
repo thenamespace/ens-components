@@ -27,7 +27,7 @@ export const SubnameInput = ({
     <div>
       <Input
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
         disabled={isDisabled}
         size="lg"
         placeholder={isUpdateMode ? "Updating subname" : "Enter subname"}
@@ -35,11 +35,25 @@ export const SubnameInput = ({
         prefix={<Icon color="grey" size={20} name="search" />}
         suffix={
           isLoading || isChecking ? (
-            <div style={{ display: "flex", alignItems: "center", minWidth: "80px", justifyContent: "center" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                minWidth: "80px",
+                justifyContent: "center",
+              }}
+            >
               <ShurikenSpinner size={18} />
             </div>
           ) : (
-            <div style={{ minWidth: "80px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div
+              style={{
+                minWidth: "80px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
               <Text weight="medium" size="sm" color="grey">
                 .{parentName}
               </Text>
@@ -64,7 +78,9 @@ export const SubnameInput = ({
           ) : isChecking || isLoading ? (
             <>
               <ShurikenSpinner size={14} />
-              <span className="ns-name-status__text">Checking availability</span>
+              <span className="ns-name-status__text">
+                Checking availability
+              </span>
             </>
           ) : isAvailable ? (
             <>

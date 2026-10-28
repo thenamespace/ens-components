@@ -54,7 +54,7 @@ import {
 
   // Wallet adapter (advanced)
   adaptWallet,
-} from '@thenamespace/avatar';
+} from "@thenamespace/avatar";
 ```
 
 ## AvatarSDKConfig
@@ -64,7 +64,7 @@ interface AvatarSDKConfig {
   /** API URL for the avatar service (defaults to production) */
   apiUrl?: string;
   /** Network: 'mainnet' (default) or 'sepolia' */
-  network?: 'mainnet' | 'sepolia';
+  network?: "mainnet" | "sepolia";
   /** Your app domain — required for SIWE authentication */
   domain: string;
   /** Wallet provider: Viem WalletClient, Ethers Wallet/Signer, or WalletProvider */
@@ -96,12 +96,24 @@ interface AvatarClient {
   deleteHeader(options: DeleteOptions): Promise<DeleteResult>;
 
   // Manual flow (custom / server-side signing)
-  getSIWEMessageForAvatar(options: SIWEMessageOptions): Promise<SIWEMessageResult>;
-  getSIWEMessageForHeader(options: SIWEMessageOptions): Promise<SIWEMessageResult>;
-  uploadAvatarWithSignature(options: UploadWithSignatureOptions): Promise<AvatarUploadResult>;
-  uploadHeaderWithSignature(options: UploadWithSignatureOptions): Promise<HeaderUploadResult>;
-  deleteAvatarWithSignature(options: DeleteWithSignatureOptions): Promise<DeleteResult>;
-  deleteHeaderWithSignature(options: DeleteWithSignatureOptions): Promise<DeleteResult>;
+  getSIWEMessageForAvatar(
+    options: SIWEMessageOptions
+  ): Promise<SIWEMessageResult>;
+  getSIWEMessageForHeader(
+    options: SIWEMessageOptions
+  ): Promise<SIWEMessageResult>;
+  uploadAvatarWithSignature(
+    options: UploadWithSignatureOptions
+  ): Promise<AvatarUploadResult>;
+  uploadHeaderWithSignature(
+    options: UploadWithSignatureOptions
+  ): Promise<HeaderUploadResult>;
+  deleteAvatarWithSignature(
+    options: DeleteWithSignatureOptions
+  ): Promise<DeleteResult>;
+  deleteHeaderWithSignature(
+    options: DeleteWithSignatureOptions
+  ): Promise<DeleteResult>;
 }
 ```
 
@@ -133,7 +145,7 @@ interface UploadResult {
   /** Subname echoed back by the service */
   subname?: string;
   /** Network echoed back by the service */
-  network?: 'mainnet' | 'sepolia';
+  network?: "mainnet" | "sepolia";
   /** Upload timestamp (ISO 8601) */
   uploadedAt: string;
   /** File size in bytes */
@@ -186,7 +198,7 @@ interface SIWEMessageOptions {
 }
 
 interface SIWEMessageResult {
-  message: string;   // the SIWE message to sign
+  message: string; // the SIWE message to sign
   nonce: string;
   expiresAt: number; // Unix ms
 }
@@ -205,7 +217,7 @@ interface DeleteWithSignatureOptions extends DeleteOptions {
 ```
 
 The SIWE statement is `'Authorize a metadata update'`; the message is built with
-`@signinwithethereum/siwe` v4. Signatures from EOAs *and* deployed smart-contract
+`@signinwithethereum/siwe` v4. Signatures from EOAs _and_ deployed smart-contract
 wallets are accepted — the SDK does no client-side ERC-6492 handling; it forwards
 the signature to the Metadata Service for verification.
 
@@ -214,7 +226,7 @@ the signature to the Metadata Service for verification.
 ```typescript
 interface NonceRequest {
   address: string;
-  scope: 'avatar' | 'header' | 'avatar+header';
+  scope: "avatar" | "header" | "avatar+header";
 }
 
 interface NonceResponse {
@@ -228,38 +240,38 @@ interface NonceResponse {
 ```typescript
 const ErrorCodes = {
   // File validation
-  FILE_TOO_LARGE: 'FILE_TOO_LARGE',
-  INVALID_FILE_FORMAT: 'INVALID_FILE_FORMAT',
-  INVALID_FILE_TYPE: 'INVALID_FILE_TYPE',
+  FILE_TOO_LARGE: "FILE_TOO_LARGE",
+  INVALID_FILE_FORMAT: "INVALID_FILE_FORMAT",
+  INVALID_FILE_TYPE: "INVALID_FILE_TYPE",
 
   // Authentication
-  INVALID_SIGNATURE: 'INVALID_SIGNATURE',
-  EXPIRED_NONCE: 'EXPIRED_NONCE',
-  INVALID_NONCE: 'INVALID_NONCE',
-  AUTHENTICATION_FAILED: 'AUTHENTICATION_FAILED',
+  INVALID_SIGNATURE: "INVALID_SIGNATURE",
+  EXPIRED_NONCE: "EXPIRED_NONCE",
+  INVALID_NONCE: "INVALID_NONCE",
+  AUTHENTICATION_FAILED: "AUTHENTICATION_FAILED",
 
   // ENS
-  NOT_SUBNAME_OWNER: 'NOT_SUBNAME_OWNER',
-  INVALID_SUBNAME: 'INVALID_SUBNAME',
-  SUBNAME_NOT_FOUND: 'SUBNAME_NOT_FOUND',
+  NOT_SUBNAME_OWNER: "NOT_SUBNAME_OWNER",
+  INVALID_SUBNAME: "INVALID_SUBNAME",
+  SUBNAME_NOT_FOUND: "SUBNAME_NOT_FOUND",
 
   // Network
-  NETWORK_ERROR: 'NETWORK_ERROR',
-  TIMEOUT_ERROR: 'TIMEOUT_ERROR',
-  API_ERROR: 'API_ERROR',
+  NETWORK_ERROR: "NETWORK_ERROR",
+  TIMEOUT_ERROR: "TIMEOUT_ERROR",
+  API_ERROR: "API_ERROR",
 
   // Provider
-  PROVIDER_NOT_CONNECTED: 'PROVIDER_NOT_CONNECTED',
-  PROVIDER_ERROR: 'PROVIDER_ERROR',
-  PROVIDER_CHAIN_MISMATCH: 'PROVIDER_CHAIN_MISMATCH',
+  PROVIDER_NOT_CONNECTED: "PROVIDER_NOT_CONNECTED",
+  PROVIDER_ERROR: "PROVIDER_ERROR",
+  PROVIDER_CHAIN_MISMATCH: "PROVIDER_CHAIN_MISMATCH",
 
   // Configuration
-  INVALID_CONFIG: 'INVALID_CONFIG',
-  MISSING_PROVIDER: 'MISSING_PROVIDER',
+  INVALID_CONFIG: "INVALID_CONFIG",
+  MISSING_PROVIDER: "MISSING_PROVIDER",
 
   // Operations
-  UPLOAD_FAILED: 'UPLOAD_FAILED',
-  DELETE_FAILED: 'DELETE_FAILED',
+  UPLOAD_FAILED: "UPLOAD_FAILED",
+  DELETE_FAILED: "DELETE_FAILED",
 } as const;
 ```
 
@@ -272,11 +284,15 @@ with the HTTP status and structured service envelope preserved on `status` /
 ## Constants
 
 ```typescript
-const AVATAR_MAX_SIZE = 2 * 1024 * 1024;  // 2 MB
-const HEADER_MAX_SIZE = 5 * 1024 * 1024;  // 5 MB
+const AVATAR_MAX_SIZE = 2 * 1024 * 1024; // 2 MB
+const HEADER_MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_FORMATS = [
-  'image/jpeg', 'image/jpg', 'image/png',
-  'image/gif', 'image/webp', 'image/svg+xml',
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "image/svg+xml",
 ];
 ```
 
@@ -286,13 +302,13 @@ const ALLOWED_FORMATS = [
 
 Base URL (both networks): `https://metadata.namespace.ninja`
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/auth/nonce` | POST | Get SIWE nonce (body: `{ address, scope }`) |
-| `/profile/{network}/{subname}/avatar` | POST | Upload avatar (multipart) |
-| `/profile/{network}/{subname}/avatar` | DELETE | Delete avatar (JSON) |
-| `/profile/{network}/{subname}/header` | POST | Upload header (multipart, field name `header`) |
-| `/profile/{network}/{subname}/header` | DELETE | Delete header (JSON) |
+| Endpoint                              | Method | Description                                    |
+| ------------------------------------- | ------ | ---------------------------------------------- |
+| `/auth/nonce`                         | POST   | Get SIWE nonce (body: `{ address, scope }`)    |
+| `/profile/{network}/{subname}/avatar` | POST   | Upload avatar (multipart)                      |
+| `/profile/{network}/{subname}/avatar` | DELETE | Delete avatar (JSON)                           |
+| `/profile/{network}/{subname}/header` | POST   | Upload header (multipart, field name `header`) |
+| `/profile/{network}/{subname}/header` | DELETE | Delete header (JSON)                           |
 
 Header mutations use the `/header` route (the compact `/h` path is reserved for
 the stable public header URL returned by the service); the multipart field

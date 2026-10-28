@@ -15,5 +15,10 @@
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["src/**/*.stories.*", "src/web3/wallet-connect.tsx", "node_modules", "dist"]
+  "exclude": [
+    "src/**/*.stories.*",
+    "src/web3/wallet-connect.tsx",
+    "node_modules",
+    "dist"
+  ]
 }

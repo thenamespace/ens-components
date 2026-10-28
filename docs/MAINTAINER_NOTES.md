@@ -131,7 +131,7 @@ forward it directly:
 interface OffchainSubnameCreatedData {
   label: string;
   parentName: string;
-  fullSubname: string;                            // "{label}.{parentName}"
+  fullSubname: string; // "{label}.{parentName}"
   addresses: Array<{ chain: ChainName; value: string }>;
   texts: Array<{ key: string; value: string }>;
   owner?: string;
@@ -246,15 +246,15 @@ Internal utilities:
 
 ## 4) Stack and packaging
 
-| Concern | Decision |
-|---------|----------|
-| Build output | ESM only (`dist/index.js`), type declarations (`dist/index.d.ts`) |
-| Main entry | `src/index.tsx` |
-| CSS | Shipped with package, imported via `@thenamespace/ens-components/styles.css` |
+| Concern                | Decision                                                                                             |
+| ---------------------- | ---------------------------------------------------------------------------------------------------- |
+| Build output           | ESM only (`dist/index.js`), type declarations (`dist/index.d.ts`)                                    |
+| Main entry             | `src/index.tsx`                                                                                      |
+| CSS                    | Shipped with package, imported via `@thenamespace/ens-components/styles.css`                         |
 | Peer deps externalized | `react`, `react-dom`, `wagmi`, `viem`, `@tanstack/react-query`, **`@thenamespace/offchain-manager`** |
-| Build tool | Rollup + esbuild + rollup-plugin-dts |
-| Type generation | `tsc -p tsconfig.types.json` → `dist/types/` → bundled by `rollup-plugin-dts` |
-| Monorepo | pnpm workspaces + Turborepo |
+| Build tool             | Rollup + esbuild + rollup-plugin-dts                                                                 |
+| Type generation        | `tsc -p tsconfig.types.json` → `dist/types/` → bundled by `rollup-plugin-dts`                        |
+| Monorepo               | pnpm workspaces + Turborepo                                                                          |
 
 ### Why `@thenamespace/offchain-manager` is external
 
@@ -336,13 +336,13 @@ pnpm e2e
 
 ## 8) Dependency versions (current)
 
-| Package | Version |
-|---------|---------|
-| `viem` | `^2.46.3` |
-| `wagmi` | `^2.19.5` |
-| `@rainbow-me/rainbowkit` | `^2.2.10` |
+| Package                          | Version   |
+| -------------------------------- | --------- |
+| `viem`                           | `^2.46.3` |
+| `wagmi`                          | `^2.19.5` |
+| `@rainbow-me/rainbowkit`         | `^2.2.10` |
 | `@thenamespace/offchain-manager` | `^1.0.10` |
-| `@thenamespace/mint-manager` | `^1.1.1` |
+| `@thenamespace/mint-manager`     | `^1.1.1`  |
 
 > **wagmi v3 hold**: rainbowkit `^2.x` requires `wagmi ^2.x`. Do not upgrade
 > wagmi to v3 until rainbowkit releases a compatible version.

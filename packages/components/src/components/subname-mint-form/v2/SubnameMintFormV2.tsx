@@ -6,7 +6,12 @@ import {
   isUserDeniedError,
   TokenSelect,
 } from "@/components/molecules";
-import { useAccount, usePublicClient, useSwitchChain, useWalletClient } from "wagmi";
+import {
+  useAccount,
+  usePublicClient,
+  useSwitchChain,
+  useWalletClient,
+} from "wagmi";
 import {
   type Address,
   formatUnits,
@@ -77,7 +82,9 @@ export const SubnameMintFormV2 = (props: SubnameMintFormV2Props) => {
     return (
       <div className="ns-subname-mint-form">
         <Alert variant="error" position="vertical">
-          <Text size="sm">ENSv2 subnames are only available on Sepolia for now.</Text>
+          <Text size="sm">
+            ENSv2 subnames are only available on Sepolia for now.
+          </Text>
         </Alert>
       </div>
     );
@@ -115,11 +122,13 @@ const SubnameMintFormV2Content = ({
   const [label, setLabel] = useState(initialLabel || "");
   const [showProfile, setShowProfile] = useState(false);
   const [durationSeconds, setDurationSeconds] = useState(() =>
-    secondsFromYears(new Date(), 1),
+    secondsFromYears(new Date(), 1)
   );
-  const [tokenSymbol, setTokenSymbol] = useState(deployment.paymentTokens[0].symbol);
+  const [tokenSymbol, setTokenSymbol] = useState(
+    deployment.paymentTokens[0].symbol
+  );
   const token =
-    deployment.paymentTokens.find((t) => t.symbol === tokenSymbol) ??
+    deployment.paymentTokens.find(t => t.symbol === tokenSymbol) ??
     deployment.paymentTokens[0];
 
   const [quote, setQuote] = useState<{
@@ -129,7 +138,9 @@ const SubnameMintFormV2Content = ({
   }>({ isChecking: false, data: null, error: null });
   const [payments, setPayments] = useState<Record<string, bigint>>({});
   const [quoteAttempt, setQuoteAttempt] = useState(0);
-  const [parentResolver, setParentResolver] = useState<Address | null | undefined>(undefined);
+  const [parentResolver, setParentResolver] = useState<
+    Address | null | undefined
+  >(undefined);
 
   const [ensRecordTemplate, setEnsRecordsTemplate] = useState<EnsRecords>({
     addresses: [],
@@ -141,13 +152,19 @@ const SubnameMintFormV2Content = ({
   });
   const hasRecordsDifference = useMemo(
     () => getEnsRecordsDiff(ensRecords, ensRecordTemplate).isDifferent,
-    [ensRecords, ensRecordTemplate],
+    [ensRecords, ensRecordTemplate]
   );
   const resolverAddress =
-    parentResolver === undefined ? null : (parentResolver ?? resolverProp ?? deployment.sharedResolver);
+    parentResolver === undefined
+      ? null
+      : (parentResolver ?? resolverProp ?? deployment.sharedResolver);
   const isDefaultResolver = parentResolver === null && !resolverProp;
-  const [resolverStyle, setResolverStyle] = useState<ResolverStyle | null>(null);
-  const [customRecordsWritable, setCustomRecordsWritable] = useState<boolean | null>(null);
+  const [resolverStyle, setResolverStyle] = useState<ResolverStyle | null>(
+    null
+  );
+  const [customRecordsWritable, setCustomRecordsWritable] = useState<
+    boolean | null
+  >(null);
   const mintResolver = useMemo<EnsV2MintResolver | null>(
     () =>
       resolverAddress && resolverStyle
@@ -157,10 +174,11 @@ const SubnameMintFormV2Content = ({
             requested: parentResolver ? zeroAddress : resolverAddress,
           }
         : null,
-    [resolverAddress, resolverStyle, parentResolver],
+    [resolverAddress, resolverStyle, parentResolver]
   );
   const canSetRecords =
-    mintResolver !== null && (isDefaultResolver || customRecordsWritable === true);
+    mintResolver !== null &&
+    (isDefaultResolver || customRecordsWritable === true);
 
   const [minting, setMinting] = useState<{
     isWaitingWallet: boolean;
@@ -189,7 +207,8 @@ const SubnameMintFormV2Content = ({
       .catch(() => setResolverStyle(null));
   }, [resolverAddress, publicClient]);
 
-  const duration = quote.data?.expirable === false ? ONE_YEAR : BigInt(durationSeconds);
+  const duration =
+    quote.data?.expirable === false ? ONE_YEAR : BigInt(durationSeconds);
 
   useEffect(() => {
     if (!publicClient || label.length < MIN_ENS_LEN) {
@@ -197,7 +216,7 @@ const SubnameMintFormV2Content = ({
       return;
     }
     let cancelled = false;
-    setQuote((prev) => ({ ...prev, isChecking: true, error: null }));
+    setQuote(prev => ({ ...prev, isChecking: true, error: null }));
     const timer = setTimeout(async () => {
       try {
         const data = await quoteEnsV2Mint(publicClient, deployment, {
@@ -207,19 +226,22 @@ const SubnameMintFormV2Content = ({
           duration: BigInt(durationSeconds),
         });
         const amounts = await Promise.all(
-          deployment.paymentTokens.map((t) =>
-            quoteEnsV2Payment(publicClient, deployment, data.priceUsdRaw, t).catch(
-              () => null,
-            ),
-          ),
+          deployment.paymentTokens.map(t =>
+            quoteEnsV2Payment(
+              publicClient,
+              deployment,
+              data.priceUsdRaw,
+              t
+            ).catch(() => null)
+          )
         );
         if (cancelled) return;
         setPayments(
           Object.fromEntries(
             deployment.paymentTokens
               .map((t, i) => [t.symbol, amounts[i]] as const)
-              .filter(([, amount]) => amount !== null),
-          ) as Record<string, bigint>,
+              .filter(([, amount]) => amount !== null)
+          ) as Record<string, bigint>
         );
         setQuote({ isChecking: false, data, error: null });
       } catch (e: any) {
@@ -227,7 +249,8 @@ const SubnameMintFormV2Content = ({
         setQuote({
           isChecking: false,
           data: null,
-          error: e?.shortMessage || e?.message || "Couldn't price this subname.",
+          error:
+            e?.shortMessage || e?.message || "Couldn't price this subname.",
         });
       }
     }, QUOTE_DEBOUNCE_MS);
@@ -269,7 +292,7 @@ const SubnameMintFormV2Content = ({
       priceUsdRaw: q.priceUsdRaw,
       extraData: q.extraData,
       resolver: mintResolver,
-    }).then((writable) => {
+    }).then(writable => {
       if (!cancelled) setCustomRecordsWritable(writable);
     });
     return () => {
@@ -295,7 +318,7 @@ const SubnameMintFormV2Content = ({
   }>({ isChecking: false, data: null, failed: false });
 
   const quoteReady = Boolean(
-    quote.data?.available && quote.data.canMint && !quote.isChecking,
+    quote.data?.available && quote.data.canMint && !quote.isChecking
   );
   const paymentAmount = payments[tokenSymbol];
   const needsAmount = quote.data?.priceUsdRaw !== 0n;
@@ -313,7 +336,7 @@ const SubnameMintFormV2Content = ({
       return;
     }
     let cancelled = false;
-    setFees((prev) => ({ ...prev, isChecking: true, failed: false }));
+    setFees(prev => ({ ...prev, isChecking: true, failed: false }));
     const run = async () => {
       try {
         const amount = paymentAmount ?? 0n;
@@ -332,11 +355,12 @@ const SubnameMintFormV2Content = ({
           publicClient,
           connectedAddress,
           calls,
-          { token, amount },
+          { token, amount }
         );
         if (!cancelled) setFees({ isChecking: false, data, failed: false });
       } catch {
-        if (!cancelled) setFees({ isChecking: false, data: null, failed: true });
+        if (!cancelled)
+          setFees({ isChecking: false, data: null, failed: true });
       }
     };
     run();
@@ -377,11 +401,11 @@ const SubnameMintFormV2Content = ({
       : null;
   const isAvailableForMint = Boolean(
     label.length >= MIN_ENS_LEN &&
-      data &&
-      !proofsMissing &&
-      data.available &&
-      data.canMint &&
-      !quote.isChecking,
+    data &&
+    !proofsMissing &&
+    data.available &&
+    data.canMint &&
+    !quote.isChecking
   );
   const amount = payments[token.symbol];
   const isFree = data?.priceUsdRaw === 0n;
@@ -392,7 +416,8 @@ const SubnameMintFormV2Content = ({
       : formatAmount(amount, token.decimals, token.symbol);
 
   const feeUnknown = fees.failed || fees.data?.feeWei === null;
-  const feeEth = fees.data?.feeWei != null ? Number(formatUnits(fees.data.feeWei, 18)) : 0;
+  const feeEth =
+    fees.data?.feeWei != null ? Number(formatUnits(fees.data.feeWei, 18)) : 0;
   const feesDisplay = feeUnknown
     ? "N/A"
     : formatAmount(fees.data?.feeWei ?? 0n, 18, "ETH");
@@ -400,17 +425,28 @@ const SubnameMintFormV2Content = ({
   const totalDisplay = (() => {
     if (!payingEth) return priceDisplay;
     if (feeUnknown) return isFree ? "N/A" : priceDisplay;
-    const priceEth = isFree || amount === undefined ? 0 : Number(formatUnits(amount, 18));
+    const priceEth =
+      isFree || amount === undefined ? 0 : Number(formatUnits(amount, 18));
     const sum = priceEth + feeEth;
-    return sum === 0 ? "Free" : formatAmount(BigInt(Math.round(sum * 1e18)), 18, "ETH");
+    return sum === 0
+      ? "Free"
+      : formatAmount(BigInt(Math.round(sum * 1e18)), 18, "ETH");
   })();
   const hasInsufficientFunds = Boolean(
-    fees.data && (fees.data.shortfallEthWei > 0n || fees.data.shortfallToken > 0n),
+    fees.data &&
+    (fees.data.shortfallEthWei > 0n || fees.data.shortfallToken > 0n)
   );
 
   const handleMint = async () => {
     const resolver = mintResolver;
-    if (!data || !publicClient || !walletClient || !connectedAddress || !resolver) return;
+    if (
+      !data ||
+      !publicClient ||
+      !walletClient ||
+      !connectedAddress ||
+      !resolver
+    )
+      return;
     if (amount === undefined && !isFree) return;
     setError(null);
 
@@ -419,7 +455,12 @@ const SubnameMintFormV2Content = ({
     try {
       const freshAmount = isFree
         ? 0n
-        : await quoteEnsV2Payment(publicClient, deployment, data.priceUsdRaw, token);
+        : await quoteEnsV2Payment(
+            publicClient,
+            deployment,
+            data.priceUsdRaw,
+            token
+          );
       const calls = await prepareEnsV2MintCalls(publicClient, deployment, {
         parentName,
         label,
@@ -443,11 +484,16 @@ const SubnameMintFormV2Content = ({
             title: call?.title,
             txHash: hash,
             completed: false,
-          }),
+          })
       );
       const hash = hashes[hashes.length - 1];
       const transactionFees = await paidFees(publicClient, hashes);
-      setMinting({ isWaitingWallet: false, pending: true, txHash: hash, completed: true });
+      setMinting({
+        isWaitingWallet: false,
+        pending: true,
+        txHash: hash,
+        completed: true,
+      });
 
       const price = isFree ? "0" : priceDisplay;
       const success: MintSuccessData = {
@@ -589,10 +635,14 @@ const SubnameMintFormV2Content = ({
                   value={token.symbol}
                   onChange={setTokenSymbol}
                   options={deployment.paymentTokens
-                    .filter((t) => payments[t.symbol] !== undefined)
-                    .map((t) => ({
+                    .filter(t => payments[t.symbol] !== undefined)
+                    .map(t => ({
                       symbol: t.symbol,
-                      amount: formatAmount(payments[t.symbol], t.decimals, t.symbol),
+                      amount: formatAmount(
+                        payments[t.symbol],
+                        t.decimals,
+                        t.symbol
+                      ),
                     }))}
                 />
               )
@@ -609,7 +659,9 @@ const SubnameMintFormV2Content = ({
             }}
             ethUsdRate={ethUsdRate}
             totalUsd={
-              data && !isFree && !payingEth ? usdFromRaw(data.priceUsdRaw) : undefined
+              data && !isFree && !payingEth
+                ? usdFromRaw(data.priceUsdRaw)
+                : undefined
             }
             expiryPicker={
               data?.expirable
@@ -617,7 +669,9 @@ const SubnameMintFormV2Content = ({
                 : undefined
             }
           />
-          {canSetRecords && <ProfileSelector onSelect={() => setShowProfile(true)} />}
+          {canSetRecords && (
+            <ProfileSelector onSelect={() => setShowProfile(true)} />
+          )}
         </>
       )}
 
@@ -627,7 +681,7 @@ const SubnameMintFormV2Content = ({
             <Text size="sm">
               Couldn't verify the{" "}
               {data?.proofsUnavailable
-                .map((p) => (p === "whitelist" ? "whitelist" : "reservations"))
+                .map(p => (p === "whitelist" ? "whitelist" : "reservations"))
                 .join(" and ")}{" "}
               for this name. Try again.
             </Text>
@@ -635,7 +689,7 @@ const SubnameMintFormV2Content = ({
               className="mt-2"
               size="sm"
               variant="outline"
-              onClick={() => setQuoteAttempt((n) => n + 1)}
+              onClick={() => setQuoteAttempt(n => n + 1)}
             >
               Try again
             </Button>
@@ -662,7 +716,9 @@ const SubnameMintFormV2Content = ({
       {hasInsufficientFunds && (
         <div className="mt-2">
           <Alert variant="warning">
-            <Text size="sm" data-testid="insufficient-funds">Insufficient funds</Text>
+            <Text size="sm" data-testid="insufficient-funds">
+              Insufficient funds
+            </Text>
           </Alert>
         </div>
       )}

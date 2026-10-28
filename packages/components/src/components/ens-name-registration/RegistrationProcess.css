@@ -3,122 +3,124 @@
    with a strong hairline. Marks are 24px squares, never circles. */
 
 .ens-registration-progress {
-    padding: var(--ns-space-14);
-    position: relative;
+  padding: var(--ns-space-14);
+  position: relative;
 }
 
 .ens-registration-progress img {
-    max-width: 100%;
-    height: auto;
+  max-width: 100%;
+  height: auto;
 }
 
 /* Close control — square icon button, not a circle */
 .ens-registration-close-btn {
-    position: absolute;
-    top: var(--ns-space-10);
-    left: var(--ns-space-10);
-    width: var(--ns-control-md);
-    height: var(--ns-control-md);
-    border-radius: var(--ns-radius);
-    background-color: var(--ns-surface);
-    border: 1px solid var(--ns-border);
-    color: var(--ns-text-3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    padding: 0;
-    transition: border-color 0.15s ease, background-color 0.15s ease;
-    z-index: 10;
+  position: absolute;
+  top: var(--ns-space-10);
+  left: var(--ns-space-10);
+  width: var(--ns-control-md);
+  height: var(--ns-control-md);
+  border-radius: var(--ns-radius);
+  background-color: var(--ns-surface);
+  border: 1px solid var(--ns-border);
+  color: var(--ns-text-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+  z-index: 10;
 }
 
 .ens-registration-close-btn:hover {
-    background-color: var(--ns-surface-3);
-    border-color: var(--ns-border-strong);
+  background-color: var(--ns-surface-3);
+  border-color: var(--ns-border-strong);
 }
 
 .ens-registration-close-btn .ns-icon {
-    stroke: var(--ns-text-3);
+  stroke: var(--ns-text-3);
 }
 
 /* ---- Step rows (lines 262–271) --------------------------------------- */
 .ens-registration-progress .ns-accordion {
-    border: 1px solid var(--ns-border);
-    border-radius: var(--ns-radius);
-    background-color: var(--ns-surface);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius);
+  background-color: var(--ns-surface);
 }
 
 .ens-registration-progress .ns-accordion--open {
-    border-color: var(--ns-border-strong);
-    background-color: var(--ns-surface-3);
+  border-color: var(--ns-border-strong);
+  background-color: var(--ns-surface-3);
 }
 
 .ens-registration-progress .ns-accordion__header {
-    padding: var(--ns-space-6) var(--ns-space-10);
+  padding: var(--ns-space-6) var(--ns-space-10);
 }
 
 /* ---- Step mark: 24px square (design lines 263–270) -------------------- */
 .ens-registration-progress .ns-process-badge {
-    width: 24px;
-    height: 24px;
-    flex: none;
-    background-color: var(--ns-blue-600);
-    border: 1px solid var(--ns-blue-600);
-    border-radius: var(--ns-radius);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  background-color: var(--ns-blue-600);
+  border: 1px solid var(--ns-blue-600);
+  border-radius: var(--ns-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .ens-registration-progress .ns-process-badge .ns-text {
-    font-family: var(--ns-font-mono);
-    font-size: var(--ns-size-micro);
-    line-height: 1;
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-micro);
+  line-height: 1;
 }
 
 /* pending */
 .ens-registration-progress .ns-process-badge--inactive {
-    background-color: var(--ns-surface-3);
-    border: 1px solid var(--ns-border);
+  background-color: var(--ns-surface-3);
+  border: 1px solid var(--ns-border);
 }
 
 .ens-registration-progress .ns-process-badge--inactive .ns-text--primary {
-    color: var(--ns-text-faint);
+  color: var(--ns-text-faint);
 }
 
 /* done */
 .ens-registration-progress .ns-process-badge--completed {
-    width: 24px;
-    height: 24px;
-    border: 1px solid var(--ns-blue-100) !important;
-    background-color: var(--ns-blue-100);
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--ns-blue-100) !important;
+  background-color: var(--ns-blue-100);
 }
 
 .ens-registration-progress .ns-process-badge--completed .ns-icon {
-    stroke: var(--ns-blue-700);
+  stroke: var(--ns-blue-700);
 }
 
 /* ---- Narrow containers (plan §5) ------------------------------------- */
 @container (max-width: 480px) {
-    .ens-registration-progress {
-        padding: var(--ns-space-10);
-    }
+  .ens-registration-progress {
+    padding: var(--ns-space-10);
+  }
 }
 
 @container (max-width: 390px) {
-    .ens-registration-progress {
-        padding: var(--ns-space-8);
-    }
+  .ens-registration-progress {
+    padding: var(--ns-space-8);
+  }
 
-    .ens-registration-close-btn {
-        top: var(--ns-space-4);
-        left: var(--ns-space-4);
-    }
+  .ens-registration-close-btn {
+    top: var(--ns-space-4);
+    left: var(--ns-space-4);
+  }
 }
 
 /* Fallback for browsers without container queries */
 @media screen and (max-width: 600px) {
-    .ens-registration-progress {
-        padding: var(--ns-space-8);
-    }
+  .ens-registration-progress {
+    padding: var(--ns-space-8);
+  }
 }

@@ -33,7 +33,10 @@ export const RecordUpdateProgress: React.FC<RecordUpdateProgressProps> = ({
     return (
       <div className="record-update-screen-container">
         <div className="record-update-screen-card">
-          <div className="record-update-success-illustration" data-testid="records-update-success">
+          <div
+            className="record-update-success-illustration"
+            data-testid="records-update-success"
+          >
             <img src={finishLogo} alt="Success Illustration" />
           </div>
 
@@ -53,7 +56,11 @@ export const RecordUpdateProgress: React.FC<RecordUpdateProgressProps> = ({
                 if (onViewName) {
                   onViewName();
                 } else {
-                  window.open(getEnsAppUrl(ensName, isTestnet), "_blank", "noopener,noreferrer");
+                  window.open(
+                    getEnsAppUrl(ensName, isTestnet),
+                    "_blank",
+                    "noopener,noreferrer"
+                  );
                 }
               }}
               className="record-update-screen-view-name-btn"
@@ -78,7 +85,10 @@ export const RecordUpdateProgress: React.FC<RecordUpdateProgressProps> = ({
     return (
       <div className="record-update-screen-container">
         <div className="record-update-screen-card">
-          <div className="record-update-failed-icon" data-testid="records-update-failed">
+          <div
+            className="record-update-failed-icon"
+            data-testid="records-update-failed"
+          >
             <Icon name="x-circle" size={64} color="#ef4444" />
           </div>
 

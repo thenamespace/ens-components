@@ -27,7 +27,10 @@ export {
   getEnsV2RenewalTarget,
   getEnsV2RenewPrice,
 } from "./ens-name-renewal/v2/ensv2-renew";
-export type { EnsV2RenewalDeployment, EnsV2RenewalTarget } from "./ens-name-renewal/v2/ensv2-renew";
+export type {
+  EnsV2RenewalDeployment,
+  EnsV2RenewalTarget,
+} from "./ens-name-renewal/v2/ensv2-renew";
 export { SubnameRenewForm } from "./subname-renewal/SubnameRenewForm";
 export type { SubnameRenewFormProps } from "./subname-renewal/SubnameRenewForm";
 export { quoteEnsV2Renewal } from "./subname-renewal/ensv2-subname-renew";

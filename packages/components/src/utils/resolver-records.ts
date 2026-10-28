@@ -10,7 +10,11 @@ import {
 import { packetToBytes } from "viem/ens";
 import { getCoderByCoinType } from "@ensdomains/address-encoder";
 import { encode } from "@ensdomains/content-hash";
-import type { EnsAddressRecord, EnsContenthashRecord, EnsTextRecord } from "@/types";
+import type {
+  EnsAddressRecord,
+  EnsContenthashRecord,
+  EnsTextRecord,
+} from "@/types";
 import type { EnsRecordsDiff } from "./records";
 
 /**
@@ -52,10 +56,10 @@ const permissionedAbi = parseAbi([
 
 export const detectResolverStyle = async (
   client: PublicClient,
-  resolver: Address,
+  resolver: Address
 ): Promise<ResolverStyle> => {
   const supported = await Promise.all(
-    NAME_SETTER_INTERFACES.map((id) =>
+    NAME_SETTER_INTERFACES.map(id =>
       client
         .readContract({
           address: resolver,
@@ -63,14 +67,21 @@ export const detectResolverStyle = async (
           functionName: "supportsInterface",
           args: [id],
         })
-        .catch(() => false),
-    ),
+        .catch(() => false)
+    )
   );
   if (supported.some(Boolean)) return "permissioned";
   // SimplifiedResolver reports only the standard interfaces; ethRegistry() is unique to it.
   const isSubnameResolver = await client
-    .readContract({ address: resolver, abi: subnameAbi, functionName: "ethRegistry" })
-    .then(() => true, () => false);
+    .readContract({
+      address: resolver,
+      abi: subnameAbi,
+      functionName: "ethRegistry",
+    })
+    .then(
+      () => true,
+      () => false
+    );
   return isSubnameResolver ? "subname" : "node";
 };
 
@@ -78,7 +89,9 @@ export const detectResolverStyle = async (
 const subnameLabels = (name: string) => {
   const labels = name.split(".");
   if (labels.length !== 3 || labels[2] !== "eth")
-    throw new Error(`${name} isn't a subname of a .eth name, which this resolver requires`);
+    throw new Error(
+      `${name} isn't a subname of a .eth name, which this resolver requires`
+    );
   return { label: labels[0], parentLabel: labels[1] };
 };
 
@@ -103,7 +116,7 @@ const settersFor = (style: ResolverStyle, name: string): Setters => {
   if (style === "subname") {
     const { parentLabel, label } = subnameLabels(name);
     return {
-      text: (t) =>
+      text: t =>
         encodeFunctionData({
           abi: subnameAbi,
           functionName: "setText",
@@ -115,7 +128,7 @@ const settersFor = (style: ResolverStyle, name: string): Setters => {
           functionName: "setAddr",
           args: [parentLabel, label, BigInt(coinType), value],
         }),
-      contenthash: (value) =>
+      contenthash: value =>
         encodeFunctionData({
           abi: subnameAbi,
           functionName: "setContenthash",
@@ -126,7 +139,7 @@ const settersFor = (style: ResolverStyle, name: string): Setters => {
   if (style === "permissioned") {
     const dnsName = dnsEncodeName(name);
     return {
-      text: (t) =>
+      text: t =>
         encodeFunctionData({
           abi: permissionedAbi,
           functionName: "setText",
@@ -138,7 +151,7 @@ const settersFor = (style: ResolverStyle, name: string): Setters => {
           functionName: "setAddress",
           args: [dnsName, BigInt(coinType), value],
         }),
-      contenthash: (value) =>
+      contenthash: value =>
         encodeFunctionData({
           abi: permissionedAbi,
           functionName: "setContenthash",
@@ -148,7 +161,7 @@ const settersFor = (style: ResolverStyle, name: string): Setters => {
   }
   const node = namehash(name);
   return {
-    text: (t) =>
+    text: t =>
       encodeFunctionData({
         abi: nodeAbi,
         functionName: "setText",
@@ -160,7 +173,7 @@ const settersFor = (style: ResolverStyle, name: string): Setters => {
         functionName: "setAddr",
         args: [node, BigInt(coinType), value],
       }),
-    contenthash: (value) =>
+    contenthash: value =>
       encodeFunctionData({
         abi: nodeAbi,
         functionName: "setContenthash",
@@ -172,20 +185,23 @@ const settersFor = (style: ResolverStyle, name: string): Setters => {
 export const encodeRecordSetters = (
   style: ResolverStyle,
   name: string,
-  diff: EnsRecordsDiff,
+  diff: EnsRecordsDiff
 ): Hex[] => {
   const set = settersFor(style, name);
   const calls: Hex[] = [];
 
   for (const text of [...diff.textsAdded, ...diff.textsModified])
     calls.push(set.text(text));
-  for (const text of diff.textsRemoved) calls.push(set.text({ key: text.key, value: "" }));
+  for (const text of diff.textsRemoved)
+    calls.push(set.text({ key: text.key, value: "" }));
 
   const addresses = new Map<number, EnsAddressRecord>();
   for (const a of [...diff.addressesAdded, ...diff.addressesModified])
     addresses.set(a.coinType, a);
-  for (const a of addresses.values()) calls.push(set.address(a.coinType, addressBytes(a)));
-  for (const a of diff.addressesRemoved) calls.push(set.address(a.coinType, "0x"));
+  for (const a of addresses.values())
+    calls.push(set.address(a.coinType, addressBytes(a)));
+  for (const a of diff.addressesRemoved)
+    calls.push(set.address(a.coinType, "0x"));
 
   if (diff.contenthashRemoved) calls.push(set.contenthash("0x"));
   else {
@@ -199,7 +215,7 @@ export const encodeRecordsUpdate = (
   style: ResolverStyle,
   resolver: Address,
   name: string,
-  diff: EnsRecordsDiff,
+  diff: EnsRecordsDiff
 ): { to: Address; data: Hex } => {
   const calls = encodeRecordSetters(style, name, diff);
   if (style === "subname") {

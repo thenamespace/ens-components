@@ -19,7 +19,10 @@ const [records, setRecords] = useState<EnsRecords>({ addresses: [], texts: [] })
 />`;
 
 export function SelectRecordsSection() {
-  const [records, setRecords] = useState<EnsRecords>({ addresses: [], texts: [] });
+  const [records, setRecords] = useState<EnsRecords>({
+    addresses: [],
+    texts: [],
+  });
 
   return (
     <section className="section" id="select-records">
@@ -34,7 +37,11 @@ export function SelectRecordsSection() {
           <CodePanel title="SelectRecordsForm.tsx" code={SELECT_RECORDS_CODE} />
         </div>
         <DemoPanel>
-          <SelectRecordsForm records={records} onRecordsUpdated={setRecords} noBorder />
+          <SelectRecordsForm
+            records={records}
+            onRecordsUpdated={setRecords}
+            noBorder
+          />
         </DemoPanel>
       </div>
     </section>

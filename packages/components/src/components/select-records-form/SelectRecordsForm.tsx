@@ -1,4 +1,11 @@
-import { RefObject, useEffect, useMemo, useRef, useState, useCallback} from "react";
+import {
+  RefObject,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
 import {
   ContenthashProtocol,
   EnsAddressRecord,
@@ -70,9 +77,8 @@ export const SelectRecordsForm = ({
   noBorder,
 }: SelectRecordsFormProps) => {
   const [initialRecords] = useState<EnsRecords>(deepCopy(records));
-  const [activeUploadTarget, setActiveUploadTarget] = useState<ImageRecordType | null>(
-    null
-  );
+  const [activeUploadTarget, setActiveUploadTarget] =
+    useState<ImageRecordType | null>(null);
   const [imageUploadFeedback, setImageUploadFeedback] = useState<{
     record: ImageRecordType;
     message: string;
@@ -385,7 +391,10 @@ export const SelectRecordsForm = ({
     const initialValue = initialRecords.texts.find(txt => txt.key === record);
     onRecordsUpdated({
       ...records,
-      texts: [...records.texts, { key: record, value: initialValue?.value || "" }],
+      texts: [
+        ...records.texts,
+        { key: record, value: initialValue?.value || "" },
+      ],
     });
   };
 
@@ -458,13 +467,21 @@ export const SelectRecordsForm = ({
             handleImageRecordAdded("header", value)
           }
           onAvatarUploadRequested={
-            avatarUpload ? () => handleImageUploadRequested("avatar") : undefined
+            avatarUpload
+              ? () => handleImageUploadRequested("avatar")
+              : undefined
           }
-          onAvatarManualUrlRequested={() => handleImageManualUrlRequested("avatar")}
+          onAvatarManualUrlRequested={() =>
+            handleImageManualUrlRequested("avatar")
+          }
           onHeaderUploadRequested={
-            avatarUpload ? () => handleImageUploadRequested("header") : undefined
+            avatarUpload
+              ? () => handleImageUploadRequested("header")
+              : undefined
           }
-          onHeaderManualUrlRequested={() => handleImageManualUrlRequested("header")}
+          onHeaderManualUrlRequested={() =>
+            handleImageManualUrlRequested("header")
+          }
         />
         {imageUploadFeedback && (
           <Alert

@@ -9,14 +9,47 @@ import { PropsEditor } from "../components/PropsEditor";
 import { Chip, KitButton, TestKit, TestStep } from "../components/TestKit";
 import { generateCode } from "../components/generateCode";
 import type { PropDef } from "../components/types";
-import { SEPOLIA_ETH_FAUCET, SEPOLIA_USDC_FAUCET, useTestFunds } from "../utils/testTokens";
+import {
+  SEPOLIA_ETH_FAUCET,
+  SEPOLIA_USDC_FAUCET,
+  useTestFunds,
+} from "../utils/testTokens";
 
 const RENEW_DEFS: PropDef[] = [
-  { key: "name",      type: "string",  default: "",    tip: "Name to renew. Leave empty to let the user type one", placeholder: "alice.eth" },
-  { key: "referrer",  type: "string",  default: "",    tip: "Referrer wallet recorded with the renewal", placeholder: "0x… referral wallet" },
-  { key: "title",     type: "string",  default: "",    tip: "Override the form title text", placeholder: "title..." },
-  { key: "subtitle",  type: "string",  default: "",    tip: "Optional subtitle shown below the title", placeholder: "subtitle..." },
-  { key: "noBorder",  type: "boolean", default: true,  tip: "Remove the card border, for embedding in your own container" },
+  {
+    key: "name",
+    type: "string",
+    default: "",
+    tip: "Name to renew. Leave empty to let the user type one",
+    placeholder: "alice.eth",
+  },
+  {
+    key: "referrer",
+    type: "string",
+    default: "",
+    tip: "Referrer wallet recorded with the renewal",
+    placeholder: "0x… referral wallet",
+  },
+  {
+    key: "title",
+    type: "string",
+    default: "",
+    tip: "Override the form title text",
+    placeholder: "title...",
+  },
+  {
+    key: "subtitle",
+    type: "string",
+    default: "",
+    tip: "Optional subtitle shown below the title",
+    placeholder: "subtitle...",
+  },
+  {
+    key: "noBorder",
+    type: "boolean",
+    default: true,
+    tip: "Remove the card border, for embedding in your own container",
+  },
 ];
 
 const SAMPLE_NAMES = ["arti.eth", "smarty.eth", "myownname.eth"];
@@ -33,25 +66,27 @@ export function EnsRenewalSection({
   const { openConnectModal } = useConnectModal();
   const funds = useTestFunds();
   const [values, setValues] = useState<Record<string, any>>(() => ({
-    ...Object.fromEntries(RENEW_DEFS.map((d) => [d.key, d.default])),
+    ...Object.fromEntries(RENEW_DEFS.map(d => [d.key, d.default])),
   }));
   const [mountKey, setMountKey] = useState(0);
 
   const onChange = (key: string, val: any) => {
-    setValues((prev) => ({ ...prev, [key]: val }));
+    setValues(prev => ({ ...prev, [key]: val }));
   };
 
-
   useEffect(() => {
-    if (requestedName) setValues((prev) => ({ ...prev, name: requestedName.name }));
+    if (requestedName)
+      setValues(prev => ({ ...prev, name: requestedName.name }));
   }, [requestedName]);
 
   const pickName = (name: string) => {
-    setValues((prev) => ({ ...prev, name }));
-    setMountKey((k) => k + 1);
+    setValues(prev => ({ ...prev, name }));
+    setMountKey(k => k + 1);
   };
 
-  const code = generateCode("NameRenewForm", RENEW_DEFS, values, [`isTestnet={${isTestnet}}`]);
+  const code = generateCode("NameRenewForm", RENEW_DEFS, values, [
+    `isTestnet={${isTestnet}}`,
+  ]);
 
   return (
     <section className="section" id="ens-renewal">
@@ -72,7 +107,7 @@ export function EnsRenewalSection({
             title={values.title || undefined}
             subtitle={values.subtitle || undefined}
             onConnectWallet={openConnectModal}
-            onCancel={() => setMountKey((k) => k + 1)}
+            onCancel={() => setMountKey(k => k + 1)}
           />
         </DemoPanel>
         <div className="code-col">
@@ -81,16 +116,27 @@ export function EnsRenewalSection({
             network={isTestnet ? "Sepolia" : "Mainnet"}
             note={
               <>
-                <strong>Renewals are permissionless.</strong> Anyone can extend any name, and the owner keeps it.
-                That makes any registered name a valid test subject.
+                <strong>Renewals are permissionless.</strong> Anyone can extend
+                any name, and the owner keeps it. That makes any registered name
+                a valid test subject.
               </>
             }
           >
             {isTestnet ? (
               <TestStep title="Fund your wallet">
-                <p>Gas is paid in Sepolia ETH. The renewal itself is paid in DAI or USDC.</p>
-                <KitButton onClick={funds.isConnected ? funds.mintDai : openConnectModal} disabled={funds.minting}>
-                  {!funds.isConnected ? "Connect wallet" : funds.minting ? "Minting…" : "Mint 1,000 test DAI"}
+                <p>
+                  Gas is paid in Sepolia ETH. The renewal itself is paid in DAI
+                  or USDC.
+                </p>
+                <KitButton
+                  onClick={funds.isConnected ? funds.mintDai : openConnectModal}
+                  disabled={funds.minting}
+                >
+                  {!funds.isConnected
+                    ? "Connect wallet"
+                    : funds.minting
+                      ? "Minting…"
+                      : "Mint 1,000 test DAI"}
                 </KitButton>
                 <KitButton href={SEPOLIA_USDC_FAUCET}>USDC faucet ↗</KitButton>
                 <KitButton href={SEPOLIA_ETH_FAUCET}>ETH faucet ↗</KitButton>
@@ -99,18 +145,26 @@ export function EnsRenewalSection({
                     {funds.dai} DAI · {funds.usdc} USDC
                   </span>
                 )}
-                {funds.error && <p className="ens-lookup-error">{funds.error}</p>}
+                {funds.error && (
+                  <p className="ens-lookup-error">{funds.error}</p>
+                )}
               </TestStep>
             ) : (
               <TestStep title="Mainnet costs real ETH">
                 <p>Switch the playground to Sepolia to test for free.</p>
-                <KitButton onClick={() => onIsTestnetChange(true)}>Use Sepolia</KitButton>
+                <KitButton onClick={() => onIsTestnetChange(true)}>
+                  Use Sepolia
+                </KitButton>
               </TestStep>
             )}
             <TestStep title="Choose a name">
               {isTestnet &&
-                SAMPLE_NAMES.map((n) => (
-                  <Chip key={n} active={values.name === n} onClick={() => pickName(n)}>
+                SAMPLE_NAMES.map(n => (
+                  <Chip
+                    key={n}
+                    active={values.name === n}
+                    onClick={() => pickName(n)}
+                  >
                     {n}
                   </Chip>
                 ))}

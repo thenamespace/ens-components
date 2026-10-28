@@ -40,7 +40,7 @@ export interface EnsV2RegistrationDeployment {
 }
 
 export const getEnsV2RegistrationDeployment = (
-  isTestnet: boolean,
+  isTestnet: boolean
 ): EnsV2RegistrationDeployment => {
   const ens = getEnsV2Contracts(isTestnet);
   return {
@@ -62,7 +62,9 @@ const registrarAbi = parseAbi([
   "function MIN_COMMITMENT_AGE() view returns (uint64)",
   "function register(string label, address owner, bytes32 secret, address subregistry, address resolver, uint64 duration, address paymentToken, bytes32 referrer) returns (uint256 tokenId)",
 ]);
-const resolverMulticallAbi = parseAbi(["function multicall(bytes[] calls) returns (bytes[])"]);
+const resolverMulticallAbi = parseAbi([
+  "function multicall(bytes[] calls) returns (bytes[])",
+]);
 const erc20Abi = parseAbi([
   "function allowance(address owner, address spender) view returns (uint256)",
   "function approve(address spender, uint256 amount) returns (bool)",
@@ -91,7 +93,7 @@ export const randomSecret = (): Hex => {
 export const isEnsV2NameAvailable = (
   client: PublicClient,
   deployment: EnsV2RegistrationDeployment,
-  label: string,
+  label: string
 ) =>
   client.readContract({
     address: deployment.registrar,
@@ -105,7 +107,7 @@ export const getEnsV2RegistrationPrice = async (
   deployment: EnsV2RegistrationDeployment,
   label: string,
   duration: bigint,
-  token: EnsV2RegistrationToken,
+  token: EnsV2RegistrationToken
 ) => {
   const [base, premium] = await client.readContract({
     address: deployment.registrar,
@@ -128,7 +130,9 @@ export interface EnsV2RegistrationParams {
 
 /** Referral hash for commit and register. Falls back to Namespace's referrer, as ENSv1 registration does. */
 export const getEnsV2Referrer = (referrer?: Address): Hex =>
-  createEnsReferer(referrer && isAddress(referrer) ? referrer : NAMESPACE_REFERRER_ADDRESS);
+  createEnsReferer(
+    referrer && isAddress(referrer) ? referrer : NAMESPACE_REFERRER_ADDRESS
+  );
 
 export const makeEnsV2Commitment = (params: EnsV2RegistrationParams): Hex =>
   keccak256(
@@ -150,13 +154,13 @@ export const makeEnsV2Commitment = (params: EnsV2RegistrationParams): Hex =>
         params.resolver,
         params.duration,
         params.referrer,
-      ],
-    ),
+      ]
+    )
   );
 
 export const buildEnsV2CommitCall = (
   deployment: EnsV2RegistrationDeployment,
-  commitment: Hex,
+  commitment: Hex
 ): EnsV2Call => ({
   to: deployment.registrar,
   data: encodeFunctionData({
@@ -170,7 +174,7 @@ export const buildEnsV2CommitCall = (
 export const getEnsV2CommitmentReadyAt = async (
   client: PublicClient,
   deployment: EnsV2RegistrationDeployment,
-  commitment: Hex,
+  commitment: Hex
 ) => {
   const [committedAt, minAge] = await Promise.all([
     client.readContract({
@@ -192,7 +196,7 @@ export const getEnsV2Allowance = (
   client: PublicClient,
   deployment: EnsV2RegistrationDeployment,
   token: EnsV2RegistrationToken,
-  owner: Address,
+  owner: Address
 ) =>
   client.readContract({
     address: token.address,
@@ -204,7 +208,7 @@ export const getEnsV2Allowance = (
 export const buildEnsV2ApproveCall = (
   deployment: EnsV2RegistrationDeployment,
   token: EnsV2RegistrationToken,
-  price: bigint,
+  price: bigint
 ): EnsV2Call => ({
   to: token.address,
   data: encodeFunctionData({
@@ -216,13 +220,26 @@ export const buildEnsV2ApproveCall = (
   title: `Approving ${token.symbol}`,
 });
 
-export const withOwnerEthAddress = (records: EnsRecords, owner: Address): EnsRecords =>
-  records.addresses.some((a) => a.coinType === COIN_TYPE_ETH)
+export const withOwnerEthAddress = (
+  records: EnsRecords,
+  owner: Address
+): EnsRecords =>
+  records.addresses.some(a => a.coinType === COIN_TYPE_ETH)
     ? records
-    : { ...records, addresses: [...records.addresses, { coinType: COIN_TYPE_ETH, value: owner }] };
+    : {
+        ...records,
+        addresses: [
+          ...records.addresses,
+          { coinType: COIN_TYPE_ETH, value: owner },
+        ],
+      };
 
 export const encodeEnsV2InitialRecords = (name: string, records: EnsRecords) =>
-  encodeRecordSetters("permissioned", name, getEnsRecordsDiff({ addresses: [], texts: [] }, records));
+  encodeRecordSetters(
+    "permissioned",
+    name,
+    getEnsRecordsDiff({ addresses: [], texts: [] }, records)
+  );
 
 export const buildEnsV2RegisterCalls = async (
   client: PublicClient,
@@ -233,19 +250,29 @@ export const buildEnsV2RegisterCalls = async (
     resolverDeployed: boolean;
     resolverSalt: bigint;
     records: EnsRecords;
-  },
+  }
 ): Promise<EnsV2Call[]> => {
   const name = `${params.label}.eth`;
   const recordCalls = encodeEnsV2InitialRecords(name, params.records);
   const calls: EnsV2Call[] = [];
 
-  const allowance = await getEnsV2Allowance(client, deployment, params.token, params.owner);
+  const allowance = await getEnsV2Allowance(
+    client,
+    deployment,
+    params.token,
+    params.owner
+  );
   if (allowance < params.price)
     calls.push(buildEnsV2ApproveCall(deployment, params.token, params.price));
 
   if (!params.resolverDeployed)
     calls.push(
-      buildOwnedResolverDeployCall(deployment, params.owner, params.resolverSalt, recordCalls),
+      buildOwnedResolverDeployCall(
+        deployment,
+        params.owner,
+        params.resolverSalt,
+        recordCalls
+      )
     );
 
   calls.push({
@@ -298,52 +325,57 @@ export const estimateEnsV2RegistrationFees = async (
     calls: EnsV2Call[];
     token: EnsV2RegistrationToken;
     price: bigint;
-  },
+  }
 ): Promise<EnsV2RegistrationFees> => {
   const commitmentSlot = keccak256(
     encodeAbiParameters(
       [{ type: "bytes32" }, { type: "uint256" }],
-      [params.commitment, COMMITMENT_AT_SLOT],
-    ),
+      [params.commitment, COMMITMENT_AT_SLOT]
+    )
   );
   const maturedAt = BigInt(Math.floor(Date.now() / 1000) - 3600);
 
-  const [simulation, commitGas, gasPrice, ethBalance, tokenBalance] = await Promise.all([
-    client
-      .simulateCalls({
-      account: params.owner,
-      calls: params.calls,
-      stateOverrides: [
-        {
-          address: deployment.registrar,
-          stateDiff: [{ slot: commitmentSlot, value: pad(toHex(maturedAt)) }],
-        },
-      ],
-    })
-      .catch(() => null),
-    client.estimateGas({
-      account: params.owner,
-      ...buildEnsV2CommitCall(deployment, params.commitment),
-    }),
-    estimateEffectiveGasPrice(client),
-    client.getBalance({ address: params.owner }),
-    client.readContract({
-      address: params.token.address,
-      abi: erc20Abi,
-      functionName: "balanceOf",
-      args: [params.owner],
-    }),
-  ]);
+  const [simulation, commitGas, gasPrice, ethBalance, tokenBalance] =
+    await Promise.all([
+      client
+        .simulateCalls({
+          account: params.owner,
+          calls: params.calls,
+          stateOverrides: [
+            {
+              address: deployment.registrar,
+              stateDiff: [
+                { slot: commitmentSlot, value: pad(toHex(maturedAt)) },
+              ],
+            },
+          ],
+        })
+        .catch(() => null),
+      client.estimateGas({
+        account: params.owner,
+        ...buildEnsV2CommitCall(deployment, params.commitment),
+      }),
+      estimateEffectiveGasPrice(client),
+      client.getBalance({ address: params.owner }),
+      client.readContract({
+        address: params.token.address,
+        abi: erc20Abi,
+        functionName: "balanceOf",
+        args: [params.owner],
+      }),
+    ]);
 
   const results = simulation?.results;
   const feeWei =
-    results && results.every((r) => r.status === "success")
+    results && results.every(r => r.status === "success")
       ? results.reduce((sum, r) => sum + r.gasUsed, commitGas) * gasPrice
       : null;
   return {
     feeWei,
-    shortfallEthWei: feeWei === null || ethBalance >= feeWei ? 0n : feeWei - ethBalance,
-    shortfallToken: tokenBalance >= params.price ? 0n : params.price - tokenBalance,
+    shortfallEthWei:
+      feeWei === null || ethBalance >= feeWei ? 0n : feeWei - ethBalance,
+    shortfallToken:
+      tokenBalance >= params.price ? 0n : params.price - tokenBalance,
   };
 };
 
@@ -359,7 +391,7 @@ export const saveEnsV2Commitment = (
   chainId: number,
   owner: Address,
   label: string,
-  value: SavedCommitment | null,
+  value: SavedCommitment | null
 ) => {
   try {
     const key = commitmentKey(chainId, owner, label);
@@ -371,7 +403,7 @@ export const saveEnsV2Commitment = (
 export const loadEnsV2Commitment = (
   chainId: number,
   owner: Address,
-  label: string,
+  label: string
 ): SavedCommitment | null => {
   try {
     const raw = localStorage.getItem(commitmentKey(chainId, owner, label));
@@ -386,7 +418,7 @@ export const findResumableEnsV2Commitment = async (
   deployment: EnsV2RegistrationDeployment,
   owner: Address,
   label: string,
-  durationSeconds: number,
+  durationSeconds: number
 ): Promise<{ secret: Hex; ready: boolean } | null> => {
   const saved = loadEnsV2Commitment(deployment.chainId, owner, label);
   if (!saved || saved.durationSeconds !== durationSeconds) return null;
@@ -400,7 +432,11 @@ export const findResumableEnsV2Commitment = async (
     duration: BigInt(durationSeconds),
     referrer: saved.referrer ?? zeroHash,
   });
-  const readyAt = await getEnsV2CommitmentReadyAt(client, deployment, commitment);
+  const readyAt = await getEnsV2CommitmentReadyAt(
+    client,
+    deployment,
+    commitment
+  );
   const now = Math.floor(Date.now() / 1000);
   if (readyAt === null || now > readyAt + MAX_COMMITMENT_AGE_SECONDS - 60) {
     saveEnsV2Commitment(deployment.chainId, owner, label, null);

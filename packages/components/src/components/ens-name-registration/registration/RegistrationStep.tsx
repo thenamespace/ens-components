@@ -44,11 +44,20 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
   onSuccess,
   sendRegistration,
 }) => {
-  const [btnState, setBtnState] = useState({ waitingWallet: false, waitingTx: false });
+  const [btnState, setBtnState] = useState({
+    waitingWallet: false,
+    waitingTx: false,
+  });
   const { address } = useAccount();
   const { waitTx } = useWaitTransaction({ isTestnet });
-  const [error, setError] = useState<ContractFunctionExecutionError | null>(null);
-  const [commitTxStatus, setCommitTxStatus] = useState({ sent: false, completed: false, hash: "" });
+  const [error, setError] = useState<ContractFunctionExecutionError | null>(
+    null
+  );
+  const [commitTxStatus, setCommitTxStatus] = useState({
+    sent: false,
+    completed: false,
+    hash: "",
+  });
 
   const { sendRegisterTx } = useRegisterENS({ isTestnet });
 
@@ -72,8 +81,8 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
       };
 
       if (sendRegistration) {
-        const sent = await sendRegistration(state, (hash) =>
-          setCommitTxStatus({ sent: true, completed: false, hash }),
+        const sent = await sendRegistration(state, hash =>
+          setCommitTxStatus({ sent: true, completed: false, hash })
         );
         tx = sent.txHash;
         registrationCost = sent.price;
@@ -95,11 +104,16 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
       setBtnState({ waitingTx: true, waitingWallet: false });
     } catch (err: any) {
       console.error(err);
-      if (err instanceof ContractFunctionExecutionError && !isUserDeniedError(err)) {
+      if (
+        err instanceof ContractFunctionExecutionError &&
+        !isUserDeniedError(err)
+      ) {
         setError(err);
       } else if (!isUserDeniedError(err)) {
         setError(
-          new Error(err?.shortMessage || err?.message || "Transaction failed") as ContractFunctionExecutionError
+          new Error(
+            err?.shortMessage || err?.message || "Transaction failed"
+          ) as ContractFunctionExecutionError
         );
       }
     } finally {
@@ -113,11 +127,14 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
 
       setCommitTxStatus({ sent: true, completed: true, hash: tx });
 
-      const registerFeeWei = receipt.gasUsed * (receipt.effectiveGasPrice || 0n);
+      const registerFeeWei =
+        receipt.gasUsed * (receipt.effectiveGasPrice || 0n);
       const commitFeeWei = state.commitment?.feeWei ?? 0n;
       const totalFeeWei = registerFeeWei + commitFeeWei + extraFeeWei;
       const transactionFeesEth = formatEther(totalFeeWei);
-      const totalCost = (registrationPrice + parseFloat(transactionFeesEth)).toString();
+      const totalCost = (
+        registrationPrice + parseFloat(transactionFeesEth)
+      ).toString();
 
       const expiryDate = new Date(Date.now() + state.durationInSeconds * 1000);
       const formattedExpiryDate = expiryDate.toLocaleDateString("en-US", {
@@ -163,7 +180,9 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
     if (isCurrentStep) {
       return (
         <div className="ns-process-badge me-2">
-          <Text color="white" weight="bold" size="sm">3</Text>
+          <Text color="white" weight="bold" size="sm">
+            3
+          </Text>
         </div>
       );
     } else if (isCompleted) {
@@ -175,7 +194,9 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
     }
     return (
       <div className="ns-process-badge ns-process-badge--inactive me-2">
-        <Text color="primary" weight="bold" size="sm">3</Text>
+        <Text color="primary" weight="bold" size="sm">
+          3
+        </Text>
       </div>
     );
   };
@@ -191,16 +212,20 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
       title={
         <div className="d-flex align-items-center">
           {getProgressStatusBadge()}
-          <Text size="sm" weight="medium">Complete Registration</Text>
+          <Text size="sm" weight="medium">
+            Complete Registration
+          </Text>
         </div>
       }
     >
       {!commitTxStatus.sent && (
         <div className="ns-text-center">
-          <Text weight="medium" className="mb-2">Register Name</Text>
+          <Text weight="medium" className="mb-2">
+            Register Name
+          </Text>
           <Text size="xs" color="grey">
-            Your name is not registered until you've completed the second transaction. You have 23
-            hours remaining to complete it.
+            Your name is not registered until you've completed the second
+            transaction. You have 23 hours remaining to complete it.
           </Text>
           <Button
             data-testid="register-button"

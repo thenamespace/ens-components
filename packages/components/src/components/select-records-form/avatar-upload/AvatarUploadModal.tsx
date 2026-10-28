@@ -12,4 +12,3 @@ export interface AvatarUploadModalProps {
 export const AvatarUploadModal = (props: AvatarUploadModalProps) => {
   return <ImageUploadModal {...props} imageType="avatar" />;
 };
-

@@ -7,6 +7,9 @@ storybook-static/
 .artifacts/
 .turbo/
 *.tsbuildinfo
+test-results/
+playwright-report/
+.cache-synpress/
 
 # Generated files
 *.d.ts

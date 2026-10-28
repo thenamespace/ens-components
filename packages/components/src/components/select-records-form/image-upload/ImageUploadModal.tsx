@@ -231,7 +231,7 @@ export const ImageUploadModal = ({
           setUploadState("editing");
           setError(
             `Cropped image is too large (${formatFileSize(croppedFile.size)}). ` +
-            `Maximum size is ${maxSizeLabel}. Try zooming in or choosing a smaller image.`
+              `Maximum size is ${maxSizeLabel}. Try zooming in or choosing a smaller image.`
           );
           return;
         }

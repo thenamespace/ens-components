@@ -12,4 +12,3 @@ export interface HeaderUploadModalProps {
 export const HeaderUploadModal = (props: HeaderUploadModalProps) => {
   return <ImageUploadModal {...props} imageType="header" />;
 };
-

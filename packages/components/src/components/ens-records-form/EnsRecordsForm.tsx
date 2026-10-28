@@ -24,12 +24,12 @@ export interface EnsRecordsFormProps {
   noBorder?: boolean;
   className?: string;
   avatarUploadDomain?: string;
-  onCancel?: () => void
-  onRecordsUpdated?: (newRecords: EnsRecordsDiff) => void
-  onGreat?: () => void
-  onTransactionSent?: (hash: Hash) => void
-  txConfirmations?: number
-  version?: 1 | 2
+  onCancel?: () => void;
+  onRecordsUpdated?: (newRecords: EnsRecordsDiff) => void;
+  onGreat?: () => void;
+  onTransactionSent?: (hash: Hash) => void;
+  txConfirmations?: number;
+  version?: 1 | 2;
 }
 
 export const EnsRecordsForm = ({
@@ -55,11 +55,12 @@ export const EnsRecordsForm = ({
   const isConnectedAndOnRequiredChain =
     isConnected && chain?.id === resolverChain;
 
-  const { isResolverSupported, getResolverAddress, setUpdateRecordsTx } = useENSResolver({
-    resolverChainId: resolverChain,
-    isTestnet,
-    version,
-  });
+  const { isResolverSupported, getResolverAddress, setUpdateRecordsTx } =
+    useENSResolver({
+      resolverChainId: resolverChain,
+      isTestnet,
+      version,
+    });
   const [resolverState, setResolverState] = useState<{
     address?: Address;
     isSupported: boolean;
@@ -157,7 +158,7 @@ export const EnsRecordsForm = ({
               siweDomain: avatarUploadDomain,
             }}
             onRecordsUpdated={(records: EnsRecordsDiff) => {
-              onRecordsUpdated?.(records)
+              onRecordsUpdated?.(records);
             }}
             onGreat={onGreat}
             onCancel={onCancel}

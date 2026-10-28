@@ -105,7 +105,10 @@ export const MintSuccess: React.FC<MintSuccessProps> = ({
             <Identicon seed={data.fullName} size={44} />
             <div className="ens-registration-success-name-col">
               <Tag tone="blue">MINTED</Tag>
-              <span className="ens-registration-success-name" data-testid="mint-success-name">
+              <span
+                className="ens-registration-success-name"
+                data-testid="mint-success-name"
+              >
                 {data.fullName}
               </span>
             </div>
@@ -188,7 +191,11 @@ export const MintSuccess: React.FC<MintSuccessProps> = ({
               </Button>
             )}
           </div>
-          <Button onClick={() => onClose?.()} size="lg" className="ns-wd-100 mt-2">
+          <Button
+            onClick={() => onClose?.()}
+            size="lg"
+            className="ns-wd-100 mt-2"
+          >
             Great!
           </Button>
         </div>

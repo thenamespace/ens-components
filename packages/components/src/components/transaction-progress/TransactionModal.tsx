@@ -1,7 +1,10 @@
 import React from "react";
 import { Button } from "@/components/atoms";
 import { Modal } from "@/components/molecules";
-import { TransactionProgress, TransactionProgressProps } from "./TransactionProgress";
+import {
+  TransactionProgress,
+  TransactionProgressProps,
+} from "./TransactionProgress";
 
 export interface TransactionModalProps extends TransactionProgressProps {
   isOpen: boolean;

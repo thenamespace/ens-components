@@ -3,11 +3,10 @@ import "./Textarea.css";
 
 export type TextareaSize = "sm" | "md" | "lg";
 
-export interface TextareaProps
-  extends Omit<
-    React.TextareaHTMLAttributes<HTMLTextAreaElement>,
-    "size" | "prefix"
-  > {
+export interface TextareaProps extends Omit<
+  React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+  "size" | "prefix"
+> {
   size?: TextareaSize;
   prefix?: React.ReactNode;
   suffix?: React.ReactNode;

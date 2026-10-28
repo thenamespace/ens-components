@@ -46,7 +46,8 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
   paymentTokenPicker,
   className = "",
 }) => {
-  const totalLoading = total.isChecking || primaryFee.isChecking || networkFees?.isChecking;
+  const totalLoading =
+    total.isChecking || primaryFee.isChecking || networkFees?.isChecking;
 
   const ethTotalUsd = React.useMemo(
     () => computeUsd(total.amount, total.weiAmount, ethUsdRate, !!totalLoading),
@@ -72,7 +73,12 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
         <Text size="sm" color="grey" className="pricing-label">
           {primaryFee.label}
         </Text>
-        <Text size="sm" color="grey" className="pricing-value" data-testid="pricing-primary-fee">
+        <Text
+          size="sm"
+          color="grey"
+          className="pricing-value"
+          data-testid="pricing-primary-fee"
+        >
           {primaryFee.isChecking ? (
             <ShurikenSpinner size={14} />
           ) : isSentinel(primaryFee.amount) ? (
@@ -104,7 +110,12 @@ export const PricingDisplay: React.FC<PricingDisplayProps> = ({
         </Text>
         <div className="pricing-total-values" style={{ textAlign: "right" }}>
           <div className="pricing-total-amount">
-            <Text size="lg" weight="bold" className="pricing-total-value" data-testid="pricing-total">
+            <Text
+              size="lg"
+              weight="bold"
+              className="pricing-total-value"
+              data-testid="pricing-total"
+            >
               {totalLoading ? (
                 <ShurikenSpinner size={18} />
               ) : isSentinel(total.amount) || paymentTokenPicker ? (

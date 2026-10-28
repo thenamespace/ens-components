@@ -1,7 +1,15 @@
 import { CopyButton } from "./CopyButton";
 import { highlight } from "./highlight";
 
-export function CodePanel({ title, code, showCopy }: { title: string; code: string; showCopy?: boolean }) {
+export function CodePanel({
+  title,
+  code,
+  showCopy,
+}: {
+  title: string;
+  code: string;
+  showCopy?: boolean;
+}) {
   return (
     <div className="code-panel">
       <div className="code-panel-header">

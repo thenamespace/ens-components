@@ -26,7 +26,7 @@ interface EstimateFeesParams {
 
 export const useMintSubname = ({ chainId }: { chainId: number }) => {
   const publicClient = usePublicClient({ chainId });
-  // Don't pass chainId to useWalletClient - we want the wallet client for the 
+  // Don't pass chainId to useWalletClient - we want the wallet client for the
   // currently connected chain (user must switch first before minting)
   const { data: walletClient } = useWalletClient();
 

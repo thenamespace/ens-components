@@ -12,12 +12,14 @@ import { useAccount } from "wagmi";
 import { useRegisterENS } from "@/hooks";
 import { EnsNameRegistrationFormV2 } from "./v2/EnsNameRegistrationFormV2";
 
-const REG_SECRET_PLACEHOLDER = "0x0000000000000000000000000000000000000000000000000000000000000001";
+const REG_SECRET_PLACEHOLDER =
+  "0x0000000000000000000000000000000000000000000000000000000000000001";
 
 // Owner used for gas estimation when no wallet is connected. Any non-zero
 // address works: the estimator funds the owner via a state override, and
 // register() only needs a mintable (non-zero) recipient.
-const FEE_ESTIMATE_OWNER_PLACEHOLDER = "0x0000000000000000000000000000000000000001" as Address;
+const FEE_ESTIMATE_OWNER_PLACEHOLDER =
+  "0x0000000000000000000000000000000000000001" as Address;
 
 export interface EnsNameRegistrationFormProps {
   name?: string;
@@ -58,7 +60,10 @@ const getLabel = (name?: string) => {
   return name;
 };
 
-export const EnsNameRegistrationForm = ({ version = 2, ...props }: EnsNameRegistrationFormProps) =>
+export const EnsNameRegistrationForm = ({
+  version = 2,
+  ...props
+}: EnsNameRegistrationFormProps) =>
   version === 2 ? (
     <EnsNameRegistrationFormV2 {...props} />
   ) : (
@@ -67,11 +72,17 @@ export const EnsNameRegistrationForm = ({ version = 2, ...props }: EnsNameRegist
 
 const EnsNameRegistrationFormV1 = (props: EnsNameRegistrationFormProps) => {
   const { address: connectedAddress } = useAccount();
-  const { estimateRegistrationFees } = useRegisterENS({ isTestnet: props.isTestnet });
+  const { estimateRegistrationFees } = useRegisterENS({
+    isTestnet: props.isTestnet,
+  });
 
   const [label, setLabel] = useState<string>(getLabel(props.name));
-  const [step, setStep] = useState<RegistrationSteps>(RegistrationSteps.Summary);
-  const [durationSeconds, setDurationSeconds] = useState(() => secondsFromYears(new Date(), 1));
+  const [step, setStep] = useState<RegistrationSteps>(
+    RegistrationSteps.Summary
+  );
+  const [durationSeconds, setDurationSeconds] = useState(() =>
+    secondsFromYears(new Date(), 1)
+  );
   const [regTxFees, setRegTxFees] = useState<{
     isChecking: boolean;
     failed?: boolean;
@@ -110,7 +121,8 @@ const EnsNameRegistrationFormV1 = (props: EnsNameRegistrationFormProps) => {
     [ensRecords, ensRecordTemplate]
   );
 
-  const [successData, setSuccessData] = useState<RegistrationSuccessData | null>();
+  const [successData, setSuccessData] =
+    useState<RegistrationSuccessData | null>();
 
   const feeRequestRef = useRef(0);
   const estimateFnRef = useRef(estimateRegistrationFees);
@@ -142,7 +154,7 @@ const EnsNameRegistrationFormV1 = (props: EnsNameRegistrationFormProps) => {
               records: params.records,
               referrer: referrerRef.current,
             })
-            .then((result) => {
+            .then(result => {
               if (feeRequestRef.current !== requestId) return;
               setRegTxFees({
                 isChecking: false,
@@ -180,14 +192,18 @@ const EnsNameRegistrationFormV1 = (props: EnsNameRegistrationFormProps) => {
       // Cancel any in-flight estimation result so it doesn't apply later,
       // and stop a spinner left over from a request that will never resolve.
       feeRequestRef.current += 1;
-      setRegTxFees((prev) => (prev.isChecking ? { ...prev, isChecking: false } : prev));
+      setRegTxFees(prev =>
+        prev.isChecking ? { ...prev, isChecking: false } : prev
+      );
       return;
     }
 
     const requestId = feeRequestRef.current + 1;
     feeRequestRef.current = requestId;
-    setRegTxFees((prev) =>
-      prev.isChecking && !prev.failed ? prev : { ...prev, isChecking: true, failed: false }
+    setRegTxFees(prev =>
+      prev.isChecking && !prev.failed
+        ? prev
+        : { ...prev, isChecking: true, failed: false }
     );
     debouncedEstimate(requestId, {
       label,

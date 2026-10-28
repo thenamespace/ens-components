@@ -44,7 +44,7 @@ export interface EnsV2Deployment {
 
 /** Null until Namespace's ENSv2 contracts are deployed on the network. */
 export const getEnsV2Deployment = (
-  isTestnet: boolean,
+  isTestnet: boolean
 ): EnsV2Deployment | null => {
   const namespace = getNamespaceV2Contracts(isTestnet);
   if (!namespace) return null;
@@ -136,8 +136,11 @@ const buildExtraData = async (
   deployment: EnsV2Deployment,
   activationId: Hex,
   label: string,
-  minter: Address,
-): Promise<{ extraData: Hex; proofsUnavailable: EnsV2MintQuote["proofsUnavailable"] }> => {
+  minter: Address
+): Promise<{
+  extraData: Hex;
+  proofsUnavailable: EnsV2MintQuote["proofsUnavailable"];
+}> => {
   const [[, whitelistRoot], reservationRoot] = await Promise.all([
     client.readContract({
       address: deployment.whitelistFeature,
@@ -157,7 +160,7 @@ const buildExtraData = async (
   const proofsUnavailable: EnsV2MintQuote["proofsUnavailable"] = [];
   if (whitelistRoot !== zeroHash) {
     const proof = await fetchJson<{ whitelisted: boolean; claim: Hex }>(
-      `${deployment.managerApiUrl}/whitelist/${whitelistRoot}/proof?address=${minter}`,
+      `${deployment.managerApiUrl}/whitelist/${whitelistRoot}/proof?address=${minter}`
     );
     if (!proof) proofsUnavailable.push("whitelist");
     else if (proof.whitelisted)
@@ -166,10 +169,14 @@ const buildExtraData = async (
   // While a reservation root is set every mint needs a claim, reserved or not.
   if (reservationRoot !== zeroHash) {
     const proof = await fetchJson<{ claim: Hex }>(
-      `${deployment.managerApiUrl}/reservation/${reservationRoot}/proof?label=${encodeURIComponent(label)}`,
+      `${deployment.managerApiUrl}/reservation/${reservationRoot}/proof?label=${encodeURIComponent(label)}`
     );
     if (!proof) proofsUnavailable.push("reservation");
-    else claims.push({ feature: deployment.reservationFeature, data: proof.claim });
+    else
+      claims.push({
+        feature: deployment.reservationFeature,
+        data: proof.claim,
+      });
   }
 
   if (claims.length === 0) return { extraData: "0x", proofsUnavailable };
@@ -183,7 +190,7 @@ const buildExtraData = async (
         ],
       },
     ],
-    [claims],
+    [claims]
   );
   return { extraData, proofsUnavailable };
 };
@@ -196,7 +203,7 @@ export const quoteEnsV2Mint = async (
     label: string;
     minter: Address;
     duration?: bigint;
-  },
+  }
 ): Promise<EnsV2MintQuote> => {
   const parentLabel = splitName(params.parentName);
   const duration = params.duration ?? ONE_YEAR;
@@ -214,7 +221,7 @@ export const quoteEnsV2Mint = async (
           deployment,
           activationId,
           params.label,
-          params.minter,
+          params.minter
         );
 
   const quote = await client.readContract({
@@ -254,7 +261,7 @@ export const quoteEnsV2Payment = (
   client: PublicClient,
   deployment: EnsV2Deployment,
   priceUsdRaw: bigint,
-  token: EnsV2PaymentToken,
+  token: EnsV2PaymentToken
 ) =>
   priceUsdRaw === 0n
     ? Promise.resolve(0n)
@@ -267,10 +274,10 @@ export const quoteEnsV2Payment = (
 
 export const getEnsV2ActivationResolver = async (
   deployment: EnsV2Deployment,
-  parentName: string,
+  parentName: string
 ): Promise<Address | null> => {
   const history = await fetchJson<{ resolver: Address | null }[]>(
-    `${deployment.managerApiUrl}/activations/label/${encodeURIComponent(splitName(parentName))}`,
+    `${deployment.managerApiUrl}/activations/label/${encodeURIComponent(splitName(parentName))}`
   );
   const resolver = history?.[0]?.resolver;
   return resolver && resolver !== zeroAddress ? resolver : null;
@@ -302,7 +309,7 @@ export const prepareEnsV2MintCalls = async (
     extraData: Hex;
     records: EnsRecords;
     resolver: EnsV2MintResolver;
-  },
+  }
 ): Promise<EnsV2Call[]> => {
   const parentLabel = splitName(params.parentName);
   const isNative = params.token.address === zeroAddress;
@@ -356,7 +363,7 @@ export const prepareEnsV2MintCalls = async (
         params.resolver.style,
         params.resolver.address,
         `${params.label}.${params.parentName}`,
-        diff,
+        diff
       ),
       value: 0n,
       title: "Setting records",
@@ -380,7 +387,7 @@ export const estimateEnsV2MintFees = async (
   client: PublicClient,
   account: Address,
   calls: EnsV2Call[],
-  payment: { token: EnsV2PaymentToken; amount: bigint },
+  payment: { token: EnsV2PaymentToken; amount: bigint }
 ): Promise<EnsV2MintFees> => {
   const isNative = payment.token.address === zeroAddress;
   const [simulation, gasPrice, ethBalance, tokenBalance] = await Promise.all([
@@ -404,19 +411,21 @@ export const estimateEnsV2MintFees = async (
   ]);
 
   const shortfallToken =
-    isNative || tokenBalance >= payment.amount ? 0n : payment.amount - tokenBalance;
+    isNative || tokenBalance >= payment.amount
+      ? 0n
+      : payment.amount - tokenBalance;
   const results = simulation?.results;
-  if (!results || results.some((r) => r.status !== "success")) {
+  if (!results || results.some(r => r.status !== "success")) {
     // Without enough of the token the transfer reverts in simulation; report the
     // shortfall so the form can say so instead of offering a failing transaction.
-    if (shortfallToken > 0n) return { feeWei: null, shortfallEthWei: 0n, shortfallToken };
+    if (shortfallToken > 0n)
+      return { feeWei: null, shortfallEthWei: 0n, shortfallToken };
     throw new Error("The mint would fail.");
   }
 
   const gas = results.reduce((sum, r) => sum + r.gasUsed, 0n);
   const feeWei = gas * gasPrice;
-  const ethNeeded =
-    feeWei + calls.reduce((sum, call) => sum + call.value, 0n);
+  const ethNeeded = feeWei + calls.reduce((sum, call) => sum + call.value, 0n);
   return {
     feeWei,
     shortfallEthWei: ethBalance >= ethNeeded ? 0n : ethNeeded - ethBalance,
@@ -435,12 +444,17 @@ export const canWriteEnsV2RecordsAtMint = async (
     priceUsdRaw: bigint;
     extraData: Hex;
     resolver: EnsV2MintResolver;
-  },
+  }
 ): Promise<boolean> => {
   try {
-    const eth = deployment.paymentTokens.find((t) => t.address === zeroAddress);
+    const eth = deployment.paymentTokens.find(t => t.address === zeroAddress);
     if (!eth) return false;
-    const amount = await quoteEnsV2Payment(client, deployment, params.priceUsdRaw, eth);
+    const amount = await quoteEnsV2Payment(
+      client,
+      deployment,
+      params.priceUsdRaw,
+      eth
+    );
     const calls = await prepareEnsV2MintCalls(client, deployment, {
       ...params,
       token: eth,
@@ -452,7 +466,7 @@ export const canWriteEnsV2RecordsAtMint = async (
       calls,
       stateOverrides: [{ address: params.owner, balance: 10n ** 30n }],
     });
-    return results.every((r) => r.status === "success");
+    return results.every(r => r.status === "success");
   } catch {
     return false;
   }

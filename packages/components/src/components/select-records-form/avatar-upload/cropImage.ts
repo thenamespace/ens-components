@@ -9,10 +9,7 @@ const loadImage = (url: string): Promise<HTMLImageElement> => {
   });
 };
 
-const cropCanvas = (
-  image: HTMLImageElement,
-  area: Area
-): Promise<Blob> => {
+const cropCanvas = (image: HTMLImageElement, area: Area): Promise<Blob> => {
   const canvas = document.createElement("canvas");
   canvas.width = Math.max(1, Math.floor(area.width));
   canvas.height = Math.max(1, Math.floor(area.height));
@@ -35,7 +32,7 @@ const cropCanvas = (
   );
 
   return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => {
+    canvas.toBlob(blob => {
       if (!blob) {
         reject(new Error("Failed to process cropped image."));
         return;

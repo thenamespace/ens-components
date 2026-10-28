@@ -1,7 +1,14 @@
 import { useState } from "react";
-import { Bot, Code2, FileText, BookOpen, Cpu, Zap, MessageSquare } from "lucide-react";
+import {
+  Bot,
+  Code2,
+  FileText,
+  BookOpen,
+  Cpu,
+  Zap,
+  MessageSquare,
+} from "lucide-react";
 import { CodePanel } from "../components/CodePanel";
-
 
 const INSTALL_SKILL_CMD = `# Install the ENS components skill
 npx skills add thenamespace/skills -s ens-components`;
@@ -48,7 +55,10 @@ const STEPS = [
   },
 ];
 
-const CODE: Record<string, { type: "cmd" | "code"; content: string; title?: string }> = {
+const CODE: Record<
+  string,
+  { type: "cmd" | "code"; content: string; title?: string }
+> = {
   "01": { type: "code", content: INSTALL_SKILL_CMD, title: "terminal" },
   "02": { type: "code", content: ASK_AGENT_CODE, title: "prompts.txt" },
   "03": { type: "code", content: INTEGRATION_CODE, title: "page.tsx" },
@@ -91,7 +101,6 @@ export function AgentQuickStartSection() {
 
   return (
     <section className="section" id="agent-quickstart">
-
       {/* Header */}
       <div className="agent-qs-header">
         <div className="agent-qs-badge">
@@ -107,13 +116,15 @@ export function AgentQuickStartSection() {
       {/* Steps + code */}
       <div className="agent-qs-body">
         <div className="steps-grid">
-          {STEPS.map((s) => (
+          {STEPS.map(s => (
             <div
               key={s.num}
               className={[
                 "step-card step-card-selectable agent-step-card",
                 activeStep === s.num ? "step-card-active" : "",
-              ].filter(Boolean).join(" ")}
+              ]
+                .filter(Boolean)
+                .join(" ")}
               onClick={() => setActiveStep(s.num)}
             >
               <div className="agent-step-top">
@@ -133,10 +144,18 @@ export function AgentQuickStartSection() {
 
       {/* Resource cards */}
       <div className="agent-qs-resources-section">
-        <p className="agent-qs-resources-label">Or access directly — no skill manager needed</p>
+        <p className="agent-qs-resources-label">
+          Or access directly — no skill manager needed
+        </p>
         <div className="agent-qs-resources">
-          {RESOURCES.map((r) => (
-            <a key={r.href} href={r.href} target="_blank" rel="noreferrer" className="agent-qs-resource-card">
+          {RESOURCES.map(r => (
+            <a
+              key={r.href}
+              href={r.href}
+              target="_blank"
+              rel="noreferrer"
+              className="agent-qs-resource-card"
+            >
               <div className="agent-qs-resource-top">
                 <span className="agent-qs-resource-icon">{r.icon}</span>
                 <span className="agent-qs-resource-tag">{r.tag}</span>
@@ -147,7 +166,6 @@ export function AgentQuickStartSection() {
           ))}
         </div>
       </div>
-
     </section>
   );
 }

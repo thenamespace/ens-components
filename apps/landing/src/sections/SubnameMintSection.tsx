@@ -12,10 +12,34 @@ import type { PropDef } from "../components/types";
 import { getParentOverride } from "../utils/parentOverride";
 
 const MINT_DEFS: PropDef[] = [
-  { key: "name",      type: "string",  default: "ninjabase.eth", tip: "The ENS name users will mint subnames under", required: true, readonly: true },
-  { key: "title",     type: "string",  default: "",           tip: "Override the form title text", placeholder: "title..." },
-  { key: "subtitle",  type: "string",  default: "",           tip: "Optional subtitle shown below the title", placeholder: "subtitle..." },
-  { key: "noBorder",  type: "boolean", default: true,  tip: "Remove the card border, for embedding in your own container" },
+  {
+    key: "name",
+    type: "string",
+    default: "ninjabase.eth",
+    tip: "The ENS name users will mint subnames under",
+    required: true,
+    readonly: true,
+  },
+  {
+    key: "title",
+    type: "string",
+    default: "",
+    tip: "Override the form title text",
+    placeholder: "title...",
+  },
+  {
+    key: "subtitle",
+    type: "string",
+    default: "",
+    tip: "Optional subtitle shown below the title",
+    placeholder: "subtitle...",
+  },
+  {
+    key: "noBorder",
+    type: "boolean",
+    default: true,
+    tip: "Remove the card border, for embedding in your own container",
+  },
 ];
 
 export function SubnameMintSection({ isTestnet }: { isTestnet: boolean }) {
@@ -29,17 +53,17 @@ export function SubnameMintSection({ isTestnet }: { isTestnet: boolean }) {
       ? "arthy0.eth"
       : "ninjabase.eth";
   const [values, setValues] = useState<Record<string, any>>(() => ({
-    ...Object.fromEntries(MINT_DEFS.map((d) => [d.key, d.default])),
+    ...Object.fromEntries(MINT_DEFS.map(d => [d.key, d.default])),
     name: parentName,
   }));
   const [mountKey, setMountKey] = useState(0);
 
   const onChange = (key: string, val: any) => {
-    setValues((prev) => ({ ...prev, [key]: val }));
+    setValues(prev => ({ ...prev, [key]: val }));
   };
 
   useEffect(() => {
-    setValues((prev) => ({ ...prev, name: parentName }));
+    setValues(prev => ({ ...prev, name: parentName }));
   }, [isTestnet, parentName]);
 
   const code = generateCode("SubnameMintForm", MINT_DEFS, values, [
@@ -65,9 +89,11 @@ export function SubnameMintSection({ isTestnet }: { isTestnet: boolean }) {
             noBorder={values.noBorder}
             version={version}
             title={values.title || undefined}
-            subtitle={values.subtitle || "Get a subname, and join Namespace Ninjas."}
+            subtitle={
+              values.subtitle || "Get a subname, and join Namespace Ninjas."
+            }
             onConnectWallet={openConnectModal}
-            onCancel={() => setMountKey((k) => k + 1)}
+            onCancel={() => setMountKey(k => k + 1)}
           />
         </DemoPanel>
         <div className="code-col">
@@ -75,7 +101,7 @@ export function SubnameMintSection({ isTestnet }: { isTestnet: boolean }) {
             left="ENSv1 (old listings)"
             right="ENSv2"
             isRight={version === 2}
-            onChange={(v2) => setVersion(v2 ? 2 : 1)}
+            onChange={v2 => setVersion(v2 ? 2 : 1)}
             className="mint-version"
             testId="mint-version-switch"
           />

@@ -82,7 +82,13 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
 
   const [registrationState, setRegistrationState] = useState<RegistrationState>(
     () => ({
-      ...getBlankRegistrationState(label, durationInSeconds, records, isTestnet, referrer),
+      ...getBlankRegistrationState(
+        label,
+        durationInSeconds,
+        records,
+        isTestnet,
+        referrer
+      ),
       ...initialState,
     })
   );
@@ -90,10 +96,14 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
 
   /** Exposed as `data-status` so tests can wait for a step instead of its button. */
   const stepStatus = (from: ProcessSteps, done: ProcessSteps) =>
-    registrationState.step >= done ? "completed" : registrationState.step >= from ? "current" : "pending";
+    registrationState.step >= done
+      ? "completed"
+      : registrationState.step >= from
+        ? "current"
+        : "pending";
 
   useEffect(() => {
-    setRegistrationState((prev) => ({ ...prev, records }));
+    setRegistrationState(prev => ({ ...prev, records }));
   }, [records]);
 
   const handleSwitchNetwork = () => {
@@ -101,7 +111,10 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
   };
 
   const handleTimerPassed = () => {
-    setRegistrationState((prev) => ({ ...prev, step: ProcessSteps.TimerCompleted }));
+    setRegistrationState(prev => ({
+      ...prev,
+      step: ProcessSteps.TimerCompleted,
+    }));
   };
 
   const networkName = isTestnet ? "Sepolia" : "Mainnet";
@@ -128,7 +141,11 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
         <Icon name="chevron-left" size={16} />
       </button>
       <div className="d-flex justify-content-center">
-        <img style={{ width: "250px", margin: "auto" }} src={ninjaImage} alt="Ninja Image" />
+        <img
+          style={{ width: "250px", margin: "auto" }}
+          src={ninjaImage}
+          alt="Ninja Image"
+        />
       </div>
       <div className="ns-text-center mt-2 mb-2">
         <Text size="lg" weight="medium">
@@ -144,7 +161,8 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
           <Alert variant="warning" title="Wrong Network">
             <div className="d-flex flex-column align-items-center">
               <Text size="sm" className="mb-2">
-                Please switch to {networkName} to continue with the registration process.
+                Please switch to {networkName} to continue with the registration
+                process.
               </Text>
               <Button onClick={handleSwitchNetwork} size="md">
                 Switch to {networkName}
@@ -156,12 +174,19 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
 
       {isOnCorrectNetwork && (
         <>
-          <div className="mt-2" data-testid="registration-step-commit" data-status={stepStatus(ProcessSteps.Start, ProcessSteps.CommitmentCompleted)}>
+          <div
+            className="mt-2"
+            data-testid="registration-step-commit"
+            data-status={stepStatus(
+              ProcessSteps.Start,
+              ProcessSteps.CommitmentCompleted
+            )}
+          >
             <CommitmentStep
               state={registrationState}
               isTestnet={isTestnet}
               sendCommitment={sendCommitment}
-              onStateUpdated={(state) => {
+              onStateUpdated={state => {
                 if (state.step === ProcessSteps.CommitmentSent) {
                   onStart?.(`${state.label}.eth`);
                 }
@@ -169,10 +194,27 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
               }}
             />
           </div>
-          <div className="mt-2" data-testid="registration-step-timer" data-status={stepStatus(ProcessSteps.CommitmentCompleted, ProcessSteps.TimerCompleted)}>
-            <TimerStep state={registrationState} onTimerCompleted={handleTimerPassed} />
+          <div
+            className="mt-2"
+            data-testid="registration-step-timer"
+            data-status={stepStatus(
+              ProcessSteps.CommitmentCompleted,
+              ProcessSteps.TimerCompleted
+            )}
+          >
+            <TimerStep
+              state={registrationState}
+              onTimerCompleted={handleTimerPassed}
+            />
           </div>
-          <div className="mt-2" data-testid="registration-step-register" data-status={stepStatus(ProcessSteps.TimerCompleted, ProcessSteps.RegistrationCompleted)}>
+          <div
+            className="mt-2"
+            data-testid="registration-step-register"
+            data-status={stepStatus(
+              ProcessSteps.TimerCompleted,
+              ProcessSteps.RegistrationCompleted
+            )}
+          >
             <RegistrationStep
               state={registrationState}
               isTestnet={isTestnet}
@@ -212,8 +254,8 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
         }
       >
         <Text size="sm">
-          If you leave now, you will lose all your registration progress. Are you sure you want to
-          continue?
+          If you leave now, you will lose all your registration progress. Are
+          you sure you want to continue?
         </Text>
       </Modal>
     </div>

@@ -180,8 +180,12 @@
   stroke: currentColor;
 }
 
-.ns-records-content .sidebar-item .ns-icon:not(.lucide)[fill]:not([fill="none"]),
-.ns-text-records .ns-text-suggestion .ns-icon:not(.lucide)[fill]:not([fill="none"]) {
+.ns-records-content
+  .sidebar-item
+  .ns-icon:not(.lucide)[fill]:not([fill="none"]),
+.ns-text-records
+  .ns-text-suggestion
+  .ns-icon:not(.lucide)[fill]:not([fill="none"]) {
   fill: currentColor;
 }
 
@@ -345,7 +349,9 @@
 }
 
 /* field label above each input (flows line 92) — uppercase micro-label */
-.ns-text-records > div:not([class]) > .ns-text--xs.ns-text--medium.ns-text--grey {
+.ns-text-records
+  > div:not([class])
+  > .ns-text--xs.ns-text--medium.ns-text--grey {
   font-family: var(--ns-font-family);
   font-size: var(--ns-size-label);
   font-weight: var(--ns-weight-medium);
