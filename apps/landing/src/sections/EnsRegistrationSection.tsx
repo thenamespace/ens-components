@@ -10,7 +10,6 @@ import { generateCode } from "../components/generateCode";
 import type { PropDef } from "../components/types";
 
 const ENS_REG_DEFS: PropDef[] = [
-  { key: "referrer",    type: "string",  default: "",    tip: "Registration referrer wallet address", placeholder: "0x… referral wallet" },
   { key: "noBorder",    type: "boolean", default: true,  tip: "Remove the card border and shadow wrapper" },
   { key: "title",       type: "string",  default: "",    tip: "Override the form title text", placeholder: "title..." },
   { key: "subtitle",    type: "string",  default: "",    tip: "Override the subtitle below the title", placeholder: "subtitle..." },
@@ -19,7 +18,7 @@ const ENS_REG_DEFS: PropDef[] = [
   { key: "bannerWidth", type: "number",  default: 250,   tip: "Width of the banner image in pixels" },
 ];
 
-export function EnsRegistrationSection({ isTestnet, version }: { isTestnet: boolean; version: 1 | 2 }) {
+export function EnsRegistrationSection({ isTestnet }: { isTestnet: boolean }) {
   const { openConnectModal } = useConnectModal();
   const [values, setValues] = useState<Record<string, any>>(() => ({
     ...Object.fromEntries(ENS_REG_DEFS.map((d) => [d.key, d.default])),
@@ -31,7 +30,7 @@ export function EnsRegistrationSection({ isTestnet, version }: { isTestnet: bool
   };
 
 
-  const code = generateCode("EnsNameRegistrationForm", ENS_REG_DEFS, values, [`isTestnet={${isTestnet}}`, `version={${version}}`]);
+  const code = generateCode("EnsNameRegistrationForm", ENS_REG_DEFS, values, [`isTestnet={${isTestnet}}`]);
 
   return (
     <section className="section" id="ens-registration">
@@ -39,7 +38,7 @@ export function EnsRegistrationSection({ isTestnet, version }: { isTestnet: bool
         icon={ensSvg}
         name="ENS Registration"
         title="Register ENS Names"
-        desc="Drop-in form that guides users through searching, selecting, and registering .eth names. Includes the full commit/register flow."
+        desc="Drop-in form that guides users through searching, selecting, and registering .eth names on ENSv2, paid in USDC or DAI. Includes the full commit/register flow."
       />
       <div className="component-grid">
         <div className="code-col">
@@ -48,10 +47,8 @@ export function EnsRegistrationSection({ isTestnet, version }: { isTestnet: bool
         </div>
         <DemoPanel>
           <EnsNameRegistrationForm
-            key={`${String(isTestnet)}-${version}-${mountKey}`}
+            key={`${String(isTestnet)}-${mountKey}`}
             isTestnet={isTestnet}
-            version={version}
-            referrer={values.referrer || undefined}
             noBorder={values.noBorder}
             title={values.title || undefined}
             subtitle={values.subtitle || undefined}

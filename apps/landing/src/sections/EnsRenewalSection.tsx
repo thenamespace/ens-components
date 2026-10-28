@@ -25,12 +25,10 @@ export function EnsRenewalSection({
   isTestnet,
   onIsTestnetChange,
   requestedName,
-  version,
 }: {
   isTestnet: boolean;
   onIsTestnetChange: (v: boolean) => void;
   requestedName?: { name: string; at: number };
-  version: 1 | 2;
 }) {
   const { openConnectModal } = useConnectModal();
   const funds = useTestFunds();
@@ -53,8 +51,7 @@ export function EnsRenewalSection({
     setMountKey((k) => k + 1);
   };
 
-  const code = generateCode("NameRenewForm", RENEW_DEFS, values, [`isTestnet={${isTestnet}}`, `version={${version}}`]);
-  const v1OnTestnet = isTestnet && version === 1;
+  const code = generateCode("NameRenewForm", RENEW_DEFS, values, [`isTestnet={${isTestnet}}`]);
 
   return (
     <section className="section" id="ens-renewal">
@@ -62,16 +59,15 @@ export function EnsRenewalSection({
         icon={CalendarClock}
         name="ENS Renewal"
         title="Renew ENS Names"
-        desc="One-step renewal for .eth names: shows the current expiry, prices the extension, and sends a single transaction. Version 2 renews ENSv2 names in USDC or DAI, version 1 renews ENSv1 names in ETH."
+        desc="One-step renewal for .eth names: shows the current expiry, prices the extension, and sends a single transaction. Paid in USDC or DAI."
       />
       <div className="component-grid">
         <DemoPanel>
           <NameRenewForm
-            key={`${String(isTestnet)}-${version}-${values.name}-${mountKey}`}
+            key={`${String(isTestnet)}-${values.name}-${mountKey}`}
             name={values.name || undefined}
             isTestnet={isTestnet}
             noBorder={values.noBorder}
-            version={version}
             referrer={values.referrer || undefined}
             title={values.title || undefined}
             subtitle={values.subtitle || undefined}
@@ -90,13 +86,6 @@ export function EnsRenewalSection({
               </>
             }
           >
-            {v1OnTestnet && (
-              <TestStep title="ENSv1 renews on mainnet">
-                <p>
-                  ENS moved ENSv1 renewals to ENSv2 on Sepolia. Switch the nav to ENSv2 to renew those names here.
-                </p>
-              </TestStep>
-            )}
             {isTestnet ? (
               <TestStep title="Fund your wallet">
                 <p>Gas is paid in Sepolia ETH. The renewal itself is paid in DAI or USDC.</p>

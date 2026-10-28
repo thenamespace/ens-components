@@ -4,7 +4,6 @@ import logoFull from "./assets/logo-full.jpeg";
 import logoIcon from "./assets/logo-icon.png";
 import { NavWalletButton } from "./nav/NavWalletButton";
 import { ComponentsDropdown } from "./nav/ComponentsDropdown";
-import { EnsVersionSwitch } from "./nav/EnsVersionSwitch";
 import { NetworkSwitch } from "./components/NetworkSwitch";
 import { QuickStartSection } from "./sections/QuickStartSection";
 import { AgentQuickStartSection } from "./sections/AgentQuickStartSection";
@@ -145,11 +144,9 @@ const SOURCE_CODE_SCHEMA = {
 };
 
 export function App() {
-  const [isTestnet, setIsTestnetState] = useState(true);
-  const [ensVersion, setEnsVersionState] = useState<1 | 2>(2);
+  const [isTestnet, setIsTestnetState] = useState(false);
 
   const setIsTestnet = (testnet: boolean) => setIsTestnetState(testnet);
-  const setEnsVersion = (version: 1 | 2) => setEnsVersionState(version);
   const [renewRequest, setRenewRequest] = useState<{ name: string; at: number }>();
 
   const renewParent = (name: string) => {
@@ -179,7 +176,6 @@ export function App() {
           <ComponentsDropdown />
           <a className="nav-link" href="https://t.me/+zRyLIQoGGU9iNzIy" target="_blank" rel="noreferrer">Report a bug</a>
           <div className="nav-sep" />
-          <EnsVersionSwitch version={ensVersion} onChange={setEnsVersion} />
           <NavWalletButton />
         </div>
       </nav>
@@ -215,19 +211,19 @@ export function App() {
           <div className="section-divider" />
           <AgentQuickStartSection />
           <div className="section-divider" />
-          <EnsRegistrationSection isTestnet={isTestnet} version={ensVersion} />
+          <EnsRegistrationSection isTestnet={isTestnet} />
           <div className="section-divider" />
-          <EnsRenewalSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} requestedName={renewRequest} version={ensVersion} />
+          <EnsRenewalSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} requestedName={renewRequest} />
           <div className="section-divider" />
-          <EnsRecordsSection isTestnet={isTestnet} version={ensVersion} />
+          <EnsRecordsSection isTestnet={isTestnet} />
           <div className="section-divider" />
           <SelectRecordsSection />
           <div className="section-divider" />
           <OffchainSubnameSection isTestnet={isTestnet} />
           <div className="section-divider" />
-          <SubnameMintSection isTestnet={isTestnet} version={ensVersion} />
+          <SubnameMintSection isTestnet={isTestnet} />
           <div className="section-divider" />
-          <SubnameRenewalSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} onRenewParent={renewParent} version={ensVersion} onVersionChange={setEnsVersion} />
+          <SubnameRenewalSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} onRenewParent={renewParent} />
           <div className="section-divider" />
           <FAQSection />
           <div className="section-divider" />

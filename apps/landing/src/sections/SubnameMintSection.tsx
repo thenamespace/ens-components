@@ -6,6 +6,7 @@ import { SectionHeader } from "../components/SectionHeader";
 import { CodePanel } from "../components/CodePanel";
 import { DemoPanel } from "../components/DemoPanel";
 import { PropsEditor } from "../components/PropsEditor";
+import { SideSwitch } from "../components/SideSwitch";
 import { generateCode } from "../components/generateCode";
 import type { PropDef } from "../components/types";
 import { getParentOverride } from "../utils/parentOverride";
@@ -17,9 +18,16 @@ const MINT_DEFS: PropDef[] = [
   { key: "noBorder",  type: "boolean", default: true,  tip: "Remove the card border, for embedding in your own container" },
 ];
 
-export function SubnameMintSection({ isTestnet, version }: { isTestnet: boolean; version: 1 | 2 }) {
+export function SubnameMintSection({ isTestnet }: { isTestnet: boolean }) {
   const { openConnectModal } = useConnectModal();
-  const parentName = isTestnet ? (getParentOverride() ?? "arti.eth") : "ninjabase.eth";
+  // ENSv1 stays available here only for names on an old Namespace listing.
+  const [version, setVersion] = useState<1 | 2>(2);
+  // ninjabase.eth has a v1 listing but no ENSv2 activation on mainnet; arthy0.eth has one.
+  const parentName = isTestnet
+    ? (getParentOverride() ?? "arti.eth")
+    : version === 2
+      ? "arthy0.eth"
+      : "ninjabase.eth";
   const [values, setValues] = useState<Record<string, any>>(() => ({
     ...Object.fromEntries(MINT_DEFS.map((d) => [d.key, d.default])),
     name: parentName,
@@ -37,7 +45,7 @@ export function SubnameMintSection({ isTestnet, version }: { isTestnet: boolean;
   const code = generateCode("SubnameMintForm", MINT_DEFS, values, [
     `isTestnet={${isTestnet}}`,
     `parentName="${parentName}"`,
-    `version={${version}}`,
+    ...(version === 1 ? ["version={1}"] : []),
   ]);
 
   return (
@@ -46,7 +54,7 @@ export function SubnameMintSection({ isTestnet, version }: { isTestnet: boolean;
         icon={Anvil}
         name="Onchain Subnames"
         title="Mint Onchain Subnames"
-        desc="Full minting flow for onchain subnames: price lookup, profile records, and the mint transaction. Works with any ENS name using the Namespace L2 resolver."
+        desc="Full minting flow for onchain subnames: price lookup, profile records, and the mint transaction. Mints under a name activated for ENSv2, paid in ETH, USDC, or DAI. Switch to ENSv1 for names on an old Namespace listing."
       />
       <div className="component-grid">
         <DemoPanel>
@@ -63,6 +71,14 @@ export function SubnameMintSection({ isTestnet, version }: { isTestnet: boolean;
           />
         </DemoPanel>
         <div className="code-col">
+          <SideSwitch
+            left="ENSv1 (old listings)"
+            right="ENSv2"
+            isRight={version === 2}
+            onChange={(v2) => setVersion(v2 ? 2 : 1)}
+            className="mint-version"
+            testId="mint-version-switch"
+          />
           <CodePanel title="SubnameMintForm.tsx" code={code} />
           <PropsEditor defs={MINT_DEFS} values={values} onChange={onChange} />
         </div>
