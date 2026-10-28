@@ -2,7 +2,7 @@
 # https://enscomponents.com/llms-full.txt
 # Summary version: https://enscomponents.com/llms.txt
 # Last-Updated: 2026-10-28
-# Package version: 2.3.0
+# Package version: 3.0.0
 
 User-agent: *
 Allow: /
@@ -82,33 +82,26 @@ export default function Page() {
 
 Components use wagmi hooks (window.ethereum, wallet state) and must render on the client.
 
-`EnsRecordsForm`, `SubnameMintForm`, and `OffchainSubnameForm` support both native
-`.eth` names and DNS names already imported into ENS, such as `example.com`.
-`EnsNameRegistrationForm` only registers second-level `.eth` names and does not
-perform DNS imports.
+`OffchainSubnameForm` supports DNS names already imported into ENS, such as `example.com`,
+as do old Namespace listings minted with `SubnameMintForm version={1}`. Registration and
+renewal only handle second-level `.eth` names and do not perform DNS imports.
 
 ---
 
-## ENSv1 and ENSv2
+## ENSv2
 
-`EnsNameRegistrationForm`, `NameRenewForm`, `EnsRecordsForm`, and `SubnameMintForm` take
-`version?: 1 | 2`. It defaults to `1` (ENSv1), so integrations written before ENSv2 keep
-working unchanged. `SubnameRenewForm` is ENSv2-only and has no `version` prop.
+Registration, renewal, records, and onchain subnames run on ENSv2 by default (since 3.0), on
+mainnet and on Sepolia (`isTestnet`). The one ENSv1 flow still in use is minting under an old
+Namespace listing: pass `version={1}` to `SubnameMintForm` for those parents. Old listings may
+be DNS names imported into ENS; ENSv2 parents are `.eth` names.
 
-| Component | version={1} | version={2} |
-|-----------|-------------|-------------|
-| EnsNameRegistrationForm | ETH Registrar Controller, paid in ETH | ENSv2 ETH registrar, paid in USDC or DAI; one PermissionedResolver per owner, deployed on first use |
-| NameRenewForm | ENSv1 controller, paid in ETH | ENSv2 registrar, paid in USDC or DAI |
-| EnsRecordsForm | Resolver found through the ENS registry | Resolver found through the ENSv2 Universal Resolver |
-| SubnameMintForm | Namespace listing, paid in ETH | Namespace ENSv2 activation, paid in ETH, USDC, or DAI on mainnet; ETH or USDC on Sepolia |
-
-- ENSv2 works on mainnet and Sepolia (`isTestnet`).
-- Wallets with EIP-5792 atomic batching sign one request per step. Other wallets send the
-  same calls one by one; ENSv2 registration shows an "Additional Steps Required" screen
-  (deploy the resolver, approve the payment token) before the commit.
+- Registration and `.eth` renewal are paid in USDC or DAI. Each owner gets one PermissionedResolver,
+  deployed with their first registration.
+- Subname mints are paid in ETH, USDC, or DAI on mainnet; ETH or USDC on Sepolia.
+- Wallets with EIP-5792 atomic batching sign the token approval, resolver deployment, and main
+  transaction in one request. Other wallets send them one at a time.
 - If the wallet holds too little of the payment token or too little ETH for gas, the form
   shows "Insufficient funds" and blocks the transaction.
-- ENSv2 subname parents are `.eth` names. DNS names imported into ENS work with version 1 only.
 
 ---
 
@@ -136,8 +129,7 @@ import { EnsNameRegistrationForm } from "@thenamespace/ens-components";
 |------|------|---------|-------------|
 | name | `string` | `undefined` | Pre-fill the search input with this name (label only or full "label.eth") |
 | isTestnet | `boolean` | `false` | Use Sepolia testnet ENS contracts |
-| version | `1 \| 2` | `1` | `2` registers on ENSv2, paid in USDC or DAI |
-| referrer | `Address` | `undefined` | Referrer address for ENS protocol fee sharing (version 1 only) |
+| version | `1 \| 2` | `2` | Leave unset. ENSv1 registration is retired |
 | noBorder | `boolean` | `false` | Remove the card border/shadow |
 | className | `string` | `undefined` | Additional CSS class on the root element |
 | title | `string` | `undefined` | Override the card title |
@@ -156,9 +148,9 @@ import { EnsNameRegistrationForm } from "@thenamespace/ens-components";
 ```ts
 interface RegistrationSuccessData {
   durationLabel: string;      // human-readable duration e.g. "1 year" or "6 months, 3 days"
-  registrationCost: string;   // formatted ETH string; the USDC or DAI amount with version={2}
+  registrationCost: string;   // the USDC or DAI amount
   transactionFees: string;    // formatted ETH string
-  total: string;              // formatted ETH string; network fees only with version={2}
+  total: string;              // formatted ETH string; network fees only
   expiryDate: string;         // formatted date string e.g. "April 28, 2027"
 }
 ```
@@ -204,10 +196,10 @@ const existingRecords = { addresses: [], texts: [] }; // replace with your fetch
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| name | `string` | **required** | Full ENS name, including an ENS-imported DNS name (e.g. "alice.eth" or "example.com") |
+| name | `string` | **required** | Full ENS name (e.g. "alice.eth") |
 | existingRecords | `EnsRecords` | **required** | Current records to populate the editor |
 | isTestnet | `boolean` | `false` | Use Sepolia |
-| version | `1 \| 2` | `1` | `2` finds the resolver through the ENSv2 Universal Resolver |
+| version | `1 \| 2` | `2` | Leave unset. Finds the resolver through the ENSv2 Universal Resolver |
 | resolverChainId | `number` | `undefined` | Override which chain to resolve on |
 | resolverAddress | `Address` | `undefined` | Override the resolver contract address |
 | noBorder | `boolean` | `false` | Remove card border |
@@ -333,8 +325,8 @@ the Namespace API. A wallet is only needed if the form is configured to set an o
 
 Onchain subname minting under a Namespace-activated ENS name. Looks up the mint price for the
 parent name, lets the user choose a label and set records, then submits a wallet transaction.
-With `version={2}` it mints under a Namespace ENSv2 activation instead of a listing, and the
-user picks the payment token.
+The user picks the payment token. Pass `version={1}` for a parent on an old Namespace
+listing.
 
 ```tsx
 import { SubnameMintForm } from "@thenamespace/ens-components";
@@ -349,11 +341,11 @@ import { SubnameMintForm } from "@thenamespace/ens-components";
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| parentName | `string` | **required** | Parent ENS name (`.eth` or ENS-imported DNS) under which to mint |
+| parentName | `string` | **required** | Activated `.eth` parent to mint under. Old listings (`version={1}`) may also be ENS-imported DNS names |
 | label | `string` | `undefined` | Pre-fill the subname label |
 | isTestnet | `boolean` | `false` | Use Sepolia |
-| version | `1 \| 2` | `1` | `2` mints under a Namespace ENSv2 activation (parent must be a `.eth` name) |
-| resolver | `Address` | Namespace shared resolver | Version 2 only. Resolver for the new subname when the parent's activation doesn't pin one |
+| version | `1 \| 2` | `2` | `1` mints under an old Namespace listing |
+| resolver | `Address` | Namespace shared resolver | ENSv2 only. Resolver for the new subname when the parent's activation doesn't pin one |
 | title | `string` | `undefined` | Override card title |
 | subtitle | `string` | `undefined` | Override card subtitle |
 | noBorder | `boolean` | `false` | Remove card border |
@@ -385,7 +377,7 @@ interface MintSuccessData {
   parentName: string;
   txHash: string;
   price: string;
-  priceCurrency?: string;  // set by version 2, e.g. "USDC"
+  priceCurrency?: string;  // set on ENSv2 mints, e.g. "USDC"
   transactionFees: string; // formatted ETH string
   records: EnsRecords;
 }
@@ -416,7 +408,6 @@ import { NameRenewForm } from "@thenamespace/ens-components";
 
 <NameRenewForm
   name="alice.eth"
-  version={2}
   onRenewalSuccess={(data) => console.log("Renewed until", data.newExpiry)}
 />
 ```
@@ -427,7 +418,7 @@ import { NameRenewForm } from "@thenamespace/ens-components";
 |------|------|---------|-------------|
 | name | `string` | `undefined` | "alice" or "alice.eth". Leave empty to let the user type a name |
 | isTestnet | `boolean` | `false` | Use Sepolia |
-| version | `1 \| 2` | `1` | `1` renews through the ENSv1 controller in ETH, `2` through the ENSv2 registrar in USDC or DAI |
+| version | `1 \| 2` | `2` | Leave unset. Renews through the ENSv2 registrar in USDC or DAI |
 | referrer | `Address` | `undefined` | Referrer address |
 | title | `string` | `undefined` | Override card title |
 | subtitle | `string` | `undefined` | Override card subtitle |
@@ -437,15 +428,12 @@ import { NameRenewForm } from "@thenamespace/ens-components";
 | onConnectWallet | `() => void` | `undefined` | Called when the connect-wallet button is clicked |
 | onCancel | `() => void` | `undefined` | Called on cancel |
 
-On Sepolia, ENS retired the ENSv1 controller. Version 1 shows "ENSv1 renewals have moved to
-ENSv2 on this network. Renew with version 2." Use `version={2}` there.
-
 ---
 
 ### SubnameRenewForm
 
 Renews a subname minted under a Namespace ENSv2 activation, at the price the parent's owner
-configured. ENSv2-only; there is no `version` prop. Anyone can renew any subname, and a
+configured. Anyone can renew any subname, and a
 whitelisted renewer may renew for free.
 
 ```tsx
@@ -532,7 +520,7 @@ interface TransactionDetail {
 }
 ```
 
-`TransactionPendingScreen` is still exported. Since 2.3.0 it no longer accepts `message`, and
+`TransactionPendingScreen` is still exported. Since 3.0 it no longer accepts `message`, and
 `hash` is optional.
 
 ---
@@ -806,8 +794,7 @@ is unrefreshed — treat dark mode as best-effort, not polished.
 | Subname already taken | Input shows an availability indicator; submit is disabled. |
 | RPC error | Alert shown with error message; retry is possible. |
 | Not enough of the payment token or ETH for gas | ENSv2 and renewal forms show "Insufficient funds" and block the transaction. |
-| Whitelist or reservation proof unavailable | SubnameMintForm (version 2) shows an error with a "Try again" button. |
-| ENSv1 renewal on Sepolia | NameRenewForm (version 1) says renewals moved to ENSv2; use `version={2}`. |
+| Whitelist or reservation proof unavailable | SubnameMintForm shows an error with a "Try again" button. |
 
 ### Retry Pattern
 

@@ -20,7 +20,8 @@ It also exports `TransactionProgress` / `TransactionModal`, reusable atoms/molec
 and low-level hooks/utilities.
 
 Registration, renewal, records, and subname minting take `version={1 | 2}`
-(default `1`). Registration, renewal, and minting keep their v1 component and add
+(default `2` since 3.0; ENSv1 is only still used to mint under old Namespace
+listings). Registration, renewal, and minting keep their v1 component and add
 a v2 one under a `v2/` folder; the exported form only picks between them.
 `EnsRecordsForm` handles both versions itself. ENSv2 contract addresses come
 from `getEnsV2Contracts` / `getNamespaceV2Contracts` in `@thenamespace/addresses`
@@ -323,8 +324,8 @@ pnpm e2e
 - **npm:** run the "Publish New Package Version" workflow on `main`. It runs
   `npm version <patch|minor|major>` on whatever `packages/components/package.json`
   holds, publishes to `latest`, and commits the bump. From a prerelease such as
-  `2.3.0-alpha.6`, both `patch` and `minor` give `2.3.0`. Prereleases (the `alpha`
-  tag) are published by hand from a branch.
+  `2.3.0-alpha.6`, `patch` and `minor` give `2.3.0` and `major` gives `3.0.0`.
+  Prereleases (the `alpha` tag) are published by hand from a branch.
 - **enscomponents.com:** the landing app builds from the workspace package, not
   npm. Run "Build and Push Docker Image" on the commit to deploy, then set its short
   SHA as the tag in `applications/apps/core/uikit/app-config/{staging,prod}-values.yaml`

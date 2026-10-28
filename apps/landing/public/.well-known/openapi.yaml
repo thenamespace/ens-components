@@ -6,7 +6,7 @@ info:
     This API exposes the LLM-friendly reference files and metadata for the
     ENS Components React library. Use these endpoints to retrieve full prop
     tables, TypeScript types, integration recipes, and package metadata.
-  version: 2.3.0
+  version: 3.0.0
   contact:
     url: https://namespace.ninja
   license:
@@ -45,8 +45,8 @@ paths:
         Complete API reference for @thenamespace/ens-components.
         Contains full prop tables with types and defaults for all seven forms
         (EnsNameRegistrationForm, NameRenewForm, EnsRecordsForm, SelectRecordsForm,
-        OffchainSubnameForm, SubnameMintForm, SubnameRenewForm), the ENSv1 and
-        ENSv2 differences, TransactionProgress, all exported TypeScript interfaces
+        OffchainSubnameForm, SubnameMintForm, SubnameRenewForm), ENSv2 usage,
+        TransactionProgress, all exported TypeScript interfaces
         and enums, exported hooks with accurate signatures, complete CSS custom
         property listing with light and dark theme values, error handling table,
         framework-specific integration recipes (Next.js App Router, Remix, Vite),
