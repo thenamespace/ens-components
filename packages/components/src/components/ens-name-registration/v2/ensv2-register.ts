@@ -3,6 +3,7 @@ import {
   encodeAbiParameters,
   encodeFunctionData,
   type Hex,
+  isAddress,
   keccak256,
   pad,
   parseAbi,
@@ -13,9 +14,11 @@ import {
 } from "viem";
 import { mainnet, sepolia } from "viem/chains";
 import { getEnsV2Contracts } from "@thenamespace/addresses";
+import { NAMESPACE_REFERRER_ADDRESS } from "@/hooks/useRegisterENS";
 import type { EnsRecords } from "@/types";
 import {
   buildOwnedResolverDeployCall,
+  createEnsReferer,
   encodeRecordSetters,
   estimateEffectiveGasPrice,
   getEnsRecordsDiff,
@@ -119,7 +122,13 @@ export interface EnsV2RegistrationParams {
   secret: Hex;
   resolver: Address;
   duration: bigint;
+  /** Part of the commitment, so register must reuse the value the commit used. */
+  referrer: Hex;
 }
+
+/** Referral hash for commit and register. Falls back to Namespace's referrer, as ENSv1 registration does. */
+export const getEnsV2Referrer = (referrer?: Address): Hex =>
+  createEnsReferer(referrer && isAddress(referrer) ? referrer : NAMESPACE_REFERRER_ADDRESS);
 
 export const makeEnsV2Commitment = (params: EnsV2RegistrationParams): Hex =>
   keccak256(
@@ -140,7 +149,7 @@ export const makeEnsV2Commitment = (params: EnsV2RegistrationParams): Hex =>
         zeroAddress,
         params.resolver,
         params.duration,
-        zeroHash,
+        params.referrer,
       ],
     ),
   );
@@ -252,7 +261,7 @@ export const buildEnsV2RegisterCalls = async (
         params.resolver,
         params.duration,
         params.token.address,
-        zeroHash,
+        params.referrer,
       ],
     }),
     value: 0n,
@@ -340,7 +349,8 @@ export const estimateEnsV2RegistrationFees = async (
 
 const MAX_COMMITMENT_AGE_SECONDS = 86_400;
 
-type SavedCommitment = { secret: Hex; durationSeconds: number };
+// `referrer` is missing on commitments saved before it was committed; those used zeroHash.
+type SavedCommitment = { secret: Hex; durationSeconds: number; referrer?: Hex };
 
 const commitmentKey = (chainId: number, owner: Address, label: string) =>
   `ns-ensv2-commitment:${chainId}:${owner.toLowerCase()}:${label}`;
@@ -358,6 +368,19 @@ export const saveEnsV2Commitment = (
   } catch {}
 };
 
+export const loadEnsV2Commitment = (
+  chainId: number,
+  owner: Address,
+  label: string,
+): SavedCommitment | null => {
+  try {
+    const raw = localStorage.getItem(commitmentKey(chainId, owner, label));
+    return raw ? (JSON.parse(raw) as SavedCommitment) : null;
+  } catch {
+    return null;
+  }
+};
+
 export const findResumableEnsV2Commitment = async (
   client: PublicClient,
   deployment: EnsV2RegistrationDeployment,
@@ -365,11 +388,7 @@ export const findResumableEnsV2Commitment = async (
   label: string,
   durationSeconds: number,
 ): Promise<{ secret: Hex; ready: boolean } | null> => {
-  let saved: SavedCommitment | null = null;
-  try {
-    const raw = localStorage.getItem(commitmentKey(deployment.chainId, owner, label));
-    saved = raw ? (JSON.parse(raw) as SavedCommitment) : null;
-  } catch {}
+  const saved = loadEnsV2Commitment(deployment.chainId, owner, label);
   if (!saved || saved.durationSeconds !== durationSeconds) return null;
 
   const resolver = await getOwnedResolver(client, deployment, owner);
@@ -379,6 +398,7 @@ export const findResumableEnsV2Commitment = async (
     secret: saved.secret,
     resolver: resolver.address,
     duration: BigInt(durationSeconds),
+    referrer: saved.referrer ?? zeroHash,
   });
   const readyAt = await getEnsV2CommitmentReadyAt(client, deployment, commitment);
   const now = Math.floor(Date.now() / 1000);
