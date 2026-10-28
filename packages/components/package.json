@@ -63,6 +63,12 @@
     "subnames"
   ],
   "author": "Namespace",
+  "contributors": [
+    {
+      "name": "HAPPYS1NGH",
+      "url": "https://github.com/HAPPYS1NGH"
+    }
+  ],
   "license": "MIT",
   "type": "module",
   "publishConfig": {
