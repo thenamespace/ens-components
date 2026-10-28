@@ -394,10 +394,10 @@ pnpm e2e
 
 ## Formatting and package checks
 
-Prettier is configured at the repository root. Format the files you edit with
-`pnpm exec prettier --write path/to/file`. Run `pnpm format:changed origin/main`
-to check changed files before opening a PR. `pnpm format:check` checks the whole
-repository, including existing formatting issues.
+Prettier is configured at the repository root. Run `pnpm format` to format the
+repository and `pnpm format:check` to check it. Both commands run Prettier directly.
+You can also enable format-on-save in your editor using the project's Prettier
+configuration.
 
 PR checks build the library, landing page, and Storybook, then pack the library
 and verify its imports, exports, styles, declarations, README, and MIT license.
@@ -414,13 +414,16 @@ checks use Prettier and the TypeScript checks included in the builds.
 2. After review, approval, and merge, run **Publish npm package and GitHub release**
    from `main` in GitHub Actions. It validates the selected commit and publishes
    the checked tarball using the existing `NPM_TOKEN` secret, with npm provenance.
-3. The workflow creates `v<version>` at that commit and a GitHub Release containing
-   the reviewed notes and an npm link. It never commits or pushes to `main`.
+3. The workflow creates `v<version>` at that commit and a GitHub Release with
+   GitHub-generated release notes, an npm link, and a link to the changelog.
+   It never commits or pushes to `main`.
 
-To recover a failed run, rerun it at the same commit. It skips npm publishing only
-if the existing version's tarball has the same integrity hash, and refuses to move
-an existing tag. An existing completed release stays unchanged. This workflow
-does not backfill releases for older packages or publish prereleases.
+The workflow rejects existing tags, and npm rejects already-published versions.
+It does not publish prereleases or automatically recover partial releases. If
+npm publishing succeeds but GitHub release creation fails, check the published
+package and finish only the GitHub release for that version at the original
+workflow commit. If the tag already exists, verify it points to that commit
+before using it. Do not rerun the publishing job to repair a GitHub release.
 
 Keep the root and package `LICENSE` files identical; the package check verifies
 this. To require PR checks before merging, a repository admin must make

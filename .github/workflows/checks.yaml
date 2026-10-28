@@ -4,7 +4,6 @@ on:
   pull_request:
   push:
     branches: [main]
-  workflow_call:
 
 permissions:
   contents: read
@@ -17,7 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           persist-credentials: false
 
       - uses: pnpm/action-setup@v4
@@ -29,22 +27,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check formatting of changed files
-        env:
-          FORMAT_BASE: ${{ github.event.pull_request.base.sha || github.event.before || format('{0}^', github.sha) }}
-        run: pnpm format:changed "$FORMAT_BASE"
+      - name: Check formatting
+        run: pnpm format:check
 
       - name: Build library, demo, and Storybook
         run: pnpm build
 
       - name: Check npm package
         run: pnpm check:package
-
-      - name: Save verified package for publishing
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v4
-        with:
-          name: npm-package
-          path: .artifacts/*.tgz
-          if-no-files-found: error
-          retention-days: 7
