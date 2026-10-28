@@ -6,7 +6,7 @@ info:
     This API exposes the LLM-friendly reference files and metadata for the
     ENS Components React library. Use these endpoints to retrieve full prop
     tables, TypeScript types, integration recipes, and package metadata.
-  version: 2.0.0
+  version: 2.3.0
   contact:
     url: https://namespace.ninja
   license:
@@ -26,7 +26,7 @@ paths:
       summary: LLM summary reference
       description: >
         Concise summary of the @thenamespace/ens-components library for LLMs.
-        Includes installation, all five component names with key props,
+        Includes installation, all seven form names with key props,
         core TypeScript types, CSS custom properties, and framework compatibility.
         Fetch this first for a quick orientation.
       responses:
@@ -43,9 +43,10 @@ paths:
       summary: Full LLM API reference
       description: >
         Complete API reference for @thenamespace/ens-components.
-        Contains full prop tables with types and defaults for all five components
-        (EnsNameRegistrationForm, EnsRecordsForm, SelectRecordsForm,
-        OffchainSubnameForm, SubnameMintForm), all exported TypeScript interfaces
+        Contains full prop tables with types and defaults for all seven forms
+        (EnsNameRegistrationForm, NameRenewForm, EnsRecordsForm, SelectRecordsForm,
+        OffchainSubnameForm, SubnameMintForm, SubnameRenewForm), the ENSv1 and
+        ENSv2 differences, TransactionProgress, all exported TypeScript interfaces
         and enums, exported hooks with accurate signatures, complete CSS custom
         property listing with light and dark theme values, error handling table,
         framework-specific integration recipes (Next.js App Router, Remix, Vite),
@@ -117,7 +118,7 @@ components:
       properties:
         coinType:
           type: integer
-          description: SLIP-44 coin type. Common values: 60 (ETH), 0 (BTC), 501 (SOL)
+          description: "SLIP-44 coin type. Common values: 60 (ETH), 0 (BTC), 501 (SOL)"
         value:
           type: string
           description: Address string for the given coin type
@@ -148,13 +149,13 @@ components:
           description: Human-readable duration e.g. "1 year" or "6 months, 3 days"
         registrationCost:
           type: string
-          description: Formatted ETH string
+          description: Formatted ETH string; the USDC or DAI amount with version 2
         transactionFees:
           type: string
           description: Formatted ETH string
         total:
           type: string
-          description: Formatted ETH string
+          description: Formatted ETH string; network fees only with version 2
         expiryDate:
           type: string
           description: Formatted date string e.g. "April 28, 2027"
@@ -217,3 +218,45 @@ components:
           type: string
         chainId:
           type: integer
+
+    MintSuccessData:
+      type: object
+      description: Payload of SubnameMintForm onSuccess
+      properties:
+        fullName:
+          type: string
+        label:
+          type: string
+        parentName:
+          type: string
+        txHash:
+          type: string
+        price:
+          type: string
+        priceCurrency:
+          type: string
+          description: Payment token symbol, set by version 2 (e.g. "USDC")
+        transactionFees:
+          type: string
+          description: Formatted ETH string
+        records:
+          $ref: "#/components/schemas/EnsRecords"
+
+    RenewalSuccessData:
+      type: object
+      description: Payload of NameRenewForm and SubnameRenewForm onRenewalSuccess
+      properties:
+        fullName:
+          type: string
+        txHash:
+          type: string
+        price:
+          type: string
+        priceCurrency:
+          type: string
+          description: '"ETH", "USDC", or "DAI"'
+        transactionFees:
+          type: string
+          description: Formatted ETH string
+        newExpiry:
+          type: string

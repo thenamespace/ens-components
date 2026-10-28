@@ -1,6 +1,6 @@
 ---
 name: ens-components
-description: Use when a developer asks how to choose, integrate, or customize @thenamespace/ens-components in a React app, especially for ENS registration, ENS record editing, onchain subname minting, offchain subnames, avatar upload, theming, or deciding which ENS component fits their flow.
+description: Use when a developer asks how to choose, integrate, or customize @thenamespace/ens-components in a React app, especially for ENS registration, ENS renewal, ENS record editing, onchain subname minting or renewal, offchain subnames, ENSv2 support, avatar upload, theming, or deciding which ENS component fits their flow.
 ---
 
 # @thenamespace/ens-components
@@ -12,9 +12,11 @@ React UI kit for ENS and Namespace flows. Built on wagmi; no wallet UI library i
 | Need                                                | Use                       |
 | --------------------------------------------------- | ------------------------- |
 | Register a `.eth` name                              | `EnsNameRegistrationForm` |
+| Renew a `.eth` name                                 | `NameRenewForm`           |
 | Edit records on an ENS name the user already owns   | `EnsRecordsForm`          |
 | Embed the records UI inside a custom flow           | `SelectRecordsForm`       |
 | Mint a subname from a Namespace onchain listing     | `SubnameMintForm`         |
+| Renew an ENSv2 subname minted through Namespace     | `SubnameRenewForm`        |
 | Create or update gasless subnames through Namespace | `OffchainSubnameForm`     |
 
 Routing rules:
@@ -26,11 +28,16 @@ Routing rules:
 - Use `SelectRecordsForm` only for custom or controlled UIs.
 - Use `SubnameMintForm` for onchain subname listings.
 - Use `OffchainSubnameForm` for gasless Namespace subnames.
+- Use `NameRenewForm` to extend an existing `.eth` name and `SubnameRenewForm` to extend an onchain subname.
+- `EnsNameRegistrationForm`, `NameRenewForm`, `EnsRecordsForm`, and `SubnameMintForm` take `version={1 | 2}`. It defaults to `1` (ENSv1). Pass `version={2}` only when the user asks for ENSv2 or the name lives on ENSv2.
+- With `version={2}`, registration and `.eth` renewal are paid in USDC or DAI, and subname mints in the tokens the parent's activation accepts. ENSv2 works on mainnet and Sepolia.
+- `SubnameRenewForm` is ENSv2-only and has no `version` prop.
+- DNS names imported into ENS work with the ENSv1 flows only. ENSv2 subname parents are `.eth` names.
 - If the user wants direct offchain-manager SDK CRUD, filtering, or record queries instead of the UI component, use the `offchain-ens-subname-sdk` skill.
 
 ## Read Next
 
-- Read `advanced.md` for records flows, onchain subnames, offchain subnames, theming, callback-driven customization, exact props, and common issues.
+- Read `advanced.md` for ENSv1 vs ENSv2, renewals, records flows, onchain subnames, offchain subnames, the transaction progress screen, theming, callback-driven customization, exact props, and common issues.
 
 ## ENS Quickstart
 
@@ -71,7 +78,7 @@ import { EnsNameRegistrationForm } from "@thenamespace/ens-components";
   onRegistrationSuccess={result => {
     // result.durationLabel  — human-readable duration, e.g. "1 year" or "6 months, 3 days"
     // result.expiryDate     — formatted expiry date string
-    // result.registrationCost, result.transactionFees, result.total — ETH strings
+    // result.registrationCost, result.transactionFees, result.total — ETH strings (version 1)
     console.log(result.durationLabel, result.expiryDate, result.total);
   }}
 />;
@@ -96,7 +103,8 @@ Call out that `EnsNameRegistrationForm` already handles the normal ENS flow:
 
 Common follow-ups:
 
-- `referrer` if they want reward attribution
+- `referrer` if they want reward attribution (version 1 registration only)
 - `isTestnet={true}` for Sepolia
+- `version={2}` to register on ENSv2, paid in USDC or DAI
 - custom connect flow through `onConnectWallet`
 - banner copy and styling tweaks

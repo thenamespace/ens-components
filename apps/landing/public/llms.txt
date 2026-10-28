@@ -1,6 +1,6 @@
 # ENS Components by Namespace
 
-> Production-ready React components for ENS name registration, profile record editing, and subname issuance. Five drop-in components built on wagmi and viem — works with Next.js, Remix, Vite, and any React 19+ app.
+> Production-ready React components for ENS name registration and renewal, profile record editing, and subname minting and renewal, on ENSv1 and ENSv2. Seven drop-in forms built on wagmi and viem. Works with Next.js, Remix, Vite, and any React 19+ app.
 
 `@thenamespace/ens-components` is an MIT-licensed open-source library by [Namespace](https://namespace.ninja) — an official ENS Service Provider. Install with:
 
@@ -10,21 +10,23 @@ npm install @thenamespace/ens-components wagmi viem @tanstack/react-query
 
 ## Docs
 
-- [Full API Reference](https://enscomponents.com/llms-full.txt): Complete prop tables, TypeScript interfaces, exported hooks, CSS custom properties, theming examples, error handling, and integration recipes for all five components.
+- [Full API Reference](https://enscomponents.com/llms-full.txt): Complete prop tables, TypeScript interfaces, exported hooks, CSS custom properties, theming examples, error handling, and integration recipes for all seven forms.
 - [Agent Skill](https://enscomponents.com/Skill.md): Installable skill for AI coding assistants — `npx skills add thenamespace/skills -s ens-components`.
 - [OpenAPI Spec](https://enscomponents.com/.well-known/openapi.yaml): Machine-readable OpenAPI 3.1.0 spec with JSON schemas for all callback and record types.
 - [AI Plugin Manifest](https://enscomponents.com/.well-known/ai-plugin.json): Agent discovery manifest with package metadata and documentation pointers.
 - [GitHub Repository](https://github.com/thenamespace/ens-components): Source code, issues, and releases.
 - [npm Package](https://www.npmjs.com/package/@thenamespace/ens-components): Package page with version history.
-- [Developer Portal](https://dev.namespace.ninja): API keys for offchain subname integration.
+- [Namespace App](https://app.namespace.ninja/offchain): API keys for offchain subnames, and ENSv2 activations for onchain subnames.
 
 ## Components
 
-- [EnsNameRegistrationForm](https://enscomponents.com/#ens-registration): Full .eth name registration flow — search, commit, 60-second wait, register. Requires wagmi wallet on mainnet or Sepolia.
-- [EnsRecordsForm](https://enscomponents.com/#ens-records): On-chain profile record editor. Fetches current records, renders editor, submits a multicall transaction.
+- [EnsNameRegistrationForm](https://enscomponents.com/#ens-registration): Full .eth name registration flow — search, commit, 60-second wait, register. Requires wagmi wallet on mainnet or Sepolia. `version={2}` registers on ENSv2, paid in USDC or DAI.
+- [NameRenewForm](https://enscomponents.com/#ens-renewal): Renews a .eth name. Version 1 pays in ETH through the ENSv1 controller; version 2 pays in USDC or DAI through the ENSv2 registrar.
+- [EnsRecordsForm](https://enscomponents.com/#ens-records): On-chain profile record editor. Takes the current records as a prop, renders the editor, and submits the changes in one transaction. Works with ENSv1 and ENSv2 resolvers.
 - [SelectRecordsForm](https://enscomponents.com/#select-records): Wallet-free record selector. Calls back with an updated EnsRecords object on every change — you control the submit step.
 - [OffchainSubnameForm](https://enscomponents.com/#offchain-subname): Gasless offchain subname creation via CCIP-Read (EIP-3668). No wallet transaction required for end users.
-- [SubnameMintForm](https://enscomponents.com/#subname-mint): Onchain subname minting. Looks up price, lets user pick records, submits a wallet transaction.
+- [SubnameMintForm](https://enscomponents.com/#subname-mint): Onchain subname minting. Looks up price, lets user pick records, submits a wallet transaction. `version={2}` mints under a Namespace ENSv2 activation, paid in ETH, USDC, or DAI.
+- [SubnameRenewForm](https://enscomponents.com/#subname-renewal): Renews an ENSv2 subname at the price the parent's owner set, and warns when the subname would outlive its parent.
 
 ## Optional
 
