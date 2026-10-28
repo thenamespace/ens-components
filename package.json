@@ -13,7 +13,9 @@
     "landing": "turbo run dev --filter=landing",
     "lint": "turbo run lint",
     "format": "prettier --write .",
-    "format:check": "turbo run format:check",
+    "format:check": "prettier --check .",
+    "format:changed": "node scripts/check-format.mjs",
+    "check:package": "node scripts/check-package.mjs",
     "e2e": "pnpm --filter e2e test"
   },
   "devDependencies": {

@@ -39,3 +39,4 @@ coverage/
 
 # Misc
 *.local
+.artifacts/

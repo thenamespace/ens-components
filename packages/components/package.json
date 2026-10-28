@@ -1,12 +1,22 @@
 {
   "name": "@thenamespace/ens-components",
   "version": "3.0.0",
-  "description": "",
+  "description": "React components for ENS name registration, renewal, record editing, and subname issuance.",
+  "homepage": "https://enscomponents.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thenamespace/ens-components.git",
+    "directory": "packages/components"
+  },
+  "bugs": {
+    "url": "https://github.com/thenamespace/ens-components/issues"
+  },
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "LICENSE"
   ],
   "sideEffects": [
     "**/*.css"
@@ -44,9 +54,16 @@
     "build:types": "tsc -p tsconfig.types.json",
     "build": "npm run clean && npm run build:types && rollup -c rollup.config.mjs"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "ens",
+    "ethereum",
+    "react",
+    "components",
+    "web3",
+    "subnames"
+  ],
+  "author": "Namespace",
+  "license": "MIT",
   "type": "module",
   "publishConfig": {
     "access": "public"
