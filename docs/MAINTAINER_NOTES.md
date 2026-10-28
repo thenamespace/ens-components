@@ -321,11 +321,10 @@ pnpm e2e
 
 ### Releasing
 
-- **npm:** run the "Publish New Package Version" workflow on `main`. It runs
-  `npm version <patch|minor|major>` on whatever `packages/components/package.json`
-  holds, publishes to `latest`, and commits the bump. From a prerelease such as
-  `2.3.0-alpha.6`, `patch` and `minor` give `2.3.0` and `major` gives `3.0.0`.
-  Prereleases (the `alpha` tag) are published by hand from a branch.
+- **npm:** update the version and changelog in a reviewed PR, then run
+  "Publish npm package and GitHub release" on `main` after approval and merge.
+  See [Publishing a release](../README.md#publishing-a-release) for the checks,
+  required credentials, and partial-release recovery instructions.
 - **enscomponents.com:** the landing app builds from the workspace package, not
   npm. Run "Build and Push Docker Image" on the commit to deploy, then set its short
   SHA as the tag in `applications/apps/core/uikit/app-config/{staging,prod}-values.yaml`
