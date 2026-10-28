@@ -192,25 +192,3 @@ export const Testnet: Story = {
   },
 };
 
-/**
- * **Testnet with Referrer**
- *
- * Sepolia registration with a custom referrer address. Verify that the referrer
- * appears in both the commitment and register contract calls via your wallet or a block explorer.
- */
-export const TestnetWithReferrer: Story = {
-  render: Template,
-  args: {
-    name: "",
-    isTestnet: true,
-    referrer: "0xb7B18611b8C51B4B3F400BaF09DB49E61e0aF044",
-  },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          "Sepolia testnet with a referrer address wired in. Check the contract calldata in your wallet or on Sepolia Etherscan to confirm the referrer is present.",
-      },
-    },
-  },
-};
