@@ -20,7 +20,7 @@ cp .env.example .env   # set E2E_PRIVATE_KEY (and optionally E2E_MINT_PARENTS)
 pnpm e2e               # from the repo root; starts the landing page itself
 ```
 
-The wallet needs Sepolia ETH and Sepolia USDC. A run registers 3 names (1 ENSv1, 2 ENSv2)
+The wallet needs Sepolia ETH and Sepolia USDC. A run registers 2 ENSv2 names
 and mints 2 subnames per parent in `E2E_MINT_PARENTS`. On failure, each test's folder in
 `test-results/` holds a trace, a video and `wallet-requests.json`: every request the app
 made to the wallet and what it got back.
