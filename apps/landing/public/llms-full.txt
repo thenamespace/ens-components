@@ -130,6 +130,7 @@ import { EnsNameRegistrationForm } from "@thenamespace/ens-components";
 | name | `string` | `undefined` | Pre-fill the search input with this name (label only or full "label.eth") |
 | isTestnet | `boolean` | `false` | Use Sepolia testnet ENS contracts |
 | version | `1 \| 2` | `2` | Leave unset. ENSv1 registration is retired |
+| referrer | `Address` | Namespace's referrer | Referrer address recorded with the registration |
 | noBorder | `boolean` | `false` | Remove the card border/shadow |
 | className | `string` | `undefined` | Additional CSS class on the root element |
 | title | `string` | `undefined` | Override the card title |
@@ -419,7 +420,7 @@ import { NameRenewForm } from "@thenamespace/ens-components";
 | name | `string` | `undefined` | "alice" or "alice.eth". Leave empty to let the user type a name |
 | isTestnet | `boolean` | `false` | Use Sepolia |
 | version | `1 \| 2` | `2` | Leave unset. Renews through the ENSv2 registrar in USDC or DAI |
-| referrer | `Address` | `undefined` | Referrer address |
+| referrer | `Address` | Namespace's referrer | Referrer address recorded with the renewal |
 | title | `string` | `undefined` | Override card title |
 | subtitle | `string` | `undefined` | Override card subtitle |
 | className | `string` | `undefined` | Additional CSS class |

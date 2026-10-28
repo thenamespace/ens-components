@@ -23,10 +23,10 @@ This applies to registration, renewal, subname minting and subname renewal. The 
 
 - Flow: commit, wait, register, success screen. The duration picker switches between years and a calendar date. The minimum is 28 days, enforced by the registrar contract.
 - Each owner gets their own PermissionedResolver, which is deployed on their first registration as an extra step in the same flow. Records set during registration go there.
-- Registration ignores `referrer`. Don't pass it expecting registration rewards.
+- `referrer` is recorded with the registration and defaults to Namespace's referrer.
 - `onRegistrationSuccess` receives `{ durationLabel, expiryDate, registrationCost, transactionFees, total }`, all strings. `registrationCost` is the USDC or DAI amount. `transactionFees` and `total` are both the ETH network fees, so never show `total` as the price.
 
-Props: `name`, `isTestnet`, `title`, `subtitle`, `bannerImage`, `bannerWidth`, `hideBanner`, `noBorder`, `className`, `avatarUploadDomain`, `onRegistrationStart(name)`, `onRegistrationSuccess`, `onClose(isSuccess)`, `onConnectWallet`.
+Props: `name`, `isTestnet`, `referrer`, `title`, `subtitle`, `bannerImage`, `bannerWidth`, `hideBanner`, `noBorder`, `className`, `avatarUploadDomain`, `onRegistrationStart(name)`, `onRegistrationSuccess`, `onClose(isSuccess)`, `onConnectWallet`.
 
 ## Renewal: `NameRenewForm`
 
@@ -41,7 +41,7 @@ Props: `name`, `isTestnet`, `title`, `subtitle`, `bannerImage`, `bannerWidth`, `
 
 - `name` accepts `alice` or `alice.eth`. Omit it to let the user type a name.
 - Anyone can renew any name, and the owner keeps it. Don't gate the form on the connected wallet owning the name.
-- `referrer` is passed through to the renewal.
+- `referrer` is passed through to the renewal and defaults to Namespace's referrer.
 
 Props: `name`, `isTestnet`, `referrer`, `title`, `subtitle`, `className`, `noBorder`, `onCancel`, `onConnectWallet`, `onRenewalSuccess(RenewalSuccessData)`.
 

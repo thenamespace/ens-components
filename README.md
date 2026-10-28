@@ -116,6 +116,7 @@ import { EnsNameRegistrationForm } from "@thenamespace/ens-components";
 
 <EnsNameRegistrationForm
   isTestnet={false}
+  referrer="0xYourReferrerAddress"
   onConnectWallet={() => openConnectModal()}
 />
 ```
@@ -123,6 +124,7 @@ import { EnsNameRegistrationForm } from "@thenamespace/ens-components";
 | Prop | Type | Description |
 |------|------|-------------|
 | `isTestnet` | `boolean` | Use Sepolia instead of mainnet |
+| `referrer` | `string` | Registration referrer wallet address. Defaults to Namespace's referrer |
 | `noBorder` | `boolean` | Remove the card border |
 | `title` | `string` | Override the form heading |
 | `subtitle` | `string` | Override the subtitle |
@@ -150,7 +152,7 @@ import { NameRenewForm } from "@thenamespace/ens-components";
 |------|------|-------------|
 | `name` | `string` | `alice` or `alice.eth`. Leave empty to let the user type a name |
 | `isTestnet` | `boolean` | Use Sepolia instead of mainnet |
-| `referrer` | `string` | Renewal referrer wallet address |
+| `referrer` | `string` | Renewal referrer wallet address. Defaults to Namespace's referrer |
 | `noBorder` | `boolean` | Remove the card border |
 | `title` | `string` | Override the form heading |
 | `subtitle` | `string` | Override the subtitle |

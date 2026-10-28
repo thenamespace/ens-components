@@ -10,6 +10,7 @@ import { generateCode } from "../components/generateCode";
 import type { PropDef } from "../components/types";
 
 const ENS_REG_DEFS: PropDef[] = [
+  { key: "referrer",    type: "string",  default: "",    tip: "Referrer wallet recorded with the registration. Defaults to Namespace's referrer", placeholder: "0x… referral wallet" },
   { key: "noBorder",    type: "boolean", default: true,  tip: "Remove the card border and shadow wrapper" },
   { key: "title",       type: "string",  default: "",    tip: "Override the form title text", placeholder: "title..." },
   { key: "subtitle",    type: "string",  default: "",    tip: "Override the subtitle below the title", placeholder: "subtitle..." },
@@ -49,6 +50,7 @@ export function EnsRegistrationSection({ isTestnet }: { isTestnet: boolean }) {
           <EnsNameRegistrationForm
             key={`${String(isTestnet)}-${mountKey}`}
             isTestnet={isTestnet}
+            referrer={values.referrer || undefined}
             noBorder={values.noBorder}
             title={values.title || undefined}
             subtitle={values.subtitle || undefined}

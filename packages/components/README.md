@@ -90,15 +90,16 @@ Registers a `.eth` name: search → commit → wait → register. Paid in USDC o
 />
 ```
 
-| Prop                    | Type                                        | Description                                         |
-| ----------------------- | ------------------------------------------- | --------------------------------------------------- |
-| `name`                  | `string`                                    | Pre-fill the name to register                       |
-| `isTestnet`             | `boolean`                                   | Use Sepolia instead of mainnet                      |
-| `avatarUploadDomain`    | `string`                                    | Your app's hostname, used for avatar upload signing |
-| `onRegistrationStart`   | `(name: string) => void`                    | Called when the first transaction is sent           |
-| `onRegistrationSuccess` | `(result: RegistrationSuccessData) => void` | Called after registration                           |
-| `onClose`               | `(isSuccess: boolean) => void`              | Called when the user closes the form                |
-| `onConnectWallet`       | `() => void`                                | Called when the user needs to connect a wallet      |
+| Prop                    | Type                                        | Description                                                     |
+| ----------------------- | ------------------------------------------- | --------------------------------------------------------------- |
+| `name`                  | `string`                                    | Pre-fill the name to register                                   |
+| `isTestnet`             | `boolean`                                   | Use Sepolia instead of mainnet                                  |
+| `referrer`              | `Address`                                   | Registration referrer address. Defaults to Namespace's referrer |
+| `avatarUploadDomain`    | `string`                                    | Your app's hostname, used for avatar upload signing             |
+| `onRegistrationStart`   | `(name: string) => void`                    | Called when the first transaction is sent                       |
+| `onRegistrationSuccess` | `(result: RegistrationSuccessData) => void` | Called after registration                                       |
+| `onClose`               | `(isSuccess: boolean) => void`              | Called when the user closes the form                            |
+| `onConnectWallet`       | `() => void`                                | Called when the user needs to connect a wallet                  |
 
 Also accepts `title`, `subtitle`, `bannerImage`, `bannerWidth`, `hideBanner`, `noBorder`, and `className`.
 
@@ -119,7 +120,7 @@ Renews a `.eth` name in one step, paid in USDC or DAI. Anyone can renew any name
 | ------------------ | ------------------------------------ | ------------------------------------------------------------ |
 | `name`             | `string`                             | `alice` or `alice.eth`. Leave empty to let the user type one |
 | `isTestnet`        | `boolean`                            | Use Sepolia instead of mainnet                               |
-| `referrer`         | `Address`                            | Renewal referrer address                                     |
+| `referrer`         | `Address`                            | Renewal referrer. Defaults to Namespace's                    |
 | `onRenewalSuccess` | `(data: RenewalSuccessData) => void` | Called after the renewal confirms                            |
 | `onConnectWallet`  | `() => void`                         | Called when the user needs to connect a wallet               |
 | `onCancel`         | `() => void`                         | Called when the user cancels                                 |
