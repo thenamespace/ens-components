@@ -58,7 +58,7 @@ const getLabel = (name?: string) => {
   return name;
 };
 
-export const EnsNameRegistrationForm = ({ version = 1, ...props }: EnsNameRegistrationFormProps) =>
+export const EnsNameRegistrationForm = ({ version = 2, ...props }: EnsNameRegistrationFormProps) =>
   version === 2 ? (
     <EnsNameRegistrationFormV2 {...props} />
   ) : (

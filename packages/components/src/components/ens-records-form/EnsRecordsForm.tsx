@@ -46,7 +46,7 @@ export const EnsRecordsForm = ({
   onRecordsUpdated,
   onTransactionSent,
   txConfirmations,
-  version = 1,
+  version = 2,
 }: EnsRecordsFormProps) => {
   const mainnetChainId = isTestnet ? sepolia.id : mainnet.id;
   const resolverChain = resolverChainId ? resolverChainId : mainnetChainId;
