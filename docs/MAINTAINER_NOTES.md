@@ -6,15 +6,26 @@ Internal reference for how this UI kit works today.
 
 ## 1) Product surface
 
-The package is a reusable React ENS UI kit exposing five core components:
+The package is a reusable React ENS UI kit exposing seven core components:
 
 1. **ENS name registration** — `EnsNameRegistrationForm`
-2. **ENS record editing** — `EnsRecordsForm`
-3. **Record composer** — `SelectRecordsForm` (no wallet required)
-4. **Onchain subname minting** — `SubnameMintForm`
-5. **Offchain subname create/update** — `OffchainSubnameForm`
+2. **ENS name renewal** — `NameRenewForm`
+3. **ENS record editing** — `EnsRecordsForm`
+4. **Record composer** — `SelectRecordsForm` (no wallet required)
+5. **Onchain subname minting** — `SubnameMintForm`
+6. **Onchain subname renewal** — `SubnameRenewForm` (ENSv2 only)
+7. **Offchain subname create/update** — `OffchainSubnameForm`
 
-It also exports reusable atoms/molecules and low-level hooks/utilities.
+It also exports `TransactionProgress` / `TransactionModal`, reusable atoms/molecules,
+and low-level hooks/utilities.
+
+Registration, renewal, records, and subname minting take `version={1 | 2}`
+(default `1`). Registration, renewal, and minting keep their v1 component and add
+a v2 one under a `v2/` folder; the exported form only picks between them.
+`EnsRecordsForm` handles both versions itself. ENSv2 contract addresses come
+from `getEnsV2Contracts` / `getNamespaceV2Contracts` in `@thenamespace/addresses`
+per network, and the Namespace manager API follows the network
+(`staging.manager.namespace.ninja` on Sepolia, `manager.namespace.ninja` on mainnet).
 
 ---
 
@@ -261,7 +272,9 @@ Consumers must therefore install `@thenamespace/offchain-manager` separately.
 1. Registration timer is fixed to 60 s in UI.
 2. Resolver support check returns `true` (placeholder logic).
 3. Several localStorage caches are used — SSR environments need guards.
-4. No automated tests (`npm test` is a placeholder).
+4. No unit tests. `apps/e2e` runs a Playwright suite against Sepolia with an
+   injected test wallet (`pnpm e2e`, setup in `apps/e2e/README.md`); nothing runs
+   it in CI.
 5. `OffchainSubnameForm` does not call the API internally — if the caller
    omits `onSubnameCreated` / `onSubnameUpdated`, the submit button will
    appear to succeed (callback is optional) but no subname will be created.
@@ -300,7 +313,23 @@ turbo run build
 
 # Type-check the landing page
 pnpm --filter landing exec tsc --noEmit
+
+# Sepolia end-to-end suite
+pnpm e2e
 ```
+
+### Releasing
+
+- **npm:** run the "Publish New Package Version" workflow on `main`. It runs
+  `npm version <patch|minor|major>` on whatever `packages/components/package.json`
+  holds, publishes to `latest`, and commits the bump. From a prerelease such as
+  `2.3.0-alpha.6`, both `patch` and `minor` give `2.3.0`. Prereleases (the `alpha`
+  tag) are published by hand from a branch.
+- **enscomponents.com:** the landing app builds from the workspace package, not
+  npm. Run "Build and Push Docker Image" on the commit to deploy, then set its short
+  SHA as the tag in `applications/apps/core/uikit/app-config/{staging,prod}-values.yaml`
+  in the infra repo. The automatic staging update doesn't work for this repo: it
+  dispatches the repository name `ens-components`, but the infra app is `uikit`.
 
 ---
 
