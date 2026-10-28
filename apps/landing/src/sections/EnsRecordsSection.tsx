@@ -1,4 +1,4 @@
-import { useEffect, useState, Component, type ReactNode } from "react";
+import { useState, Component, type ReactNode } from "react";
 
 class ErrorBoundary extends Component<{ onReset: () => void; children: ReactNode }, { error: Error | null }> {
   state = { error: null };
@@ -26,6 +26,7 @@ import { DemoPanel } from "../components/DemoPanel";
 import { PropsEditor } from "../components/PropsEditor";
 import { generateCode } from "../components/generateCode";
 import type { PropDef } from "../components/types";
+import { fetchEnsV2Records, getEnsV2Owner } from "../utils/ensv2";
 
 const RESOLVIO = "https://resolvio.namespace.ninja";
 
@@ -41,6 +42,7 @@ async function fetchEnsProfile(name: string) {
 
 const ENS_REGISTRY = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e" as const;
 const NAME_WRAPPER  = "0xD4416b13d2b3a9aBae7AcD5D6C2BbDBE25686401" as const;
+const SEPOLIA_NAME_WRAPPER = "0x0635513f179D50A207757E05759CbD106d7dFcE8" as const;
 
 const REGISTRY_ABI = [{
   name: "owner", type: "function", stateMutability: "view",
@@ -57,19 +59,18 @@ const WRAPPER_ABI = [{
 const ENS_RECORDS_DEFS: PropDef[] = [
   { key: "name",            type: "string",  default: "yourname.eth",          required: true, readonly: true, tip: "Full ENS name, including a DNS name imported into ENS" },
   { key: "existingRecords", type: "string",  default: "Existing name records",  required: true, readonly: true, tip: "Current on-chain records pre-loaded from the ENS resolver" },
-  { key: "isTestnet",       type: "boolean", default: false,                    tip: "Use Sepolia testnet instead of Ethereum mainnet" },
-  { key: "noBorder",        type: "boolean", default: false,                    tip: "Remove the card border and shadow wrapper" },
+  { key: "noBorder",        type: "boolean", default: true,                     tip: "Remove the card border and shadow wrapper" },
   { key: "resolverAddress", type: "string",  default: "", readonly: true,       tip: "Optional. Auto-detected from the ENS registry if not provided" },
   { key: "resolverChainId", type: "number",  default: 1,  readonly: true,       tip: "Optional. Inferred from isTestnet if not provided" },
 ];
 
-export function EnsRecordsSection({ isTestnet, onIsTestnetChange }: { isTestnet: boolean; onIsTestnetChange: (v: boolean) => void }) {
+export function EnsRecordsSection({ isTestnet, version }: { isTestnet: boolean; version: 1 | 2 }) {
   const { isConnected, address } = useAccount();
   const { openConnectModal } = useConnectModal();
   const pc = usePublicClient({ chainId: 1 });
+  const sepoliaPc = usePublicClient({ chainId: 11155111 });
   const [values, setValues] = useState<Record<string, any>>(() => ({
     ...Object.fromEntries(ENS_RECORDS_DEFS.map((d) => [d.key, d.default])),
-    isTestnet,
   }));
   const [ensName, setEnsName] = useState("");
   const [submittedName, setSubmittedName] = useState("");
@@ -79,12 +80,8 @@ export function EnsRecordsSection({ isTestnet, onIsTestnetChange }: { isTestnet:
 
   const onChange = (key: string, val: any) => {
     setValues((prev) => ({ ...prev, [key]: val }));
-    if (key === "isTestnet") onIsTestnetChange(val);
   };
 
-  useEffect(() => {
-    setValues((prev) => ({ ...prev, isTestnet }));
-  }, [isTestnet]);
 
   const displayValues = {
     ...values,
@@ -95,17 +92,21 @@ export function EnsRecordsSection({ isTestnet, onIsTestnetChange }: { isTestnet:
   };
 
   const lookupOwner = async (name: string): Promise<string> => {
+    const client = isTestnet ? sepoliaPc! : pc!;
+    if (version === 2) return getEnsV2Owner(client, name, isTestnet);
+    // ENSv1 shares the registry address across chains; only the wrapper differs.
+    const wrapper = isTestnet ? SEPOLIA_NAME_WRAPPER : NAME_WRAPPER;
     const node = namehash(name);
-    const registryOwner = await pc!.readContract({
+    const registryOwner = await client.readContract({
       address: ENS_REGISTRY,
       abi: REGISTRY_ABI,
       functionName: "owner",
       args: [node],
     });
-    if (registryOwner.toLowerCase() === NAME_WRAPPER.toLowerCase()) {
+    if (registryOwner.toLowerCase() === wrapper.toLowerCase()) {
       const tokenId = BigInt(node);
-      const wrapperOwner = await pc!.readContract({
-        address: NAME_WRAPPER,
+      const wrapperOwner = await client.readContract({
+        address: wrapper,
         abi: WRAPPER_ABI,
         functionName: "ownerOf",
         args: [tokenId],
@@ -126,7 +127,10 @@ export function EnsRecordsSection({ isTestnet, onIsTestnetChange }: { isTestnet:
         setLookupError("You are not permitted to edit records, try adding a name you own");
         return;
       }
-      const records = await fetchEnsProfile(name);
+      const records =
+        version === 2 || isTestnet
+          ? await fetchEnsV2Records(isTestnet ? sepoliaPc! : pc!, name, isTestnet)
+          : await fetchEnsProfile(name);
       setExistingRecords(records);
       setSubmittedName(name);
     } catch (err: any) {
@@ -146,8 +150,10 @@ export function EnsRecordsSection({ isTestnet, onIsTestnetChange }: { isTestnet:
   };
 
   const code = generateCode("EnsRecordsForm", ENS_RECORDS_DEFS, displayValues, [
+    `isTestnet={${isTestnet}}`,
     `name="${submittedName || "yourname.eth"}"`,
     "existingRecords={existingRecords}",
+    `version={${version}}`,
   ]);
 
   return (
@@ -166,13 +172,14 @@ export function EnsRecordsSection({ isTestnet, onIsTestnetChange }: { isTestnet:
               <p className="ens-lookup-sub">Load your current records to edit them</p>
               <input
                 className="ens-lookup-input"
+                data-testid="records-lookup-input"
                 type="text"
                 value={ensName}
                 placeholder="yourname.eth or example.com"
                 onChange={(e) => setEnsName(e.target.value.toLowerCase())}
                 onKeyDown={(e) => e.key === "Enter" && isConnected && !loading && handleLookup()}
               />
-              {lookupError && <p className="ens-lookup-error">{lookupError}</p>}
+              {lookupError && <p className="ens-lookup-error" data-testid="records-lookup-error">{lookupError}</p>}
               {!isConnected ? (
                 <button className="ens-lookup-btn" onClick={openConnectModal}>
                   Connect Wallet
@@ -180,6 +187,7 @@ export function EnsRecordsSection({ isTestnet, onIsTestnetChange }: { isTestnet:
               ) : (
                 <button
                   className="ens-lookup-btn"
+                  data-testid="records-lookup-button"
                   onClick={handleLookup}
                   disabled={!ensName.trim() || loading}
                 >
@@ -194,8 +202,9 @@ export function EnsRecordsSection({ isTestnet, onIsTestnetChange }: { isTestnet:
                   key={`${submittedName}-${String(isTestnet)}-${values.resolverAddress}`}
                   name={submittedName}
                   isTestnet={isTestnet}
+                  version={version}
                   resolverAddress={values.resolverAddress || undefined}
-                  resolverChainId={values.resolverChainId || undefined}
+                  // resolverChainId is left to the form, which infers it from isTestnet.
                   noBorder={values.noBorder}
                   txConfirmations={values.txConfirmations || undefined}
                   avatarUploadDomain={values.avatarUploadDomain || undefined}

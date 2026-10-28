@@ -76,6 +76,13 @@
   min-width: 0;
 }
 
+.ens-registration-pricing .pricing-total-amount {
+  display: flex;
+  gap: var(--ns-space-4);
+  align-items: center;
+  justify-content: flex-end;
+}
+
 .ens-registration-pricing .pricing-total-value {
   font-family: var(--ns-font-mono);
   font-size: var(--ns-size-h4);

@@ -8,35 +8,36 @@ import { DemoPanel } from "../components/DemoPanel";
 import { PropsEditor } from "../components/PropsEditor";
 import { generateCode } from "../components/generateCode";
 import type { PropDef } from "../components/types";
+import { getParentOverride } from "../utils/parentOverride";
 
 const MINT_DEFS: PropDef[] = [
   { key: "name",      type: "string",  default: "ninjabase.eth", tip: "The ENS name users will mint subnames under", required: true, readonly: true },
-  { key: "isTestnet", type: "boolean", default: false,        tip: "Use Sepolia testnet instead of Ethereum mainnet" },
   { key: "title",     type: "string",  default: "",           tip: "Override the form title text", placeholder: "title..." },
   { key: "subtitle",  type: "string",  default: "",           tip: "Optional subtitle shown below the title", placeholder: "subtitle..." },
+  { key: "noBorder",  type: "boolean", default: true,  tip: "Remove the card border, for embedding in your own container" },
 ];
 
-export function SubnameMintSection({ isTestnet, onIsTestnetChange }: { isTestnet: boolean; onIsTestnetChange: (v: boolean) => void }) {
+export function SubnameMintSection({ isTestnet, version }: { isTestnet: boolean; version: 1 | 2 }) {
   const { openConnectModal } = useConnectModal();
-  const parentName = isTestnet ? "unicorn.eth" : "ninjabase.eth";
+  const parentName = isTestnet ? (getParentOverride() ?? "arti.eth") : "ninjabase.eth";
   const [values, setValues] = useState<Record<string, any>>(() => ({
     ...Object.fromEntries(MINT_DEFS.map((d) => [d.key, d.default])),
-    isTestnet,
     name: parentName,
   }));
   const [mountKey, setMountKey] = useState(0);
 
   const onChange = (key: string, val: any) => {
     setValues((prev) => ({ ...prev, [key]: val }));
-    if (key === "isTestnet") onIsTestnetChange(val);
   };
 
   useEffect(() => {
-    setValues((prev) => ({ ...prev, isTestnet, name: parentName }));
+    setValues((prev) => ({ ...prev, name: parentName }));
   }, [isTestnet, parentName]);
 
   const code = generateCode("SubnameMintForm", MINT_DEFS, values, [
+    `isTestnet={${isTestnet}}`,
     `parentName="${parentName}"`,
+    `version={${version}}`,
   ]);
 
   return (
@@ -50,14 +51,15 @@ export function SubnameMintSection({ isTestnet, onIsTestnetChange }: { isTestnet
       <div className="component-grid">
         <DemoPanel>
           <SubnameMintForm
-            key={`${String(isTestnet)}-${mountKey}`}
+            key={`${String(isTestnet)}-${version}-${mountKey}`}
             parentName={parentName}
             isTestnet={isTestnet}
+            noBorder={values.noBorder}
+            version={version}
             title={values.title || undefined}
             subtitle={values.subtitle || "Get a subname, and join Namespace Ninjas."}
             onConnectWallet={openConnectModal}
             onCancel={() => setMountKey((k) => k + 1)}
-            onSuccess={() => setMountKey((k) => k + 1)}
           />
         </DemoPanel>
         <div className="code-col">

@@ -13,6 +13,8 @@ import {
   CommitmentStep,
   TimerStep,
   RegistrationStep,
+  type CommitmentSender,
+  type RegistrationSender,
 } from "./registration";
 import { generateEnsRegistrationSecret } from "./ensRegistrationUtils";
 import { Address } from "viem";
@@ -34,6 +36,9 @@ interface RegistrationProcessProps {
   onSuccess?: (data: RegistrationSuccessData) => void;
   onStart?: (hash: string) => void;
   referrer?: Address;
+  sendCommitment?: CommitmentSender;
+  sendRegistration?: RegistrationSender;
+  initialState?: Partial<RegistrationState>;
 }
 
 const getBlankRegistrationState = (
@@ -64,6 +69,9 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
   onSuccess,
   onStart,
   referrer,
+  sendCommitment,
+  sendRegistration,
+  initialState,
 }) => {
   const { chain } = useAccount();
   const { switchChain } = useSwitchChain();
@@ -73,9 +81,16 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
   const shouldSwitchNetwork = chain && !isOnCorrectNetwork;
 
   const [registrationState, setRegistrationState] = useState<RegistrationState>(
-    () => getBlankRegistrationState(label, durationInSeconds, records, isTestnet, referrer)
+    () => ({
+      ...getBlankRegistrationState(label, durationInSeconds, records, isTestnet, referrer),
+      ...initialState,
+    })
   );
   const [showConfirmClose, setShowConfirmClose] = useState(false);
+
+  /** Exposed as `data-status` so tests can wait for a step instead of its button. */
+  const stepStatus = (from: ProcessSteps, done: ProcessSteps) =>
+    registrationState.step >= done ? "completed" : registrationState.step >= from ? "current" : "pending";
 
   useEffect(() => {
     setRegistrationState((prev) => ({ ...prev, records }));
@@ -141,10 +156,11 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
 
       {isOnCorrectNetwork && (
         <>
-          <div className="mt-2">
+          <div className="mt-2" data-testid="registration-step-commit" data-status={stepStatus(ProcessSteps.Start, ProcessSteps.CommitmentCompleted)}>
             <CommitmentStep
               state={registrationState}
               isTestnet={isTestnet}
+              sendCommitment={sendCommitment}
               onStateUpdated={(state) => {
                 if (state.step === ProcessSteps.CommitmentSent) {
                   onStart?.(`${state.label}.eth`);
@@ -153,15 +169,16 @@ export const RegistrationProcess: React.FC<RegistrationProcessProps> = ({
               }}
             />
           </div>
-          <div className="mt-2">
+          <div className="mt-2" data-testid="registration-step-timer" data-status={stepStatus(ProcessSteps.CommitmentCompleted, ProcessSteps.TimerCompleted)}>
             <TimerStep state={registrationState} onTimerCompleted={handleTimerPassed} />
           </div>
-          <div className="mt-2">
+          <div className="mt-2" data-testid="registration-step-register" data-status={stepStatus(ProcessSteps.TimerCompleted, ProcessSteps.RegistrationCompleted)}>
             <RegistrationStep
               state={registrationState}
               isTestnet={isTestnet}
               onStateUpdated={setRegistrationState}
               onSuccess={onSuccess}
+              sendRegistration={sendRegistration}
             />
           </div>
         </>

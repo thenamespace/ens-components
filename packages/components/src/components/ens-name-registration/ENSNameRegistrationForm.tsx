@@ -10,6 +10,7 @@ import { SuccessScreen } from "./registration";
 import { Address } from "viem";
 import { useAccount } from "wagmi";
 import { useRegisterENS } from "@/hooks";
+import { EnsNameRegistrationFormV2 } from "./v2/EnsNameRegistrationFormV2";
 
 const REG_SECRET_PLACEHOLDER = "0x0000000000000000000000000000000000000000000000000000000000000001";
 
@@ -34,6 +35,7 @@ export interface EnsNameRegistrationFormProps {
   onClose?: (isSuccess: boolean) => void;
   onRegistrationStart?: (name: string) => void;
   onConnectWallet?: () => void;
+  version?: 1 | 2;
 }
 
 enum RegistrationSteps {
@@ -56,7 +58,14 @@ const getLabel = (name?: string) => {
   return name;
 };
 
-export const EnsNameRegistrationForm = (props: EnsNameRegistrationFormProps) => {
+export const EnsNameRegistrationForm = ({ version = 1, ...props }: EnsNameRegistrationFormProps) =>
+  version === 2 ? (
+    <EnsNameRegistrationFormV2 {...props} />
+  ) : (
+    <EnsNameRegistrationFormV1 {...props} />
+  );
+
+const EnsNameRegistrationFormV1 = (props: EnsNameRegistrationFormProps) => {
   const { address: connectedAddress } = useAccount();
   const { estimateRegistrationFees } = useRegisterENS({ isTestnet: props.isTestnet });
 

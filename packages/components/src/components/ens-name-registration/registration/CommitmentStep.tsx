@@ -8,19 +8,21 @@ import {
   ContractErrorLabel,
   isUserDeniedError,
 } from "../../molecules/contract-error-label/ContractErrorLabel";
-import { ProcessSteps, RegistrationState } from "./types";
+import { CommitmentSender, ProcessSteps, RegistrationState } from "./types";
 import { TransactionPendingScreen } from "./TransactionPendingScreen";
 
 interface CommitmentStepProps {
   state: RegistrationState;
   isTestnet?: boolean;
   onStateUpdated: (state: RegistrationState) => void;
+  sendCommitment?: CommitmentSender;
 }
 
 export const CommitmentStep: React.FC<CommitmentStepProps> = ({
   state,
   isTestnet,
-  onStateUpdated
+  onStateUpdated,
+  sendCommitment,
 }) => {
   const { sendCommitmentTx } = useRegisterENS({ isTestnet });
   const { waitTx } = useWaitTransaction({ isTestnet });
@@ -70,7 +72,7 @@ export const CommitmentStep: React.FC<CommitmentStepProps> = ({
         referrer: state.referrer,
       };
 
-      tx = await sendCommitmentTx(request);
+      tx = sendCommitment ? await sendCommitment(state) : await sendCommitmentTx(request);
       setCommitTxStatus({ sent: true, completed: false, hash: tx });
 
       onStateUpdated({
@@ -184,6 +186,7 @@ export const CommitmentStep: React.FC<CommitmentStepProps> = ({
             </Text>
             {!isCompleted && (
               <Button
+                data-testid="commit-button"
                 disabled={btnDisabled}
                 onClick={() => handleCommitment()}
                 className="mt-3 ns-wd-100"
@@ -198,7 +201,10 @@ export const CommitmentStep: React.FC<CommitmentStepProps> = ({
       {commitTxStatus.sent && (
         <TransactionPendingScreen
           isTestnet={isTestnet}
-          message="Your transaction has been sent! Once the progress bar completes, first registration step is completed."
+          details={[
+            { label: "Name", value: `${state.label}.eth` },
+            { label: "Action", value: "Commitment" },
+          ]}
           hash={commitTxStatus.hash as Hash}
           isCompleted={commitTxStatus.completed}
         />

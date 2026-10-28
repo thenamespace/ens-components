@@ -1,9 +1,20 @@
-import { Address, namehash } from "viem";
+import { Address, namehash, parseAbi, PublicClient } from "viem";
 import { mainnet, sepolia } from "viem/chains";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { ABIS } from "./abis";
-import { getEnsContracts } from "@thenamespace/addresses";
-import { convertToMulticallResolverData, EnsRecordsDiff, equalsIgnoreCase } from "@/utils";
+import { getEnsContracts, getEnsV2Contracts } from "@thenamespace/addresses";
+import {
+    convertToMulticallResolverData,
+    detectResolverStyle,
+    dnsEncodeName,
+    encodeRecordsUpdate,
+    EnsRecordsDiff,
+    equalsIgnoreCase,
+} from "@/utils";
+
+const universalResolverAbi = parseAbi([
+    "function findResolver(bytes name) view returns (address resolver, bytes32 node, uint256 offset)",
+]);
 
 const supportedResolversKey = "ns-supported-resolvers";
 
@@ -16,9 +27,11 @@ interface UpdateRecordsRequest {
 export const useENSResolver = ({
     resolverChainId,
     isTestnet,
+    version = 1,
 }: {
     resolverChainId: number;
     isTestnet?: boolean;
+    version?: 1 | 2;
 }) => {
     const mainnetClient = usePublicClient({
         chainId: isTestnet ? sepolia.id : mainnet.id,
@@ -30,6 +43,18 @@ export const useENSResolver = ({
     const setUpdateRecordsTx = async (update: UpdateRecordsRequest) => {
 
         const { name, diff, resolver } = update;
+
+        const style = await detectResolverStyle(resolverClient as PublicClient, resolver);
+        if (style !== "node") {
+            const tx = encodeRecordsUpdate(style, resolver, name, diff);
+            await resolverClient!.call({ account: address, ...tx });
+            return walletClient!.sendTransaction({
+                ...tx,
+                account: walletClient!.account,
+                chain: walletClient!.chain,
+            });
+        }
+
         const resolverData = convertToMulticallResolverData(name, diff);
 
         const { request } = await resolverClient!.simulateContract({
@@ -65,7 +90,16 @@ export const useENSResolver = ({
         return true;
     };
 
-    const getResolverAddress = (name: string): Promise<Address> => {
+    const getResolverAddress = async (name: string): Promise<Address> => {
+        if (version === 2) {
+            const [resolver] = await mainnetClient!.readContract({
+                address: getEnsV2Contracts(isTestnet).universalResolver,
+                abi: universalResolverAbi,
+                functionName: "findResolver",
+                args: [dnsEncodeName(name)],
+            });
+            return resolver;
+        }
         return mainnetClient!.readContract({
             address: getEnsRegistry(),
             abi: ABIS.ENS_REGISTRY,

@@ -26,6 +26,7 @@ import { ProfileSelector } from "./ProfileSelector";
 import { MintFormActions } from "./MintFormActions";
 import { MintSuccess } from "./MintSuccess";
 import { TransactionPendingScreen } from "../ens-name-registration/registration/TransactionPendingScreen";
+import { SubnameMintFormV2 } from "./v2/SubnameMintFormV2";
 
 enum MintDeniedError {
   MinterNotTakenOwner = "MINTER_NOT_TOKEN_OWNER",
@@ -46,6 +47,7 @@ export interface MintSuccessData {
   parentName: string;
   txHash: string;
   price: string;
+  priceCurrency?: string;
   transactionFees: string;
   records: EnsRecords;
 }
@@ -75,11 +77,20 @@ interface SubnameMintFormProps {
   onSubnameMinted?: (data: SubnameMintedData) => void;
   txConfirmations?: number;
   onConnectWallet?: () => void;
+  version?: 1 | 2;
+  noBorder?: boolean;
+  resolver?: Address;
 }
 
 const MIN_ENS_LEN = 1;
 
-export const SubnameMintForm = ({
+export const SubnameMintForm = ({ version = 1, noBorder, ...props }: SubnameMintFormProps) => (
+  <div className={noBorder ? "ns-no-border-scope" : undefined} style={{ display: "contents" }}>
+    {version === 2 ? <SubnameMintFormV2 {...props} /> : <SubnameMintFormV1 {...props} />}
+  </div>
+);
+
+const SubnameMintFormV1 = ({
   parentName,
   label,
   isTestnet,
@@ -720,14 +731,14 @@ const SubnameMintFormContent = ({
   if (mintStep === MintStep.Minting && mintState.txHash) {
     return (
       <div style={{padding: 15}}>
-        <Text className="ns-text-center mb-3" weight="bold">
-          Minting {label}.{parentName}
-        </Text>
         <TransactionPendingScreen
           hash={mintState.txHash as Hash}
           isCompleted={mintState.txCompleted}
           chainId={chainId}
-          message="Your subname is being minted!"
+          details={[
+            { label: "Name", value: `${label}.${parentName}` },
+            { label: "Action", value: "Mint Subname" },
+          ]}
         />
       </div>
     );
@@ -847,7 +858,7 @@ const SubnameMintFormContent = ({
       {hasInsufficientFunds && (
         <div>
           <Alert variant="warning">
-            <Text size="sm">Insufficient funds</Text>
+            <Text size="sm" data-testid="insufficient-funds">Insufficient funds</Text>
           </Alert>
         </div>
       )}

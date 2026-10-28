@@ -171,6 +171,7 @@ export const TextRecords = ({
               >
                 {isDescription ? (
                   <Textarea
+                    data-testid={`text-record-input-${record.key}`}
                     size="sm"
                     ref={(el: HTMLTextAreaElement | null) => {
                       inputRefs.current[record.key] = el;
@@ -186,6 +187,7 @@ export const TextRecords = ({
                   />
                 ) : (
                   <Input
+                    data-testid={`text-record-input-${record.key}`}
                     ref={(el: HTMLInputElement | null) => {
                       inputRefs.current[record.key] = el;
                     }}
@@ -227,6 +229,7 @@ export const TextRecords = ({
             <div key={record.key} className="col col-lg-3 col-sm-6 col-6">
               <div
                 className="ns-text-suggestion"
+                data-testid={`text-record-add-${record.key}`}
                 onClick={() => handleTextAdded(record.key)}
               >
                 <Icon size={16} color="grey" name={record.icon} />

@@ -60,7 +60,7 @@ const isStateOverrideRejection = (err: unknown): boolean => {
   );
 };
 
-const NAMESPACE_REFERRER_ADDRESS = "0xb7B18611b8C51B4B3F400BaF09DB49E61e0aF044";
+export const NAMESPACE_REFERRER_ADDRESS = "0xb7B18611b8C51B4B3F400BaF09DB49E61e0aF044";
 
 export interface RegistrationRequest {
   label: string;

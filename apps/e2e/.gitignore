@@ -1,0 +1,4 @@
+.env
+.cache-synpress
+test-results
+playwright-report

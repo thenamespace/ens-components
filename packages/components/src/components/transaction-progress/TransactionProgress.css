@@ -1,0 +1,154 @@
+/* Transaction progress — the webapp's transaction modal content, on the
+   system's tokens: title + description, an ink rail whose surface fill
+   carries the shuriken at its leading edge, a hairline details card and the
+   explorer link. */
+
+.ns-tx-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-8);
+  width: 100%;
+  text-align: left;
+  font-family: var(--ns-font-family);
+}
+
+.ns-tx-progress__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+}
+
+.ns-tx-progress__title {
+  font-size: var(--ns-size-h3);
+  font-weight: var(--ns-weight-semibold);
+  letter-spacing: var(--ns-track-heading);
+  line-height: var(--ns-leading-tight);
+  color: var(--ns-text);
+}
+
+.ns-tx-progress__description {
+  font-size: var(--ns-size-body);
+  line-height: var(--ns-leading-body);
+  color: var(--ns-text-3);
+}
+
+/* ---- Rail ------------------------------------------------------------- */
+.ns-tx-progress__rail {
+  display: flex;
+  align-items: stretch;
+  height: var(--ns-control-lg);
+  padding: var(--ns-space-2);
+  background: var(--ns-ink);
+  border-radius: var(--ns-radius);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.ns-tx-progress__fill {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  /* room for the mark even at 0% */
+  min-width: calc(var(--ns-control-lg) - 2 * var(--ns-space-2));
+  max-width: 100%;
+  padding-right: var(--ns-space-3);
+  background: var(--ns-surface);
+  color: var(--ns-ink);
+  border-radius: calc(var(--ns-radius) - var(--ns-space-2));
+  box-sizing: border-box;
+  /* matches the 200ms tick so the linear fill reads as one smooth motion */
+  transition: width 0.2s linear;
+}
+
+.ns-tx-progress__mark {
+  flex: none;
+}
+
+.ns-tx-progress--pending .ns-tx-progress__mark {
+  animation: ns-tx-progress-spin 2.4s linear infinite;
+}
+
+.ns-tx-progress--success .ns-tx-progress__mark {
+  color: var(--ns-ok);
+  stroke: var(--ns-ok);
+}
+
+.ns-tx-progress--failed .ns-tx-progress__mark {
+  color: var(--ns-dot-bad);
+  stroke: var(--ns-dot-bad);
+}
+
+@keyframes ns-tx-progress-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ns-tx-progress__fill {
+    transition: none;
+  }
+
+  .ns-tx-progress--pending .ns-tx-progress__mark {
+    animation: none;
+  }
+}
+
+/* ---- Details card ----------------------------------------------------- */
+.ns-tx-progress__details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-5);
+  padding: var(--ns-space-10);
+  background: var(--ns-surface);
+  border: var(--ns-hairline-strong);
+  border-radius: var(--ns-radius);
+}
+
+.ns-tx-progress__detail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ns-space-4);
+  font-size: var(--ns-size-body);
+  font-weight: var(--ns-weight-medium);
+}
+
+.ns-tx-progress__detail-label {
+  color: var(--ns-text-3);
+}
+
+.ns-tx-progress__detail-value {
+  min-width: 0;
+  color: var(--ns-text);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* ---- Explorer link ---------------------------------------------------- */
+.ns-tx-progress__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ns-space-3);
+  align-self: center;
+  font-size: var(--ns-size-body-sm);
+  font-weight: var(--ns-weight-medium);
+  color: var(--ns-link);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.ns-tx-progress__link:hover {
+  color: var(--ns-link-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Dark theme — legacy, unrefreshed: keep it legible, nothing more */
+[data-theme="dark"] .ns-tx-progress__details {
+  background: var(--ns-color-bg);
+  border-color: var(--ns-color-border);
+}

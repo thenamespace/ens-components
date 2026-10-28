@@ -31,6 +31,7 @@ export const NameAvailabilityInput = ({
   return (
     <div>
       <Input
+        data-testid="subname-input"
         value={label}
         onChange={(e) => onNameChange(e.target.value)}
         disabled={disabled}

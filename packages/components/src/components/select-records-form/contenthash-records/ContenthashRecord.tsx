@@ -121,6 +121,7 @@ export const ContenthashRecord = ({
             <div key={record.protocol} className="col col-lg-3 col-sm-6 col-6">
               <div
                 className="ns-text-suggestion"
+                data-testid={`contenthash-add-${record.protocol}`}
                 onClick={() => onContenthashAdded(record.protocol)}
               >
                 <ContenthashIcon size={16} protocol={record.protocol} />
@@ -144,6 +145,7 @@ export const ContenthashRecord = ({
           </Text>
           <div style={{ width: "100%" }} className="d-flex align-items-center">
             <Input
+              data-testid="contenthash-input"
               ref={inputRef}
               style={{ width: "100%" }}
               onChange={e =>

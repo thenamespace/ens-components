@@ -4,6 +4,8 @@ import logoFull from "./assets/logo-full.jpeg";
 import logoIcon from "./assets/logo-icon.png";
 import { NavWalletButton } from "./nav/NavWalletButton";
 import { ComponentsDropdown } from "./nav/ComponentsDropdown";
+import { EnsVersionSwitch } from "./nav/EnsVersionSwitch";
+import { NetworkSwitch } from "./components/NetworkSwitch";
 import { QuickStartSection } from "./sections/QuickStartSection";
 import { AgentQuickStartSection } from "./sections/AgentQuickStartSection";
 import { EnsRegistrationSection } from "./sections/EnsRegistrationSection";
@@ -11,6 +13,8 @@ import { EnsRecordsSection } from "./sections/EnsRecordsSection";
 import { SelectRecordsSection } from "./sections/SelectRecordsSection";
 import { OffchainSubnameSection } from "./sections/OffchainSubnameSection";
 import { SubnameMintSection } from "./sections/SubnameMintSection";
+import { EnsRenewalSection } from "./sections/EnsRenewalSection";
+import { SubnameRenewalSection } from "./sections/SubnameRenewalSection";
 import { ReportBugSection } from "./sections/ReportBugSection";
 import { FAQSection } from "./sections/FAQSection";
 import { SwitchChainModal } from "./components/SwitchChainModal";
@@ -72,7 +76,7 @@ const HOWTO_SCHEMA = {
       "@type": "HowToStep",
       position: 4,
       name: "Drop in a component",
-      text: "Import and render any of the five components: EnsNameRegistrationForm, EnsRecordsForm, SelectRecordsForm, OffchainSubnameForm, or SubnameMintForm.",
+      text: "Import and render any of the components: EnsNameRegistrationForm, NameRenewForm, EnsRecordsForm, SelectRecordsForm, OffchainSubnameForm, SubnameMintForm, or SubnameRenewForm.",
     },
   ],
 };
@@ -141,7 +145,17 @@ const SOURCE_CODE_SCHEMA = {
 };
 
 export function App() {
-  const [isTestnet, setIsTestnet] = useState(false);
+  const [isTestnet, setIsTestnetState] = useState(true);
+  const [ensVersion, setEnsVersionState] = useState<1 | 2>(2);
+
+  const setIsTestnet = (testnet: boolean) => setIsTestnetState(testnet);
+  const setEnsVersion = (version: 1 | 2) => setEnsVersionState(version);
+  const [renewRequest, setRenewRequest] = useState<{ name: string; at: number }>();
+
+  const renewParent = (name: string) => {
+    setRenewRequest({ name, at: Date.now() });
+    document.getElementById("ens-renewal")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <>
@@ -165,6 +179,7 @@ export function App() {
           <ComponentsDropdown />
           <a className="nav-link" href="https://t.me/+zRyLIQoGGU9iNzIy" target="_blank" rel="noreferrer">Report a bug</a>
           <div className="nav-sep" />
+          <EnsVersionSwitch version={ensVersion} onChange={setEnsVersion} />
           <NavWalletButton />
         </div>
       </nav>
@@ -180,13 +195,14 @@ export function App() {
               for <em>any</em> React app
             </h1>
             <p className="hero-subtitle">
-              Components for ENS name registration, record editing,
+              Components for ENS name registration, renewals, record editing,
               and subname issuance. Drop them in, connect a wallet, ship.
             </p>
             <div className="hero-actions">
               <a className="hero-cta" href="#quickstart">Get Started</a>
               <a className="hero-cta-secondary" href="#agent-quickstart">Agent Quick Start</a>
             </div>
+            <NetworkSwitch isTestnet={isTestnet} onChange={setIsTestnet} />
           </div>
           <div className="hero-image">
             <img src={ninjaBanner} alt="Namespace ninja mascot" />
@@ -199,15 +215,19 @@ export function App() {
           <div className="section-divider" />
           <AgentQuickStartSection />
           <div className="section-divider" />
-          <EnsRegistrationSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} />
+          <EnsRegistrationSection isTestnet={isTestnet} version={ensVersion} />
           <div className="section-divider" />
-          <EnsRecordsSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} />
+          <EnsRenewalSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} requestedName={renewRequest} version={ensVersion} />
+          <div className="section-divider" />
+          <EnsRecordsSection isTestnet={isTestnet} version={ensVersion} />
           <div className="section-divider" />
           <SelectRecordsSection />
           <div className="section-divider" />
-          <OffchainSubnameSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} />
+          <OffchainSubnameSection isTestnet={isTestnet} />
           <div className="section-divider" />
-          <SubnameMintSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} />
+          <SubnameMintSection isTestnet={isTestnet} version={ensVersion} />
+          <div className="section-divider" />
+          <SubnameRenewalSection isTestnet={isTestnet} onIsTestnetChange={setIsTestnet} onRenewParent={renewParent} version={ensVersion} onVersionChange={setEnsVersion} />
           <div className="section-divider" />
           <FAQSection />
           <div className="section-divider" />
@@ -261,10 +281,12 @@ export function App() {
               <h4 className="footer-col-heading">Components</h4>
               <ul className="footer-col-links">
                 <li><a href="#ens-registration">ENS Registration</a></li>
+                <li><a href="#ens-renewal">ENS Renewal</a></li>
                 <li><a href="#ens-records">ENS Records</a></li>
                 <li><a href="#select-records">Select Records</a></li>
                 <li><a href="#offchain-subname">Offchain Subnames</a></li>
                 <li><a href="#subname-mint">Onchain Subnames</a></li>
+                <li><a href="#subname-renewal">Subname Renewal</a></li>
               </ul>
             </div>
 

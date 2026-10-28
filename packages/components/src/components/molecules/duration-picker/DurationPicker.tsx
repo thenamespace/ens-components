@@ -13,6 +13,8 @@ export interface DurationPickerProps {
   durationSeconds: number;
   onDurationChange: (seconds: number) => void;
   minSeconds?: number;
+  /** Unix time the duration counts from. Renewals pass the current expiry. Defaults to now. */
+  startSeconds?: number;
 }
 
 const CalendarSVG = () => (
@@ -25,14 +27,15 @@ export const DurationPicker: React.FC<DurationPickerProps> = ({
   durationSeconds,
   onDurationChange,
   minSeconds = MIN_REGISTRATION_SECONDS,
+  startSeconds,
 }) => {
   const [durationType, setDurationType] = useState<"years" | "date">("years");
   const dateInputRef = useRef<HTMLInputElement>(null);
   const nowSecondsRef = useRef(Math.floor(Date.now() / 1000));
-  const nowSeconds = nowSecondsRef.current;
+  const nowSeconds = startSeconds ?? nowSecondsRef.current;
 
   const years = Math.max(1, Math.floor(yearsFromSeconds(durationSeconds)));
-  const minusSeconds = secondsFromYears(new Date(), years - 1);
+  const minusSeconds = secondsFromYears(new Date(nowSeconds * 1000), years - 1);
 
   const handleMinusYear = () => {
     if (minusSeconds >= minSeconds) {
@@ -41,7 +44,7 @@ export const DurationPicker: React.FC<DurationPickerProps> = ({
   };
 
   const handlePlusYear = () => {
-    onDurationChange(secondsFromYears(new Date(), years + 1));
+    onDurationChange(secondsFromYears(new Date(nowSeconds * 1000), years + 1));
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,7 +67,7 @@ export const DurationPicker: React.FC<DurationPickerProps> = ({
     } else {
       // Snap back to nearest whole year (min 1) when switching to years mode
       const snapped = secondsFromYears(
-        new Date(),
+        new Date(nowSeconds * 1000),
         Math.max(1, Math.floor(yearsFromSeconds(durationSeconds)))
       );
       onDurationChange(snapped);

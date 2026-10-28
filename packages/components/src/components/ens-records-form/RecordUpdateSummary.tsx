@@ -648,8 +648,9 @@ export const RecordUpdateSummary: React.FC<RecordUpdateSummaryProps> = ({
             >
               Cancel
             </Button>
-            <Button 
-              size="lg" 
+            <Button
+              data-testid="records-confirm"
+              size="lg"
               onClick={onConfirm}
               disabled={btnDisabled}
               loading={isUpdating?.waitingTx || isUpdating?.waitingWallet}
