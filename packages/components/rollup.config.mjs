@@ -153,7 +153,10 @@ export default [
   // Type declarations
   {
     input: "dist/types/index.d.ts",
-    output: { file: "dist/index.d.ts", format: "es" },
+    output: [
+      { file: "dist/index.d.ts", format: "es" },
+      { file: "dist/index.d.cts", format: "cjs" },
+    ],
     external: [
       /\.css$/,
       /^@thenamespace\/offchain-manager($|\/)/,
@@ -177,5 +180,13 @@ export default [
         },
       }),
     ],
+  },
+  {
+    input: "src/styles-entry.d.ts",
+    output: [
+      { file: "dist/styles.d.ts", format: "es" },
+      { file: "dist/styles.d.cts", format: "cjs" },
+    ],
+    plugins: [dts()],
   },
 ];

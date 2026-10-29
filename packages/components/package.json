@@ -29,13 +29,24 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./styles": {
-      "import": "./dist/styles.js",
-      "require": "./dist/styles.cjs"
+      "import": {
+        "types": "./dist/styles.d.ts",
+        "default": "./dist/styles.js"
+      },
+      "require": {
+        "types": "./dist/styles.d.cts",
+        "default": "./dist/styles.cjs"
+      }
     },
     "./styles.css": {
       "import": "./dist/index.css",

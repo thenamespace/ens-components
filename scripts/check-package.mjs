@@ -5,9 +5,9 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
-  symlinkSync,
+  writeFileSync,
 } from "node:fs";
-import { createRequire } from "node:module";
+import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 
 const artifacts = resolve(".artifacts");
@@ -19,7 +19,7 @@ const [packed] = JSON.parse(
   })
 );
 const tarball = resolve(artifacts, packed.filename);
-const unpacked = mkdtempSync(resolve(artifacts, "package-check-"));
+const unpacked = mkdtempSync(resolve(tmpdir(), "ens-package-check-"));
 
 try {
   execFileSync("tar", ["-xzf", tarball, "-C", unpacked]);
@@ -60,35 +60,136 @@ try {
     );
   }
 
-  const scope = resolve(unpacked, "node_modules/@thenamespace");
-  mkdirSync(scope, { recursive: true });
-  symlinkSync(packageRoot, resolve(scope, "ens-components"), "dir");
-  const require = createRequire(resolve(unpacked, "consumer.cjs"));
-  for (const entry of Object.keys(manifest.exports)) {
-    require.resolve(
-      entry === "." ? manifest.name : `${manifest.name}/${entry.slice(2)}`
-    );
-  }
-  // Run from a consumer directory so resolution goes through the packed exports map.
+  execFileSync(resolve("node_modules/.bin/publint"), [tarball, "--strict"], {
+    stdio: "inherit",
+  });
+  // CSS files are checked above; attw checks JavaScript entry points with modern resolution.
   execFileSync(
-    process.execPath,
+    resolve("node_modules/.bin/attw"),
     [
-      "--input-type=module",
-      "-e",
-      `
+      tarball,
+      "--profile",
+      "node16",
+      "--exclude-entrypoints",
+      "styles.css",
+      "index.css",
+    ],
+    { stdio: "inherit" }
+  );
+
+  // Keep the consumer outside the workspace so hoisted dependencies cannot hide missing ones.
+  writeFileSync(
+    resolve(unpacked, "package.json"),
+    JSON.stringify({
+      private: true,
+      type: "module",
+      dependencies: {
+        [manifest.name]: `file:${tarball}`,
+        react: "19.0.0",
+        "react-dom": "19.0.0",
+        viem: "2.46.3",
+        wagmi: "2.19.5",
+        "@tanstack/react-query": "5.90.20",
+        "@rainbow-me/rainbowkit": "2.2.8",
+        "@types/react": "19.2.13",
+        "@types/react-dom": "19.2.3",
+      },
+    })
+  );
+  execFileSync(
+    "npm",
+    [
+      "install",
+      "--ignore-scripts",
+      "--no-audit",
+      "--no-fund",
+      "--package-lock=false",
+    ],
+    {
+      cwd: unpacked,
+      stdio: "inherit",
+      timeout: 300_000,
+    }
+  );
+
+  const smoke = `
     import assert from 'node:assert/strict';
+    import { createRequire } from 'node:module';
     import { EnsNameRegistrationForm, EnsRecordsForm, SubnameMintForm } from '@thenamespace/ens-components';
     for (const component of [EnsNameRegistrationForm, EnsRecordsForm, SubnameMintForm]) {
       assert.equal(typeof component, 'function');
     }
-  `,
-    ],
-    { cwd: unpacked, stdio: "inherit" }
+    const require = createRequire(import.meta.url);
+    const cjs = require('@thenamespace/ens-components');
+    assert.equal(typeof cjs.EnsNameRegistrationForm, 'function');
+    for (const entry of ${JSON.stringify(Object.keys(manifest.exports))}) {
+      const specifier = entry === '.' ? '${manifest.name}' : '${manifest.name}/' + entry.slice(2);
+      require.resolve(specifier);
+      import.meta.resolve(specifier);
+    }
+  `;
+  writeFileSync(resolve(unpacked, "smoke.mjs"), smoke);
+  execFileSync(process.execPath, ["smoke.mjs"], {
+    cwd: unpacked,
+    stdio: "inherit",
+  });
+
+  const consumerTypes = `
+    import { EnsNameRegistrationForm, EnsRecordsForm, SubnameMintForm } from '@thenamespace/ens-components';
+    import type { EnsRecords } from '@thenamespace/ens-components';
+    import type { ComponentProps } from 'react';
+    import '@thenamespace/ens-components/styles';
+    const records: EnsRecords = { addresses: [], texts: [] };
+    const registration: ComponentProps<typeof EnsNameRegistrationForm> = { isTestnet: true };
+    const editor: ComponentProps<typeof EnsRecordsForm> = { name: 'example.eth', existingRecords: records };
+    const mint: ComponentProps<typeof SubnameMintForm> = { parentName: 'example.eth' };
+  `;
+  writeFileSync(resolve(unpacked, "consumer.mts"), consumerTypes);
+  writeFileSync(resolve(unpacked, "consumer.cts"), consumerTypes);
+  const tsc = resolve("packages/components/node_modules/typescript/bin/tsc");
+  const flags = [
+    "--noEmit",
+    "--strict",
+    "--skipLibCheck",
+    "--target",
+    "es2022",
+    "--jsx",
+    "react-jsx",
+  ];
+  execFileSync(
+    process.execPath,
+    [tsc, ...flags, "--module", "NodeNext", "consumer.mts", "consumer.cts"],
+    {
+      cwd: unpacked,
+      stdio: "inherit",
+    }
   );
-  const cjs = require(manifest.name);
-  assert.equal(typeof cjs.EnsNameRegistrationForm, "function");
+  for (const [index, readme] of [
+    "README.md",
+    "packages/components/README.md",
+  ].entries()) {
+    const example = readFileSync(readme, "utf8").match(/```tsx\n([\s\S]*?)```/);
+    assert.ok(example, `Missing quick-start example in ${readme}`);
+    writeFileSync(resolve(unpacked, `readme-${index}.tsx`), example[1]);
+    execFileSync(
+      process.execPath,
+      [
+        tsc,
+        ...flags,
+        "--module",
+        "esnext",
+        "--moduleResolution",
+        "bundler",
+        `readme-${index}.tsx`,
+      ],
+      {
+        cwd: unpacked,
+        stdio: "inherit",
+      }
+    );
+  }
   console.log(
-    `Verified ${packed.filename}: ESM/CJS imports, exports, styles, types, README, and MIT license.`
+    `Verified ${packed.filename}: package lint, ESM/CJS types and imports, isolated consumer, README examples, and MIT license.`
   );
 } finally {
   rmSync(unpacked, { recursive: true, force: true });

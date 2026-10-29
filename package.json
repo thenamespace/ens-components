@@ -18,8 +18,10 @@
     "e2e": "pnpm --filter e2e test"
   },
   "devDependencies": {
-    "turbo": "^2.3.3",
+    "@arethetypeswrong/cli": "0.18.5",
+    "eslint": "^9.34.0",
     "prettier": "^3.6.2",
-    "eslint": "^9.34.0"
+    "publint": "0.3.25",
+    "turbo": "^2.3.3"
   }
 }
