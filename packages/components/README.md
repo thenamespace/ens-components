@@ -1,70 +1,74 @@
 # `@thenamespace/ens-components`
 
-Production-ready React components for ENS name registration, renewal, record editing, and subname issuance on ENSv2.
+React components for ENS name registration, renewal, record editing, and subname issuance on ENSv2.
 
 [![npm](https://img.shields.io/npm/v/@thenamespace/ens-components)](https://www.npmjs.com/package/@thenamespace/ens-components)
 
 Try every component live at [enscomponents.com](https://enscomponents.com).
 
-## Install
-
-```bash
-npm install @thenamespace/ens-components
-# or
-pnpm add @thenamespace/ens-components
-```
-
-Peer dependencies (you likely already have these):
-
-```bash
-npm install react react-dom wagmi viem @tanstack/react-query
-```
-
 ## Quick start
 
-### 1. Wrap your app with Web3 providers
+Requires React 19+, wagmi 2, viem 2, and TanStack Query 5. This example uses
+RainbowKit for wallet connection in a client-rendered React app.
 
-The library reads wallet state from wagmi. Use your own wagmi setup or RainbowKit:
+```sh
+pnpm add @thenamespace/ens-components react@^19 react-dom@^19 wagmi@^2.19.5 viem@^2.46.3 @tanstack/react-query@^5 @rainbow-me/rainbowkit@^2.2.8
+```
+
+Create a WalletConnect project ID at [Reown](https://cloud.reown.com), replace
+`YOUR_WALLETCONNECT_PROJECT_ID`, and render this `App` in your React application:
 
 ```tsx
-import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+"use client";
+
+import { useState } from "react";
+import {
+  ConnectButton,
+  getDefaultConfig,
+  RainbowKitProvider,
+  useConnectModal,
+} from "@rainbow-me/rainbowkit";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
-import { mainnet, sepolia } from "wagmi/chains";
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { sepolia } from "wagmi/chains";
+import { EnsNameRegistrationForm } from "@thenamespace/ens-components";
 import "@rainbow-me/rainbowkit/styles.css";
+import "@thenamespace/ens-components/styles.css";
 
 const config = getDefaultConfig({
-  appName: "My App",
+  appName: "My ENS App",
   projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
-  chains: [mainnet, sepolia],
+  chains: [sepolia],
 });
 
-export function Providers({ children }: { children: React.ReactNode }) {
+function RegisterName() {
+  const { openConnectModal } = useConnectModal();
+  return (
+    <>
+      <ConnectButton />
+      <EnsNameRegistrationForm isTestnet onConnectWallet={openConnectModal} />
+    </>
+  );
+}
+
+export default function App() {
+  const [queryClient] = useState(() => new QueryClient());
   return (
     <WagmiProvider config={config}>
-      <QueryClientProvider client={new QueryClient()}>
-        <RainbowKitProvider>{children}</RainbowKitProvider>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>
+          <RegisterName />
+        </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );
 }
 ```
 
-### 2. Import styles
-
-```tsx
-import "@thenamespace/ens-components/styles";
-```
-
-### 3. Drop in a component
-
-```tsx
-import { EnsNameRegistrationForm } from "@thenamespace/ens-components";
-
-export default function App() {
-  return <EnsNameRegistrationForm isTestnet={false} />;
-}
-```
+This example uses Sepolia. Registration needs Sepolia ETH for gas and a supported
+test payment token. For mainnet, configure wagmi with `mainnet` and set
+`isTestnet={false}`. If your app already has wallet providers, reuse them and
+import the component and stylesheet.
 
 Every onchain flow runs on ENSv2, on mainnet or on Sepolia with `isTestnet`. The one ENSv1 flow still in use is
 minting under an old Namespace listing: pass `version={1}` to `SubnameMintForm` for those parents.

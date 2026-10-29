@@ -323,13 +323,13 @@ pnpm e2e
 
 - **npm:** update the version and changelog in a reviewed PR, then run
   "Publish npm package and GitHub release" on `main` after approval and merge.
-  See [Publishing a release](../README.md#publishing-a-release) for the checks,
+  See [Publishing a release](../CONTRIBUTING.md#publishing-a-release) for the checks,
   required credentials, and partial-release recovery instructions.
 - **enscomponents.com:** the landing app builds from the workspace package, not
-  npm. Run "Build and Push Docker Image" on the commit to deploy, then set its short
-  SHA as the tag in `applications/apps/core/uikit/app-config/{staging,prod}-values.yaml`
-  in the infra repo. The automatic staging update doesn't work for this repo: it
-  dispatches the repository name `ens-components`, but the infra app is `uikit`.
+  npm. The manual playground workflow builds the image and requests a staging
+  infrastructure PR for `uikit`. GitHub records the request as queued until the
+  rollout is confirmed. See [Playground deployments](../CONTRIBUTING.md#playground-deployments).
+  Production promotion remains a separate reviewed infrastructure change.
 
 ---
 
