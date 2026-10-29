@@ -48,4 +48,3 @@ export function Timer({ seconds, progress }: TimerProps) {
     </div>
   );
 }
-

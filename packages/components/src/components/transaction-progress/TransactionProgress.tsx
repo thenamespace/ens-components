@@ -113,7 +113,9 @@ export const TransactionProgress: React.FC<TransactionProgressProps> = ({
   return (
     <div className={`ns-tx-progress ns-tx-progress--${status} ${className}`}>
       <div className="ns-tx-progress__header">
-        <div className="ns-tx-progress__title">{title ?? defaultTitles[status]}</div>
+        <div className="ns-tx-progress__title">
+          {title ?? defaultTitles[status]}
+        </div>
         <div className="ns-tx-progress__description">
           {description ?? defaultDescriptions[status]}
         </div>
@@ -130,9 +132,15 @@ export const TransactionProgress: React.FC<TransactionProgressProps> = ({
           className="ns-tx-progress__fill"
           style={{ width: `${progress * 100}%` }}
         >
-          {status === "pending" && <ShurikenMark className="ns-tx-progress__mark" />}
+          {status === "pending" && (
+            <ShurikenMark className="ns-tx-progress__mark" />
+          )}
           {status === "success" && (
-            <Icon name="check-circle" size={22} className="ns-tx-progress__mark" />
+            <Icon
+              name="check-circle"
+              size={22}
+              className="ns-tx-progress__mark"
+            />
           )}
           {status === "failed" && (
             <Icon name="x-circle" size={22} className="ns-tx-progress__mark" />

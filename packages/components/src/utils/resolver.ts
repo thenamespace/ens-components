@@ -20,7 +20,7 @@ export const convertToResolverData = (name: string, records: EnsRecords) => {
     addressesRemoved: [],
     contenthashRemoved: false,
     contenthashAdded: records.contenthash,
-    isDifferent: true
+    isDifferent: true,
   });
 };
 
@@ -57,12 +57,14 @@ const convertTextData = (
 
   if (diff.textsRemoved?.length > 0) {
     diff.textsRemoved.forEach(key => {
-       resolverData.push(encodeFunctionData({
-      functionName: "setText",
-      abi: parseAbi([SET_TEXT_FUNC]),
-      args: [node, key.key, ""]
-    }))
-    })
+      resolverData.push(
+        encodeFunctionData({
+          functionName: "setText",
+          abi: parseAbi([SET_TEXT_FUNC]),
+          args: [node, key.key, ""],
+        })
+      );
+    });
   }
 };
 

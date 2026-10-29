@@ -137,29 +137,29 @@ export const ImageRecords = ({
         >
           {!avatarRecordSet && (
             <div className="ns-avatar-record-placeholder">
-            <Dropdown
-              placement="bottom"
-              align="end"
-              disabled={avatarActions.length === 0}
-              trigger={
-                <div title="Add avatar" aria-label="Add avatar">
-                  <Icon color="grey" name="upload" size={24} />
+              <Dropdown
+                placement="bottom"
+                align="end"
+                disabled={avatarActions.length === 0}
+                trigger={
+                  <div title="Add avatar" aria-label="Add avatar">
+                    <Icon color="grey" name="upload" size={24} />
+                  </div>
+                }
+              >
+                <div className="ns-image-actions-menu">
+                  {avatarActions.map(action => (
+                    <button
+                      key={`avatar-${action.id}`}
+                      type="button"
+                      className="ns-image-actions-menu-item"
+                      onClick={() => action.onSelect()}
+                    >
+                      {action.label}
+                    </button>
+                  ))}
                 </div>
-              }
-            >
-              <div className="ns-image-actions-menu">
-                {avatarActions.map(action => (
-                  <button
-                    key={`avatar-${action.id}`}
-                    type="button"
-                    className="ns-image-actions-menu-item"
-                    onClick={() => action.onSelect()}
-                  >
-                    {action.label}
-                  </button>
-                ))}
-              </div>
-            </Dropdown>
+              </Dropdown>
             </div>
           )}
         </div>

@@ -17,7 +17,7 @@ export function SectionHeader({
 }) {
   const isImg = typeof icon === "string";
   const isShuriken = icon === shurikenSvg;
-  const Icon = isImg ? null : icon as LucideIcon;
+  const Icon = isImg ? null : (icon as LucideIcon);
   const badgeRef = useRef<HTMLDivElement>(null);
   const [spin, setSpin] = useState(false);
 
@@ -29,7 +29,7 @@ export function SectionHeader({
       ([entry]) => {
         setSpin(entry.isIntersecting);
       },
-      { threshold: 0.5 },
+      { threshold: 0.5 }
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -42,10 +42,15 @@ export function SectionHeader({
           ref={badgeRef}
           className={`agent-qs-badge${isImg ? " agent-qs-badge-img" : ""}`}
         >
-          {isImg
-            ? <img src={icon as string} alt="" className={`section-icon-img${spin ? " section-icon-spin" : ""}`} />
-            : Icon && <Icon size={13} strokeWidth={2.5} />
-          }
+          {isImg ? (
+            <img
+              src={icon as string}
+              alt=""
+              className={`section-icon-img${spin ? " section-icon-spin" : ""}`}
+            />
+          ) : (
+            Icon && <Icon size={13} strokeWidth={2.5} />
+          )}
           {name}
         </div>
         <h2 className="agent-qs-title">{title}</h2>

@@ -17,7 +17,7 @@ export const buildSubnameRequest = (
 ): SubnameRequest => {
   // Convert addresses
   const addresses = ensRecords.addresses
-    .map((addr) => {
+    .map(addr => {
       const chainName = coinTypeToChainName(addr.coinType);
       if (!chainName) {
         console.warn(`Unsupported coin type: ${addr.coinType}, skipping...`);
@@ -28,10 +28,13 @@ export const buildSubnameRequest = (
         value: addr.value,
       };
     })
-    .filter((addr) => addr !== null) as Array<{ chain: ChainName; value: string }>;
+    .filter(addr => addr !== null) as Array<{
+    chain: ChainName;
+    value: string;
+  }>;
 
   // Convert texts
-  const texts = ensRecords.texts.map((text) => ({
+  const texts = ensRecords.texts.map(text => ({
     key: text.key,
     value: text.value,
   }));

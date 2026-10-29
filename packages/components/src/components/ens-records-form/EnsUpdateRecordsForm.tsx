@@ -168,7 +168,7 @@ export const EnsUpdateRecordsForm = ({
           actionButtons={
             <div>
               {validationError && (
-                <div style={{marginTop: -12}}>
+                <div style={{ marginTop: -12 }}>
                   <Alert variant="error">{validationError}</Alert>
                 </div>
               )}

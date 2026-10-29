@@ -24,7 +24,9 @@
   cursor: default;
 }
 
-.ns-accordion__header:hover:not(.ns-accordion--disabled .ns-accordion__header):not(.ns-accordion--not-togglable .ns-accordion__header) {
+.ns-accordion__header:hover:not(
+    .ns-accordion--disabled .ns-accordion__header
+  ):not(.ns-accordion--not-togglable .ns-accordion__header) {
   background-color: var(--ns-surface-2);
 }
 

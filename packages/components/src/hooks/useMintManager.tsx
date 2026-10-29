@@ -12,22 +12,32 @@ interface UseMintManagerParams {
 }
 
 // Extract the RPC URL from a wagmi public client's HTTP transport, if present.
-function getTransportUrl(client: ReturnType<typeof usePublicClient>): string | undefined {
-  const transport = client?.transport as { type?: string; url?: string } | undefined;
+function getTransportUrl(
+  client: ReturnType<typeof usePublicClient>
+): string | undefined {
+  const transport = client?.transport as
+    | { type?: string; url?: string }
+    | undefined;
   return transport?.type === "http" ? transport.url : undefined;
 }
 
 export const useMintManager = ({ isTestnet }: UseMintManagerParams) => {
-  const mainnetClient    = usePublicClient({ chainId: mainnet.id });
-  const sepoliaClient    = usePublicClient({ chainId: sepolia.id });
-  const baseClient       = usePublicClient({ chainId: base.id });
+  const mainnetClient = usePublicClient({ chainId: mainnet.id });
+  const sepoliaClient = usePublicClient({ chainId: sepolia.id });
+  const baseClient = usePublicClient({ chainId: base.id });
   const baseSepoliaClient = usePublicClient({ chainId: baseSepolia.id });
-  const optimismClient   = usePublicClient({ chainId: optimism.id });
+  const optimismClient = usePublicClient({ chainId: optimism.id });
 
   const mintClient = useMemo(() => {
     const cursomRpcUrls: Record<string, string> = {};
 
-    const clients = [mainnetClient, sepoliaClient, baseClient, baseSepoliaClient, optimismClient];
+    const clients = [
+      mainnetClient,
+      sepoliaClient,
+      baseClient,
+      baseSepoliaClient,
+      optimismClient,
+    ];
     for (const client of clients) {
       const url = getTransportUrl(client);
       if (client && url) {
@@ -39,25 +49,35 @@ export const useMintManager = ({ isTestnet }: UseMintManagerParams) => {
       cursomRpcUrls,
       isTestnet: isTestnet || false,
     });
-  }, [isTestnet, mainnetClient, sepoliaClient, baseClient, baseSepoliaClient, optimismClient]);
+  }, [
+    isTestnet,
+    mainnetClient,
+    sepoliaClient,
+    baseClient,
+    baseSepoliaClient,
+    optimismClient,
+  ]);
 
-  const getListingDetails = useCallback(async (name: string): Promise<NameListing> => {
-    const listManagerApi = isTestnet
-      ? LIST_MANAGER_TESTNET_API
-      : LIST_MANAGER_API;
-    const listingNetwork = isTestnet
-      ? ListingNetwork.Sepolia
-      : ListingNetwork.Mainnet;
-    return fetch(
-      `${listManagerApi}/api/v1/listing/network/${listingNetwork}/name/${name}`
-    ).then(async (res) => {
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(data.message || "Unknown error");
-      }
-      return data;
-    });
-  }, [isTestnet]);
+  const getListingDetails = useCallback(
+    async (name: string): Promise<NameListing> => {
+      const listManagerApi = isTestnet
+        ? LIST_MANAGER_TESTNET_API
+        : LIST_MANAGER_API;
+      const listingNetwork = isTestnet
+        ? ListingNetwork.Sepolia
+        : ListingNetwork.Mainnet;
+      return fetch(
+        `${listManagerApi}/api/v1/listing/network/${listingNetwork}/name/${name}`
+      ).then(async res => {
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data.message || "Unknown error");
+        }
+        return data;
+      });
+    },
+    [isTestnet]
+  );
 
   return {
     mintClient,

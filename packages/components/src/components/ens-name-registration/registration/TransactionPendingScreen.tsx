@@ -1,6 +1,9 @@
 import React from "react";
 import { Hash } from "viem";
-import { TransactionDetail, TransactionProgress } from "../../transaction-progress";
+import {
+  TransactionDetail,
+  TransactionProgress,
+} from "../../transaction-progress";
 
 interface TransactionPendingScreenProps {
   hash?: Hash;
@@ -11,13 +14,9 @@ interface TransactionPendingScreenProps {
   details?: TransactionDetail[];
 }
 
-export const TransactionPendingScreen: React.FC<TransactionPendingScreenProps> = ({
-  hash,
-  isCompleted,
-  isTestnet,
-  chainId,
-  details,
-}) => (
+export const TransactionPendingScreen: React.FC<
+  TransactionPendingScreenProps
+> = ({ hash, isCompleted, isTestnet, chainId, details }) => (
   <TransactionProgress
     status={isCompleted ? "success" : "pending"}
     hash={hash}

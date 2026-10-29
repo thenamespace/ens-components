@@ -13,16 +13,16 @@ export interface ContractErrorLabelProps {
  */
 export const isUserDeniedError = (error: unknown): boolean => {
   if (!error || typeof error !== "object") return false;
-  
+
   // Check for user rejection code (4001)
   if ("code" in error && error.code === 4001) return true;
-  
+
   // Check for user rejection in message
   const message =
     ("shortMessage" in error ? error.shortMessage : null) ||
     ("message" in error ? error.message : null) ||
     "";
-  
+
   const lowerMessage = typeof message === "string" ? message.toLowerCase() : "";
   return (
     lowerMessage.includes("user rejected") ||
@@ -34,34 +34,39 @@ export const isUserDeniedError = (error: unknown): boolean => {
 /**
  * Checks if an error is a CommitmentTooNew error
  */
-export const isCommitmentToNewErr = (err: ContractFunctionExecutionError): boolean => {
+export const isCommitmentToNewErr = (
+  err: ContractFunctionExecutionError
+): boolean => {
   // Check in shortMessage
   if (err.shortMessage && err.shortMessage.includes("CommitmentTooNew")) {
     return true;
   }
-  
+
   // Check in message
   if (err.message && err.message.includes("CommitmentTooNew")) {
     return true;
   }
-  
+
   // Check in cause if it exists
   if (err.cause && typeof err.cause === "object") {
-    const causeMessage = 
+    const causeMessage =
       ("shortMessage" in err.cause ? err.cause.shortMessage : null) ||
       ("message" in err.cause ? err.cause.message : null) ||
       "";
-    
-    if (typeof causeMessage === "string" && causeMessage.includes("CommitmentTooNew")) {
+
+    if (
+      typeof causeMessage === "string" &&
+      causeMessage.includes("CommitmentTooNew")
+    ) {
       return true;
     }
   }
-  
+
   // Check error name if available
   if ("name" in err && err.name === "CommitmentTooNew") {
     return true;
   }
-  
+
   return false;
 };
 
@@ -86,7 +91,8 @@ export const ContractErrorLabel: React.FC<ContractErrorLabelProps> = ({
       }
     }
 
-    const errorMessage = error.shortMessage || error.message || "Something went wrong.";
+    const errorMessage =
+      error.shortMessage || error.message || "Something went wrong.";
     return `${errorMessage} Check console for more info.`;
   };
 
@@ -104,4 +110,3 @@ export const ContractErrorLabel: React.FC<ContractErrorLabelProps> = ({
 };
 
 export default ContractErrorLabel;
-

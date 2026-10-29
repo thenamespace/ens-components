@@ -5,4 +5,3 @@ export * from "./RegistrationStep";
 export * from "./Timer";
 export * from "./TransactionPendingScreen";
 export * from "./SuccessScreen";
-

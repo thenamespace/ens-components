@@ -1,4 +1,11 @@
-import { formatUnits, type Address, type Hash, type Hex, type PublicClient, type WalletClient } from "viem";
+import {
+  formatUnits,
+  type Address,
+  type Hash,
+  type Hex,
+  type PublicClient,
+  type WalletClient,
+} from "viem";
 
 export interface WalletCall {
   to: Address;
@@ -12,7 +19,11 @@ export interface SendProgress {
   call?: WalletCall;
 }
 
-export const formatTokenAmount = (amount: bigint, decimals: number, symbol: string) => {
+export const formatTokenAmount = (
+  amount: bigint,
+  decimals: number,
+  symbol: string
+) => {
   const value = Number(formatUnits(amount, decimals));
   if (value === 0) return "0";
   const digits = symbol === "ETH" ? 5 : 2;
@@ -24,14 +35,15 @@ export const usdFromRaw = (raw: bigint) => (Number(raw) / 1e12).toFixed(2);
 
 export const supportsAtomicBatch = async (
   walletClient: WalletClient,
-  chainId: number,
+  chainId: number
 ): Promise<boolean> => {
   try {
     const capabilities = await walletClient.getCapabilities({
       account: walletClient.account,
       chainId,
     });
-    const status = (capabilities as { atomic?: { status?: string } })?.atomic?.status;
+    const status = (capabilities as { atomic?: { status?: string } })?.atomic
+      ?.status;
     return status === "supported" || status === "ready";
   } catch {
     return false;
@@ -41,7 +53,7 @@ export const supportsAtomicBatch = async (
 export const sendTransactionWithReceipt = async (
   walletClient: WalletClient,
   publicClient: PublicClient,
-  call: WalletCall,
+  call: WalletCall
 ) => {
   const hash = await walletClient.sendTransaction({
     to: call.to,
@@ -54,7 +66,8 @@ export const sendTransactionWithReceipt = async (
     hash,
     wait: async () => {
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
-      if (receipt.status !== "success") throw new Error("The transaction reverted.");
+      if (receipt.status !== "success")
+        throw new Error("The transaction reverted.");
     },
   };
 };
@@ -64,9 +77,10 @@ export const sendCallsWithFallback = async (
   publicClient: PublicClient,
   calls: WalletCall[],
   chainId: number,
-  onProgress: (progress: SendProgress) => void,
+  onProgress: (progress: SendProgress) => void
 ): Promise<Hash[]> => {
-  const atomic = calls.length > 1 && (await supportsAtomicBatch(walletClient, chainId));
+  const atomic =
+    calls.length > 1 && (await supportsAtomicBatch(walletClient, chainId));
 
   if (atomic) {
     const { id } = await walletClient.sendCalls({
@@ -79,7 +93,7 @@ export const sendCallsWithFallback = async (
     onProgress({ hash: null });
     const result = await walletClient.waitForCallsStatus({ id });
     const hashes = [
-      ...new Set((result.receipts ?? []).map((r) => r.transactionHash)),
+      ...new Set((result.receipts ?? []).map(r => r.transactionHash)),
     ];
     const hash = hashes[hashes.length - 1];
     if (result.status !== "success" || !hash)
@@ -111,15 +125,14 @@ export const sendCallsWithFallback = async (
 export const paidFees = async (publicClient: PublicClient, hashes: Hash[]) => {
   try {
     const receipts = await Promise.all(
-      hashes.map((hash) => publicClient.getTransactionReceipt({ hash })),
+      hashes.map(hash => publicClient.getTransactionReceipt({ hash }))
     );
     const wei = receipts.reduce(
       (sum, r) => sum + r.gasUsed * (r.effectiveGasPrice ?? 0n),
-      0n,
+      0n
     );
     return formatUnits(wei, 18);
   } catch {
     return "0";
   }
 };
-

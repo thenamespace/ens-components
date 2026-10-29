@@ -17,14 +17,23 @@ export function NavWalletButton() {
       setEnsAvatar(null);
       return;
     }
-    publicClient.getEnsName({ address }).then(name => {
-      setEnsName(name);
-      if (name) {
-        publicClient.getEnsAvatar({ name }).then(setEnsAvatar).catch(() => setEnsAvatar(null));
-      } else {
+    publicClient
+      .getEnsName({ address })
+      .then(name => {
+        setEnsName(name);
+        if (name) {
+          publicClient
+            .getEnsAvatar({ name })
+            .then(setEnsAvatar)
+            .catch(() => setEnsAvatar(null));
+        } else {
+          setEnsAvatar(null);
+        }
+      })
+      .catch(() => {
+        setEnsName(null);
         setEnsAvatar(null);
-      }
-    }).catch(() => { setEnsName(null); setEnsAvatar(null); });
+      });
   }, [address, publicClient]);
 
   if (isConnected && address) {
@@ -33,12 +42,18 @@ export function NavWalletButton() {
       <div className="nav-wallet-connected">
         <div className="nav-wallet-avatar">
           {ensAvatar ? (
-            <img src={ensAvatar} alt="avatar" className="nav-wallet-avatar-img" />
+            <img
+              src={ensAvatar}
+              alt="avatar"
+              className="nav-wallet-avatar-img"
+            />
           ) : (
             <div className="nav-wallet-avatar-placeholder" />
           )}
         </div>
-        <span className="nav-wallet-addr" data-testid="nav-wallet-address">{ensName ?? short}</span>
+        <span className="nav-wallet-addr" data-testid="nav-wallet-address">
+          {ensName ?? short}
+        </span>
         <button
           className="nav-wallet-disconnect"
           onClick={() => disconnect()}
@@ -51,7 +66,11 @@ export function NavWalletButton() {
   }
 
   return (
-    <button className="nav-wallet-btn" data-testid="nav-connect-wallet" onClick={openConnectModal}>
+    <button
+      className="nav-wallet-btn"
+      data-testid="nav-connect-wallet"
+      onClick={openConnectModal}
+    >
       Connect Wallet
     </button>
   );

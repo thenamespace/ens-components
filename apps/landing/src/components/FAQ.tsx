@@ -17,7 +17,7 @@ function FAQAccordionItem({ item, index }: { item: FAQItem; index: number }) {
       <dt>
         <button
           className="faq-question"
-          onClick={() => setOpen((o) => !o)}
+          onClick={() => setOpen(o => !o)}
           aria-expanded={open}
           aria-controls={`faq-answer-${index}`}
           id={`faq-question-${index}`}
@@ -53,12 +53,14 @@ export function FAQ({
   const schema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: items.map((item) => ({
+    mainEntity: items.map(item => ({
       "@type": "Question",
       name: item.question,
       acceptedAnswer: {
         "@type": "Answer",
-        text: item.schemaAnswer ?? (typeof item.answer === "string" ? item.answer : ""),
+        text:
+          item.schemaAnswer ??
+          (typeof item.answer === "string" ? item.answer : ""),
       },
     })),
   };

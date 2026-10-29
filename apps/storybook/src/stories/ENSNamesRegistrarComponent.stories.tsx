@@ -9,54 +9,57 @@ import { WalletConnectProvider } from "../wallet-connect";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 
-const WalletContent = ({ 
-  children 
-}: { 
-  children: React.ReactNode;
-}) => {
+const WalletContent = ({ children }: { children: React.ReactNode }) => {
   const { isConnected } = useAccount();
 
   return (
-      <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
-        <div style={{ marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Text weight="bold" size="lg">
-            ENS Name Registration
-          </Text>
-          <ConnectButton />
-        </div>
-        
-        {!isConnected ? (
-          <div style={{ 
-            textAlign: "center", 
+    <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
+      <div
+        style={{
+          marginBottom: "20px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Text weight="bold" size="lg">
+          ENS Name Registration
+        </Text>
+        <ConnectButton />
+      </div>
+
+      {!isConnected ? (
+        <div
+          style={{
+            textAlign: "center",
             padding: "40px 20px",
             background: "var(--ns-color-bg-accent, #f4f4f4)",
             borderRadius: "12px",
-            border: "1px solid var(--ns-color-border, #e5e7eb)"
-          }}>
-            <Text size="md" color="grey" style={{ marginBottom: "16px" }}>
-              Please connect your wallet to register an ENS name
-            </Text>
-            <ConnectButton />
-          </div>
-        ) : (
-          children
-        )}
-      </div>
+            border: "1px solid var(--ns-color-border, #e5e7eb)",
+          }}
+        >
+          <Text size="md" color="grey" style={{ marginBottom: "16px" }}>
+            Please connect your wallet to register an ENS name
+          </Text>
+          <ConnectButton />
+        </div>
+      ) : (
+        children
+      )}
+    </div>
   );
 };
 
-const WalletWrapper = ({ 
-  children, 
-  isTestnet 
-}: { 
+const WalletWrapper = ({
+  children,
+  isTestnet,
+}: {
   children: React.ReactNode;
   isTestnet: boolean;
 }) => {
   return (
     <WalletConnectProvider>
-      <WalletContent>
-        {children}
-      </WalletContent>
+      <WalletContent>{children}</WalletContent>
     </WalletConnectProvider>
   );
 };
@@ -101,12 +104,26 @@ const Template = (args: Partial<EnsNameRegistrationFormProps>) => {
 
   return (
     <WalletWrapper isTestnet={isTestnet}>
-      <div style={{ marginBottom: "16px", display: "flex", gap: "12px", alignItems: "center" }}>
-        <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+      <div
+        style={{
+          marginBottom: "16px",
+          display: "flex",
+          gap: "12px",
+          alignItems: "center",
+        }}
+      >
+        <label
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            cursor: "pointer",
+          }}
+        >
           <input
             type="checkbox"
             checked={isTestnet}
-            onChange={(e) => setIsTestnet(e.target.checked)}
+            onChange={e => setIsTestnet(e.target.checked)}
             style={{ cursor: "pointer" }}
           />
           <Text size="sm">Testnet (Sepolia)</Text>

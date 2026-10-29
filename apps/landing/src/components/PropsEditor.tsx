@@ -23,7 +23,7 @@ export function PropsEditor({
 
   return (
     <div className="props-editor">
-      <button className="props-editor-toggle" onClick={() => setOpen((o) => !o)}>
+      <button className="props-editor-toggle" onClick={() => setOpen(o => !o)}>
         <span className="props-editor-label">Props</span>
         <ChevronDown
           size={14}
@@ -40,7 +40,7 @@ export function PropsEditor({
             </tr>
           </thead>
           <tbody>
-            {defs.map((def) => (
+            {defs.map(def => (
               <tr key={def.key}>
                 <td className="prop-name-cell">
                   <code>{def.key}</code>
@@ -48,7 +48,9 @@ export function PropsEditor({
                   {def.tip && <PropTip text={def.tip} />}
                 </td>
                 <td className="prop-type-cell">
-                  <span className={`prop-type-badge type-${def.type}`}>{def.type}</span>
+                  <span className={`prop-type-badge type-${def.type}`}>
+                    {def.type}
+                  </span>
                 </td>
                 <td className="prop-value-cell">
                   {def.readonly ? (
@@ -63,18 +65,24 @@ export function PropsEditor({
                       <span className="toggle-track">
                         <span className="toggle-thumb" />
                       </span>
-                      <span className="toggle-val">{String(values[def.key])}</span>
+                      <span className="toggle-val">
+                        {String(values[def.key])}
+                      </span>
                     </button>
                   ) : (
                     <input
                       className="prop-input"
                       type={def.type === "number" ? "number" : "text"}
                       value={values[def.key] ?? ""}
-                      placeholder={(def as StrProp).placeholder ?? `${def.key}…`}
-                      onChange={(e) =>
+                      placeholder={
+                        (def as StrProp).placeholder ?? `${def.key}…`
+                      }
+                      onChange={e =>
                         onChange(
                           def.key,
-                          def.type === "number" ? Number(e.target.value) : e.target.value,
+                          def.type === "number"
+                            ? Number(e.target.value)
+                            : e.target.value
                         )
                       }
                     />

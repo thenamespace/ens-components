@@ -97,7 +97,7 @@ const icons: Record<IconName, IconComponent> = {
   twitter: XIcon,
   "circle-alert": LucideIcons.CircleAlert,
   "check-circle": CheckCircle,
-  "check": Check,
+  check: Check,
   "alert-triangle": AlertTriangle,
   info: Info,
   "x-circle": XCircle,

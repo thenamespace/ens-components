@@ -54,16 +54,17 @@ export const Accordion: React.FC<AccordionProps> = ({
   // Otherwise, if controlledIsOpen is provided but no onToggle, use internal state for user clicks (hybrid mode)
   // If not controlled at all, use internal state (uncontrolled)
   // When disabled, always force closed
-  const isOpen = disabled 
-    ? false 
-    : (controlledIsOpen !== undefined && onToggle) 
-      ? controlledIsOpen 
+  const isOpen = disabled
+    ? false
+    : controlledIsOpen !== undefined && onToggle
+      ? controlledIsOpen
       : internalIsOpen;
 
   // Initialize height for defaultOpen - use layout effect to prevent flash
   useLayoutEffect(() => {
     if (contentRef.current) {
-      const initialOpen = controlledIsOpen !== undefined ? controlledIsOpen : defaultOpen;
+      const initialOpen =
+        controlledIsOpen !== undefined ? controlledIsOpen : defaultOpen;
       if (initialOpen) {
         setHeight(contentRef.current.scrollHeight);
       } else {
@@ -91,10 +92,10 @@ export const Accordion: React.FC<AccordionProps> = ({
           setHeight(contentRef.current.scrollHeight);
         }
       };
-      
+
       // Update immediately
       updateHeight();
-      
+
       // Watch for content changes
       const resizeObserver = new ResizeObserver(updateHeight);
       resizeObserver.observe(contentRef.current);
@@ -105,11 +106,11 @@ export const Accordion: React.FC<AccordionProps> = ({
   const handleToggle = () => {
     if (!disabled && togglable) {
       const newIsOpen = !isOpen;
-      
+
       // If controlled with onToggle callback, call it (parent manages state)
       if (controlledIsOpen !== undefined && onToggle) {
         onToggle(newIsOpen);
-      } 
+      }
       // If controlled but no onToggle, use internal state (hybrid mode)
       else if (controlledIsOpen !== undefined && !onToggle) {
         setInternalIsOpen(newIsOpen);
@@ -136,7 +137,7 @@ export const Accordion: React.FC<AccordionProps> = ({
         aria-expanded={isOpen}
         aria-disabled={disabled || !togglable}
         tabIndex={disabled || !togglable ? -1 : 0}
-        onKeyDown={(e) => {
+        onKeyDown={e => {
           if ((e.key === "Enter" || e.key === " ") && togglable) {
             e.preventDefault();
             handleToggle();
@@ -154,7 +155,10 @@ export const Accordion: React.FC<AccordionProps> = ({
           height: `${height}px`,
         }}
       >
-        <div ref={contentRef} className={`ns-accordion__body-inner ${bodyClassName}`}>
+        <div
+          ref={contentRef}
+          className={`ns-accordion__body-inner ${bodyClassName}`}
+        >
           {children}
         </div>
       </div>

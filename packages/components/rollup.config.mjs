@@ -27,10 +27,22 @@ const externals = [
 
 const aliasEntries = [
   { find: "@", replacement: path.resolve(__dirname, "src") },
-  { find: "@/components", replacement: path.resolve(__dirname, "src/components/index") },
-  { find: "@/atoms", replacement: path.resolve(__dirname, "src/components/atoms/index") },
-  { find: "@/molecules", replacement: path.resolve(__dirname, "src/components/molecules/index") },
-  { find: "@/constants", replacement: path.resolve(__dirname, "src/constants/index") },
+  {
+    find: "@/components",
+    replacement: path.resolve(__dirname, "src/components/index"),
+  },
+  {
+    find: "@/atoms",
+    replacement: path.resolve(__dirname, "src/components/atoms/index"),
+  },
+  {
+    find: "@/molecules",
+    replacement: path.resolve(__dirname, "src/components/molecules/index"),
+  },
+  {
+    find: "@/constants",
+    replacement: path.resolve(__dirname, "src/constants/index"),
+  },
   { find: "@/utils", replacement: path.resolve(__dirname, "src/utils/index") },
   { find: "@/types", replacement: path.resolve(__dirname, "src/types/index") },
   { find: "@/web3", replacement: path.resolve(__dirname, "src/web3/index") },
@@ -72,7 +84,7 @@ export default [
       commonjs({
         // Properly handle ESM/CJS interop for viem which has no default export
         esmExternals: true,
-        requireReturnsDefault: 'namespace',
+        requireReturnsDefault: "namespace",
       }),
       json(),
       image(),
@@ -120,7 +132,7 @@ export default [
       commonjs({
         // Properly handle ESM/CJS interop for viem which has no default export
         esmExternals: true,
-        requireReturnsDefault: 'namespace',
+        requireReturnsDefault: "namespace",
       }),
       json(),
       image(),
@@ -141,8 +153,15 @@ export default [
   // Type declarations
   {
     input: "dist/types/index.d.ts",
-    output: { file: "dist/index.d.ts", format: "es" },
-    external: [/\.css$/, /^@thenamespace\/offchain-manager($|\/)/, ...externals],
+    output: [
+      { file: "dist/index.d.ts", format: "es" },
+      { file: "dist/index.d.cts", format: "cjs" },
+    ],
+    external: [
+      /\.css$/,
+      /^@thenamespace\/offchain-manager($|\/)/,
+      ...externals,
+    ],
     plugins: [
       dts({
         respectExternal: true,
@@ -161,5 +180,13 @@ export default [
         },
       }),
     ],
+  },
+  {
+    input: "src/styles-entry.d.ts",
+    output: [
+      { file: "dist/styles.d.ts", format: "es" },
+      { file: "dist/styles.d.cts", format: "cjs" },
+    ],
+    plugins: [dts()],
   },
 ];

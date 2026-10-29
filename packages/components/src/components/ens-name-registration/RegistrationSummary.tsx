@@ -44,7 +44,11 @@ export interface RegistrationSummaryProps {
   bannerWidth?: number;
   onLabelChange: (label: string) => void;
   onDurationChange: (seconds: number) => void;
-  onPriceChange: (price: { isChecking: boolean; wei: bigint; eth: number }) => void;
+  onPriceChange: (price: {
+    isChecking: boolean;
+    wei: bigint;
+    eth: number;
+  }) => void;
   onNameValidationChange: (validation: {
     isChecking: boolean;
     isTaken: boolean;
@@ -83,7 +87,9 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
 }) => {
   const { isConnected } = useAccount();
   const { ethUsdRate } = useEthDollarValue();
-  const { isEnsAvailable, getRegistrationPrice } = useRegisterENS({ isTestnet });
+  const { isEnsAvailable, getRegistrationPrice } = useRegisterENS({
+    isTestnet,
+  });
 
   const { regPrice, regFees, regTotal, regTotalWei } = useMemo(() => {
     const priceEth = price?.eth ?? 0;
@@ -108,7 +114,9 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
 
   const checkAvailability = async (labelToCheck: string) => {
     try {
-      const available = await (checkAvailabilityOverride ?? isEnsAvailable)(labelToCheck);
+      const available = await (checkAvailabilityOverride ?? isEnsAvailable)(
+        labelToCheck
+      );
       onNameValidationChange({ isChecking: false, isTaken: !available });
     } catch {
       onNameValidationChange({
@@ -119,11 +127,18 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
     }
   };
 
-  const checkRegistrationPrice = async (labelToCheck: string, durationSecs: number) => {
+  const checkRegistrationPrice = async (
+    labelToCheck: string,
+    durationSecs: number
+  ) => {
     if (pricing !== undefined) return;
     try {
       const rentPrice = await getRegistrationPrice(labelToCheck, durationSecs);
-      onPriceChange({ isChecking: false, eth: rentPrice.eth, wei: rentPrice.wei });
+      onPriceChange({
+        isChecking: false,
+        eth: rentPrice.eth,
+        wei: rentPrice.wei,
+      });
     } catch {
       onPriceChange({ isChecking: false, eth: -1, wei: 0n });
     }
@@ -197,7 +212,8 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
   );
 
   const nameTooShort = label.length < MIN_ENS_LEN;
-  const nameTaken = !nameTooShort && !nameValidation.isChecking && nameValidation.isTaken;
+  const nameTaken =
+    !nameTooShort && !nameValidation.isChecking && nameValidation.isTaken;
   const nameInputState = isNameAvailable ? "ok" : nameTaken ? "bad" : null;
 
   const nextBtnDisabled =
@@ -210,7 +226,8 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
   // Fee estimation only kicks off once the registration price resolves, so
   // while the price is loading the fees are pending too — spin instead of
   // flashing a stale/zero amount.
-  const transactionFeesLoading = transactionFees?.isChecking || price.isChecking;
+  const transactionFeesLoading =
+    transactionFees?.isChecking || price.isChecking;
 
   return (
     <div className="ens-registration-summary">
@@ -234,7 +251,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
       <Input
         data-testid="ens-name-input"
         value={label}
-        onChange={(e) => handleNameChanged(e.target.value)}
+        onChange={e => handleNameChanged(e.target.value)}
         size="lg"
         wrapperClassName={`ens-name-input${nameInputState ? ` ens-name-input--${nameInputState}` : ""}`}
         prefix={<Icon color="grey" size={20} name="search" />}
@@ -248,41 +265,47 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
       {nameTooShort && (
         <div className="ns-name-status">
           <span className="ns-dot" />
-          <span className="ns-name-status__text">Minimum length is {MIN_ENS_LEN} characters</span>
+          <span className="ns-name-status__text">
+            Minimum length is {MIN_ENS_LEN} characters
+          </span>
         </div>
       )}
       {nameTaken && (
         <div className="ns-name-status">
           <span className="ns-dot ns-dot--bad" />
-          <span className="ns-name-status__text">{label}.eth is not available</span>
+          <span className="ns-name-status__text">
+            {label}.eth is not available
+          </span>
         </div>
       )}
 
       {isNameAvailable && (
         <>
-          {pricing ?? <PricingDisplay
-            primaryFee={{
-              label: "Registration Fee",
-              amount: regPrice,
-              isChecking: price.isChecking,
-            }}
-            networkFees={
-              transactionFees
-                ? { amount: regFees, isChecking: transactionFeesLoading }
-                : undefined
-            }
-            total={{
-              amount: regTotal,
-              isChecking: totalPriceLoading,
-              weiAmount: regTotalWei,
-            }}
-            expiryPicker={{
-              durationSeconds,
-              onDurationChange: handleDurationChange,
-              minSeconds: MIN_REGISTRATION_SECONDS,
-            }}
-            ethUsdRate={ethUsdRate}
-          />}
+          {pricing ?? (
+            <PricingDisplay
+              primaryFee={{
+                label: "Registration Fee",
+                amount: regPrice,
+                isChecking: price.isChecking,
+              }}
+              networkFees={
+                transactionFees
+                  ? { amount: regFees, isChecking: transactionFeesLoading }
+                  : undefined
+              }
+              total={{
+                amount: regTotal,
+                isChecking: totalPriceLoading,
+                weiAmount: regTotalWei,
+              }}
+              expiryPicker={{
+                durationSeconds,
+                onDurationChange: handleDurationChange,
+                minSeconds: MIN_REGISTRATION_SECONDS,
+              }}
+              ethUsdRate={ethUsdRate}
+            />
+          )}
 
           <div
             className="ens-profile-selector"
@@ -293,7 +316,12 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
             <div className="d-flex justify-content-between align-items-center">
               <div className="d-flex align-items-center">
                 <div className="shuriken-cont d-flex align-items-center justify-content-center">
-                  <img className="shuriken" width={50} src={shurikenImage} alt="shuricken" />
+                  <img
+                    className="shuriken"
+                    width={50}
+                    src={shurikenImage}
+                    alt="shuricken"
+                  />
                 </div>
                 <div className="ms-3">
                   <Text size="sm" weight="medium">

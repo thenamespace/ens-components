@@ -75,7 +75,8 @@ export const ConnectAndSetChain: React.FC<ConnectAndSetChainProps> = ({
 
   // If connected but on wrong chain, show switch chain message
   const requiredChainInfo = getChainInfo(requiredChainID);
-  const needsSwitch = currentChainID !== undefined && currentChainID !== requiredChainID;
+  const needsSwitch =
+    currentChainID !== undefined && currentChainID !== requiredChainID;
 
   if (!needsSwitch) {
     return null;
@@ -115,4 +116,3 @@ export const ConnectAndSetChain: React.FC<ConnectAndSetChainProps> = ({
 };
 
 export default ConnectAndSetChain;
-

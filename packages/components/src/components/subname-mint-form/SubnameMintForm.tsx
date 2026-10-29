@@ -9,12 +9,22 @@ import {
 import { useAccount, useSwitchChain } from "wagmi";
 import { sepolia, mainnet } from "viem/chains";
 import { getSupportedAddressByChainId } from "@/constants/records/addressConstants";
-import { Address, ContractFunctionExecutionError, formatEther, Hash } from "viem";
+import {
+  Address,
+  ContractFunctionExecutionError,
+  formatEther,
+  Hash,
+} from "viem";
 import { normalize } from "viem/ens";
 import { debounce, deepCopy, getEnsRecordsDiff } from "@/utils";
 import { secondsFromYears } from "@/utils/date";
 import "./SubnameMintForm.css";
-import { useMintManager, useMintSubname, useWaitTransaction, useEthDollarValue } from "@/hooks";
+import {
+  useMintManager,
+  useMintSubname,
+  useWaitTransaction,
+  useEthDollarValue,
+} from "@/hooks";
 import { getChainIdForListingNetwork, ListingType, EnsRecords } from "@/types";
 import {
   MintDetailsResponse,
@@ -85,9 +95,20 @@ interface SubnameMintFormProps {
 
 const MIN_ENS_LEN = 1;
 
-export const SubnameMintForm = ({ version = 2, noBorder, ...props }: SubnameMintFormProps) => (
-  <div className={noBorder ? "ns-no-border-scope" : undefined} style={{ display: "contents" }}>
-    {version === 2 ? <SubnameMintFormV2 {...props} /> : <SubnameMintFormV1 {...props} />}
+export const SubnameMintForm = ({
+  version = 2,
+  noBorder,
+  ...props
+}: SubnameMintFormProps) => (
+  <div
+    className={noBorder ? "ns-no-border-scope" : undefined}
+    style={{ display: "contents" }}
+  >
+    {version === 2 ? (
+      <SubnameMintFormV2 {...props} />
+    ) : (
+      <SubnameMintFormV1 {...props} />
+    )}
   </div>
 );
 
@@ -123,7 +144,7 @@ const SubnameMintFormV1 = ({
 
   useEffect(() => {
     getListingDetails(parentName)
-      .then((listing) => {
+      .then(listing => {
         const isL2 = listing.type === ListingType.L2;
         const listingNetwork =
           isL2 && listing.l2Metadata
@@ -139,14 +160,16 @@ const SubnameMintFormV1 = ({
           isExpirable: listing?.l2Metadata?.isExpirable,
         });
       })
-      .catch((e) => {
+      .catch(e => {
         console.error(e);
         setInitState({
           isChecking: false,
           isListingValid: false,
           listingChainId: 0,
           isL2: false,
-          error: e?.message || "Failed to load listing details. Please try again later.",
+          error:
+            e?.message ||
+            "Failed to load listing details. Please try again later.",
         });
       });
   }, [getListingDetails, parentName]);
@@ -301,7 +324,9 @@ const SubnameMintFormContent = ({
     return getEnsRecordsDiff(ensRecords, ensRecordTemplate).isDifferent;
   }, [ensRecords, ensRecordTemplate]);
 
-  const [durationSeconds, setDurationSeconds] = useState(() => secondsFromYears(new Date(), 1));
+  const [durationSeconds, setDurationSeconds] = useState(() =>
+    secondsFromYears(new Date(), 1)
+  );
   const [availability, setAvailability] = useState<{
     isChecking: boolean;
     isAvailable: boolean;
@@ -341,7 +366,7 @@ const SubnameMintFormContent = ({
       minterAddress: minter,
       parentName: parentNameToCheck,
       label: labelToCheck,
-      isTestnet: isTestnet
+      isTestnet: isTestnet,
     });
     setMintDetails({ isChecking: false, details: details });
   };
@@ -367,14 +392,17 @@ const SubnameMintFormContent = ({
   // Trigger availability/price check on mount if initial label is provided
   // Note: Gas estimation is handled separately in the useEffect that watches isAvailableForMint
   useEffect(() => {
-    if (initialLabel && initialLabel.length >= MIN_ENS_LEN && connectedAddress) {
+    if (
+      initialLabel &&
+      initialLabel.length >= MIN_ENS_LEN &&
+      connectedAddress
+    ) {
       setAvailability({ isAvailable: false, isChecking: true });
-      setMintDetails((prev) => ({ ...prev, isChecking: true }));
+      setMintDetails(prev => ({ ...prev, isChecking: true }));
       checkIsAvailable(`${initialLabel}.${parentName}`, chainId);
       checkMintDetails(initialLabel, parentName, connectedAddress);
     }
   }, []);
-
 
   const handleNameChanged = async (value: string) => {
     const _value = value.toLowerCase().trim();
@@ -407,7 +435,12 @@ const SubnameMintFormContent = ({
     price: { wei: bigint; eth: number };
     /** Set when the wallet cannot cover value + gas; the fee itself is valid. */
     shortfallEth: number;
-  }>({ isChecking: false, failed: false, price: { wei: 0n, eth: 0 }, shortfallEth: 0 });
+  }>({
+    isChecking: false,
+    failed: false,
+    price: { wei: 0n, eth: 0 },
+    shortfallEth: 0,
+  });
 
   // Format ETH value with smart precision for small numbers
   const formatEthDisplay = (value: number): string => {
@@ -424,7 +457,12 @@ const SubnameMintFormContent = ({
     let total = price;
 
     if (transactionFees.failed) {
-      return { regFees: "N/A", regPrice: isFree ? "Free" : formatEthDisplay(price), regTotal: "N/A", isFree };
+      return {
+        regFees: "N/A",
+        regPrice: isFree ? "Free" : formatEthDisplay(price),
+        regTotal: "N/A",
+        isFree,
+      };
     }
 
     fees += transactionFees.price.eth;
@@ -442,7 +480,8 @@ const SubnameMintFormContent = ({
     setDurationSeconds(seconds);
   };
 
-  const totalPriceLoading = transactionFees.isChecking || mintDetails.isChecking;
+  const totalPriceLoading =
+    transactionFees.isChecking || mintDetails.isChecking;
   const transactionFeesLoading = transactionFees.isChecking;
 
   // Check for blocking errors that prevent minting entirely
@@ -459,7 +498,7 @@ const SubnameMintFormContent = ({
       MintDeniedError.ListingExpired,
     ];
 
-    const foundError = validationErrors.find((err) =>
+    const foundError = validationErrors.find(err =>
       blockingErrors.includes(err as MintDeniedError)
     );
 
@@ -511,13 +550,22 @@ const SubnameMintFormContent = ({
     );
   }, [label, availability, blockingError, isSubnameReserved]);
 
-  const fetchGasEstimate = async (labelToEstimate: string, recordsToEstimate: EnsRecords) => {
+  const fetchGasEstimate = async (
+    labelToEstimate: string,
+    recordsToEstimate: EnsRecords
+  ) => {
     if (!connectedAddress) return;
-    setTransactionFees((prev) => ({ ...prev, isChecking: true, failed: false }));
+    setTransactionFees(prev => ({ ...prev, isChecking: true, failed: false }));
     try {
       const ensMintRecords: EnsMintRecords = {
-        addresses: recordsToEstimate.addresses.map((addr) => ({ chain: addr.coinType, value: addr.value })),
-        texts: recordsToEstimate.texts.map((text) => ({ key: text.key, value: text.value })),
+        addresses: recordsToEstimate.addresses.map(addr => ({
+          chain: addr.coinType,
+          value: addr.value,
+        })),
+        texts: recordsToEstimate.texts.map(text => ({
+          key: text.key,
+          value: text.value,
+        })),
       };
       const mintTx = await mintClient.getMintTransactionParameters({
         records: ensMintRecords,
@@ -526,7 +574,10 @@ const SubnameMintFormContent = ({
         owner: connectedAddress,
         minterAddress: connectedAddress,
       });
-      const result = await estimateTransactionFees({ mintTx, account: connectedAddress });
+      const result = await estimateTransactionFees({
+        mintTx,
+        account: connectedAddress,
+      });
       if (result) {
         setTransactionFees({
           isChecking: false,
@@ -538,10 +589,18 @@ const SubnameMintFormContent = ({
         });
         setGasEstimated(true);
       } else {
-        setTransactionFees((prev) => ({ ...prev, isChecking: false, failed: true }));
+        setTransactionFees(prev => ({
+          ...prev,
+          isChecking: false,
+          failed: true,
+        }));
       }
     } catch {
-      setTransactionFees((prev) => ({ ...prev, isChecking: false, failed: true }));
+      setTransactionFees(prev => ({
+        ...prev,
+        isChecking: false,
+        failed: true,
+      }));
     }
   };
 
@@ -554,7 +613,12 @@ const SubnameMintFormContent = ({
 
   // Trigger gas estimation once the name becomes available for minting
   useEffect(() => {
-    if (isAvailableForMint && !gasEstimated && label.length >= MIN_ENS_LEN && connectedAddress) {
+    if (
+      isAvailableForMint &&
+      !gasEstimated &&
+      label.length >= MIN_ENS_LEN &&
+      connectedAddress
+    ) {
       fetchGasEstimate(label, ensRecords);
     }
   }, [isAvailableForMint, gasEstimated, label, connectedAddress]);
@@ -581,7 +645,7 @@ const SubnameMintFormContent = ({
     let tx: Hash | null = null;
     let mintPrice: bigint = 0n;
 
-    console.log("Handling mint state", connectedAddress!, "Connected address")
+    console.log("Handling mint state", connectedAddress!, "Connected address");
 
     // Step 1: Get mint transaction parameters and execute
     try {
@@ -594,11 +658,11 @@ const SubnameMintFormContent = ({
 
       // Convert EnsRecords to EnsMintRecords needed by mint client
       const ensMintRecords: EnsMintRecords = {
-        addresses: ensRecords.addresses.map((addr) => ({
+        addresses: ensRecords.addresses.map(addr => ({
           chain: addr.coinType,
           value: addr.value,
         })),
-        texts: ensRecords.texts.map((text) => ({
+        texts: ensRecords.texts.map(text => ({
           key: text.key,
           value: text.value,
         })),
@@ -652,7 +716,10 @@ const SubnameMintFormContent = ({
     }
 
     try {
-      const receipt = await waitTx({ hash: tx, txConfirmations: txConfirmations || 1 });
+      const receipt = await waitTx({
+        hash: tx,
+        txConfirmations: txConfirmations || 1,
+      });
 
       // Calculate gas fees
       const gasUsed = receipt.gasUsed;
@@ -731,7 +798,7 @@ const SubnameMintFormContent = ({
   // Show pending transaction screen when tx is sent
   if (mintStep === MintStep.Minting && mintState.txHash) {
     return (
-      <div style={{padding: 15}}>
+      <div style={{ padding: 15 }}>
         <TransactionPendingScreen
           hash={mintState.txHash as Hash}
           isCompleted={mintState.txCompleted}
@@ -767,11 +834,15 @@ const SubnameMintFormContent = ({
         onCancel={handleCancelRecords}
         onSave={handleSaveRecords}
         hasChanges={hasRecordsDifference}
-        avatarUpload={label ? {
-          ensName: `${label}.${parentName}`,
-          isTestnet,
-          siweDomain: avatarUploadDomain,
-        } : undefined}
+        avatarUpload={
+          label
+            ? {
+                ensName: `${label}.${parentName}`,
+                isTestnet,
+                siweDomain: avatarUploadDomain,
+              }
+            : undefined
+        }
       />
     );
   }
@@ -859,7 +930,9 @@ const SubnameMintFormContent = ({
       {hasInsufficientFunds && (
         <div>
           <Alert variant="warning">
-            <Text size="sm" data-testid="insufficient-funds">Insufficient funds</Text>
+            <Text size="sm" data-testid="insufficient-funds">
+              Insufficient funds
+            </Text>
           </Alert>
         </div>
       )}

@@ -34,7 +34,11 @@ const FAQ_ITEMS = [
     answer: (
       <>
         Connect your wallet on{" "}
-        <a href="https://app.namespace.ninja/offchain" target="_blank" rel="noreferrer">
+        <a
+          href="https://app.namespace.ninja/offchain"
+          target="_blank"
+          rel="noreferrer"
+        >
           app.namespace.ninja/offchain
         </a>{" "}
         and generate an API key for your ENS name.
@@ -58,16 +62,17 @@ const FAQ_ITEMS = [
 const FAQ_SCHEMA = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  mainEntity: FAQ_ITEMS.map((item) => ({
+  mainEntity: FAQ_ITEMS.map(item => ({
     "@type": "Question",
     name: item.question,
     acceptedAnswer: {
       "@type": "Answer",
-      text: "schemaAnswer" in item
-        ? item.schemaAnswer
-        : typeof item.answer === "string"
-          ? item.answer
-          : item.question,
+      text:
+        "schemaAnswer" in item
+          ? item.schemaAnswer
+          : typeof item.answer === "string"
+            ? item.answer
+            : item.question,
     },
   })),
 };

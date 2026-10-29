@@ -12,7 +12,12 @@ import { Chip, KitButton, TestKit, TestStep } from "../components/TestKit";
 import { generateCode } from "../components/generateCode";
 import type { PropDef } from "../components/types";
 import { getParentOverride } from "../utils/parentOverride";
-import { fetchJson, type ManagerActivation, type ManagerSubname, SEPOLIA_ETH_FAUCET } from "../utils/testTokens";
+import {
+  fetchJson,
+  type ManagerActivation,
+  type ManagerSubname,
+  SEPOLIA_ETH_FAUCET,
+} from "../utils/testTokens";
 
 const TESTNET_PARENT = "arti.eth";
 // arti.eth has no ENSv2 activation on mainnet; arthy0.eth has one, with expiring subnames.
@@ -20,11 +25,41 @@ const MAINNET_PARENT = "arthy0.eth";
 const PERMANENT = 18446744073709551615n;
 
 const SUB_RENEW_DEFS: PropDef[] = [
-  { key: "parentName", type: "string",  default: TESTNET_PARENT, tip: "Activated parent name the subname lives under", required: true, readonly: true },
-  { key: "label",      type: "string",  default: "",     tip: "Subname label. Leave empty to let the user type one", placeholder: "alice" },
-  { key: "title",      type: "string",  default: "",     tip: "Override the form title text", placeholder: "title..." },
-  { key: "subtitle",   type: "string",  default: "",     tip: "Optional subtitle shown below the title", placeholder: "subtitle..." },
-  { key: "noBorder",  type: "boolean", default: true,  tip: "Remove the card border, for embedding in your own container" },
+  {
+    key: "parentName",
+    type: "string",
+    default: TESTNET_PARENT,
+    tip: "Activated parent name the subname lives under",
+    required: true,
+    readonly: true,
+  },
+  {
+    key: "label",
+    type: "string",
+    default: "",
+    tip: "Subname label. Leave empty to let the user type one",
+    placeholder: "alice",
+  },
+  {
+    key: "title",
+    type: "string",
+    default: "",
+    tip: "Override the form title text",
+    placeholder: "title...",
+  },
+  {
+    key: "subtitle",
+    type: "string",
+    default: "",
+    tip: "Optional subtitle shown below the title",
+    placeholder: "subtitle...",
+  },
+  {
+    key: "noBorder",
+    type: "boolean",
+    default: true,
+    tip: "Remove the card border, for embedding in your own container",
+  },
 ];
 
 const expiryMeta = (expiry: string) => {
@@ -45,30 +80,34 @@ export function SubnameRenewalSection({
 }) {
   const { address } = useAccount();
   const { openConnectModal } = useConnectModal();
-  const parentName = isTestnet ? (getParentOverride() ?? TESTNET_PARENT) : MAINNET_PARENT;
+  const parentName = isTestnet
+    ? (getParentOverride() ?? TESTNET_PARENT)
+    : MAINNET_PARENT;
   const [values, setValues] = useState<Record<string, any>>(() => ({
-    ...Object.fromEntries(SUB_RENEW_DEFS.map((d) => [d.key, d.default])),
+    ...Object.fromEntries(SUB_RENEW_DEFS.map(d => [d.key, d.default])),
     parentName,
   }));
   const [mountKey, setMountKey] = useState(0);
-  const [activation, setActivation] = useState<ManagerActivation | null | undefined>(undefined);
+  const [activation, setActivation] = useState<
+    ManagerActivation | null | undefined
+  >(undefined);
   const [mine, setMine] = useState<ManagerSubname[] | null>(null);
 
   const parentLabel = parentName.replace(/\.eth$/, "");
 
   const onChange = (key: string, val: any) => {
-    setValues((prev) => ({ ...prev, [key]: val }));
+    setValues(prev => ({ ...prev, [key]: val }));
   };
 
   useEffect(() => {
-    setValues((prev) => ({ ...prev, parentName }));
+    setValues(prev => ({ ...prev, parentName }));
   }, [parentName]);
 
-
   useEffect(() => {
-    fetchJson<ManagerActivation[]>(`/activations/label/${parentLabel}`, isTestnet).then((rows) =>
-      setActivation(rows?.[0] ?? null),
-    );
+    fetchJson<ManagerActivation[]>(
+      `/activations/label/${parentLabel}`,
+      isTestnet
+    ).then(rows => setActivation(rows?.[0] ?? null));
   }, [parentLabel, isTestnet]);
 
   const loadMine = useCallback(() => {
@@ -77,19 +116,25 @@ export function SubnameRenewalSection({
       return;
     }
     const parent = keccak256(toBytes(parentLabel)).toLowerCase();
-    fetchJson<ManagerSubname[]>(`/subnames/owner/${address.toLowerCase()}`, isTestnet).then((rows) =>
-      setMine((rows ?? []).filter((s) => s.parent.toLowerCase() === parent)),
+    fetchJson<ManagerSubname[]>(
+      `/subnames/owner/${address.toLowerCase()}`,
+      isTestnet
+    ).then(rows =>
+      setMine((rows ?? []).filter(s => s.parent.toLowerCase() === parent))
     );
   }, [address, parentLabel, isTestnet]);
 
   useEffect(loadMine, [loadMine]);
 
   const pickLabel = (label: string) => {
-    setValues((prev) => ({ ...prev, label }));
-    setMountKey((k) => k + 1);
+    setValues(prev => ({ ...prev, label }));
+    setMountKey(k => k + 1);
   };
 
-  const code = generateCode("SubnameRenewForm", SUB_RENEW_DEFS, values, [`isTestnet={${isTestnet}}`, `parentName="${parentName}"`]);
+  const code = generateCode("SubnameRenewForm", SUB_RENEW_DEFS, values, [
+    `isTestnet={${isTestnet}}`,
+    `parentName="${parentName}"`,
+  ]);
   const expirable = activation?.expiration === "Expirable";
 
   return (
@@ -107,8 +152,9 @@ export function SubnameRenewalSection({
             network={isTestnet ? "Sepolia" : "Mainnet"}
             note={
               <>
-                <strong>Anyone can renew any subname.</strong> Gift renewals extend the subname for its owner. Whitelist
-                claims are attached automatically, so a whitelisted renewer may renew for free.
+                <strong>Anyone can renew any subname.</strong> Gift renewals
+                extend the subname for its owner. Whitelist claims are attached
+                automatically, so a whitelisted renewer may renew for free.
               </>
             }
           >
@@ -127,16 +173,23 @@ export function SubnameRenewalSection({
                 <>
                   <span className="test-kit-status warn">
                     <span className="test-kit-status-dot" />
-                    {activation ? "Permanent: subnames never expire" : "Not activated"}
+                    {activation
+                      ? "Permanent: subnames never expire"
+                      : "Not activated"}
                   </span>
-                  <p>The form will explain there is nothing to renew until the owner makes subnames expirable.</p>
+                  <p>
+                    The form will explain there is nothing to renew until the
+                    owner makes subnames expirable.
+                  </p>
                 </>
               )}
             </TestStep>
             {!isTestnet && (
               <TestStep title="Mainnet costs real money">
                 <p>Switch the playground to Sepolia to test for free.</p>
-                <KitButton onClick={() => onIsTestnetChange(true)}>Use Sepolia</KitButton>
+                <KitButton onClick={() => onIsTestnetChange(true)}>
+                  Use Sepolia
+                </KitButton>
               </TestStep>
             )}
             <TestStep title="Get a subname">
@@ -146,17 +199,23 @@ export function SubnameRenewalSection({
                   : "Mint one in the section above, then pick it here."}
               </p>
               <KitButton href="#subname-mint">Mint a subname</KitButton>
-              {isTestnet && <KitButton href={SEPOLIA_ETH_FAUCET}>ETH faucet ↗</KitButton>}
+              {isTestnet && (
+                <KitButton href={SEPOLIA_ETH_FAUCET}>ETH faucet ↗</KitButton>
+              )}
             </TestStep>
             <TestStep title="Choose the subname">
               {!address ? (
-                <KitButton onClick={openConnectModal}>Connect to see your subnames</KitButton>
+                <KitButton onClick={openConnectModal}>
+                  Connect to see your subnames
+                </KitButton>
               ) : mine === null ? (
                 <span className="test-kit-empty">Loading your subnames…</span>
               ) : mine.length === 0 ? (
-                <span className="test-kit-empty">No subnames under {parentName} in this wallet yet.</span>
+                <span className="test-kit-empty">
+                  No subnames under {parentName} in this wallet yet.
+                </span>
               ) : (
-                mine.map((s) => (
+                mine.map(s => (
                   <Chip
                     key={s.label}
                     active={values.label === s.label}
@@ -172,7 +231,11 @@ export function SubnameRenewalSection({
               </Chip>
             </TestStep>
           </TestKit>
-          <PropsEditor defs={SUB_RENEW_DEFS} values={values} onChange={onChange} />
+          <PropsEditor
+            defs={SUB_RENEW_DEFS}
+            values={values}
+            onChange={onChange}
+          />
         </div>
         <DemoPanel>
           <SubnameRenewForm
@@ -184,7 +247,7 @@ export function SubnameRenewalSection({
             title={values.title || undefined}
             subtitle={values.subtitle || undefined}
             onConnectWallet={openConnectModal}
-            onCancel={() => setMountKey((k) => k + 1)}
+            onCancel={() => setMountKey(k => k + 1)}
             onRenewalSuccess={loadMine}
             onRenewParent={() => onRenewParent(parentName)}
           />

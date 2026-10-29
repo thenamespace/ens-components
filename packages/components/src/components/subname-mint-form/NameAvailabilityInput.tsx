@@ -33,7 +33,7 @@ export const NameAvailabilityInput = ({
       <Input
         data-testid="subname-input"
         value={label}
-        onChange={(e) => onNameChange(e.target.value)}
+        onChange={e => onNameChange(e.target.value)}
         disabled={disabled}
         size="lg"
         wrapperClassName="ns-subname-mint-input"
@@ -87,4 +87,3 @@ export const NameAvailabilityInput = ({
     </div>
   );
 };
-

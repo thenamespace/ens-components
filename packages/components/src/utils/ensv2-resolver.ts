@@ -31,7 +31,8 @@ const resolverInitAbi = parseAbi([
   "function initialize(Grant[] grants, bytes[] calls)",
 ]);
 
-const ALL_ROLES = 0x1111111111111111111111111111111111111111111111111111111111111111n;
+const ALL_ROLES =
+  0x1111111111111111111111111111111111111111111111111111111111111111n;
 const OWNED_RESOLVER_VERSION = 0n;
 
 // Must match ENS's computeOwnedResolverSalt.
@@ -40,15 +41,15 @@ const ownedResolverSalt = (owner: Address) =>
     keccak256(
       encodeAbiParameters(
         [{ type: "bytes32" }, { type: "address" }, { type: "uint256" }],
-        [keccak256(stringToHex("OwnedResolver")), owner, OWNED_RESOLVER_VERSION],
-      ),
-    ),
+        [keccak256(stringToHex("OwnedResolver")), owner, OWNED_RESOLVER_VERSION]
+      )
+    )
   );
 
 export const getOwnedResolver = async (
   client: PublicClient,
   contracts: OwnedResolverContracts,
-  owner: Address,
+  owner: Address
 ): Promise<OwnedResolver> => {
   const salt = ownedResolverSalt(owner);
   const address = await client.readContract({
@@ -65,7 +66,7 @@ export const buildOwnedResolverDeployCall = (
   contracts: OwnedResolverContracts,
   owner: Address,
   salt: bigint,
-  recordCalls: Hex[] = [],
+  recordCalls: Hex[] = []
 ): WalletCall => ({
   to: contracts.verifiableFactory,
   data: encodeFunctionData({

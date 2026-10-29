@@ -89,7 +89,7 @@ const BLOCK_EXPLORER_MAP: Record<number, BlockExplorerConfig> = {
 
 export const getBlockExplorer = (chainId: number) => {
   const config = BLOCK_EXPLORER_MAP[chainId];
-  
+
   if (!config) {
     // Fallback to Etherscan for unknown chains
     return {
@@ -97,16 +97,22 @@ export const getBlockExplorer = (chainId: number) => {
       url: "https://etherscan.io",
     };
   }
-  
+
   return config;
 };
 
-export const getBlockExplorerTransactionUrl = (chainId: number, hash: string): string => {
+export const getBlockExplorerTransactionUrl = (
+  chainId: number,
+  hash: string
+): string => {
   const explorer = getBlockExplorer(chainId);
   return `${explorer.url}/tx/${hash}`;
 };
 
-export const getBlockExplorerAddressUrl = (chainId: number, address: string): string => {
+export const getBlockExplorerAddressUrl = (
+  chainId: number,
+  address: string
+): string => {
   const explorer = getBlockExplorer(chainId);
   return `${explorer.url}/address/${address}`;
 };
@@ -116,10 +122,12 @@ export const getBlockExplorerName = (chainId: number): string => {
   return explorer.name;
 };
 
-export const getEnsAppUrl = (ensName: string, isTestnet: boolean = false): string => {
+export const getEnsAppUrl = (
+  ensName: string,
+  isTestnet: boolean = false
+): string => {
   const baseUrl = isTestnet
     ? "https://sepolia.app.ens.domains"
     : "https://app.ens.domains";
   return `${baseUrl}/${ensName}`;
 };
-

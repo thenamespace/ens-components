@@ -28,7 +28,8 @@ export function App() {
   );
 }`;
 
-const INSTALL_CMD = "npm install @thenamespace/ens-components wagmi viem @tanstack/react-query";
+const INSTALL_CMD =
+  "npm install @thenamespace/ens-components wagmi viem @tanstack/react-query";
 
 const STEPS = [
   {
@@ -59,7 +60,6 @@ export function QuickStartSection() {
 
   return (
     <section className="section" id="quickstart">
-
       <div className="agent-qs-header">
         <div className="agent-qs-badge">
           <Rocket size={13} strokeWidth={2.5} />
@@ -67,21 +67,28 @@ export function QuickStartSection() {
         </div>
         <h2 className="agent-qs-title">Up and running in minutes</h2>
         <p className="agent-qs-subtitle">
-          Install the package, add providers, and drop in any component with a few props.
+          Install the package, add providers, and drop in any component with a
+          few props.
         </p>
       </div>
 
       <div className="agent-qs-body">
         <div className="steps-grid">
-          {STEPS.map((s) => (
+          {STEPS.map(s => (
             <div
               key={s.num}
               className={[
                 "step-card agent-step-card",
                 s.selectable ? "step-card-selectable" : "",
                 s.selectable && activeStep === s.num ? "step-card-active" : "",
-              ].filter(Boolean).join(" ")}
-              onClick={s.selectable ? () => setActiveStep(s.num as "01" | "02") : undefined}
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              onClick={
+                s.selectable
+                  ? () => setActiveStep(s.num as "01" | "02")
+                  : undefined
+              }
             >
               <div className="agent-step-top">
                 <div className="step-num step-num-light">{s.num}</div>
@@ -107,7 +114,6 @@ export function QuickStartSection() {
           )}
         </div>
       </div>
-
     </section>
   );
 }

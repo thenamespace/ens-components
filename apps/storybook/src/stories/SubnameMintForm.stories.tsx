@@ -7,7 +7,13 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 const withWallet = (Story: React.ComponentType) => (
   <WalletConnectProvider>
     <div style={{ padding: "20px", maxWidth: "680px", margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginBottom: 16,
+        }}
+      >
         <ConnectButton />
       </div>
       <Story />
@@ -56,7 +62,8 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: "Connect your wallet and enter a subname to see pricing and mint.",
+        story:
+          "Connect your wallet and enter a subname to see pricing and mint.",
       },
     },
   },
@@ -95,7 +102,9 @@ export const OldListing: Story = {
   },
   parameters: {
     docs: {
-      description: { story: "ENSv1 minting under an old Namespace listing (`version={1}`)." },
+      description: {
+        story: "ENSv1 minting under an old Namespace listing (`version={1}`).",
+      },
     },
   },
 };

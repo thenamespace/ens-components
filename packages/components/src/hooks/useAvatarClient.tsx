@@ -73,7 +73,10 @@ export const getImageUploadErrorMessage = (
   return defaultFailedMessage;
 };
 
-export const useAvatarClient = ({ isTestnet, domain }: UseAvatarClientParams) => {
+export const useAvatarClient = ({
+  isTestnet,
+  domain,
+}: UseAvatarClientParams) => {
   const { address } = useAccount();
   const { data: walletClient } = useWalletClient();
   const { switchChainAsync } = useSwitchChain();
@@ -174,16 +177,23 @@ export const useAvatarClient = ({ isTestnet, domain }: UseAvatarClientParams) =>
       });
       return result;
     } catch (err) {
-      console.error(`${IMAGE_UPLOAD_LOG_PREFIX} failed`, { imageType, error: err });
+      console.error(`${IMAGE_UPLOAD_LOG_PREFIX} failed`, {
+        imageType,
+        error: err,
+      });
       throw new Error(getImageUploadErrorMessage(err, imageType));
     }
   };
 
-  const uploadAvatar = async (params: UploadAvatarParams): Promise<UploadResult> => {
+  const uploadAvatar = async (
+    params: UploadAvatarParams
+  ): Promise<UploadResult> => {
     return uploadImage("avatar", params);
   };
 
-  const uploadHeader = async (params: UploadAvatarParams): Promise<UploadResult> => {
+  const uploadHeader = async (
+    params: UploadAvatarParams
+  ): Promise<UploadResult> => {
     return uploadImage("header", params);
   };
 

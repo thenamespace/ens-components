@@ -30,7 +30,10 @@ export function SEO({
       <meta name="description" content={description} />
       <meta name="keywords" content={DEFAULT_KEYWORDS} />
       <meta name="author" content="Namespace" />
-      <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+      <meta
+        name="robots"
+        content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+      />
       <meta name="theme-color" content="#0080BC" />
       <link rel="canonical" href={canonical} />
 
@@ -43,7 +46,10 @@ export function SEO({
       <meta property="og:image" content={ogImage} />
       <meta property="og:image:width" content="2398" />
       <meta property="og:image:height" content="1300" />
-      <meta property="og:image:alt" content="ENS Components by Namespace — React UI library for ENS" />
+      <meta
+        property="og:image:alt"
+        content="ENS Components by Namespace — React UI library for ENS"
+      />
       <meta property="og:type" content={ogType} />
 
       {/* Twitter / X */}
@@ -56,8 +62,18 @@ export function SEO({
       <meta name="twitter:image:alt" content="ENS Components by Namespace" />
 
       {/* AI / LLM discovery — llms.txt files are alternate text representations of this page */}
-      <link rel="alternate" type="text/plain" href={`${SITE_URL}/llms.txt`} title="LLM-friendly summary" />
-      <link rel="alternate" type="text/plain" href={`${SITE_URL}/llms-full.txt`} title="LLM full API reference" />
+      <link
+        rel="alternate"
+        type="text/plain"
+        href={`${SITE_URL}/llms.txt`}
+        title="LLM-friendly summary"
+      />
+      <link
+        rel="alternate"
+        type="text/plain"
+        href={`${SITE_URL}/llms-full.txt`}
+        title="LLM full API reference"
+      />
     </Helmet>
   );
 }

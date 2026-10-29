@@ -31,7 +31,8 @@ const isValidEmvAddress = (value: string): boolean => {
 const isValidBtcAddress = (value: string): boolean => {
   if (!value || value.length < 26 || value.length > 62) return false;
   // P2PKH (starts with 1), P2SH (starts with 3), Bech32/Bech32m (starts with bc1)
-  const btcRegex = /^(1[a-km-zA-HJ-NP-Z1-9]{25,34}|3[a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-zA-HJ-NP-Z0-9]{39,59})$/;
+  const btcRegex =
+    /^(1[a-km-zA-HJ-NP-Z1-9]{25,34}|3[a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-zA-HJ-NP-Z0-9]{39,59})$/;
   return btcRegex.test(value);
 };
 

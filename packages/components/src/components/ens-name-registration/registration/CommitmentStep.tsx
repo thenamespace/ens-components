@@ -3,7 +3,11 @@ import { useAccount } from "wagmi";
 import { ContractFunctionExecutionError, Hash } from "viem";
 import { Accordion } from "../../molecules/accordion";
 import { Button, Text, Icon } from "../../atoms";
-import { RegistrationRequest, useRegisterENS, useWaitTransaction } from "@/hooks";
+import {
+  RegistrationRequest,
+  useRegisterENS,
+  useWaitTransaction,
+} from "@/hooks";
 import {
   ContractErrorLabel,
   isUserDeniedError,
@@ -72,7 +76,9 @@ export const CommitmentStep: React.FC<CommitmentStepProps> = ({
         referrer: state.referrer,
       };
 
-      tx = sendCommitment ? await sendCommitment(state) : await sendCommitmentTx(request);
+      tx = sendCommitment
+        ? await sendCommitment(state)
+        : await sendCommitmentTx(request);
       setCommitTxStatus({ sent: true, completed: false, hash: tx });
 
       onStateUpdated({

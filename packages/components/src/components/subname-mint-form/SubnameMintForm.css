@@ -3,208 +3,208 @@
    flow (§4.2/§4.5). Square, hairline, shadowless; names and amounts in mono. */
 
 .ns-subname-mint-form {
-    container-type: inline-size;
-    background-color: var(--ns-surface);
-    border: 1px solid var(--ns-border-strong);
-    border-radius: var(--ns-radius);
-    width: 100%;
-    max-width: var(--ns-frame-width);
-    /* the 1px frame counts inside the width, so every card is exactly
+  container-type: inline-size;
+  background-color: var(--ns-surface);
+  border: 1px solid var(--ns-border-strong);
+  border-radius: var(--ns-radius);
+  width: 100%;
+  max-width: var(--ns-frame-width);
+  /* the 1px frame counts inside the width, so every card is exactly
        --ns-frame-width wide */
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 /* Alerts that are the frame's only content (listing errors) sit inset. */
 .ns-subname-mint-form > .ns-alert {
-    width: auto;
-    margin: var(--ns-space-8);
+  width: auto;
+  margin: var(--ns-space-8);
 }
 
 /* A query container is a containing block for `position: fixed` descendants,
    which would shrink the in-tree Modal overlay (image upload) to this card.
    Drop containment while a modal is open in the subtree. */
 .ns-subname-mint-form:has(.ns-modal-overlay) {
-    container-type: normal;
+  container-type: normal;
 }
 
 .ns-subname-mint-form img {
-    max-width: 100%;
-    height: auto;
+  max-width: 100%;
+  height: auto;
 }
 
 /* ---- Name input (lines 318–329) --------------------------------------
    48px row, strong hairline, mono name ink. The parent-name suffix is plain
    mono text — no grey suffix box — and ellipsizes when it runs long. */
 .ns-subname-mint-input .ns-input {
-    background: var(--ns-surface);
-    border: 1px solid var(--ns-border-strong);
-    border-radius: var(--ns-radius);
-    font-family: var(--ns-font-mono);
-    font-size: var(--ns-size-h4);
-    color: var(--ns-name-ink);
-    padding-left: 44px;
-    padding-right: 46%;
+  background: var(--ns-surface);
+  border: 1px solid var(--ns-border-strong);
+  border-radius: var(--ns-radius);
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-h4);
+  color: var(--ns-name-ink);
+  padding-left: 44px;
+  padding-right: 46%;
 }
 
 .ns-subname-mint-input .ns-input:focus {
-    border-color: var(--ns-focus-ring);
+  border-color: var(--ns-focus-ring);
 }
 
 .ns-subname-mint-input .ns-input::placeholder {
-    color: var(--ns-text-faint);
-    opacity: 1;
-    font-family: var(--ns-font-mono);
+  color: var(--ns-text-faint);
+  opacity: 1;
+  font-family: var(--ns-font-mono);
 }
 
 .ns-subname-mint-input .ns-input__prefix {
-    left: var(--ns-space-8);
+  left: var(--ns-space-8);
 }
 
 .ns-subname-mint-input .ns-input__prefix .ns-icon {
-    stroke: var(--ns-text-faint);
+  stroke: var(--ns-text-faint);
 }
 
 .ns-subname-mint-input .ns-input__suffix {
-    right: var(--ns-space-8);
-    padding: 0;
-    height: auto;
-    max-width: 42%;
-    background: none;
-    border: none;
-    border-radius: var(--ns-radius);
+  right: var(--ns-space-8);
+  padding: 0;
+  height: auto;
+  max-width: 42%;
+  background: none;
+  border: none;
+  border-radius: var(--ns-radius);
 }
 
 .ns-subname-mint-input .ns-input__suffix .ns-text {
-    display: block;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-family: var(--ns-font-mono);
-    font-size: var(--ns-size-meta);
-    font-weight: var(--ns-weight-medium);
-    color: var(--ns-text-faint);
-    line-height: var(--ns-leading-tight);
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--ns-font-mono);
+  font-size: var(--ns-size-meta);
+  font-weight: var(--ns-weight-medium);
+  color: var(--ns-text-faint);
+  line-height: var(--ns-leading-tight);
 }
 
 /* ---- Actions --------------------------------------------------------- */
 .ens-update-records-form-actions {
-    display: flex;
-    gap: var(--ns-space-4);
+  display: flex;
+  gap: var(--ns-space-4);
 }
 
 .ns-subname-mint-form .ens-update-records-form-actions {
-    margin-top: var(--ns-space-10);
+  margin-top: var(--ns-space-10);
 }
 
 .ens-update-records-form-actions button {
-    flex: 1;
-    max-width: 50%;
+  flex: 1;
+  max-width: 50%;
 }
 
 .ens-update-records-form-actions .ns-mint-action-tooltip {
-    flex: 1;
-    max-width: 50%;
+  flex: 1;
+  max-width: 50%;
 }
 
 .ens-update-records-form-actions .ns-mint-action-tooltip button {
-    width: 100%;
-    max-width: 100%;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* ---- Records CTA (lines 350–359) ------------------------------------- */
 /* Kept in step with RegistrationSummary.css — the same CTA in both flows. */
 .ens-profile-selector {
-    border: 1px solid var(--ns-border);
-    border-radius: var(--ns-radius);
-    padding: var(--ns-space-7) var(--ns-space-8);
-    background-color: var(--ns-surface-3);
-    transition:
-        background-color 0.15s linear,
-        border-color 0.15s linear;
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius);
+  padding: var(--ns-space-7) var(--ns-space-8);
+  background-color: var(--ns-surface-3);
+  transition:
+    background-color 0.15s linear,
+    border-color 0.15s linear;
 }
 
 .ens-profile-selector:hover {
-    background-color: var(--ns-surface-4);
-    border-color: var(--ns-border-strong);
+  background-color: var(--ns-surface-4);
+  border-color: var(--ns-border-strong);
 }
 
 .ens-profile-selector > .d-flex {
-    gap: var(--ns-space-8);
+  gap: var(--ns-space-8);
 }
 
 .ens-profile-selector .shuriken-cont {
-    width: var(--ns-avatar-row);
-    height: var(--ns-avatar-row);
-    flex: none;
-    border-radius: var(--ns-radius);
-    background-color: transparent;
+  width: var(--ns-avatar-row);
+  height: var(--ns-avatar-row);
+  flex: none;
+  border-radius: var(--ns-radius);
+  background-color: transparent;
 }
 
 .ens-profile-selector .shuriken {
-    width: var(--ns-avatar-row);
-    height: auto;
-    transition: transform 0.3s ease-in-out;
-    cursor: pointer;
+  width: var(--ns-avatar-row);
+  height: auto;
+  transition: transform 0.3s ease-in-out;
+  cursor: pointer;
 }
 
 .ens-profile-selector .shuriken:hover {
-    transform: rotate(150deg);
+  transform: rotate(150deg);
 }
 
 /* Quiet chevron that wakes up with the row on hover */
 .ens-profile-selector .profile-cta-arrow {
-    width: 30px;
-    height: 30px;
-    flex: none;
-    display: grid;
-    place-items: center;
-    border-radius: calc(var(--ns-radius) - 2px);
-    background-color: var(--ns-surface);
-    border: 1px solid var(--ns-border);
-    color: var(--ns-text-3);
-    transition:
-        color 0.15s linear,
-        border-color 0.15s linear,
-        transform 0.15s ease-out;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: calc(var(--ns-radius) - 2px);
+  background-color: var(--ns-surface);
+  border: 1px solid var(--ns-border);
+  color: var(--ns-text-3);
+  transition:
+    color 0.15s linear,
+    border-color 0.15s linear,
+    transform 0.15s ease-out;
 }
 
 .ens-profile-selector:hover .profile-cta-arrow {
-    color: var(--ns-text);
-    border-color: var(--ns-border-strong);
-    transform: translateX(2px);
+  color: var(--ns-text);
+  border-color: var(--ns-border-strong);
+  transform: translateX(2px);
 }
 
 /* ---- Narrow containers (plan §5) — the webapp's ~330px modals -------- */
 @container (max-width: 390px) {
-    .ens-update-records-form-actions {
-        flex-direction: column;
-    }
+  .ens-update-records-form-actions {
+    flex-direction: column;
+  }
 
-    .ens-update-records-form-actions button,
-    .ens-update-records-form-actions .ns-mint-action-tooltip {
-        max-width: 100%;
-        width: 100%;
-    }
+  .ens-update-records-form-actions button,
+  .ens-update-records-form-actions .ns-mint-action-tooltip {
+    max-width: 100%;
+    width: 100%;
+  }
 
-    .ns-subname-mint-input .ns-input {
-        font-size: var(--ns-size-body);
-    }
+  .ns-subname-mint-input .ns-input {
+    font-size: var(--ns-size-body);
+  }
 }
 
 /* Fallback for browsers without container queries */
 @media screen and (max-width: 600px) {
-    .ens-update-records-form-actions {
-        flex-direction: column;
-    }
+  .ens-update-records-form-actions {
+    flex-direction: column;
+  }
 
-    .ens-update-records-form-actions button {
-        max-width: 100%;
-        width: 100%;
-    }
+  .ens-update-records-form-actions button {
+    max-width: 100%;
+    width: 100%;
+  }
 
-    .ens-update-records-form-actions .ns-mint-action-tooltip {
-        max-width: 100%;
-        width: 100%;
-    }
+  .ens-update-records-form-actions .ns-mint-action-tooltip {
+    max-width: 100%;
+    width: 100%;
+  }
 }

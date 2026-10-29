@@ -2,13 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 const COMPONENT_LINKS = [
-  { label: "ENS Registration",  href: "#ens-registration" },
-  { label: "ENS Renewal",       href: "#ens-renewal" },
-  { label: "ENS Records",       href: "#ens-records" },
-  { label: "Select Records",    href: "#select-records" },
+  { label: "ENS Registration", href: "#ens-registration" },
+  { label: "ENS Renewal", href: "#ens-renewal" },
+  { label: "ENS Records", href: "#ens-records" },
+  { label: "Select Records", href: "#select-records" },
   { label: "Offchain Subnames", href: "#offchain-subname" },
-  { label: "Onchain Subnames",  href: "#subname-mint" },
-  { label: "Subname Renewal",   href: "#subname-renewal" },
+  { label: "Onchain Subnames", href: "#subname-mint" },
+  { label: "Subname Renewal", href: "#subname-renewal" },
 ];
 
 export function ComponentsDropdown() {
@@ -18,7 +18,8 @@ export function ComponentsDropdown() {
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -28,14 +29,17 @@ export function ComponentsDropdown() {
     <div ref={ref} className="nav-dropdown">
       <button
         className={`nav-link nav-dropdown-trigger${open ? " active" : ""}`}
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen(o => !o)}
       >
         Components
-        <ChevronDown size={12} className={`nav-dropdown-chevron${open ? " open" : ""}`} />
+        <ChevronDown
+          size={12}
+          className={`nav-dropdown-chevron${open ? " open" : ""}`}
+        />
       </button>
       {open && (
         <div className="nav-dropdown-menu">
-          {COMPONENT_LINKS.map((item) => (
+          {COMPONENT_LINKS.map(item => (
             <a
               key={item.href}
               className="nav-dropdown-item"

@@ -1,63 +1,74 @@
----
-name: Publish New Package Version
+name: Publish npm package and GitHub release
 
 on:
   workflow_dispatch:
-    inputs:
-      version_bump:
-        description: "Version part to bump"
-        required: true
-        default: "minor"
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-release
+  cancel-in-progress: false
 
 jobs:
   publish:
+    if: github.repository == 'thenamespace/ens-components' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: write
       id-token: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GHUB_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: false
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Read committed version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./packages/components/package.json').version")
+          if [[ ! "$VERSION" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "::error::This workflow publishes stable versions only."
+            exit 1
+          fi
+          if git show-ref --verify --quiet "refs/tags/v$VERSION"; then
+            echo "::error::Tag v$VERSION already exists. Choose a new version in a PR."
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
-      - name: Build package
-        run: pnpm --filter @thenamespace/ens-components build
+      - name: Check formatting
+        run: pnpm format:check
 
-      - name: Bump version
-        working-directory: packages/components
-        run: |
-          npm version ${{ github.event.inputs.version_bump }} --no-git-tag-version
-          NEW_VERSION=$(node -p "require('./package.json').version")
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+      - name: Build library, demo, and Storybook
+        run: pnpm build
 
-      - name: Publish to npm
-        working-directory: packages/components
-        run: npm publish --access public
+      - name: Check npm package
+        run: pnpm check:package
+
+      - name: Publish checked tarball to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: npm publish ".artifacts/thenamespace-ens-components-${VERSION}.tgz" --access public --provenance
 
-      - name: Commit version update
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add packages/components/package.json
-          git commit -m "chore: bump version to $NEW_VERSION [skip ci]"
-          git push
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" \
+            -f ref="refs/tags/v${VERSION}" -f sha="$GITHUB_SHA" > /dev/null
+          gh release create "v$VERSION" --verify-tag --title "v$VERSION" --generate-notes \
+            --notes "[npm package](https://www.npmjs.com/package/@thenamespace/ens-components/v${VERSION}) · [Changelog](https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_SHA}/CHANGELOG.md)"

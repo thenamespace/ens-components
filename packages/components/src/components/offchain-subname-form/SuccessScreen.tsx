@@ -7,7 +7,11 @@ interface SuccessScreenProps {
   onContinue: () => void;
 }
 
-export const SuccessScreen = ({ fullSubname, isUpdateMode, onContinue }: SuccessScreenProps) => {
+export const SuccessScreen = ({
+  fullSubname,
+  isUpdateMode,
+  onContinue,
+}: SuccessScreenProps) => {
   const actionText = isUpdateMode ? "updated" : "created";
 
   return (
@@ -15,13 +19,13 @@ export const SuccessScreen = ({ fullSubname, isUpdateMode, onContinue }: Success
       <div style={{ padding: 15 }}>
         <div className="ns-text-center">
           <div style={{ marginBottom: "20px" }}>
-            <img 
-              src={finishImage} 
-              alt="Success" 
+            <img
+              src={finishImage}
+              alt="Success"
               style={{ width: "120px", height: "auto" }}
             />
           </div>
-          
+
           <Text size="sm" color="grey" className="mb-2">
             Hooray! You've {actionText}
           </Text>

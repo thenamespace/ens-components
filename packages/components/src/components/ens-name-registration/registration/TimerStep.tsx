@@ -16,11 +16,17 @@ export const TimerStep: React.FC<TimerStepProps> = ({
   const INITIAL_SECONDS = 60;
   const [secondsToWait, setSecondsToWait] = useState<number>(INITIAL_SECONDS);
 
-  const { isCurrentStep, isDisabled, shouldStartTimer, isPending, isCompleted } = useMemo(() => {
+  const {
+    isCurrentStep,
+    isDisabled,
+    shouldStartTimer,
+    isPending,
+    isCompleted,
+  } = useMemo(() => {
     const isPending = state.step < ProcessSteps.TimerStarted;
     const isCurrentStep =
       state.step >= ProcessSteps.CommitmentCompleted &&
-      state.step < ProcessSteps.TimerCompleted;  
+      state.step < ProcessSteps.TimerCompleted;
     const isCompleted = state.step >= ProcessSteps.TimerCompleted;
     const isDisabled = !isCurrentStep;
     return {
@@ -28,7 +34,7 @@ export const TimerStep: React.FC<TimerStepProps> = ({
       isDisabled,
       shouldStartTimer: state.step === ProcessSteps.TimerStarted,
       isPending,
-      isCompleted
+      isCompleted,
     };
   }, [state]);
 

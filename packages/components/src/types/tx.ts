@@ -1,5 +1,5 @@
 export enum TxProgress {
-    Pending = 0,
-    Success = 1,
-    Failed = 2
+  Pending = 0,
+  Success = 1,
+  Failed = 2,
 }

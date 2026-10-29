@@ -29,11 +29,15 @@ export function SideSwitch({
       className={`side-switch prop-toggle ${isRight ? "on" : "off"} ${className}`}
       onClick={() => onChange(!isRight)}
     >
-      <span className={`side-switch-label${isRight ? "" : " active"}`}>{left}</span>
+      <span className={`side-switch-label${isRight ? "" : " active"}`}>
+        {left}
+      </span>
       <span className="toggle-track">
         <span className="toggle-thumb" />
       </span>
-      <span className={`side-switch-label${isRight ? " active" : ""}`}>{right}</span>
+      <span className={`side-switch-label${isRight ? " active" : ""}`}>
+        {right}
+      </span>
     </button>
   );
 }

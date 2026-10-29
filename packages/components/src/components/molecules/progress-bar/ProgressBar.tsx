@@ -27,4 +27,3 @@ export function ProgressBar({ progress }: ProgressBarProps) {
     </div>
   );
 }
-

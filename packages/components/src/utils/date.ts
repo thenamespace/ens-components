@@ -1,24 +1,35 @@
 export const ONE_DAY = 86_400;
 /** Fixed 365-day year. Use secondsFromYears() when calendar accuracy is required (e.g. initial state). */
-export const ONE_YEAR = 365 * ONE_DAY;  // 31_536_000
-export const MIN_REGISTRATION_SECONDS = 28 * ONE_DAY;  // 2_419_200
+export const ONE_YEAR = 365 * ONE_DAY; // 31_536_000
+export const MIN_REGISTRATION_SECONDS = 28 * ONE_DAY; // 2_419_200
 
 /** "YYYY-MM-DD" string for <input type="date"> value, from Unix expiry timestamp */
 export const secondsToDateInput = (expirySeconds: number): string => {
   const date = new Date(expirySeconds * 1000);
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
 
 /** Duration in seconds from nowSeconds to the start of valueAsDate's calendar day (UTC-day aligned).
  *  Uses local date parts fed into Date.UTC to count whole calendar days without DST skew. */
-export const roundDurationWithDay = (valueAsDate: Date, nowSeconds: number): number => {
+export const roundDurationWithDay = (
+  valueAsDate: Date,
+  nowSeconds: number
+): number => {
   const start = new Date(nowSeconds * 1000);
   // Read local date parts, then project into UTC so the delta is always N×86400s regardless of DST.
-  const endDay = Date.UTC(valueAsDate.getFullYear(), valueAsDate.getMonth(), valueAsDate.getDate());
-  const startDay = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
+  const endDay = Date.UTC(
+    valueAsDate.getFullYear(),
+    valueAsDate.getMonth(),
+    valueAsDate.getDate()
+  );
+  const startDay = Date.UTC(
+    start.getFullYear(),
+    start.getMonth(),
+    start.getDate()
+  );
   const days = Math.floor((endDay - startDay) / 86_400_000);
   return Math.max(0, days * 86_400);
 };
@@ -56,9 +67,10 @@ export const formatDurationSummary = (durationSeconds: number): string => {
   }
 
   const parts: string[] = [];
-  if (years > 0) parts.push(`${years} year${years !== 1 ? 's' : ''}`);
-  if (months > 0) parts.push(`${months} month${months !== 1 ? 's' : ''}`);
-  if (days > 0 && years === 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
+  if (years > 0) parts.push(`${years} year${years !== 1 ? "s" : ""}`);
+  if (months > 0) parts.push(`${months} month${months !== 1 ? "s" : ""}`);
+  if (days > 0 && years === 0)
+    parts.push(`${days} day${days !== 1 ? "s" : ""}`);
 
-  return parts.slice(0, 2).join(', ') || '0 days';
+  return parts.slice(0, 2).join(", ") || "0 days";
 };

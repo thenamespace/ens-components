@@ -50,7 +50,7 @@ const ExpandableBadge: React.FC<ExpandableBadgeProps> = ({
   children,
   id,
   isExpanded,
-  onToggle
+  onToggle,
 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState<number>(0);
@@ -229,11 +229,11 @@ export const RecordUpdateSummary: React.FC<RecordUpdateSummaryProps> = ({
   };
 
   const btnDisabled = isUpdating?.waitingTx || isUpdating?.waitingWallet;
-  const btnLabel = isUpdating?.waitingWallet 
-    ? "Waiting Wallet..." 
-    : isUpdating?.waitingTx 
-    ? "Updating..." 
-    : "Update";
+  const btnLabel = isUpdating?.waitingWallet
+    ? "Waiting Wallet..."
+    : isUpdating?.waitingTx
+      ? "Updating..."
+      : "Update";
 
   return (
     <div className="record-update-summary">
@@ -255,409 +255,410 @@ export const RecordUpdateSummary: React.FC<RecordUpdateSummaryProps> = ({
 
       <div className="record-update-summary__changes">
         {/* Addresses Section */}
-      {hasAddressChanges && (
-        <Accordion
-          title={
-            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
-              <Text weight="medium" size="sm">
-                Address Summary
-              </Text>
-              <div className="record-summary-badge">
-                <Text size="sm" color="grey" weight="medium">
-                  {addressCount}
+        {hasAddressChanges && (
+          <Accordion
+            title={
+              <div className="d-flex align-items-center" style={{ gap: "8px" }}>
+                <Text weight="medium" size="sm">
+                  Address Summary
                 </Text>
-              </div>
-            </div>
-          }
-          isOpen={openAccordion === "addresses"}
-          onToggle={isOpen => setOpenAccordion(isOpen ? "addresses" : null)}
-          className="record-summary-accordion"
-        >
-          <div className="record-summary-content">
-            {diff.addressesAdded.length > 0 && (
-              <div className="record-summary-section">
-                <Text
-                  weight="medium"
-                  size="sm"
-                  color="grey"
-                  className="ns-mb-1"
-                >
-                  Added ({diff.addressesAdded.length})
-                </Text>
-                <div className="record-summary-badges-container">
-                  {diff.addressesAdded.map((addr, idx) => {
-                    const addressInfo = getSupportedAddressByCoin(
-                      addr.coinType
-                    );
-                    const itemId = `addr-added-${addr.coinType}-${idx}`;
-                    const isExpanded = expandedItems.has(itemId);
-                    return (
-                      <ExpandableBadge
-                        key={idx}
-                        id={itemId}
-                        icon={
-                          addressInfo ? (
-                            <ChainIcon
-                              chain={addressInfo.chainName}
-                              size={16}
-                            />
-                          ) : null
-                        }
-                        label={getAddressLabel(addr.coinType)}
-                        isExpanded={isExpanded}
-                        onToggle={() => toggleItem(itemId)}
-                      >
-                        <Text size="xs" color="grey">
-                          New value → {formatAddress(addr.value)}
-                        </Text>
-                      </ExpandableBadge>
-                    );
-                  })}
+                <div className="record-summary-badge">
+                  <Text size="sm" color="grey" weight="medium">
+                    {addressCount}
+                  </Text>
                 </div>
               </div>
-            )}
-
-            {diff.addressesModified.length > 0 && (
-              <div className="record-summary-section">
-                <Text
-                  weight="medium"
-                  size="sm"
-                  color="grey"
-                  className="ns-mb-1"
-                >
-                  Modified ({diff.addressesModified.length})
-                </Text>
-                <div className="record-summary-badges-container">
-                  {diff.addressesModified.map((addr, idx) => {
-                    const addressInfo = getSupportedAddressByCoin(
-                      addr.coinType
-                    );
-                    const oldAddr = oldRecords.addresses.find(
-                      a => a.coinType === addr.coinType
-                    );
-                    const itemId = `addr-modified-${addr.coinType}-${idx}`;
-                    const isExpanded = expandedItems.has(itemId);
-                    return (
-                      <ExpandableBadge
-                        key={idx}
-                        id={itemId}
-                        icon={
-                          addressInfo ? (
-                            <ChainIcon
-                              chain={addressInfo.chainName}
-                              size={16}
-                            />
-                          ) : null
-                        }
-                        label={getAddressLabel(addr.coinType)}
-                        isExpanded={isExpanded}
-                        onToggle={() => toggleItem(itemId)}
-                      >
-                        <Text size="xs" color="grey">
-                          {oldAddr ? formatAddress(oldAddr.value) : "None"} →{" "}
-                          {formatAddress(addr.value)}
-                        </Text>
-                      </ExpandableBadge>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {diff.addressesRemoved.length > 0 && (
-              <div className="record-summary-section">
-                <Text
-                  weight="medium"
-                  size="sm"
-                  color="grey"
-                  className="ns-mb-1"
-                >
-                  Removed ({diff.addressesRemoved.length})
-                </Text>
-                <div className="record-summary-badges-container">
-                  {diff.addressesRemoved.map((addr, idx) => {
-                    const addressInfo = getSupportedAddressByCoin(
-                      addr.coinType
-                    );
-                    return (
-                      <SimpleBadge
-                        key={idx}
-                        icon={
-                          addressInfo ? (
-                            <ChainIcon
-                              chain={addressInfo.chainName}
-                              size={16}
-                            />
-                          ) : null
-                        }
-                        label={getAddressLabel(addr.coinType)}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-        </Accordion>
-          )}
-
-          {/* Texts Section */}
-      {hasTextChanges && (
-        <Accordion
-          title={
-            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
-              <Text weight="medium" size="sm">
-                Texts Summary
-              </Text>
-              <div className="record-summary-badge">
-                <Text size="sm" color="grey" weight="medium">
-                  {textCount}
-                </Text>
-              </div>
-            </div>
-          }
-          isOpen={openAccordion === "texts"}
-          onToggle={isOpen => setOpenAccordion(isOpen ? "texts" : null)}
-          className="record-summary-accordion"
-        >
-          <div className="record-summary-content">
-            {diff.textsAdded.length > 0 && (
-              <div className="record-summary-section">
-                <Text
-                  weight="medium"
-                  size="sm"
-                  color="grey"
-                  className="ns-mb-1"
-                >
-                  Added ({diff.textsAdded.length})
-                </Text>
-                <div className="record-summary-badges-container">
-                  {diff.textsAdded.map((txt, idx) => {
-                    const textInfo = getSupportedText(txt.key);
-                    const itemId = `text-added-${txt.key}-${idx}`;
-                    const isExpanded = expandedItems.has(itemId);
-                    return (
-                      <ExpandableBadge
-                        key={idx}
-                        id={itemId}
-                        icon={
-                          textInfo ? (
-                            <Icon name={textInfo.icon} size={16} />
-                          ) : null
-                        }
-                        label={getTextLabel(txt.key)}
-                        isExpanded={isExpanded}
-                        onToggle={() => toggleItem(itemId)}
-                      >
-                        <Text size="xs" color="grey">
-                          New value → {formatValue(txt.value)}
-                        </Text>
-                      </ExpandableBadge>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {diff.textsModified.length > 0 && (
-              <div className="record-summary-section">
-                <Text
-                  weight="medium"
-                  size="sm"
-                  color="grey"
-                  className="ns-mb-1"
-                >
-                  Modified ({diff.textsModified.length})
-                </Text>
-                <div className="record-summary-badges-container">
-                  {diff.textsModified.map((txt, idx) => {
-                    const textInfo = getSupportedText(txt.key);
-                    const oldText = oldRecords.texts.find(
-                      t => t.key === txt.key
-                    );
-                    const itemId = `text-modified-${txt.key}-${idx}`;
-                    const isExpanded = expandedItems.has(itemId);
-                    return (
-                      <ExpandableBadge
-                        key={idx}
-                        id={itemId}
-                        icon={
-                          textInfo ? (
-                            <Icon name={textInfo.icon} size={16} />
-                          ) : null
-                        }
-                        label={getTextLabel(txt.key)}
-                        isExpanded={isExpanded}
-                        onToggle={() => toggleItem(itemId)}
-                      >
-                        <Text size="xs" color="grey">
-                          {oldText ? formatValue(oldText.value) : "None"} →{" "}
-                          {formatValue(txt.value)}
-                        </Text>
-                      </ExpandableBadge>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {diff.textsRemoved.length > 0 && (
-              <div className="record-summary-section">
-                <Text
-                  weight="medium"
-                  size="sm"
-                  color="grey"
-                  className="ns-mb-1"
-                >
-                  Removed ({diff.textsRemoved.length})
-                </Text>
-                <div className="record-summary-badges-container">
-                  {diff.textsRemoved.map((txt, idx) => {
-                    const textInfo = getSupportedText(txt.key);
-                    return (
-                      <SimpleBadge
-                        key={idx}
-                        icon={
-                          textInfo ? (
-                            <Icon name={textInfo.icon} size={16} />
-                          ) : null
-                        }
-                        label={getTextLabel(txt.key)}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-        </Accordion>
-          )}
-
-          {/* Contenthash Section */}
-      {hasContenthashChanges && (
-        <Accordion
-          title={
-            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
-              <Text weight="medium" size="sm">
-                Contenthash Summary
-              </Text>
-              <div className="record-summary-badge">
-                <Text size="sm" color="grey" weight="medium">
-                  {contenthashCount}
-                </Text>
-              </div>
-            </div>
-          }
-          isOpen={openAccordion === "contenthash"}
-          onToggle={isOpen => setOpenAccordion(isOpen ? "contenthash" : null)}
-          className="record-summary-accordion"
-        >
-          <div className="record-summary-content">
-            {diff.contenthashAdded && (
-              <div className="record-summary-section">
-                <Text
-                  weight="medium"
-                  size="sm"
-                  color="grey"
-                  className="ns-mb-1"
-                >
-                  Added
-                </Text>
-                <div className="record-summary-badges-container">
-                  <ExpandableBadge
-                    id="contenthash-added"
-                    icon={<Icon name="globe" size={16} />}
-                    label={`Protocol: ${diff.contenthashAdded.protocol}`}
-                    isExpanded={expandedItems.has("contenthash-added")}
-                    onToggle={() => toggleItem("contenthash-added")}
+            }
+            isOpen={openAccordion === "addresses"}
+            onToggle={isOpen => setOpenAccordion(isOpen ? "addresses" : null)}
+            className="record-summary-accordion"
+          >
+            <div className="record-summary-content">
+              {diff.addressesAdded.length > 0 && (
+                <div className="record-summary-section">
+                  <Text
+                    weight="medium"
+                    size="sm"
+                    color="grey"
+                    className="ns-mb-1"
                   >
-                    <Text size="xs" color="grey">
-                      New value → {formatValue(diff.contenthashAdded.value, 60)}
-                    </Text>
-                  </ExpandableBadge>
-                </div>
-              </div>
-            )}
-
-            {diff.contenthashModified && (
-              <div className="record-summary-section">
-                <Text
-                  weight="medium"
-                  size="sm"
-                  color="grey"
-                  className="ns-mb-1"
-                >
-                  Modified
-                </Text>
-                <div className="record-summary-badges-container">
-                  <ExpandableBadge
-                    id="contenthash-modified"
-                    icon={<Icon name="globe" size={16} />}
-                    label={`Protocol: ${diff.contenthashModified.protocol}`}
-                    isExpanded={expandedItems.has("contenthash-modified")}
-                    onToggle={() => toggleItem("contenthash-modified")}
-                  >
-                    <Text size="xs" color="grey">
-                      {oldRecords.contenthash
-                        ? `${oldRecords.contenthash.protocol} - ${formatValue(
-                            oldRecords.contenthash.value,
-                            40
-                          )}`
-                        : "None"}{" "}
-                      → {formatValue(diff.contenthashModified.value, 40)}
-                    </Text>
-                  </ExpandableBadge>
-                </div>
-              </div>
-            )}
-
-            {diff.contenthashRemoved && (
-              <div className="record-summary-section">
-                <Text
-                  weight="medium"
-                  size="sm"
-                  color="grey"
-                  className="ns-mb-1"
-                >
-                  Removed
-                </Text>
-                {oldRecords.contenthash && (
+                    Added ({diff.addressesAdded.length})
+                  </Text>
                   <div className="record-summary-badges-container">
-                    <SimpleBadge
-                      icon={<Icon name="globe" size={16} />}
-                      label={`Protocol: ${oldRecords.contenthash.protocol}`}
-                    />
+                    {diff.addressesAdded.map((addr, idx) => {
+                      const addressInfo = getSupportedAddressByCoin(
+                        addr.coinType
+                      );
+                      const itemId = `addr-added-${addr.coinType}-${idx}`;
+                      const isExpanded = expandedItems.has(itemId);
+                      return (
+                        <ExpandableBadge
+                          key={idx}
+                          id={itemId}
+                          icon={
+                            addressInfo ? (
+                              <ChainIcon
+                                chain={addressInfo.chainName}
+                                size={16}
+                              />
+                            ) : null
+                          }
+                          label={getAddressLabel(addr.coinType)}
+                          isExpanded={isExpanded}
+                          onToggle={() => toggleItem(itemId)}
+                        >
+                          <Text size="xs" color="grey">
+                            New value → {formatAddress(addr.value)}
+                          </Text>
+                        </ExpandableBadge>
+                      );
+                    })}
                   </div>
-                )}
+                </div>
+              )}
+
+              {diff.addressesModified.length > 0 && (
+                <div className="record-summary-section">
+                  <Text
+                    weight="medium"
+                    size="sm"
+                    color="grey"
+                    className="ns-mb-1"
+                  >
+                    Modified ({diff.addressesModified.length})
+                  </Text>
+                  <div className="record-summary-badges-container">
+                    {diff.addressesModified.map((addr, idx) => {
+                      const addressInfo = getSupportedAddressByCoin(
+                        addr.coinType
+                      );
+                      const oldAddr = oldRecords.addresses.find(
+                        a => a.coinType === addr.coinType
+                      );
+                      const itemId = `addr-modified-${addr.coinType}-${idx}`;
+                      const isExpanded = expandedItems.has(itemId);
+                      return (
+                        <ExpandableBadge
+                          key={idx}
+                          id={itemId}
+                          icon={
+                            addressInfo ? (
+                              <ChainIcon
+                                chain={addressInfo.chainName}
+                                size={16}
+                              />
+                            ) : null
+                          }
+                          label={getAddressLabel(addr.coinType)}
+                          isExpanded={isExpanded}
+                          onToggle={() => toggleItem(itemId)}
+                        >
+                          <Text size="xs" color="grey">
+                            {oldAddr ? formatAddress(oldAddr.value) : "None"} →{" "}
+                            {formatAddress(addr.value)}
+                          </Text>
+                        </ExpandableBadge>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {diff.addressesRemoved.length > 0 && (
+                <div className="record-summary-section">
+                  <Text
+                    weight="medium"
+                    size="sm"
+                    color="grey"
+                    className="ns-mb-1"
+                  >
+                    Removed ({diff.addressesRemoved.length})
+                  </Text>
+                  <div className="record-summary-badges-container">
+                    {diff.addressesRemoved.map((addr, idx) => {
+                      const addressInfo = getSupportedAddressByCoin(
+                        addr.coinType
+                      );
+                      return (
+                        <SimpleBadge
+                          key={idx}
+                          icon={
+                            addressInfo ? (
+                              <ChainIcon
+                                chain={addressInfo.chainName}
+                                size={16}
+                              />
+                            ) : null
+                          }
+                          label={getAddressLabel(addr.coinType)}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </Accordion>
+        )}
+
+        {/* Texts Section */}
+        {hasTextChanges && (
+          <Accordion
+            title={
+              <div className="d-flex align-items-center" style={{ gap: "8px" }}>
+                <Text weight="medium" size="sm">
+                  Texts Summary
+                </Text>
+                <div className="record-summary-badge">
+                  <Text size="sm" color="grey" weight="medium">
+                    {textCount}
+                  </Text>
+                </div>
               </div>
-            )}
-          </div>
-        </Accordion>
-          )}
+            }
+            isOpen={openAccordion === "texts"}
+            onToggle={isOpen => setOpenAccordion(isOpen ? "texts" : null)}
+            className="record-summary-accordion"
+          >
+            <div className="record-summary-content">
+              {diff.textsAdded.length > 0 && (
+                <div className="record-summary-section">
+                  <Text
+                    weight="medium"
+                    size="sm"
+                    color="grey"
+                    className="ns-mb-1"
+                  >
+                    Added ({diff.textsAdded.length})
+                  </Text>
+                  <div className="record-summary-badges-container">
+                    {diff.textsAdded.map((txt, idx) => {
+                      const textInfo = getSupportedText(txt.key);
+                      const itemId = `text-added-${txt.key}-${idx}`;
+                      const isExpanded = expandedItems.has(itemId);
+                      return (
+                        <ExpandableBadge
+                          key={idx}
+                          id={itemId}
+                          icon={
+                            textInfo ? (
+                              <Icon name={textInfo.icon} size={16} />
+                            ) : null
+                          }
+                          label={getTextLabel(txt.key)}
+                          isExpanded={isExpanded}
+                          onToggle={() => toggleItem(itemId)}
+                        >
+                          <Text size="xs" color="grey">
+                            New value → {formatValue(txt.value)}
+                          </Text>
+                        </ExpandableBadge>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
-          {/* Error Display */}
-          {error && <ContractErrorLabel error={error} />}
+              {diff.textsModified.length > 0 && (
+                <div className="record-summary-section">
+                  <Text
+                    weight="medium"
+                    size="sm"
+                    color="grey"
+                    className="ns-mb-1"
+                  >
+                    Modified ({diff.textsModified.length})
+                  </Text>
+                  <div className="record-summary-badges-container">
+                    {diff.textsModified.map((txt, idx) => {
+                      const textInfo = getSupportedText(txt.key);
+                      const oldText = oldRecords.texts.find(
+                        t => t.key === txt.key
+                      );
+                      const itemId = `text-modified-${txt.key}-${idx}`;
+                      const isExpanded = expandedItems.has(itemId);
+                      return (
+                        <ExpandableBadge
+                          key={idx}
+                          id={itemId}
+                          icon={
+                            textInfo ? (
+                              <Icon name={textInfo.icon} size={16} />
+                            ) : null
+                          }
+                          label={getTextLabel(txt.key)}
+                          isExpanded={isExpanded}
+                          onToggle={() => toggleItem(itemId)}
+                        >
+                          <Text size="xs" color="grey">
+                            {oldText ? formatValue(oldText.value) : "None"} →{" "}
+                            {formatValue(txt.value)}
+                          </Text>
+                        </ExpandableBadge>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
-          {/* Action Buttons */}
-          <div className="record-update-summary-actions">
-            <Button 
-              variant="outline" 
-              size="lg" 
-              onClick={onCancel}
-              disabled={btnDisabled}
-            >
-              Cancel
-            </Button>
-            <Button
-              data-testid="records-confirm"
-              size="lg"
-              onClick={onConfirm}
-              disabled={btnDisabled}
-              loading={isUpdating?.waitingTx || isUpdating?.waitingWallet}
-            >
-              {btnLabel}
-            </Button>
-          </div>
+              {diff.textsRemoved.length > 0 && (
+                <div className="record-summary-section">
+                  <Text
+                    weight="medium"
+                    size="sm"
+                    color="grey"
+                    className="ns-mb-1"
+                  >
+                    Removed ({diff.textsRemoved.length})
+                  </Text>
+                  <div className="record-summary-badges-container">
+                    {diff.textsRemoved.map((txt, idx) => {
+                      const textInfo = getSupportedText(txt.key);
+                      return (
+                        <SimpleBadge
+                          key={idx}
+                          icon={
+                            textInfo ? (
+                              <Icon name={textInfo.icon} size={16} />
+                            ) : null
+                          }
+                          label={getTextLabel(txt.key)}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </Accordion>
+        )}
+
+        {/* Contenthash Section */}
+        {hasContenthashChanges && (
+          <Accordion
+            title={
+              <div className="d-flex align-items-center" style={{ gap: "8px" }}>
+                <Text weight="medium" size="sm">
+                  Contenthash Summary
+                </Text>
+                <div className="record-summary-badge">
+                  <Text size="sm" color="grey" weight="medium">
+                    {contenthashCount}
+                  </Text>
+                </div>
+              </div>
+            }
+            isOpen={openAccordion === "contenthash"}
+            onToggle={isOpen => setOpenAccordion(isOpen ? "contenthash" : null)}
+            className="record-summary-accordion"
+          >
+            <div className="record-summary-content">
+              {diff.contenthashAdded && (
+                <div className="record-summary-section">
+                  <Text
+                    weight="medium"
+                    size="sm"
+                    color="grey"
+                    className="ns-mb-1"
+                  >
+                    Added
+                  </Text>
+                  <div className="record-summary-badges-container">
+                    <ExpandableBadge
+                      id="contenthash-added"
+                      icon={<Icon name="globe" size={16} />}
+                      label={`Protocol: ${diff.contenthashAdded.protocol}`}
+                      isExpanded={expandedItems.has("contenthash-added")}
+                      onToggle={() => toggleItem("contenthash-added")}
+                    >
+                      <Text size="xs" color="grey">
+                        New value →{" "}
+                        {formatValue(diff.contenthashAdded.value, 60)}
+                      </Text>
+                    </ExpandableBadge>
+                  </div>
+                </div>
+              )}
+
+              {diff.contenthashModified && (
+                <div className="record-summary-section">
+                  <Text
+                    weight="medium"
+                    size="sm"
+                    color="grey"
+                    className="ns-mb-1"
+                  >
+                    Modified
+                  </Text>
+                  <div className="record-summary-badges-container">
+                    <ExpandableBadge
+                      id="contenthash-modified"
+                      icon={<Icon name="globe" size={16} />}
+                      label={`Protocol: ${diff.contenthashModified.protocol}`}
+                      isExpanded={expandedItems.has("contenthash-modified")}
+                      onToggle={() => toggleItem("contenthash-modified")}
+                    >
+                      <Text size="xs" color="grey">
+                        {oldRecords.contenthash
+                          ? `${oldRecords.contenthash.protocol} - ${formatValue(
+                              oldRecords.contenthash.value,
+                              40
+                            )}`
+                          : "None"}{" "}
+                        → {formatValue(diff.contenthashModified.value, 40)}
+                      </Text>
+                    </ExpandableBadge>
+                  </div>
+                </div>
+              )}
+
+              {diff.contenthashRemoved && (
+                <div className="record-summary-section">
+                  <Text
+                    weight="medium"
+                    size="sm"
+                    color="grey"
+                    className="ns-mb-1"
+                  >
+                    Removed
+                  </Text>
+                  {oldRecords.contenthash && (
+                    <div className="record-summary-badges-container">
+                      <SimpleBadge
+                        icon={<Icon name="globe" size={16} />}
+                        label={`Protocol: ${oldRecords.contenthash.protocol}`}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </Accordion>
+        )}
+
+        {/* Error Display */}
+        {error && <ContractErrorLabel error={error} />}
+
+        {/* Action Buttons */}
+        <div className="record-update-summary-actions">
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={onCancel}
+            disabled={btnDisabled}
+          >
+            Cancel
+          </Button>
+          <Button
+            data-testid="records-confirm"
+            size="lg"
+            onClick={onConfirm}
+            disabled={btnDisabled}
+            loading={isUpdating?.waitingTx || isUpdating?.waitingWallet}
+          >
+            {btnLabel}
+          </Button>
+        </div>
       </div>
     </div>
   );

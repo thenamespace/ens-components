@@ -46,7 +46,7 @@ export const isContenthashValid = (
   value: string
 ): boolean => {
   if (!value || value.trim().length === 0) return false;
-  
+
   switch (protocol) {
     case ContenthashProtocol.Ipfs:
       // IPFS CIDv0 (Qm...) or CIDv1 (bafy...)

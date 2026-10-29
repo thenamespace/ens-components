@@ -12,7 +12,7 @@ export function NetworkSwitch({
       left="Testnet"
       right="Mainnet"
       isRight={!isTestnet}
-      onChange={(mainnet) => onChange(!mainnet)}
+      onChange={mainnet => onChange(!mainnet)}
       className="hero-network"
       testId="network-switch"
     />

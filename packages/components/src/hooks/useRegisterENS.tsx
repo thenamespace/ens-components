@@ -46,7 +46,12 @@ const HEURISTIC_REGISTER_BASE_GAS = 240_000n;
 const HEURISTIC_GAS_PER_RECORD = 50_000n;
 
 const isStateOverrideRejection = (err: unknown): boolean => {
-  const e = err as { code?: number; cause?: { code?: number }; message?: string; shortMessage?: string };
+  const e = err as {
+    code?: number;
+    cause?: { code?: number };
+    message?: string;
+    shortMessage?: string;
+  };
   const code = e?.code ?? e?.cause?.code;
   if (code === -32602 || code === -32601 || code === -32000) return true;
   const msg = `${e?.shortMessage ?? ""} ${e?.message ?? ""}`.toLowerCase();
@@ -60,7 +65,8 @@ const isStateOverrideRejection = (err: unknown): boolean => {
   );
 };
 
-export const NAMESPACE_REFERRER_ADDRESS = "0xb7B18611b8C51B4B3F400BaF09DB49E61e0aF044";
+export const NAMESPACE_REFERRER_ADDRESS =
+  "0xb7B18611b8C51B4B3F400BaF09DB49E61e0aF044";
 
 export interface RegistrationRequest {
   label: string;
@@ -124,7 +130,9 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
     })) as boolean;
   };
 
-  const makeCommitment = async (request: RegistrationRequest): Promise<Hash> => {
+  const makeCommitment = async (
+    request: RegistrationRequest
+  ): Promise<Hash> => {
     const fullName = `${request.label}.eth`;
     const resolverData = convertToResolverData(fullName, request.records);
 
@@ -147,7 +155,9 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
     })) as Hash;
   };
 
-  const sendCommitmentTx = async (request: RegistrationRequest): Promise<Hash> => {
+  const sendCommitmentTx = async (
+    request: RegistrationRequest
+  ): Promise<Hash> => {
     if (!walletClient || !walletClient.account) {
       throw new Error("Wallet client is not available");
     }
@@ -184,7 +194,10 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
       referrer: getRegReferrer(request),
     };
 
-    const price = await getRegistrationPrice(request.label, request.durationInSeconds);
+    const price = await getRegistrationPrice(
+      request.label,
+      request.durationInSeconds
+    );
 
     const { request: contractRequest } = await publicClient!.simulateContract({
       address: getEthController(),
@@ -202,14 +215,18 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
   // Use eth_gasPrice (matches wagmi's useGasPrice and what ens-app-v3 displays).
   // The wallet may use a higher gas price at submission, but for the displayed
   // estimate we want parity with ENS app so users can compare like-for-like.
-  const getEffectiveGasPrice = (): Promise<bigint> => publicClient!.getGasPrice();
+  const getEffectiveGasPrice = (): Promise<bigint> =>
+    publicClient!.getGasPrice();
 
   // Storage slot for ETHRegistrarController.commitments[commitment].
   // Solidity layout for `mapping(bytes32 => uint256) commitments` at slot 1
   // is keccak256(commitment_padded || slot_padded). Matches ens-app-v3.
   const commitmentStorageSlot = (commitment: Hash): Hex =>
     keccak256(
-      concatHex([padHex(commitment, { size: 32 }), padHex(toHex(COMMITMENTS_SLOT), { size: 32 })])
+      concatHex([
+        padHex(commitment, { size: 32 }),
+        padHex(toHex(COMMITMENTS_SLOT), { size: 32 }),
+      ])
     );
 
   const estimateRegistrationFees = async (
@@ -237,9 +254,14 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
       args: [commitmentParams],
     })) as Hash;
 
-    const price = await getRegistrationPrice(request.label, request.durationInSeconds);
+    const price = await getRegistrationPrice(
+      request.label,
+      request.durationInSeconds
+    );
 
-    const fiveMinAgo = BigInt(Math.floor(Date.now() / 1000) - FIVE_MINUTES_SECONDS);
+    const fiveMinAgo = BigInt(
+      Math.floor(Date.now() / 1000) - FIVE_MINUTES_SECONDS
+    );
     const balanceOverride = price.wei * 2n + parseEther("1000000");
 
     const gasPricePromise = getEffectiveGasPrice();
@@ -275,8 +297,8 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
           { address: request.owner, balance: balanceOverride },
         ],
       })
-      .then((g) => ({ gas: g, isHeuristic: false }))
-      .catch((err) => {
+      .then(g => ({ gas: g, isHeuristic: false }))
+      .catch(err => {
         // Fall back to a heuristic on any failure — not just state-override
         // rejection. Common failures we want to absorb: RPC doesn't honor
         // state overrides (Cloudflare, some public Sepolia), wrong-chain RPC
@@ -291,9 +313,11 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
           );
         }
         const recordCount =
-          (request.records.addresses?.length ?? 0) + (request.records.texts?.length ?? 0);
+          (request.records.addresses?.length ?? 0) +
+          (request.records.texts?.length ?? 0);
         const heuristic =
-          HEURISTIC_REGISTER_BASE_GAS + BigInt(recordCount) * HEURISTIC_GAS_PER_RECORD;
+          HEURISTIC_REGISTER_BASE_GAS +
+          BigInt(recordCount) * HEURISTIC_GAS_PER_RECORD;
         return { gas: heuristic, isHeuristic: true };
       });
 
@@ -315,7 +339,8 @@ export const useRegisterENS = ({ isTestnet }: { isTestnet?: boolean }) => {
     };
   };
 
-  const getEthController = () => getEnsContracts(isTestnet).ethRegistrarController;
+  const getEthController = () =>
+    getEnsContracts(isTestnet).ethRegistrarController;
   const getPublicResolver = () => getEnsContracts(isTestnet).publicResolver;
 
   const getRegReferrer = (request: RegistrationRequest) => {

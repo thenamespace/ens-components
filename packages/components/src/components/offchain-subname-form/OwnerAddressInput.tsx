@@ -6,12 +6,16 @@ interface OwnerAddressInputProps {
   onChange: (value: string) => void;
 }
 
-export const OwnerAddressInput = ({ value, error, onChange }: OwnerAddressInputProps) => {
+export const OwnerAddressInput = ({
+  value,
+  error,
+  onChange,
+}: OwnerAddressInputProps) => {
   return (
     <div>
       <Input
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
         placeholder="Owner Address (Optional)"
         size="lg"
         wrapperClassName="ns-offchain-owner-input"

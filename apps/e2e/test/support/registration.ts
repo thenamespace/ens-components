@@ -1,14 +1,26 @@
 import type { Locator, Page } from "@playwright/test";
 import { clickWhenEnabled, expect, expectOutcome } from "./fixtures";
-import { formatAmount, getV2RegisterPrice, secondsFromYears, USDC_DECIMALS } from "./chain";
+import {
+  formatAmount,
+  getV2RegisterPrice,
+  secondsFromYears,
+  USDC_DECIMALS,
+} from "./chain";
 import { fillRecords, type RecordsInput } from "./records";
 
 /** Waits until a registration step is current, failing early with the form's error if a transaction fails. */
-const waitForStep = async (section: Locator, step: "commit" | "timer" | "register", timeout: number) => {
-  const current = section.locator(`[data-testid="registration-step-${step}"][data-status="current"]`);
+const waitForStep = async (
+  section: Locator,
+  step: "commit" | "timer" | "register",
+  timeout: number
+) => {
+  const current = section.locator(
+    `[data-testid="registration-step-${step}"][data-status="current"]`
+  );
   const error = section.getByTestId("contract-error");
   await expect(current.or(error).first()).toBeVisible({ timeout });
-  if (await error.isVisible()) throw new Error(`Registration failed: ${await error.innerText()}`);
+  if (await error.isVisible())
+    throw new Error(`Registration failed: ${await error.innerText()}`);
 };
 
 /**
@@ -18,7 +30,7 @@ const waitForStep = async (section: Locator, step: "commit" | "timer" | "registe
  */
 export const registerName = async (
   page: Page,
-  { label, records }: { label: string; records?: RecordsInput },
+  { label, records }: { label: string; records?: RecordsInput }
 ): Promise<bigint> => {
   const section = page.locator("#ens-registration");
   await section.scrollIntoViewIfNeeded();
@@ -39,12 +51,15 @@ export const registerName = async (
 
   // ENSv2 without batching first asks for whatever the wallet still lacks (its
   // resolver, the USDC allowance), one screen each; the wallet approves each prompt.
-  const prerequisite = section.locator('[data-testid="prerequisite-send"]:enabled');
+  const prerequisite = section.locator(
+    '[data-testid="prerequisite-send"]:enabled'
+  );
   const commit = section.locator('[data-testid="commit-button"]:enabled');
   const error = section.getByTestId("contract-error");
   for (;;) {
     await expect(prerequisite.or(commit)).toBeVisible({ timeout: 3 * 60_000 });
-    if (await error.isVisible()) throw new Error(`Registration failed: ${await error.innerText()}`);
+    if (await error.isVisible())
+      throw new Error(`Registration failed: ${await error.innerText()}`);
     if (await commit.isVisible()) break;
     await prerequisite.click();
   }

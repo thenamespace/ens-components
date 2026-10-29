@@ -10,22 +10,60 @@ import type { PropDef } from "../components/types";
 import { isValidEnsParentName } from "../utils/ensName";
 
 const OFFCHAIN_DEFS: PropDef[] = [
-  { key: "name",      type: "string",  default: "yourname.eth", required: true, readonly: true, tip: "Parent ENS name, including an ENS-imported DNS name such as example.com" },
-  { key: "label",     type: "string",  default: "",              tip: "Pre-fill and lock the subname label", placeholder: "alice" },
-  { key: "title",     type: "string",  default: "",              tip: "Override the default header title text", placeholder: "Create your subname" },
-  { key: "subtitle",  type: "string",  default: "",              tip: "Optional subtitle shown below the title", placeholder: "Enter a subname to get started" },
-  { key: "hideTitle", type: "boolean", default: false,           tip: "Hide the title header entirely" },
-  { key: "noBorder",  type: "boolean", default: true,  tip: "Remove the card border, for embedding in your own container" },
+  {
+    key: "name",
+    type: "string",
+    default: "yourname.eth",
+    required: true,
+    readonly: true,
+    tip: "Parent ENS name, including an ENS-imported DNS name such as example.com",
+  },
+  {
+    key: "label",
+    type: "string",
+    default: "",
+    tip: "Pre-fill and lock the subname label",
+    placeholder: "alice",
+  },
+  {
+    key: "title",
+    type: "string",
+    default: "",
+    tip: "Override the default header title text",
+    placeholder: "Create your subname",
+  },
+  {
+    key: "subtitle",
+    type: "string",
+    default: "",
+    tip: "Optional subtitle shown below the title",
+    placeholder: "Enter a subname to get started",
+  },
+  {
+    key: "hideTitle",
+    type: "boolean",
+    default: false,
+    tip: "Hide the title header entirely",
+  },
+  {
+    key: "noBorder",
+    type: "boolean",
+    default: true,
+    tip: "Remove the card border, for embedding in your own container",
+  },
 ];
 
-function generateOffchainCode(values: Record<string, any>, isTestnet: boolean): string {
+function generateOffchainCode(
+  values: Record<string, any>,
+  isTestnet: boolean
+): string {
   const mode = isTestnet ? "sepolia" : "mainnet";
   const lines: string[] = [`  isTestnet={${isTestnet}}`];
-  if (values.label)     lines.push(`  label="${values.label}"`);
-  if (values.title)     lines.push(`  title="${values.title}"`);
-  if (values.subtitle)  lines.push(`  subtitle="${values.subtitle}"`);
+  if (values.label) lines.push(`  label="${values.label}"`);
+  if (values.title) lines.push(`  title="${values.title}"`);
+  if (values.subtitle) lines.push(`  subtitle="${values.subtitle}"`);
   if (values.hideTitle) lines.push("  hideTitle={true}");
-  if (values.noBorder)  lines.push("  noBorder={true}");
+  if (values.noBorder) lines.push("  noBorder={true}");
   const extraProps = lines.length ? "\n" + lines.join("\n") + "\n" : "";
   return `import { OffchainSubnameForm } from "@thenamespace/ens-components";
 import { createOffchainClient } from "@thenamespace/offchain-manager";
@@ -49,28 +87,31 @@ const offchainManager = createOffchainClient({
 
 export function OffchainSubnameSection({ isTestnet }: { isTestnet: boolean }) {
   const [values, setValues] = useState<Record<string, any>>(() => ({
-    ...Object.fromEntries(OFFCHAIN_DEFS.map((d) => [d.key, d.default])),
+    ...Object.fromEntries(OFFCHAIN_DEFS.map(d => [d.key, d.default])),
   }));
   const [ensName, setEnsName] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [offchainMountKey, setOffchainMountKey] = useState(0);
 
   const onChange = (key: string, val: any) => {
-    setValues((prev) => ({ ...prev, [key]: val }));
+    setValues(prev => ({ ...prev, [key]: val }));
   };
 
-
-  const isNameValid = useMemo(
-    () => isValidEnsParentName(ensName),
-    [ensName]
-  );
-  const isApiKeyValid = /^ns-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(apiKey.trim());
+  const isNameValid = useMemo(() => isValidEnsParentName(ensName), [ensName]);
+  const isApiKeyValid =
+    /^ns-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      apiKey.trim()
+    );
   const isReady = isNameValid && isApiKeyValid;
 
-  const offchainManager = useMemo(() => createOffchainClient({
-    domainApiKeys: { [ensName || "yourname.eth"]: apiKey },
-    mode: isTestnet ? "sepolia" : "mainnet",
-  }), [isTestnet, ensName, apiKey]);
+  const offchainManager = useMemo(
+    () =>
+      createOffchainClient({
+        domainApiKeys: { [ensName || "yourname.eth"]: apiKey },
+        mode: isTestnet ? "sepolia" : "mainnet",
+      }),
+    [isTestnet, ensName, apiKey]
+  );
 
   const code = generateOffchainCode(values, isTestnet);
 
@@ -85,7 +126,11 @@ export function OffchainSubnameSection({ isTestnet }: { isTestnet: boolean }) {
       <div className="component-grid">
         <div className="code-col">
           <CodePanel title="OffchainSubnameForm.tsx" code={code} />
-          <PropsEditor defs={OFFCHAIN_DEFS} values={values} onChange={onChange} />
+          <PropsEditor
+            defs={OFFCHAIN_DEFS}
+            values={values}
+            onChange={onChange}
+          />
         </div>
         <DemoPanel>
           <div className="offchain-gate">
@@ -97,7 +142,9 @@ export function OffchainSubnameSection({ isTestnet }: { isTestnet: boolean }) {
                   type="text"
                   value={ensName}
                   placeholder="yourname.eth or example.com"
-                  onChange={(e) => setEnsName(e.target.value.trim().toLowerCase())}
+                  onChange={e =>
+                    setEnsName(e.target.value.trim().toLowerCase())
+                  }
                 />
               </div>
               <div className="offchain-gate-field">
@@ -107,19 +154,27 @@ export function OffchainSubnameSection({ isTestnet }: { isTestnet: boolean }) {
                   type="text"
                   value={apiKey}
                   placeholder="your-api-key"
-                  onChange={(e) => setApiKey(e.target.value.trim())}
+                  onChange={e => setApiKey(e.target.value.trim())}
                 />
               </div>
             </div>
             <p className="offchain-gate-hint" style={{ marginBottom: 10 }}>
               Navigate to{" "}
-              <a href="https://app.namespace.ninja/offchain" target="_blank" rel="noreferrer">
+              <a
+                href="https://app.namespace.ninja/offchain"
+                target="_blank"
+                rel="noreferrer"
+              >
                 app.namespace.ninja/offchain
               </a>{" "}
               and generate an API key for your name.
             </p>
           </div>
-          <div style={isReady ? undefined : { opacity: 0.4, pointerEvents: "none" }}>
+          <div
+            style={
+              isReady ? undefined : { opacity: 0.4, pointerEvents: "none" }
+            }
+          >
             <OffchainSubnameForm
               key={`${String(isTestnet)}-${values.label}-${ensName}-${offchainMountKey}`}
               name={ensName || "yourname.eth"}
@@ -130,8 +185,8 @@ export function OffchainSubnameSection({ isTestnet }: { isTestnet: boolean }) {
               title={values.title || undefined}
               subtitle={values.subtitle || undefined}
               hideTitle={values.hideTitle}
-              onCancel={() => setOffchainMountKey((k) => k + 1)}
-              onSubnameCreated={async (data) => {
+              onCancel={() => setOffchainMountKey(k => k + 1)}
+              onSubnameCreated={async data => {
                 await offchainManager.createSubname({
                   parentName: data.parentName,
                   label: data.label,
@@ -139,14 +194,14 @@ export function OffchainSubnameSection({ isTestnet }: { isTestnet: boolean }) {
                   texts: data.texts,
                   owner: data.owner,
                 });
-                setOffchainMountKey((k) => k + 1);
+                setOffchainMountKey(k => k + 1);
               }}
-              onSubnameUpdated={async (data) => {
+              onSubnameUpdated={async data => {
                 await offchainManager.updateSubname(data.fullSubname, {
                   addresses: data.addresses,
                   texts: data.texts,
                 });
-                setOffchainMountKey((k) => k + 1);
+                setOffchainMountKey(k => k + 1);
               }}
             />
           </div>

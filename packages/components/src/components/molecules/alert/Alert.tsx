@@ -39,9 +39,16 @@ export const Alert: React.FC<AlertProps> = ({
   const iconSize = isVertical ? 32 : 20;
 
   return (
-    <div className={`ns-alert ${config.colorClass} ${isVertical ? "ns-alert-vertical" : ""} ${className}`} role="alert">
-      <div className={`ns-alert-content ${isVertical ? "ns-alert-content-vertical" : ""}`}>
-        <div className={`ns-alert-icon ${isVertical ? "ns-alert-icon-vertical" : ""}`}>
+    <div
+      className={`ns-alert ${config.colorClass} ${isVertical ? "ns-alert-vertical" : ""} ${className}`}
+      role="alert"
+    >
+      <div
+        className={`ns-alert-content ${isVertical ? "ns-alert-content-vertical" : ""}`}
+      >
+        <div
+          className={`ns-alert-icon ${isVertical ? "ns-alert-icon-vertical" : ""}`}
+        >
           <Icon name={config.icon} size={iconSize} />
         </div>
         <div className="ns-alert-message">

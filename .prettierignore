@@ -4,6 +4,12 @@ node_modules/
 # Build outputs
 dist/
 storybook-static/
+.artifacts/
+.turbo/
+*.tsbuildinfo
+test-results/
+playwright-report/
+.cache-synpress/
 
 # Generated files
 *.d.ts
@@ -22,4 +28,4 @@ pnpm-lock.yaml
 
 # OS files
 .DS_Store
-Thumbs.db 
+Thumbs.db

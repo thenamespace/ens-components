@@ -27,4 +27,3 @@ export const ShurikenSpinner: React.FC<ShurikenSpinnerProps> = ({
 };
 
 export default ShurikenSpinner;
-

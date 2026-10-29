@@ -8,13 +8,19 @@ interface WaitTransactionOptions {
   retries?: number;
   retryDelay?: number;
   timeout?: number;
-  txConfirmations?: number
+  txConfirmations?: number;
 }
 
-export const useWaitTransaction = ({ isTestnet, chainId,  }: { isTestnet?: boolean, chainId?: number }) => {
-  const txChainId = chainId ? chainId : isTestnet ? sepolia.id : mainnet.id
+export const useWaitTransaction = ({
+  isTestnet,
+  chainId,
+}: {
+  isTestnet?: boolean;
+  chainId?: number;
+}) => {
+  const txChainId = chainId ? chainId : isTestnet ? sepolia.id : mainnet.id;
   const publicClient = usePublicClient({
-    chainId: txChainId
+    chainId: txChainId,
   });
 
   const waitTx = async (
@@ -25,7 +31,7 @@ export const useWaitTransaction = ({ isTestnet, chainId,  }: { isTestnet?: boole
       retries = 3,
       retryDelay = 2000,
       timeout = 60000, // 1 minute default timeout
-      txConfirmations = 1
+      txConfirmations = 1,
     } = options;
 
     let lastError: Error | null = null;
@@ -36,7 +42,7 @@ export const useWaitTransaction = ({ isTestnet, chainId,  }: { isTestnet?: boole
         // Create a promise that will timeout if transaction takes too long
         const receiptPromise = publicClient!.waitForTransactionReceipt({
           hash,
-          confirmations: txConfirmations
+          confirmations: txConfirmations,
         });
 
         const timeoutPromise = new Promise<never>((_, reject) => {
@@ -83,5 +89,3 @@ export const useWaitTransaction = ({ isTestnet, chainId,  }: { isTestnet?: boole
     waitTx,
   };
 };
-
-

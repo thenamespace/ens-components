@@ -2,7 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Text, Button } from "@/components/atoms";
 import { Alert } from "@/components/molecules";
 import { normalize } from "viem/ens";
-import { debounce, deepCopy, getEnsRecordsDiff, validateEnsRecords } from "@/utils";
+import {
+  debounce,
+  deepCopy,
+  getEnsRecordsDiff,
+  validateEnsRecords,
+} from "@/utils";
 import { EnsRecords } from "@/types";
 import { SetSubnameRecords } from "../subname-mint-form/SetSubnameRecords";
 import { ProfileSelector } from "../subname-mint-form/ProfileSelector";
@@ -68,7 +73,8 @@ export const OffchainSubnameForm = ({
   const [label, setLabel] = useState<string>(propLabel || "");
   const [showProfile, setShowProfile] = useState(false);
   const [createStep, setCreateStep] = useState<CreateStep>(CreateStep.Form);
-  const [successData, setSuccessData] = useState<OffchainSubnameCreatedData | null>(null);
+  const [successData, setSuccessData] =
+    useState<OffchainSubnameCreatedData | null>(null);
 
   const [isUpdateMode, setIsUpdateMode] = useState(false);
   const [initialOwner, setInitialOwner] = useState<string>("");
@@ -104,21 +110,30 @@ export const OffchainSubnameForm = ({
 
   // Owner address state
   const [ownerAddress, setOwnerAddress] = useState<string>("");
-  const { ownerAddressError, validateOwnerAddress, clearError: clearOwnerError } = useOwnerValidation();
+  const {
+    ownerAddressError,
+    validateOwnerAddress,
+    clearError: clearOwnerError,
+  } = useOwnerValidation();
 
   // Creating state
   const [isCreating, setIsCreating] = useState(false);
 
   // Subname checker hook
-  const { isLoadingSubname, error: checkError, setError: setCheckError, checkSubname } = useSubnameChecker(client, name);
+  const {
+    isLoadingSubname,
+    error: checkError,
+    setError: setCheckError,
+    checkSubname,
+  } = useSubnameChecker(client, name);
 
   // Check if subname exists and determine create/update mode
   const checkSubnameExists = async (subnameLabel: string) => {
     setAvailability({ isAvailable: false, isChecking: false });
-    
+
     try {
       const result = await checkSubname(subnameLabel);
-      
+
       if (!result.exists) {
         // Subname doesn't exist - CREATE mode (available)
         setIsUpdateMode(false);
@@ -136,7 +151,7 @@ export const OffchainSubnameForm = ({
       // Subname exists - UPDATE mode
       setIsUpdateMode(true);
       setAvailability({ isAvailable: false, isChecking: false });
-      
+
       const records = result.records || { addresses: [], texts: [] };
       const owner = result.owner || "";
 
@@ -150,7 +165,6 @@ export const OffchainSubnameForm = ({
       setIsUpdateMode(false);
     }
   };
-
 
   const debouncedCheckSubnameExists = useCallback(
     debounce((subnameLabel: string) => checkSubnameExists(subnameLabel), 500),
@@ -253,7 +267,10 @@ export const OffchainSubnameForm = ({
       setCreateStep(CreateStep.Success);
     } catch (err: any) {
       console.error("Create/Update error:", err);
-      setCreateError(err?.message || `Failed to ${isUpdateMode ? 'update' : 'create'} subname`);
+      setCreateError(
+        err?.message ||
+          `Failed to ${isUpdateMode ? "update" : "create"} subname`
+      );
     } finally {
       setIsCreating(false);
     }
@@ -263,7 +280,7 @@ export const OffchainSubnameForm = ({
     setSuccessData(null);
     setCreateError(null);
     setCreateStep(CreateStep.Form);
-    
+
     // Fetch the subname data to populate the form in update mode
     if (label && label.length >= MIN_ENS_LEN) {
       checkSubnameExists(label);
@@ -273,12 +290,12 @@ export const OffchainSubnameForm = ({
   // Check if there are any changes in update mode
   const hasRecordChanges = useMemo(() => {
     if (!isUpdateMode) return true; // Always allow create
-    
+
     // Check if owner changed - if so, return true immediately
     if (ownerAddress !== initialOwner) {
       return true;
     }
-    
+
     // Only check record difference if owner hasn't changed
     const diff = getEnsRecordsDiff(ensRecords, baselineRecords);
     return diff.isDifferent;
@@ -287,9 +304,11 @@ export const OffchainSubnameForm = ({
   const isAvailableForCreate = useMemo(() => {
     if (isUpdateMode) {
       // For update mode, need label, data loaded, and changes made
-      return label.length >= MIN_ENS_LEN && !isLoadingSubname && hasRecordChanges;
+      return (
+        label.length >= MIN_ENS_LEN && !isLoadingSubname && hasRecordChanges
+      );
     }
-    
+
     // For create mode, need availability check
     return (
       label.length >= MIN_ENS_LEN &&
@@ -302,7 +321,7 @@ export const OffchainSubnameForm = ({
   if (showProfile) {
     return (
       <SetSubnameRecords
-        key={`${label}-${isUpdateMode ? 'update' : 'create'}`}
+        key={`${label}-${isUpdateMode ? "update" : "create"}`}
         records={ensRecordTemplate}
         onRecordsChange={setEnsRecordsTemplate}
         onCancel={handleCancelRecords}
@@ -329,12 +348,15 @@ export const OffchainSubnameForm = ({
   }
 
   // Main form
-  const showFullName = isUpdateMode || (!isUpdateMode && label.length >= MIN_ENS_LEN);
+  const showFullName =
+    isUpdateMode || (!isUpdateMode && label.length >= MIN_ENS_LEN);
   const actionButtonText = isUpdateMode ? "Update" : "Create";
   const errorMessage = createError || checkError;
 
   return (
-    <div className={`ns-offchain-subname-form${noBorder ? " ns-no-border" : ""}`}>
+    <div
+      className={`ns-offchain-subname-form${noBorder ? " ns-no-border" : ""}`}
+    >
       <div className="ns-form-stack">
         {!hideTitle && (
           <FormHeader
@@ -370,9 +392,9 @@ export const OffchainSubnameForm = ({
             />
 
             {/* Add Records - Always show when label is valid */}
-            <ProfileSelector 
-              key={`${label}-${isUpdateMode ? 'update' : 'create'}`}
-              onSelect={() => setShowProfile(true)} 
+            <ProfileSelector
+              key={`${label}-${isUpdateMode ? "update" : "create"}`}
+              onSelect={() => setShowProfile(true)}
             />
           </>
         )}
@@ -399,12 +421,16 @@ export const OffchainSubnameForm = ({
           <Button
             variant="solid"
             size="lg"
-            disabled={!isAvailableForCreate || isCreating || !!ownerAddressError}
+            disabled={
+              !isAvailableForCreate || isCreating || !!ownerAddressError
+            }
             onClick={handleCreate}
             loading={isCreating}
           >
-            {isCreating 
-              ? (isUpdateMode ? "Updating..." : "Creating...") 
+            {isCreating
+              ? isUpdateMode
+                ? "Updating..."
+                : "Creating..."
               : actionButtonText}
           </Button>
         </div>

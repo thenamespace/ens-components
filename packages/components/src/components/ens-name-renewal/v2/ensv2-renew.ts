@@ -27,7 +27,7 @@ export interface EnsV2RenewalDeployment {
 }
 
 export const getEnsV2RenewalDeployment = (
-  isTestnet: boolean,
+  isTestnet: boolean
 ): EnsV2RenewalDeployment => {
   const ens = getEnsV2Contracts(isTestnet);
   return {

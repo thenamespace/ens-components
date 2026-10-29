@@ -48,7 +48,9 @@ const buildSvg = (seed: string): string => {
       if (!filled) {
         continue;
       }
-      cells.push(`<rect x="${x}" y="${y}" width="1" height="1" fill="${fill}"/>`);
+      cells.push(
+        `<rect x="${x}" y="${y}" width="1" height="1" fill="${fill}"/>`
+      );
       cells.push(
         `<rect x="${GRID - 1 - x}" y="${y}" width="1" height="1" fill="${fill}"/>`
       );
@@ -63,8 +65,10 @@ const buildSvg = (seed: string): string => {
   ].join("");
 };
 
-export interface IdenticonProps
-  extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "src" | "alt"> {
+export interface IdenticonProps extends Omit<
+  React.ImgHTMLAttributes<HTMLImageElement>,
+  "src" | "alt"
+> {
   /** The string the mark is derived from — typically the full name. */
   seed: string;
   /** Rendered edge length in px. Square by definition. */

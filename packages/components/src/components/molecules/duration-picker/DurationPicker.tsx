@@ -18,7 +18,13 @@ export interface DurationPickerProps {
 }
 
 const CalendarSVG = () => (
-  <svg viewBox="0 0 24 24" width={16} height={16} fill="currentColor" aria-hidden="true">
+  <svg
+    viewBox="0 0 24 24"
+    width={16}
+    height={16}
+    fill="currentColor"
+    aria-hidden="true"
+  >
     <path d="M19 3h-1V1h-2v2H8V1H6v2H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
   </svg>
 );
@@ -77,11 +83,14 @@ export const DurationPicker: React.FC<DurationPickerProps> = ({
 
   const minusDisabled = minusSeconds < minSeconds;
   const expirySeconds = nowSeconds + durationSeconds;
-  const expiryDateDisplay = new Date(expirySeconds * 1000).toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
+  const expiryDateDisplay = new Date(expirySeconds * 1000).toLocaleDateString(
+    "en-US",
+    {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    }
+  );
 
   return (
     <div className="ns-duration-picker">
@@ -106,7 +115,9 @@ export const DurationPicker: React.FC<DurationPickerProps> = ({
         </div>
       ) : (
         <div className="ns-duration-picker__calendar">
-          <span className="ns-duration-picker__date-display">{expiryDateDisplay}</span>
+          <span className="ns-duration-picker__date-display">
+            {expiryDateDisplay}
+          </span>
           <input
             ref={dateInputRef}
             type="date"

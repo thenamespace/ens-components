@@ -131,7 +131,7 @@ forward it directly:
 interface OffchainSubnameCreatedData {
   label: string;
   parentName: string;
-  fullSubname: string;                            // "{label}.{parentName}"
+  fullSubname: string; // "{label}.{parentName}"
   addresses: Array<{ chain: ChainName; value: string }>;
   texts: Array<{ key: string; value: string }>;
   owner?: string;
@@ -246,15 +246,15 @@ Internal utilities:
 
 ## 4) Stack and packaging
 
-| Concern | Decision |
-|---------|----------|
-| Build output | ESM only (`dist/index.js`), type declarations (`dist/index.d.ts`) |
-| Main entry | `src/index.tsx` |
-| CSS | Shipped with package, imported via `@thenamespace/ens-components/styles.css` |
+| Concern                | Decision                                                                                             |
+| ---------------------- | ---------------------------------------------------------------------------------------------------- |
+| Build output           | ESM only (`dist/index.js`), type declarations (`dist/index.d.ts`)                                    |
+| Main entry             | `src/index.tsx`                                                                                      |
+| CSS                    | Shipped with package, imported via `@thenamespace/ens-components/styles.css`                         |
 | Peer deps externalized | `react`, `react-dom`, `wagmi`, `viem`, `@tanstack/react-query`, **`@thenamespace/offchain-manager`** |
-| Build tool | Rollup + esbuild + rollup-plugin-dts |
-| Type generation | `tsc -p tsconfig.types.json` → `dist/types/` → bundled by `rollup-plugin-dts` |
-| Monorepo | pnpm workspaces + Turborepo |
+| Build tool             | Rollup + esbuild + rollup-plugin-dts                                                                 |
+| Type generation        | `tsc -p tsconfig.types.json` → `dist/types/` → bundled by `rollup-plugin-dts`                        |
+| Monorepo               | pnpm workspaces + Turborepo                                                                          |
 
 ### Why `@thenamespace/offchain-manager` is external
 
@@ -321,28 +321,27 @@ pnpm e2e
 
 ### Releasing
 
-- **npm:** run the "Publish New Package Version" workflow on `main`. It runs
-  `npm version <patch|minor|major>` on whatever `packages/components/package.json`
-  holds, publishes to `latest`, and commits the bump. From a prerelease such as
-  `2.3.0-alpha.6`, `patch` and `minor` give `2.3.0` and `major` gives `3.0.0`.
-  Prereleases (the `alpha` tag) are published by hand from a branch.
+- **npm:** update the version and changelog in a reviewed PR, then run
+  "Publish npm package and GitHub release" on `main` after approval and merge.
+  See [Publishing a release](../CONTRIBUTING.md#publishing-a-release) for the checks,
+  required credentials, and partial-release recovery instructions.
 - **enscomponents.com:** the landing app builds from the workspace package, not
-  npm. Run "Build and Push Docker Image" on the commit to deploy, then set its short
-  SHA as the tag in `applications/apps/core/uikit/app-config/{staging,prod}-values.yaml`
-  in the infra repo. The automatic staging update doesn't work for this repo: it
-  dispatches the repository name `ens-components`, but the infra app is `uikit`.
+  npm. The manual playground workflow builds the image and requests a staging
+  infrastructure PR for `uikit`. GitHub records the request as queued until the
+  rollout is confirmed. See [Playground deployments](../CONTRIBUTING.md#playground-deployments).
+  Production promotion remains a separate reviewed infrastructure change.
 
 ---
 
 ## 8) Dependency versions (current)
 
-| Package | Version |
-|---------|---------|
-| `viem` | `^2.46.3` |
-| `wagmi` | `^2.19.5` |
-| `@rainbow-me/rainbowkit` | `^2.2.10` |
+| Package                          | Version   |
+| -------------------------------- | --------- |
+| `viem`                           | `^2.46.3` |
+| `wagmi`                          | `^2.19.5` |
+| `@rainbow-me/rainbowkit`         | `^2.2.10` |
 | `@thenamespace/offchain-manager` | `^1.0.10` |
-| `@thenamespace/mint-manager` | `^1.1.1` |
+| `@thenamespace/mint-manager`     | `^1.1.1`  |
 
 > **wagmi v3 hold**: rainbowkit `^2.x` requires `wagmi ^2.x`. Do not upgrade
 > wagmi to v3 until rainbowkit releases a compatible version.

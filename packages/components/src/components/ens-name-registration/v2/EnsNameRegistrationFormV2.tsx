@@ -1,11 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
-import { type Address, formatEther, formatUnits, type PublicClient, zeroAddress } from "viem";
+import {
+  type Address,
+  formatEther,
+  formatUnits,
+  type PublicClient,
+  zeroAddress,
+} from "viem";
 import { useAccount, usePublicClient } from "wagmi";
 import { Text } from "@/components/atoms";
 import { Alert, PricingDisplay, TokenSelect } from "@/components/molecules";
 import { useEthDollarValue } from "@/hooks";
 import type { EnsRecords } from "@/types";
-import { deepCopy, formatTokenAmount, getEnsRecordsDiff, getOwnedResolver } from "@/utils";
+import {
+  deepCopy,
+  formatTokenAmount,
+  getEnsRecordsDiff,
+  getOwnedResolver,
+} from "@/utils";
 import { secondsFromYears } from "@/utils/date";
 import { RegistrationSummary } from "../RegistrationSummary";
 import { SetNameRecords } from "../SetNameRecords";
@@ -37,7 +48,8 @@ import {
 import "../ENSNamesRegistrarComponent.css";
 
 const PRICE_DEBOUNCE_MS = 500;
-const ESTIMATE_SECRET = "0x0000000000000000000000000000000000000000000000000000000000000001";
+const ESTIMATE_SECRET =
+  "0x0000000000000000000000000000000000000000000000000000000000000001";
 
 enum Step {
   Summary,
@@ -56,15 +68,21 @@ const durationLabel = (seconds: number) => {
   return `${days} days`;
 };
 
-export const EnsNameRegistrationFormV2 = (props: EnsNameRegistrationFormProps) => {
+export const EnsNameRegistrationFormV2 = (
+  props: EnsNameRegistrationFormProps
+) => {
   const deployment = getEnsV2RegistrationDeployment(Boolean(props.isTestnet));
-  return <EnsNameRegistrationFormV2Content {...props} deployment={deployment} />;
+  return (
+    <EnsNameRegistrationFormV2Content {...props} deployment={deployment} />
+  );
 };
 
 const EnsNameRegistrationFormV2Content = ({
   deployment,
   ...props
-}: EnsNameRegistrationFormProps & { deployment: EnsV2RegistrationDeployment }) => {
+}: EnsNameRegistrationFormProps & {
+  deployment: EnsV2RegistrationDeployment;
+}) => {
   const { address } = useAccount();
   const publicClient = usePublicClient({ chainId: deployment.chainId }) as
     | PublicClient
@@ -73,17 +91,25 @@ const EnsNameRegistrationFormV2Content = ({
 
   const [label, setLabel] = useState(getLabel(props.name));
   const [step, setStep] = useState(Step.Summary);
-  const [durationSeconds, setDurationSeconds] = useState(() => secondsFromYears(new Date(), 1));
-  const [tokenSymbol, setTokenSymbol] = useState(deployment.paymentTokens[0].symbol);
+  const [durationSeconds, setDurationSeconds] = useState(() =>
+    secondsFromYears(new Date(), 1)
+  );
+  const [tokenSymbol, setTokenSymbol] = useState(
+    deployment.paymentTokens[0].symbol
+  );
   const token =
-    deployment.paymentTokens.find((t) => t.symbol === tokenSymbol) ?? deployment.paymentTokens[0];
+    deployment.paymentTokens.find(t => t.symbol === tokenSymbol) ??
+    deployment.paymentTokens[0];
 
   const [nameValidation, setNameValidation] = useState<{
     isChecking: boolean;
     isTaken: boolean;
     reason?: string;
   }>({ isChecking: false, isTaken: false });
-  const [prices, setPrices] = useState<{ isChecking: boolean; bySymbol: Record<string, bigint> }>({
+  const [prices, setPrices] = useState<{
+    isChecking: boolean;
+    bySymbol: Record<string, bigint>;
+  }>({
     isChecking: false,
     bySymbol: {},
   });
@@ -93,11 +119,17 @@ const EnsNameRegistrationFormV2Content = ({
   }>({ isChecking: false, data: null });
 
   const [showProfile, setShowProfile] = useState(false);
-  const [ensRecordTemplate, setEnsRecordsTemplate] = useState<EnsRecords>({ addresses: [], texts: [] });
-  const [ensRecords, setEnsRecords] = useState<EnsRecords>({ addresses: [], texts: [] });
+  const [ensRecordTemplate, setEnsRecordsTemplate] = useState<EnsRecords>({
+    addresses: [],
+    texts: [],
+  });
+  const [ensRecords, setEnsRecords] = useState<EnsRecords>({
+    addresses: [],
+    texts: [],
+  });
   const hasRecordsDifference = useMemo(
     () => getEnsRecordsDiff(ensRecords, ensRecordTemplate).isDifferent,
-    [ensRecords, ensRecordTemplate],
+    [ensRecords, ensRecordTemplate]
   );
   const [success, setSuccess] = useState<{
     price: string;
@@ -105,20 +137,25 @@ const EnsNameRegistrationFormV2Content = ({
     expiryDate: string;
   } | null>(null);
 
-  const available = label.length >= 3 && !nameValidation.isChecking && !nameValidation.isTaken;
+  const available =
+    label.length >= 3 && !nameValidation.isChecking && !nameValidation.isTaken;
   const price = prices.bySymbol[token.symbol];
 
   useEffect(() => {
     if (!publicClient || !available) return;
     let cancelled = false;
-    setPrices((prev) => ({ ...prev, isChecking: true }));
+    setPrices(prev => ({ ...prev, isChecking: true }));
     const timer = setTimeout(async () => {
       const amounts = await Promise.all(
-        deployment.paymentTokens.map((t) =>
-          getEnsV2RegistrationPrice(publicClient, deployment, label, BigInt(durationSeconds), t).catch(
-            () => null,
-          ),
-        ),
+        deployment.paymentTokens.map(t =>
+          getEnsV2RegistrationPrice(
+            publicClient,
+            deployment,
+            label,
+            BigInt(durationSeconds),
+            t
+          ).catch(() => null)
+        )
       );
       if (cancelled) return;
       setPrices({
@@ -126,7 +163,7 @@ const EnsNameRegistrationFormV2Content = ({
         bySymbol: Object.fromEntries(
           deployment.paymentTokens
             .map((t, i) => [t.symbol, amounts[i]] as const)
-            .filter(([, amount]) => amount !== null),
+            .filter(([, amount]) => amount !== null)
         ) as Record<string, bigint>,
       });
     }, PRICE_DEBOUNCE_MS);
@@ -142,11 +179,15 @@ const EnsNameRegistrationFormV2Content = ({
       return;
     }
     let cancelled = false;
-    setFees((prev) => ({ ...prev, isChecking: true }));
+    setFees(prev => ({ ...prev, isChecking: true }));
     const run = async () => {
       try {
         const owner = address as Address;
-        const resolver = await getOwnedResolver(publicClient, deployment, owner);
+        const resolver = await getOwnedResolver(
+          publicClient,
+          deployment,
+          owner
+        );
         const params = {
           label,
           owner,
@@ -163,13 +204,17 @@ const EnsNameRegistrationFormV2Content = ({
           resolverSalt: resolver.salt,
           records: withOwnerEthAddress(ensRecords, owner),
         });
-        const data = await estimateEnsV2RegistrationFees(publicClient, deployment, {
-          owner,
-          commitment: makeEnsV2Commitment(params),
-          calls,
-          token,
-          price,
-        });
+        const data = await estimateEnsV2RegistrationFees(
+          publicClient,
+          deployment,
+          {
+            owner,
+            commitment: makeEnsV2Commitment(params),
+            calls,
+            token,
+            price,
+          }
+        );
         if (!cancelled) setFees({ isChecking: false, data });
       } catch {
         if (!cancelled) setFees({ isChecking: false, data: null });
@@ -179,12 +224,25 @@ const EnsNameRegistrationFormV2Content = ({
     return () => {
       cancelled = true;
     };
-  }, [publicClient, address, available, price, tokenSymbol, label, durationSeconds, ensRecords]);
+  }, [
+    publicClient,
+    address,
+    available,
+    price,
+    tokenSymbol,
+    label,
+    durationSeconds,
+    ensRecords,
+  ]);
 
   const priceDisplay =
-    price === undefined ? "N/A" : formatTokenAmount(price, token.decimals, token.symbol);
+    price === undefined
+      ? "N/A"
+      : formatTokenAmount(price, token.decimals, token.symbol);
   const feesDisplay =
-    fees.data?.feeWei == null ? "N/A" : formatTokenAmount(fees.data.feeWei, 18, "ETH");
+    fees.data?.feeWei == null
+      ? "N/A"
+      : formatTokenAmount(fees.data.feeWei, 18, "ETH");
   const totalUsd =
     price === undefined
       ? undefined
@@ -195,7 +253,8 @@ const EnsNameRegistrationFormV2Content = ({
             : 0)
         ).toFixed(2);
   const insufficient = Boolean(
-    fees.data && (fees.data.shortfallEthWei > 0n || fees.data.shortfallToken > 0n),
+    fees.data &&
+    (fees.data.shortfallEthWei > 0n || fees.data.shortfallToken > 0n)
   );
 
   const pricing = (
@@ -208,14 +267,22 @@ const EnsNameRegistrationFormV2Content = ({
             value={token.symbol}
             onChange={setTokenSymbol}
             options={deployment.paymentTokens
-              .filter((t) => prices.bySymbol[t.symbol] !== undefined)
-              .map((t) => ({
+              .filter(t => prices.bySymbol[t.symbol] !== undefined)
+              .map(t => ({
                 symbol: t.symbol,
-                amount: formatTokenAmount(prices.bySymbol[t.symbol], t.decimals, t.symbol),
+                amount: formatTokenAmount(
+                  prices.bySymbol[t.symbol],
+                  t.decimals,
+                  t.symbol
+                ),
               }))}
           />
         }
-        primaryFee={{ label: "Registration Fee", amount: priceDisplay, isChecking: prices.isChecking }}
+        primaryFee={{
+          label: "Registration Fee",
+          amount: priceDisplay,
+          isChecking: prices.isChecking,
+        }}
         networkFees={{ amount: feesDisplay, isChecking: fees.isChecking }}
         total={{ amount: priceDisplay, isChecking: prices.isChecking }}
         totalUsd={totalUsd}
@@ -228,10 +295,18 @@ const EnsNameRegistrationFormV2Content = ({
     </>
   );
 
-  const senders = useEnsV2RegistrationSenders(deployment, token, ensRecords, props.referrer);
-  const [processState, setProcessState] = useState<Partial<RegistrationState> | null>(null);
+  const senders = useEnsV2RegistrationSenders(
+    deployment,
+    token,
+    ensRecords,
+    props.referrer
+  );
+  const [processState, setProcessState] =
+    useState<Partial<RegistrationState> | null>(null);
 
-  const [prerequisiteSteps, setPrerequisiteSteps] = useState<EnsV2PrerequisiteStep[]>([]);
+  const [prerequisiteSteps, setPrerequisiteSteps] = useState<
+    EnsV2PrerequisiteStep[]
+  >([]);
 
   const notifyStart = async <T,>(sending: Promise<T>) => {
     const sent = await sending;
@@ -242,15 +317,17 @@ const EnsNameRegistrationFormV2Content = ({
   const startProcess = async () => {
     const steps = await senders
       .getPrerequisites(label, durationSeconds)
-      .then((needs) =>
+      .then(needs =>
         buildEnsV2PrerequisiteSteps({
           ...needs,
           token,
-          sendResolverDeploy: () => notifyStart(senders.sendResolverDeploy(label)),
-          sendApproval: () => notifyStart(senders.sendApproval(label, durationSeconds)),
-        }),
+          sendResolverDeploy: () =>
+            notifyStart(senders.sendResolverDeploy(label)),
+          sendApproval: () =>
+            notifyStart(senders.sendApproval(label, durationSeconds)),
+        })
       )
-      .catch((err) => {
+      .catch(err => {
         console.error(err);
         return [];
       });
@@ -270,17 +347,19 @@ const EnsNameRegistrationFormV2Content = ({
             deployment,
             address as Address,
             label,
-            durationSeconds,
+            durationSeconds
           ).catch(() => null)
         : null;
     setProcessState(
       resumed
         ? {
             secret: resumed.secret,
-            step: resumed.ready ? ProcessSteps.TimerCompleted : ProcessSteps.TimerStarted,
+            step: resumed.ready
+              ? ProcessSteps.TimerCompleted
+              : ProcessSteps.TimerStarted,
             commitment: { completed: true, time: Date.now() },
           }
-        : { secret: randomSecret() },
+        : { secret: randomSecret() }
     );
     setStep(Step.Progress);
   };
@@ -314,7 +393,11 @@ const EnsNameRegistrationFormV2Content = ({
           hasChanges={hasRecordsDifference}
           avatarUpload={
             label
-              ? { ensName: `${label}.eth`, isTestnet: props.isTestnet, siweDomain: props.avatarUploadDomain }
+              ? {
+                  ensName: `${label}.eth`,
+                  isTestnet: props.isTestnet,
+                  siweDomain: props.avatarUploadDomain,
+                }
               : undefined
           }
         />
@@ -322,7 +405,9 @@ const EnsNameRegistrationFormV2Content = ({
       {step === Step.Summary && !showProfile && insufficient && (
         <div className="ens-registration-floating-alert">
           <Alert variant="warning">
-            <Text size="sm" data-testid="insufficient-funds">Insufficient funds</Text>
+            <Text size="sm" data-testid="insufficient-funds">
+              Insufficient funds
+            </Text>
           </Alert>
         </div>
       )}
@@ -345,7 +430,7 @@ const EnsNameRegistrationFormV2Content = ({
           onSetProfile={() => setShowProfile(true)}
           onStart={startProcess}
           onConnectWallet={props.onConnectWallet}
-          checkAvailability={(l) =>
+          checkAvailability={l =>
             publicClient
               ? isEnsV2NameAvailable(publicClient, deployment, l)
               : Promise.reject(new Error("No client"))
@@ -377,7 +462,7 @@ const EnsNameRegistrationFormV2Content = ({
             setStep(Step.Summary);
           }}
           onStart={props.onRegistrationStart}
-          onSuccess={(data) => {
+          onSuccess={data => {
             setSuccess({
               price: data.registrationCost,
               transactionFees: data.transactionFees,

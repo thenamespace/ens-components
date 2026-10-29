@@ -12,7 +12,10 @@ import {
 } from "viem";
 import { namehash, packetToBytes } from "viem/ens";
 import { getEnsV2Contracts } from "@thenamespace/addresses";
-import { supportedAddresses, supportedTexts } from "@thenamespace/ens-components";
+import {
+  supportedAddresses,
+  supportedTexts,
+} from "@thenamespace/ens-components";
 
 const registryAbi = parseAbi([
   "function getTokenId(uint256 anyId) view returns (uint256)",
@@ -27,7 +30,8 @@ const resolverAbi = parseAbi([
   "function addr(bytes32 node, uint256 coinType) view returns (bytes)",
 ]);
 
-const isEvmCoinType = (coinType: number) => coinType === 60 || coinType >= 0x80000000;
+const isEvmCoinType = (coinType: number) =>
+  coinType === 60 || coinType >= 0x80000000;
 
 /**
  * Owner of a .eth name or subname in ENSv2, lowercased; zero address when unregistered.
@@ -36,10 +40,11 @@ const isEvmCoinType = (coinType: number) => coinType === 60 || coinType >= 0x800
 export const getEnsV2Owner = async (
   client: PublicClient,
   name: string,
-  isTestnet: boolean,
+  isTestnet: boolean
 ): Promise<string> => {
   const labels = name.split(".");
-  if (labels.length < 2 || labels[labels.length - 1] !== "eth") return zeroAddress;
+  if (labels.length < 2 || labels[labels.length - 1] !== "eth")
+    return zeroAddress;
 
   let registry: Address = getEnsV2Contracts(isTestnet).ethRegistry;
   for (const label of labels.slice(1, -1).reverse()) {
@@ -74,21 +79,33 @@ export const getEnsV2Owner = async (
  * names are read on-chain. Non-EVM addresses (BTC, SOL)
  * are skipped because they need chain-specific decoding.
  */
-export const fetchEnsV2Records = async (client: PublicClient, name: string, isTestnet: boolean) => {
+export const fetchEnsV2Records = async (
+  client: PublicClient,
+  name: string,
+  isTestnet: boolean
+) => {
   const universalResolver = getEnsV2Contracts(isTestnet).universalResolver;
   const dnsName = toHex(packetToBytes(name));
   const node = namehash(name);
-  const evmCoins = supportedAddresses.filter((a) => isEvmCoinType(a.coinType));
+  const evmCoins = supportedAddresses.filter(a => isEvmCoinType(a.coinType));
   const calls: Hex[] = [
-    ...supportedTexts.map((t) =>
-      encodeFunctionData({ abi: resolverAbi, functionName: "text", args: [node, t.key] }),
+    ...supportedTexts.map(t =>
+      encodeFunctionData({
+        abi: resolverAbi,
+        functionName: "text",
+        args: [node, t.key],
+      })
     ),
-    ...evmCoins.map((a) =>
-      encodeFunctionData({ abi: resolverAbi, functionName: "addr", args: [node, BigInt(a.coinType)] }),
+    ...evmCoins.map(a =>
+      encodeFunctionData({
+        abi: resolverAbi,
+        functionName: "addr",
+        args: [node, BigInt(a.coinType)],
+      })
     ),
   ];
   const results = await client.multicall({
-    contracts: calls.map((data) => ({
+    contracts: calls.map(data => ({
       address: universalResolver,
       abi: universalResolverAbi,
       functionName: "resolve" as const,
@@ -97,23 +114,29 @@ export const fetchEnsV2Records = async (client: PublicClient, name: string, isTe
   });
   // A failed lookup (no resolver, unsupported record) just means the record is unset.
   const output = (i: number): Hex | undefined =>
-    results[i].status === "success" ? (results[i].result as readonly [Hex, Address])[0] : undefined;
+    results[i].status === "success"
+      ? (results[i].result as readonly [Hex, Address])[0]
+      : undefined;
 
   const texts = supportedTexts
     .map((t, i) => {
       const data = output(i);
-      const value = data ? decodeFunctionResult({ abi: resolverAbi, functionName: "text", data }) : "";
+      const value = data
+        ? decodeFunctionResult({ abi: resolverAbi, functionName: "text", data })
+        : "";
       return { key: t.key, value };
     })
-    .filter((t) => t.value);
+    .filter(t => t.value);
   const addresses = evmCoins
     .map((a, i) => {
       const data = output(supportedTexts.length + i);
-      const value = data ? decodeFunctionResult({ abi: resolverAbi, functionName: "addr", data }) : "0x";
+      const value = data
+        ? decodeFunctionResult({ abi: resolverAbi, functionName: "addr", data })
+        : "0x";
       return { coinType: a.coinType, value };
     })
-    .filter((a) => a.value.length === 42)
-    .map((a) => ({ coinType: a.coinType, value: getAddress(a.value) }));
+    .filter(a => a.value.length === 42)
+    .map(a => ({ coinType: a.coinType, value: getAddress(a.value) }));
 
   return { addresses, texts };
 };

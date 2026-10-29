@@ -1,5 +1,12 @@
 import { useRef } from "react";
-import { type Address, type Hash, type Hex, type PublicClient, type WalletClient, zeroHash } from "viem";
+import {
+  type Address,
+  type Hash,
+  type Hex,
+  type PublicClient,
+  type WalletClient,
+  zeroHash,
+} from "viem";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import type { EnsRecords } from "@/types";
 import {
@@ -31,7 +38,7 @@ export const useEnsV2RegistrationSenders = (
   deployment: EnsV2RegistrationDeployment,
   token: EnsV2RegistrationToken,
   records: EnsRecords,
-  referrerAddress?: Address,
+  referrerAddress?: Address
 ) => {
   const { chainId } = deployment;
   const { address } = useAccount();
@@ -41,7 +48,11 @@ export const useEnsV2RegistrationSenders = (
   const clients = () => {
     if (!publicClient || !walletClient || !address)
       throw new Error("Connect your wallet to continue.");
-    return { publicClient, walletClient: walletClient as WalletClient, owner: address as Address };
+    return {
+      publicClient,
+      walletClient: walletClient as WalletClient,
+      owner: address as Address,
+    };
   };
 
   const recordsWrittenRef = useRef(false);
@@ -51,21 +62,44 @@ export const useEnsV2RegistrationSenders = (
     const [atomic, resolver, price] = await Promise.all([
       supportsAtomicBatch(walletClient, chainId),
       getOwnedResolver(publicClient, deployment, owner),
-      getEnsV2RegistrationPrice(publicClient, deployment, label, BigInt(durationSeconds), token),
+      getEnsV2RegistrationPrice(
+        publicClient,
+        deployment,
+        label,
+        BigInt(durationSeconds),
+        token
+      ),
     ]);
     if (atomic) return { needsResolver: false, needsApproval: false, price };
-    const allowance = await getEnsV2Allowance(publicClient, deployment, token, owner);
-    return { needsResolver: !resolver.deployed, needsApproval: allowance < price, price };
+    const allowance = await getEnsV2Allowance(
+      publicClient,
+      deployment,
+      token,
+      owner
+    );
+    return {
+      needsResolver: !resolver.deployed,
+      needsApproval: allowance < price,
+      price,
+    };
   };
 
   const sendResolverDeploy = async (label: string) => {
     const { publicClient, walletClient, owner } = clients();
     const resolver = await getOwnedResolver(publicClient, deployment, owner);
-    const recordCalls = encodeEnsV2InitialRecords(`${label}.eth`, withOwnerEthAddress(records, owner));
+    const recordCalls = encodeEnsV2InitialRecords(
+      `${label}.eth`,
+      withOwnerEthAddress(records, owner)
+    );
     const sent = await sendTransactionWithReceipt(
       walletClient,
       publicClient,
-      buildOwnedResolverDeployCall(deployment, owner, resolver.salt, recordCalls),
+      buildOwnedResolverDeployCall(
+        deployment,
+        owner,
+        resolver.salt,
+        recordCalls
+      )
     );
     return {
       hash: sent.hash,
@@ -83,16 +117,16 @@ export const useEnsV2RegistrationSenders = (
       deployment,
       label,
       BigInt(durationSeconds),
-      token,
+      token
     );
     return sendTransactionWithReceipt(
       walletClient,
       publicClient,
-      buildEnsV2ApproveCall(deployment, token, price),
+      buildEnsV2ApproveCall(deployment, token, price)
     );
   };
 
-  const sendCommitment: CommitmentSender = async (state) => {
+  const sendCommitment: CommitmentSender = async state => {
     const { publicClient, walletClient, owner } = clients();
     const resolver = await getOwnedResolver(publicClient, deployment, owner);
     const referrer = getEnsV2Referrer(referrerAddress);
@@ -128,13 +162,15 @@ export const useEnsV2RegistrationSenders = (
       deployment,
       state.label,
       duration,
-      token,
+      token
     );
     const resolver = await getOwnedResolver(publicClient, deployment, owner);
     // Register with the referrer the commit used, or the commitment won't match.
     const saved = loadEnsV2Commitment(chainId, owner, state.label);
     const referrer =
-      saved?.secret === state.secret ? (saved.referrer ?? zeroHash) : getEnsV2Referrer(referrerAddress);
+      saved?.secret === state.secret
+        ? (saved.referrer ?? zeroHash)
+        : getEnsV2Referrer(referrerAddress);
     const calls = await buildEnsV2RegisterCalls(publicClient, deployment, {
       label: state.label,
       owner,
@@ -157,12 +193,12 @@ export const useEnsV2RegistrationSenders = (
       chainId,
       ({ hash }) => {
         if (hash) onSent(hash);
-      },
+      }
     );
     const txHash = hashes[hashes.length - 1] as Hash;
-    const earlier = hashes.slice(0, -1).filter((h) => h !== txHash);
+    const earlier = hashes.slice(0, -1).filter(h => h !== txHash);
     const receipts = await Promise.all(
-      earlier.map((hash) => publicClient.getTransactionReceipt({ hash })),
+      earlier.map(hash => publicClient.getTransactionReceipt({ hash }))
     );
     saveEnsV2Commitment(chainId, owner, state.label, null);
     return {
@@ -170,10 +206,16 @@ export const useEnsV2RegistrationSenders = (
       price: formatTokenAmount(price, token.decimals, token.symbol),
       extraFeeWei: receipts.reduce(
         (sum, r) => sum + r.gasUsed * (r.effectiveGasPrice ?? 0n),
-        0n,
+        0n
       ),
     };
   };
 
-  return { getPrerequisites, sendApproval, sendCommitment, sendRegistration, sendResolverDeploy };
+  return {
+    getPrerequisites,
+    sendApproval,
+    sendCommitment,
+    sendRegistration,
+    sendResolverDeploy,
+  };
 };

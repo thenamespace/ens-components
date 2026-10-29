@@ -22,7 +22,10 @@ export function ReportBugSection() {
           </div>
           <div className="community-card-body">
             <h3 className="community-card-title">Namespace Builders</h3>
-            <p className="community-card-desc">Join our Telegram group for questions, feedback, and release announcements.</p>
+            <p className="community-card-desc">
+              Join our Telegram group for questions, feedback, and release
+              announcements.
+            </p>
           </div>
         </a>
         <a
@@ -36,7 +39,9 @@ export function ReportBugSection() {
           </div>
           <div className="community-card-body">
             <h3 className="community-card-title">GitHub Repository</h3>
-            <p className="community-card-desc">Browse source code, open issues, and contribute to the project.</p>
+            <p className="community-card-desc">
+              Browse source code, open issues, and contribute to the project.
+            </p>
           </div>
         </a>
       </div>

@@ -31,7 +31,8 @@ export const V2 = {
   reservationFeature: "0x5111d49E9B0E02C26F350A585073A36F38758EAf",
 } as const satisfies Record<string, Address>;
 /** ENSv2 universal resolver; it falls back to ENSv1 too, so it resolves names of both versions. */
-export const UNIVERSAL_RESOLVER: Address = "0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe";
+export const UNIVERSAL_RESOLVER: Address =
+  "0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe";
 export const USDC: Address = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
 export const USDC_DECIMALS = 6;
 
@@ -55,7 +56,9 @@ const featureAbi = parseAbi([
   "function configs(bytes32 activationId) view returns (uint8 mode, bytes32 root)",
   "function roots(bytes32 activationId) view returns (bytes32)",
 ]);
-const issuerAbi = parseAbi(["function quotePayment(uint256 usdAmount, address token) view returns (uint256)"]);
+const issuerAbi = parseAbi([
+  "function quotePayment(uint256 usdAmount, address token) view returns (uint256)",
+]);
 const universalResolverAbi = parseAbi([
   "function resolve(bytes name, bytes data) view returns (bytes result, address resolver)",
 ]);
@@ -64,9 +67,14 @@ const resolverAbi = parseAbi([
   "function addr(bytes32 node, uint256 coinType) view returns (bytes)",
   "function contenthash(bytes32 node) view returns (bytes)",
 ]);
-const erc20Abi = parseAbi(["function balanceOf(address owner) view returns (uint256)"]);
+const erc20Abi = parseAbi([
+  "function balanceOf(address owner) view returns (uint256)",
+]);
 
-export const client = createPublicClient({ chain: sepolia, transport: http(env.rpcUrl) });
+export const client = createPublicClient({
+  chain: sepolia,
+  transport: http(env.rpcUrl),
+});
 
 /** Same calendar-aware duration the forms start with. */
 export const secondsFromYears = (start: Date, years: number) => {
@@ -76,7 +84,11 @@ export const secondsFromYears = (start: Date, years: number) => {
 };
 
 /** The forms' amount display: 5 decimals for ETH, 2 for stablecoins. */
-export const formatAmount = (amount: bigint, decimals: number, symbol: string) => {
+export const formatAmount = (
+  amount: bigint,
+  decimals: number,
+  symbol: string
+) => {
   const value = Number(formatUnits(amount, decimals));
   if (value === 0) return "0";
   const digits = symbol === "ETH" ? 5 : 2;
@@ -84,11 +96,16 @@ export const formatAmount = (amount: bigint, decimals: number, symbol: string) =
 };
 
 /** Short, lowercase, unique per run, and at least 5 characters so it stays in the base price tier. */
-export const uniqueLabel = (prefix: string) => `${prefix}${Date.now().toString(36)}`;
+export const uniqueLabel = (prefix: string) =>
+  `${prefix}${Date.now().toString(36)}`;
 
 // ── Registration ────────────────────────────────────────────────────────────
 
-export const getV2RegisterPrice = async (label: string, durationSeconds: number, token: Address = USDC) => {
+export const getV2RegisterPrice = async (
+  label: string,
+  durationSeconds: number,
+  token: Address = USDC
+) => {
   const [base, premium] = await client.readContract({
     address: V2.registrar,
     abi: v2RegistrarAbi,
@@ -99,7 +116,12 @@ export const getV2RegisterPrice = async (label: string, durationSeconds: number,
 };
 
 export const getUsdcBalance = (owner: Address) =>
-  client.readContract({ address: USDC, abi: erc20Abi, functionName: "balanceOf", args: [owner] });
+  client.readContract({
+    address: USDC,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [owner],
+  });
 
 // ── Ownership and expiry ────────────────────────────────────────────────────
 
@@ -127,7 +149,12 @@ export const getV2Owner = async (name: string): Promise<Address> => {
     functionName: "getTokenId",
     args: [BigInt(labelhash(name.split(".")[0]))],
   });
-  return client.readContract({ address: registry, abi: v2RegistryAbi, functionName: "ownerOf", args: [tokenId] });
+  return client.readContract({
+    address: registry,
+    abi: v2RegistryAbi,
+    functionName: "ownerOf",
+    args: [tokenId],
+  });
 };
 
 export const getV2Expiry = async (name: string): Promise<bigint> => {
@@ -156,7 +183,14 @@ export const getText = async (name: string, key: string) =>
   decodeFunctionResult({
     abi: resolverAbi,
     functionName: "text",
-    data: await resolve(name, encodeFunctionData({ abi: resolverAbi, functionName: "text", args: [namehash(name), key] })),
+    data: await resolve(
+      name,
+      encodeFunctionData({
+        abi: resolverAbi,
+        functionName: "text",
+        args: [namehash(name), key],
+      })
+    ),
   });
 
 /** EVM address for `coinType` (60 for ETH), checksummed, or null when unset. */
@@ -166,7 +200,11 @@ export const getAddr = async (name: string, coinType = 60) => {
     functionName: "addr",
     data: await resolve(
       name,
-      encodeFunctionData({ abi: resolverAbi, functionName: "addr", args: [namehash(name), BigInt(coinType)] }),
+      encodeFunctionData({
+        abi: resolverAbi,
+        functionName: "addr",
+        args: [namehash(name), BigInt(coinType)],
+      })
     ),
   });
   return value.length === 42 ? getAddress(value) : null;
@@ -178,12 +216,20 @@ export const getContenthash = async (name: string) =>
     decodeFunctionResult({
       abi: resolverAbi,
       functionName: "contenthash",
-      data: await resolve(name, encodeFunctionData({ abi: resolverAbi, functionName: "contenthash", args: [namehash(name)] })),
+      data: await resolve(
+        name,
+        encodeFunctionData({
+          abi: resolverAbi,
+          functionName: "contenthash",
+          args: [namehash(name)],
+        })
+      ),
     }) as Hex
   ).toLowerCase();
 
 /** Encodes an `ipfs://<cid>` value the way it is stored on chain, to compare with `getContenthash`. */
-export const encodeIpfsContenthash = (cid: string) => `0x${encodeContenthash("ipfs", cid)}`.toLowerCase();
+export const encodeIpfsContenthash = (cid: string) =>
+  `0x${encodeContenthash("ipfs", cid)}`.toLowerCase();
 
 // ── Subname activations ─────────────────────────────────────────────────────
 
@@ -195,32 +241,70 @@ export const activationNeedsProofs = async (parentName: string) => {
     functionName: "activationIdOf",
     args: [keccak256(toBytes(parentName.replace(/\.eth$/, "")))],
   });
-  if (activationId === zeroHash) throw new Error(`${parentName} is not activated`);
+  if (activationId === zeroHash)
+    throw new Error(`${parentName} is not activated`);
   const [[, whitelistRoot], reservationRoot] = await Promise.all([
-    client.readContract({ address: V2.whitelistFeature, abi: featureAbi, functionName: "configs", args: [activationId] }),
-    client.readContract({ address: V2.reservationFeature, abi: featureAbi, functionName: "roots", args: [activationId] }),
+    client.readContract({
+      address: V2.whitelistFeature,
+      abi: featureAbi,
+      functionName: "configs",
+      args: [activationId],
+    }),
+    client.readContract({
+      address: V2.reservationFeature,
+      abi: featureAbi,
+      functionName: "roots",
+      args: [activationId],
+    }),
   ]);
   return whitelistRoot !== zeroHash || reservationRoot !== zeroHash;
 };
 
-export const quoteMint = (parentName: string, label: string, minter: Address, durationSeconds: number) =>
+export const quoteMint = (
+  parentName: string,
+  label: string,
+  minter: Address,
+  durationSeconds: number
+) =>
   client.readContract({
     address: V2.manager,
     abi: managerAbi,
     functionName: "quoteMint",
-    args: [parentName.replace(/\.eth$/, ""), label, minter, BigInt(durationSeconds), "0x"],
+    args: [
+      parentName.replace(/\.eth$/, ""),
+      label,
+      minter,
+      BigInt(durationSeconds),
+      "0x",
+    ],
   });
 
-export const quoteRenewal = (parentName: string, label: string, renewer: Address, durationSeconds: number) =>
+export const quoteRenewal = (
+  parentName: string,
+  label: string,
+  renewer: Address,
+  durationSeconds: number
+) =>
   client.readContract({
     address: V2.manager,
     abi: managerAbi,
     functionName: "quoteRenewal",
-    args: [parentName.replace(/\.eth$/, ""), label, renewer, BigInt(durationSeconds), "0x"],
+    args: [
+      parentName.replace(/\.eth$/, ""),
+      label,
+      renewer,
+      BigInt(durationSeconds),
+      "0x",
+    ],
   });
 
 /** Converts a USD price from the manager into the amount of `token` the issuer charges. */
 export const quotePayment = (priceUsdRaw: bigint, token: Address) =>
   priceUsdRaw === 0n
     ? Promise.resolve(0n)
-    : client.readContract({ address: V2.issuer, abi: issuerAbi, functionName: "quotePayment", args: [priceUsdRaw, token] });
+    : client.readContract({
+        address: V2.issuer,
+        abi: issuerAbi,
+        functionName: "quotePayment",
+        args: [priceUsdRaw, token],
+      });

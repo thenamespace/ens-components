@@ -130,7 +130,6 @@ export const TextRecords = ({
     );
   }, [searchFilter]);
 
-
   // Mirrors the early return below; reported so the parent knows whether any
   // section survived the search filter.
   const isVisible = filteredItems.length > 0;

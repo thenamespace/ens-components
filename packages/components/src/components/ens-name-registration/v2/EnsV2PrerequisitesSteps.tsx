@@ -23,7 +23,7 @@ export interface EnsV2PrerequisiteStep {
 }
 
 export const resolverDeployStep = (
-  send: () => Promise<SentTransaction>,
+  send: () => Promise<SentTransaction>
 ): EnsV2PrerequisiteStep => ({
   key: "resolver",
   title: "Deploy Resolver",

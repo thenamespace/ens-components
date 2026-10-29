@@ -25,11 +25,13 @@ export function SwitchChainModal({ isTestnet }: { isTestnet: boolean }) {
   return (
     <div className="switch-chain-overlay">
       <div className="switch-chain-modal">
-        <div className="switch-chain-icon"><Link size={32} strokeWidth={2} /></div>
+        <div className="switch-chain-icon">
+          <Link size={32} strokeWidth={2} />
+        </div>
         <h3 className="switch-chain-title">Wrong Network</h3>
         <p className="switch-chain-desc">
-          This demo is running on <strong>{targetChain.name}</strong>.
-          Please switch your wallet to continue.
+          This demo is running on <strong>{targetChain.name}</strong>. Please
+          switch your wallet to continue.
         </p>
         <button
           className="switch-chain-btn"

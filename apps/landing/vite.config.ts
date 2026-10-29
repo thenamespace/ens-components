@@ -14,7 +14,10 @@ import { resolve } from "node:path";
 //   prerender({ staticDir: path.join(__dirname, "dist"), routes: ["/"] })
 
 const componentsPkg = JSON.parse(
-  readFileSync(resolve(__dirname, "../../packages/components/package.json"), "utf-8")
+  readFileSync(
+    resolve(__dirname, "../../packages/components/package.json"),
+    "utf-8"
+  )
 );
 
 export default defineConfig({

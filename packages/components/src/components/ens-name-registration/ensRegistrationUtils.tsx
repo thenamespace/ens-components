@@ -1,8 +1,5 @@
 import { Address, toHex } from "viem";
-import {
-  ProcessSteps,
-  RegistrationState,
-} from "./registration";
+import { ProcessSteps, RegistrationState } from "./registration";
 
 const cacheKey = "ns-ens-pending-regs";
 
@@ -28,12 +25,11 @@ export const cacheRegistrationData = (
   const expiry = new Date().getTime() + cacheExpiry;
   data[singleKey] = {
     cacheTime: expiry,
-    data: state
-  }
+    data: state,
+  };
 
   storeCache(data);
 };
-
 
 export const getCachedRegistrationData = (
   label: string,
@@ -47,10 +43,10 @@ export const getCachedRegistrationData = (
 
   if (cachedItem && !expired) {
     return cachedItem.data;
-  } 
+  }
 
   if (expired) {
-    clearExpiredItem(cache, singleKey)
+    clearExpiredItem(cache, singleKey);
   }
 
   return null;

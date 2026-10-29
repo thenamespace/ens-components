@@ -7,7 +7,13 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 const withWallet = (Story: React.ComponentType) => (
   <WalletConnectProvider>
     <div style={{ padding: "20px", maxWidth: "680px", margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginBottom: 16,
+        }}
+      >
         <ConnectButton />
       </div>
       <Story />
@@ -98,7 +104,9 @@ export const WithExistingRecords: Story = {
   },
   parameters: {
     docs: {
-      description: { story: "Pre-populated with existing text and address records." },
+      description: {
+        story: "Pre-populated with existing text and address records.",
+      },
     },
   },
 };

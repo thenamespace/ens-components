@@ -66,7 +66,10 @@ export const CustomRecords = ({
     if (!key) return null;
     if (!isCustomKey(key)) return "This key is reserved, use its own field";
     // only the later duplicate is flagged; the first one is the row that's saved
-    const earlier = all.slice(0, all.findIndex(r => r.id === row.id));
+    const earlier = all.slice(
+      0,
+      all.findIndex(r => r.id === row.id)
+    );
     if (earlier.some(r => r.key.trim() === key)) {
       return "This key is already used";
     }
@@ -143,7 +146,9 @@ export const CustomRecords = ({
                   }
                 }}
                 value={row.key}
-                onChange={e => handleRowChanged(row.id, { key: e.target.value })}
+                onChange={e =>
+                  handleRowChanged(row.id, { key: e.target.value })
+                }
                 placeholder="Key"
                 aria-label="Record key"
                 error={!!error}

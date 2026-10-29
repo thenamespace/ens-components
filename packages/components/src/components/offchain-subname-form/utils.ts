@@ -1,5 +1,9 @@
 import { ContenthashProtocol, EnsContenthashRecord, EnsRecords } from "@/types";
-import { SubnameDTO, ChainName, getCoinType } from "@thenamespace/offchain-manager";
+import {
+  SubnameDTO,
+  ChainName,
+  getCoinType,
+} from "@thenamespace/offchain-manager";
 import { supportedContenthashRecords } from "@/constants/records/contenthashConstants";
 import { supportedAddresses } from "@/constants/records/addressConstants";
 import { convertEVMChainIdToCoinType } from "@/utils";
@@ -11,11 +15,14 @@ import { convertEVMChainIdToCoinType } from "@/utils";
 export const coinTypeToChainName = (_coinType: number): ChainName | null => {
   // Iterate through all ChainName values to find the matching coin type
   const chainNames = Object.values(ChainName);
-  
+
   for (const chainName of chainNames) {
     try {
-        const coinType = getCoinType(chainName);
-      if (_coinType === coinType || convertEVMChainIdToCoinType(coinType) === _coinType) {
+      const coinType = getCoinType(chainName);
+      if (
+        _coinType === coinType ||
+        convertEVMChainIdToCoinType(coinType) === _coinType
+      ) {
         return chainName;
       }
     } catch (e) {
@@ -23,7 +30,7 @@ export const coinTypeToChainName = (_coinType: number): ChainName | null => {
       continue;
     }
   }
-  
+
   return null;
 };
 
@@ -31,7 +38,9 @@ export const coinTypeToChainName = (_coinType: number): ChainName | null => {
  * Parse contenthash string and extract protocol and value
  * Examples: "ipfs://Qm...", "ar://abc123", "bzz://..."
  */
-const parseContenthash = (contenthash: string): EnsContenthashRecord | undefined => {
+const parseContenthash = (
+  contenthash: string
+): EnsContenthashRecord | undefined => {
   if (!contenthash) return undefined;
 
   // Try to match against known protocol prefixes
@@ -47,7 +56,7 @@ const parseContenthash = (contenthash: string): EnsContenthashRecord | undefined
 
   // If no prefix matched, assume it's IPFS (common default)
   // and the whole string is the value
-  if (contenthash.startsWith('Qm') || contenthash.startsWith('bafy')) {
+  if (contenthash.startsWith("Qm") || contenthash.startsWith("bafy")) {
     return {
       protocol: ContenthashProtocol.Ipfs,
       value: contenthash,
@@ -60,7 +69,9 @@ const parseContenthash = (contenthash: string): EnsContenthashRecord | undefined
 /**
  * Convert offchain manager SubnameDTO to EnsRecords format
  */
-export const offchainRecordsToEnsRecords = (subname: SubnameDTO): EnsRecords => {
+export const offchainRecordsToEnsRecords = (
+  subname: SubnameDTO
+): EnsRecords => {
   const ensRecords: EnsRecords = {
     addresses: [],
     texts: [],
@@ -68,7 +79,7 @@ export const offchainRecordsToEnsRecords = (subname: SubnameDTO): EnsRecords => 
 
   // Convert text records
   if (subname.texts) {
-    Object.keys(subname.texts).forEach((key) => {
+    Object.keys(subname.texts).forEach(key => {
       ensRecords.texts.push({ key: key, value: subname.texts[key] });
     });
   }
@@ -76,7 +87,7 @@ export const offchainRecordsToEnsRecords = (subname: SubnameDTO): EnsRecords => 
   // Convert address records
   // The addresses object can have either coin types or chainIds as keys
   if (subname.addresses) {
-    Object.keys(subname.addresses).forEach((keyStr) => {
+    Object.keys(subname.addresses).forEach(keyStr => {
       const keyNum = parseInt(keyStr, 10);
       const value = subname.addresses[keyStr];
 
@@ -90,7 +101,7 @@ export const offchainRecordsToEnsRecords = (subname: SubnameDTO): EnsRecords => 
       } else {
         // Check if this key is an EVM chainId in supportedAddresses
         const evmChain = supportedAddresses.find(
-          (addr) => addr.chainId === keyNum && addr.isEMV
+          addr => addr.chainId === keyNum && addr.isEMV
         );
 
         if (evmChain) {
