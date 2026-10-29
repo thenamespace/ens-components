@@ -1,11 +1,19 @@
 ---
-name: Build and Push Docker Image
+name: Build playground and request staging deployment
 
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: playground-staging
+  cancel-in-progress: false
+
 jobs:
   build-and-push:
+    if: github.ref == 'refs/heads/main'
     uses: thenamespace/.github/.github/workflows/gcp-oidc-docker-build-push.yaml@main
     permissions:
       contents: read
@@ -16,7 +24,74 @@ jobs:
     secrets:
       WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
 
-  update-staging:
+  request-staging:
     needs: build-and-push
-    uses: thenamespace/.github/.github/workflows/gh-update-stg-image-tag.yaml@main
-    secrets: inherit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Read image tag
+        id: image
+        run: echo "tag=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Record staging deployment request
+        id: deployment
+        uses: actions/github-script@v7
+        env:
+          IMAGE_TAG: ${{ steps.image.outputs.tag }}
+        with:
+          script: |
+            const { data } = await github.rest.repos.createDeployment({
+              ...context.repo,
+              ref: context.sha,
+              environment: 'staging',
+              auto_merge: false,
+              required_contexts: [],
+              production_environment: false,
+              description: 'Playground image built; requesting infrastructure review.',
+              payload: { app: 'uikit', infra_app: 'core', image_tag: process.env.IMAGE_TAG },
+            });
+            if (!data.id) throw new Error('GitHub did not create a deployment record.');
+            return data.id;
+
+      - name: Request infrastructure PR
+        id: dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.REPOSITORY_DISPATCH_PAT }}
+          repository: ${{ vars.GH_INFRA_REPOSITORY_PATH }}
+          event-type: staging-image-tag-update
+          client-payload: >-
+            {"repository":"uikit","infra_app":"core",
+            "image_tag":"${{ steps.image.outputs.tag }}",
+            "source_repository":"${{ github.repository }}",
+            "deployment_id":${{ steps.deployment.outputs.result }}}
+
+      - name: Record request status
+        if: always() && steps.deployment.outcome == 'success'
+        uses: actions/github-script@v7
+        env:
+          DEPLOYMENT_ID: ${{ steps.deployment.outputs.result }}
+          DISPATCH_OUTCOME: ${{ steps.dispatch.outcome }}
+        with:
+          script: |
+            const queued = process.env.DISPATCH_OUTCOME === 'success';
+            await github.rest.repos.createDeploymentStatus({
+              ...context.repo,
+              deployment_id: Number(process.env.DEPLOYMENT_ID),
+              state: queued ? 'queued' : 'error',
+              auto_inactive: false,
+              log_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              description: queued
+                ? 'Infrastructure request sent; awaiting PR approval and rollout confirmation.'
+                : 'Infrastructure request failed or was cancelled; see workflow logs.',
+            });
+            await core.summary.addRaw(queued
+              ? `Staging deployment ${process.env.DEPLOYMENT_ID} is queued. Confirm the infra PR and rollout before marking it successful.`
+              : `Staging deployment ${process.env.DEPLOYMENT_ID} could not be requested.`).write();
