@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { OnchainError, toOnchainError } from "@thenamespace/onchain";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { type Hash, type PublicClient, zeroAddress } from "viem";
 import { normalize } from "viem/ens";
 import {
@@ -8,12 +9,7 @@ import {
   useWalletClient,
 } from "wagmi";
 import { Text } from "@/components/atoms";
-import {
-  Alert,
-  isUserDeniedError,
-  PricingDisplay,
-  TokenSelect,
-} from "@/components/molecules";
+import { Alert, PricingDisplay, TokenSelect } from "@/components/molecules";
 import { useEthDollarValue } from "@/hooks";
 import {
   formatTokenAmount,
@@ -66,18 +62,10 @@ export interface SubnameRenewFormProps {
 const shortAddress = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
 
 export const SubnameRenewForm = (props: SubnameRenewFormProps) => {
-  const deployment = getEnsV2Deployment(Boolean(props.isTestnet));
-  if (!deployment) {
-    return (
-      <div className="ns-subname-mint-form">
-        <Alert variant="error" position="vertical">
-          <Text size="sm">
-            Subname renewals are only available on Sepolia for now.
-          </Text>
-        </Alert>
-      </div>
-    );
-  }
+  const deployment = useMemo(
+    () => getEnsV2Deployment(Boolean(props.isTestnet)),
+    [props.isTestnet]
+  );
   return (
     <div
       className={`ns-subname-mint-form ${props.className ?? ""} ${props.noBorder ? "ns-no-border" : ""}`}
@@ -126,11 +114,11 @@ const SubnameRenewFormContent = ({
   const [fees, setFees] = useState<{
     isChecking: boolean;
     data: EnsV2MintFees | null;
-    failed: boolean;
+    error: string | null;
   }>({
     isChecking: false,
     data: null,
-    failed: false,
+    error: null,
   });
   const [sending, setSending] = useState<{
     isWaitingWallet: boolean;
@@ -177,7 +165,15 @@ const SubnameRenewFormContent = ({
               deployment,
               next.priceUsdRaw,
               t
-            ).catch(() => null)
+            ).catch(cause => {
+              const error = toOnchainError(cause);
+              if (
+                error.code === "UNSUPPORTED_TOKEN" ||
+                error.details.contractError === "UnsupportedPaymentToken"
+              )
+                return null;
+              throw error;
+            })
           )
         );
         if (cancelled) return;
@@ -189,7 +185,11 @@ const SubnameRenewFormContent = ({
           ) as Record<string, bigint>
         );
         setQuote({ isChecking: false, data: next, error: null });
-        if (next.expiry !== null && durationLabel.current !== label) {
+        if (
+          next.renewable &&
+          next.expiry !== null &&
+          durationLabel.current !== label
+        ) {
           durationLabel.current = label;
           setDurationSeconds(
             secondsFromYears(new Date(Number(next.expiry) * 1000), 1)
@@ -200,7 +200,7 @@ const SubnameRenewFormContent = ({
           setQuote({
             isChecking: false,
             data: null,
-            error: e?.shortMessage || "Couldn't price this renewal.",
+            error: toOnchainError(e).message,
           });
       }
     }, RENEW_DEBOUNCE_MS);
@@ -218,31 +218,34 @@ const SubnameRenewFormContent = ({
       !data ||
       amount === undefined
     ) {
-      setFees({ isChecking: false, data: null, failed: false });
+      setFees({ isChecking: false, data: null, error: null });
       return;
     }
     let cancelled = false;
-    setFees(prev => ({ ...prev, isChecking: true, failed: false }));
+    setFees(prev => ({ ...prev, isChecking: true, error: null }));
     prepareEnsV2RenewCalls(publicClient, deployment, {
       parentName,
       label,
       payer: address,
       duration,
       token,
-      amount,
-      extraData: data.extraData,
+      maxPriceUsdRaw: data.priceUsdRaw,
     })
       .then(calls =>
         estimateEnsV2MintFees(publicClient, address, calls, { token, amount })
       )
       .then(
         next =>
-          !cancelled &&
-          setFees({ isChecking: false, data: next, failed: false })
+          !cancelled && setFees({ isChecking: false, data: next, error: null })
       )
       .catch(
-        () =>
-          !cancelled && setFees({ isChecking: false, data: null, failed: true })
+        cause =>
+          !cancelled &&
+          setFees({
+            isChecking: false,
+            data: null,
+            error: toOnchainError(cause).message,
+          })
       );
     return () => {
       cancelled = true;
@@ -279,8 +282,10 @@ const SubnameRenewFormContent = ({
         duration,
       });
       if (!fresh.renewable)
-        throw new Error(
-          fresh.blockedMessage ?? "This subname can't be renewed."
+        throw new OnchainError(
+          "RENEWAL_BLOCKED",
+          fresh.reason?.message ?? "This subname can't be renewed.",
+          { details: { reason: fresh.reason } }
         );
       const freshAmount = await quoteEnsV2Payment(
         publicClient,
@@ -294,8 +299,7 @@ const SubnameRenewFormContent = ({
         payer: address,
         duration,
         token,
-        amount: freshAmount,
-        extraData: fresh.extraData,
+        maxPriceUsdRaw: data.priceUsdRaw,
       });
       const hashes = await sendCallsWithFallback(
         walletClient,
@@ -333,8 +337,13 @@ const SubnameRenewFormContent = ({
       setSuccess(result);
       onRenewalSuccess?.(result);
     } catch (e: any) {
-      if (!isUserDeniedError(e))
-        setError(e?.shortMessage || e?.message || "Something went wrong");
+      setError(
+        toOnchainError(
+          e,
+          "The transaction failed. Check its receipt before trying again.",
+          "TRANSACTION_FAILED"
+        ).message
+      );
       setSending({
         isWaitingWallet: false,
         pending: false,
@@ -389,7 +398,7 @@ const SubnameRenewFormContent = ({
       return { tone: "idle" as const, message: "Enter the subname to renew" };
     if (!data) return { tone: "idle" as const, message: "" };
     if (!data.renewable)
-      return { tone: "bad" as const, message: data.blockedMessage ?? "" };
+      return { tone: "bad" as const, message: data.reason?.message ?? "" };
     const owner =
       data.owner.toLowerCase() !== address?.toLowerCase()
         ? `, owned by ${shortAddress(data.owner)}`
@@ -411,7 +420,7 @@ const SubnameRenewFormContent = ({
     : amount === undefined
       ? "N/A"
       : formatTokenAmount(amount, token.decimals, token.symbol);
-  const feeUnknown = fees.failed || fees.data?.feeWei === null;
+  const feeUnknown = Boolean(fees.error) || fees.data?.feeWei === null;
   const feesDisplay = feeUnknown
     ? "N/A"
     : formatTokenAmount(fees.data?.feeWei ?? 0n, 18, "ETH");
@@ -532,6 +541,13 @@ const SubnameRenewFormContent = ({
           </Alert>
         </div>
       )}
+      {fees.error && (
+        <div className="mt-2" data-testid="fee-error">
+          <Alert variant="error" position="vertical">
+            <Text size="sm">{fees.error}</Text>
+          </Alert>
+        </div>
+      )}
       {error && (
         <div className="mt-2" data-testid="form-error">
           <Alert variant="error" position="vertical">
@@ -554,7 +570,13 @@ const SubnameRenewFormContent = ({
         onCancel={() => onCancel?.()}
         onMint={handleRenew}
         isMintDisabled={
-          !renewable || amount === undefined || !walletClient || insufficient
+          !renewable ||
+          quote.isChecking ||
+          fees.isChecking ||
+          Boolean(fees.error) ||
+          amount === undefined ||
+          !walletClient ||
+          insufficient
         }
         isWaitingWallet={sending.isWaitingWallet}
         needsChainSwitch={chain?.id !== chainId}

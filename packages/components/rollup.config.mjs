@@ -23,6 +23,7 @@ const externals = [
   /^viem($|\/)/,
   /^@thenamespace\/offchain-manager($|\/)/,
   /^@thenamespace\/avatar($|\/)/,
+  /^@thenamespace\/onchain($|\/)/,
 ];
 
 const aliasEntries = [

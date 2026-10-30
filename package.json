@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check:package": "node scripts/check-package.mjs",
-    "e2e": "pnpm --filter e2e test"
+    "e2e": "pnpm --filter e2e test",
+    "e2e:onchain": "pnpm --filter e2e test:onchain"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",

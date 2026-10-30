@@ -1,11 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { toOnchainError } from "@thenamespace/onchain";
 import { Button, Text } from "@/components/atoms";
-import {
-  PricingDisplay,
-  Alert,
-  isUserDeniedError,
-  TokenSelect,
-} from "@/components/molecules";
+import { PricingDisplay, Alert, TokenSelect } from "@/components/molecules";
 import {
   useAccount,
   usePublicClient,
@@ -49,7 +45,7 @@ import {
   type EnsV2MintFees,
   type EnsV2MintResolver,
   canWriteEnsV2RecordsAtMint,
-  getEnsV2ActivationResolver,
+  getEnsV2MintResolver,
   getEnsV2Deployment,
   ONE_YEAR,
   prepareEnsV2MintCalls,
@@ -77,18 +73,10 @@ export interface SubnameMintFormV2Props {
 }
 
 export const SubnameMintFormV2 = (props: SubnameMintFormV2Props) => {
-  const deployment = getEnsV2Deployment(Boolean(props.isTestnet));
-  if (!deployment) {
-    return (
-      <div className="ns-subname-mint-form">
-        <Alert variant="error" position="vertical">
-          <Text size="sm">
-            ENSv2 subnames are only available on Sepolia for now.
-          </Text>
-        </Alert>
-      </div>
-    );
-  }
+  const deployment = useMemo(
+    () => getEnsV2Deployment(Boolean(props.isTestnet)),
+    [props.isTestnet]
+  );
   return (
     <div className="ns-subname-mint-form">
       <SubnameMintFormV2Content {...props} deployment={deployment} />
@@ -158,7 +146,8 @@ const SubnameMintFormV2Content = ({
     parentResolver === undefined
       ? null
       : (parentResolver ?? resolverProp ?? deployment.sharedResolver);
-  const isDefaultResolver = parentResolver === null && !resolverProp;
+  const isDefaultResolver =
+    resolverAddress?.toLowerCase() === deployment.sharedResolver.toLowerCase();
   const [resolverStyle, setResolverStyle] = useState<ResolverStyle | null>(
     null
   );
@@ -171,10 +160,10 @@ const SubnameMintFormV2Content = ({
         ? {
             address: resolverAddress,
             style: resolverStyle,
-            requested: parentResolver ? zeroAddress : resolverAddress,
+            requested: resolverProp ?? zeroAddress,
           }
         : null,
-    [resolverAddress, resolverStyle, parentResolver]
+    [resolverAddress, resolverStyle, resolverProp]
   );
   const canSetRecords =
     mintResolver !== null &&
@@ -192,10 +181,19 @@ const SubnameMintFormV2Content = ({
 
   useEffect(() => {
     setParentResolver(undefined);
-    getEnsV2ActivationResolver(deployment, parentName)
-      .then(setParentResolver)
-      .catch(() => setParentResolver(null));
-  }, [deployment, parentName]);
+    if (!publicClient) return;
+    let cancelled = false;
+    getEnsV2MintResolver(publicClient, deployment, parentName, resolverProp)
+      .then(resolver => {
+        if (!cancelled) setParentResolver(resolver);
+      })
+      .catch(cause => {
+        if (!cancelled) setError(toOnchainError(cause).message);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [publicClient, deployment, parentName, resolverProp, quoteAttempt]);
 
   useEffect(() => {
     if (!resolverAddress || !publicClient) {
@@ -232,7 +230,15 @@ const SubnameMintFormV2Content = ({
               deployment,
               data.priceUsdRaw,
               t
-            ).catch(() => null)
+            ).catch(cause => {
+              const error = toOnchainError(cause);
+              if (
+                error.code === "UNSUPPORTED_TOKEN" ||
+                error.details.contractError === "UnsupportedPaymentToken"
+              )
+                return null;
+              throw error;
+            })
           )
         );
         if (cancelled) return;
@@ -249,8 +255,7 @@ const SubnameMintFormV2Content = ({
         setQuote({
           isChecking: false,
           data: null,
-          error:
-            e?.shortMessage || e?.message || "Couldn't price this subname.",
+          error: toOnchainError(e).message,
         });
       }
     }, QUOTE_DEBOUNCE_MS);
@@ -277,7 +282,6 @@ const SubnameMintFormV2Content = ({
       !connectedAddress ||
       !q?.available ||
       !q.canMint ||
-      q.proofsUnavailable.length > 0 ||
       quote.isChecking
     ) {
       setCustomRecordsWritable(null);
@@ -290,11 +294,17 @@ const SubnameMintFormV2Content = ({
       owner: connectedAddress,
       duration: q.expirable ? BigInt(durationSeconds) : ONE_YEAR,
       priceUsdRaw: q.priceUsdRaw,
-      extraData: q.extraData,
       resolver: mintResolver,
-    }).then(writable => {
-      if (!cancelled) setCustomRecordsWritable(writable);
-    });
+    })
+      .then(writable => {
+        if (!cancelled) setCustomRecordsWritable(writable);
+      })
+      .catch(cause => {
+        if (!cancelled) {
+          setCustomRecordsWritable(false);
+          setError(toOnchainError(cause).message);
+        }
+      });
     return () => {
       cancelled = true;
     };
@@ -315,6 +325,7 @@ const SubnameMintFormV2Content = ({
     isChecking: boolean;
     data: EnsV2MintFees | null;
     failed: boolean;
+    error?: string;
   }>({ isChecking: false, data: null, failed: false });
 
   const quoteReady = Boolean(
@@ -346,8 +357,7 @@ const SubnameMintFormV2Content = ({
           owner: connectedAddress,
           duration: quote.data!.expirable ? BigInt(durationSeconds) : ONE_YEAR,
           token,
-          amount,
-          extraData: quote.data!.extraData,
+          maxPriceUsdRaw: quote.data!.priceUsdRaw,
           records: canSetRecords ? ensRecords : { addresses: [], texts: [] },
           resolver: mintResolver,
         });
@@ -358,9 +368,14 @@ const SubnameMintFormV2Content = ({
           { token, amount }
         );
         if (!cancelled) setFees({ isChecking: false, data, failed: false });
-      } catch {
+      } catch (cause) {
         if (!cancelled)
-          setFees({ isChecking: false, data: null, failed: true });
+          setFees({
+            isChecking: false,
+            data: null,
+            failed: true,
+            error: toOnchainError(cause).message,
+          });
       }
     };
     run();
@@ -394,15 +409,11 @@ const SubnameMintFormV2Content = ({
   };
 
   const data = quote.data;
-  const proofsMissing = (data?.proofsUnavailable.length ?? 0) > 0;
   const blockingMessage =
-    data && !proofsMissing && !data.canMint && !data.reserved
-      ? data.deniedMessage
-      : null;
+    data && !data.canMint && !data.reserved ? data.reason?.message : null;
   const isAvailableForMint = Boolean(
     label.length >= MIN_ENS_LEN &&
     data &&
-    !proofsMissing &&
     data.available &&
     data.canMint &&
     !quote.isChecking
@@ -453,22 +464,13 @@ const SubnameMintFormV2Content = ({
     setMinting({ isWaitingWallet: true, txHash: null, completed: false });
 
     try {
-      const freshAmount = isFree
-        ? 0n
-        : await quoteEnsV2Payment(
-            publicClient,
-            deployment,
-            data.priceUsdRaw,
-            token
-          );
       const calls = await prepareEnsV2MintCalls(publicClient, deployment, {
         parentName,
         label,
         owner: connectedAddress,
         duration,
         token,
-        amount: freshAmount,
-        extraData: data.extraData,
+        maxPriceUsdRaw: data.priceUsdRaw,
         records: canSetRecords ? ensRecords : { addresses: [], texts: [] },
         resolver,
       });
@@ -520,8 +522,13 @@ const SubnameMintFormV2Content = ({
         chainId,
       });
     } catch (e: any) {
-      if (!isUserDeniedError(e))
-        setError(e?.shortMessage || e?.message || "Something went wrong");
+      setError(
+        toOnchainError(
+          e,
+          "The transaction failed. Check its receipt before trying again.",
+          "TRANSACTION_FAILED"
+        ).message
+      );
       setMinting({ isWaitingWallet: false, txHash: null, completed: false });
     }
   };
@@ -610,7 +617,8 @@ const SubnameMintFormV2Content = ({
           minLength={MIN_ENS_LEN}
           disabled={!!blockingMessage || minting.isWaitingWallet}
           isChecking={quote.isChecking}
-          isAvailable={Boolean(data?.available && !data.reserved)}
+          isAvailable={Boolean(data?.available)}
+          errorMessage={quote.error ? "Couldn't check availability" : undefined}
           isReserved={Boolean(data?.reserved)}
           onNameChange={handleNameChanged}
         />
@@ -675,18 +683,11 @@ const SubnameMintFormV2Content = ({
         </>
       )}
 
-      {proofsMissing && !quote.isChecking && (
-        <div className="mt-2">
+      {quote.error && (
+        <div className="mt-2" data-testid="form-error">
           <Alert variant="error" position="vertical">
-            <Text size="sm">
-              Couldn't verify the{" "}
-              {data?.proofsUnavailable
-                .map(p => (p === "whitelist" ? "whitelist" : "reservations"))
-                .join(" and ")}{" "}
-              for this name. Try again.
-            </Text>
+            <Text size="sm">{quote.error}</Text>
             <Button
-              className="mt-2"
               size="sm"
               variant="outline"
               onClick={() => setQuoteAttempt(n => n + 1)}
@@ -697,20 +698,18 @@ const SubnameMintFormV2Content = ({
         </div>
       )}
 
-      {quote.error && (
-        <div className="mt-2" data-testid="form-error">
-          <Alert variant="error" position="vertical">
-            <Text size="sm">{quote.error}</Text>
-          </Alert>
-        </div>
-      )}
-
       {error && (
         <div className="mt-2" data-testid="form-error">
           <Alert variant="error" position="vertical">
             <Text size="sm">{error}</Text>
           </Alert>
         </div>
+      )}
+
+      {fees.failed && fees.error && (
+        <Alert variant="error">
+          <Text size="sm">{fees.error}</Text>
+        </Alert>
       )}
 
       {hasInsufficientFunds && (
@@ -731,7 +730,9 @@ const SubnameMintFormV2Content = ({
           (amount === undefined && !isFree) ||
           !walletClient ||
           !mintResolver ||
-          hasInsufficientFunds
+          hasInsufficientFunds ||
+          fees.isChecking ||
+          fees.failed
         }
         isWaitingWallet={minting.isWaitingWallet}
         needsChainSwitch={needsChainSwitch}

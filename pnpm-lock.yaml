@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@thenamespace/onchain': link:../../Devrel/namespacesdk/packages/onchain
+
 importers:
 
   .:
@@ -172,6 +175,9 @@ importers:
       '@thenamespace/offchain-manager':
         specifier: ^1.0.13
         version: 1.0.13
+      '@thenamespace/onchain':
+        specifier: link:../../../../Devrel/namespacesdk/packages/onchain
+        version: link:../../../../Devrel/namespacesdk/packages/onchain
       bootstrap:
         specifier: ^5.3.0
         version: 5.3.8(@popperjs/core@2.11.8)
@@ -10935,6 +10941,7 @@ snapshots:
       '@types/node': 22.19.11
       fsevents: 2.3.3
       yaml: 2.9.1
+
   vite@6.4.1(@types/node@26.6.5)(yaml@2.9.1):
     dependencies:
       esbuild: 0.25.12

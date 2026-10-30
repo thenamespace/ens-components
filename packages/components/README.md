@@ -160,6 +160,11 @@ Also accepts `resolverChainId`, `txConfirmations`, `onGreat`, `noBorder`, and `c
 
 ---
 
+ENSv2 subname minting and renewal use `@thenamespace/onchain` for contract reads,
+proofs, quotes, approvals, and fee simulation. Existing component props are unchanged.
+Proof-service failures are shown separately from eligibility refusals, and a price
+increase requires a refreshed quote before submission.
+
 ### `SubnameMintForm`
 
 Mint an onchain subname under a `.eth` name activated on [app.namespace.ninja](https://app.namespace.ninja).

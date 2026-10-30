@@ -8,6 +8,7 @@ export interface NameAvailabilityInputProps {
   isChecking: boolean;
   isAvailable: boolean;
   isReserved: boolean;
+  errorMessage?: string;
   onNameChange: (value: string) => void;
 }
 
@@ -20,13 +21,14 @@ export const NameAvailabilityInput = ({
   isAvailable,
   isReserved,
   onNameChange,
+  errorMessage,
 }: NameAvailabilityInputProps) => {
   const showMinLengthMessage = label.length < minLength;
   const showCheckingMessage = label.length >= minLength && isChecking;
   const showUnavailableMessage =
-    label.length >= minLength && !isChecking && !isAvailable;
+    label.length >= minLength && !isChecking && !isAvailable && !isReserved;
   const showReservedMessage =
-    label.length >= minLength && !isChecking && isAvailable && isReserved;
+    label.length >= minLength && !isChecking && isReserved;
 
   return (
     <div>
@@ -61,6 +63,8 @@ export const NameAvailabilityInput = ({
             <ShurikenSpinner size={14} />
             <span className="ns-name-status__text">Checking availability</span>
           </>
+        ) : errorMessage ? (
+          <span className="ns-name-status__text">{errorMessage}</span>
         ) : showUnavailableMessage ? (
           <>
             <span className="ns-dot ns-dot--bad" />

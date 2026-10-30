@@ -124,3 +124,23 @@ playground deployments. Report vulnerabilities through the private route in
 
 [MIT](LICENSE). Maintained by Namespace, with contributions from
 [HAPPYS1NGH](https://github.com/HAPPYS1NGH) and the repository's contributors.
+
+### Local onchain SDK integration
+
+The ENSv2 mint and renewal forms consume `@thenamespace/onchain`. While its first
+release is unpublished, the workspace override links to
+`../../Devrel/namespacesdk/packages/onchain`. Build that package before installing
+or building this workspace:
+
+```sh
+npm --prefix ../../Devrel/namespacesdk run build --workspace @thenamespace/onchain
+pnpm install
+pnpm build:components
+```
+
+After publishing the SDK, remove the local override from `pnpm-workspace.yaml`
+and refresh the lockfile. The component package already declares `^0.1.0`.
+Do not publish this component release until that SDK version is available.
+
+Run `pnpm e2e:onchain` after building to check the SDK integration in Chromium.
+These tests mock RPC and proof-service responses and require no wallet credentials.
