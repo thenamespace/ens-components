@@ -9,6 +9,7 @@ export interface NameAvailabilityInputProps {
   isAvailable: boolean;
   isReserved: boolean;
   errorMessage?: string;
+  statusMessage?: string;
   onNameChange: (value: string) => void;
 }
 
@@ -22,6 +23,7 @@ export const NameAvailabilityInput = ({
   isReserved,
   onNameChange,
   errorMessage,
+  statusMessage,
 }: NameAvailabilityInputProps) => {
   const showMinLengthMessage = label.length < minLength;
   const showCheckingMessage = label.length >= minLength && isChecking;
@@ -65,6 +67,8 @@ export const NameAvailabilityInput = ({
           </>
         ) : errorMessage ? (
           <span className="ns-name-status__text">{errorMessage}</span>
+        ) : statusMessage ? (
+          <span className="ns-name-status__text">{statusMessage}</span>
         ) : showUnavailableMessage ? (
           <>
             <span className="ns-dot ns-dot--bad" />

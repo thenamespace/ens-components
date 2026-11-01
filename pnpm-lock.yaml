@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@thenamespace/onchain': link:../../Devrel/namespacesdk/packages/onchain
+  '@thenamespace/onchain-subnames': link:../../Devrel/namespacesdk/packages/onchain-subnames
 
 importers:
 
@@ -175,9 +175,9 @@ importers:
       '@thenamespace/offchain-manager':
         specifier: ^1.0.13
         version: 1.0.13
-      '@thenamespace/onchain':
-        specifier: link:../../../../Devrel/namespacesdk/packages/onchain
-        version: link:../../../../Devrel/namespacesdk/packages/onchain
+      '@thenamespace/onchain-subnames':
+        specifier: link:../../../../Devrel/namespacesdk/packages/onchain-subnames
+        version: link:../../../../Devrel/namespacesdk/packages/onchain-subnames
       bootstrap:
         specifier: ^5.3.0
         version: 5.3.8(@popperjs/core@2.11.8)

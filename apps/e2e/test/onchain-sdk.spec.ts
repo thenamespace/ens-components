@@ -1,221 +1,144 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
+import { decodeFunctionData, zeroAddress } from "viem";
 import {
-  decodeFunctionData,
-  encodeFunctionResult,
-  keccak256,
-  multicall3Abi,
-  parseAbi,
-  toBytes,
-  zeroAddress,
-  type Hex,
-} from "viem";
+  abi,
+  connectMockWallet,
+  mockChain,
+  owner,
+} from "./support/mock-onchain";
 
-const registry = "0x3333333333333333333333333333333333333333";
-const owner = "0x2222222222222222222222222222222222222222";
-const resolver = "0x1Ad304327d1477114Abe88820Fa7ddDC9A72f612";
-const reservation = "0x7f13C79FB772BA42177f4be6Dc9e692C1f3acD11";
-const id = keccak256(toBytes("activation"));
-const abi = parseAbi([
-  "function activationIdOf(bytes32 parent) view returns (bytes32)",
-  "function activations(bytes32 id) view returns (bool,uint64,uint8,uint8,address,bytes32,address,bytes,address)",
-  "function featuresOf(bytes32 id) view returns (address[])",
-  "function getSubnameResolver(bytes32 id,address requested) view returns (address)",
-  "function getSubregistry(string label) view returns (address)",
-  "function getExpiry(uint256 id) view returns (uint64)",
-  "function getOwner(uint256 id) view returns (address)",
-  "function getStatus(uint256 id) view returns (uint8)",
-  "function hasRootRoles(uint256 roles,address account) view returns (bool)",
-  "function hasRoles(uint256 id,uint256 roles,address account) view returns (bool)",
-  "function supportsInterface(bytes4 id) view returns (bool)",
-  "function roots(bytes32 id) view returns (bytes32)",
-  "struct MintQuote { bool canMint; uint256 price; uint8 denied; uint8 expiration; bytes32 activationId; address subregistry; }",
-  "function quoteMint(string parent,string label,address minter,uint64 duration,bytes claims) view returns (MintQuote)",
-  "struct RenewalQuote { bool canRenew; uint256 price; uint8 denied; bytes32 activationId; address subregistry; }",
-  "function quoteRenewal(string parent,string label,address renewer,uint64 duration,bytes claims) view returns (RenewalQuote)",
-  "function quotePayment(uint256 usd,address token) view returns (uint256)",
-]);
+for (const operation of ["registration", "renewal"] as const) {
+  const section =
+    operation === "registration" ? "#subname-mint" : "#subname-renewal";
+  const input =
+    operation === "registration" ? "subname-input" : "renew-name-input";
+  const quoteMethod =
+    operation === "registration" ? "quoteMint" : "quoteRenewal";
+  const contractMethod = operation === "registration" ? "register" : "renew";
+  const success =
+    operation === "registration" ? "mint-success-name" : "renew-success-name";
 
-async function mockChain(
-  page: Page,
-  state: {
-    active?: boolean;
-    status?: number;
-    reservation?: boolean;
-    permanent?: boolean;
-    paymentError?: boolean;
-  } = {}
-) {
-  const calls: string[] = [];
-  const call = (data: Hex): Hex => {
-    if (data.startsWith("0x82ad56cb")) {
-      const decoded = decodeFunctionData({ abi: multicall3Abi, data });
-      if (decoded.functionName !== "aggregate3")
-        throw new Error("Unexpected multicall");
-      return encodeFunctionResult({
-        abi: multicall3Abi,
-        functionName: "aggregate3",
-        result: decoded.args[0].map(entry => {
-          try {
-            return { success: true, returnData: call(entry.callData) };
-          } catch {
-            return { success: false, returnData: "0x" as const };
-          }
-        }),
-      });
-    }
-    const { functionName } = decodeFunctionData({ abi, data });
-    calls.push(functionName);
-    let result: unknown;
-    switch (functionName) {
-      case "activationIdOf":
-        result = id;
-        break;
-      case "activations":
-        result = [
-          state.active ?? true,
-          0n,
-          0,
-          0,
-          zeroAddress,
-          keccak256(toBytes("arthy0")),
-          zeroAddress,
-          "0x",
-          registry,
-        ];
-        break;
-      case "featuresOf":
-        result = state.reservation ? [reservation] : [];
-        break;
-      case "getSubnameResolver":
-        result = resolver;
-        break;
-      case "getSubregistry":
-        result = registry;
-        break;
-      case "getExpiry":
-        result = state.permanent ? (1n << 64n) - 1n : 2_100_000_000n;
-        break;
-      case "getOwner":
-        result = owner;
-        break;
-      case "getStatus":
-        result = state.status ?? 0;
-        break;
-      case "hasRootRoles":
-      case "hasRoles":
-      case "supportsInterface":
-        result = true;
-        break;
-      case "roots":
-        result = keccak256(toBytes("reservation"));
-        break;
-      case "quoteMint":
-        result = {
-          canMint: true,
-          price: 1_000_000_000_000n,
-          denied: 0,
-          expiration: 0,
-          activationId: id,
-          subregistry: registry,
-        };
-        break;
-      case "quoteRenewal":
-        result = {
-          canRenew: true,
-          price: 1_000_000_000_000n,
-          denied: 0,
-          activationId: id,
-          subregistry: registry,
-        };
-        break;
-      case "quotePayment":
-        if (state.paymentError) throw new Error("Payment RPC unavailable");
-        result = 1_000_000n;
-        break;
-      default:
-        throw new Error(`Unexpected contract call ${functionName}`);
-    }
-    return encodeFunctionResult({ abi, functionName, result: result as never });
-  };
-  await page.route("**/*", async route => {
-    const request = route.request();
-    const url = new URL(request.url());
-    if (url.hostname === "127.0.0.1" || url.hostname === "localhost")
-      return route.continue();
-    if (url.hostname.includes("manager.namespace.ninja")) {
-      if (url.pathname.includes("/proof"))
-        return route.fulfill({
-          status: 503,
-          headers: { "access-control-allow-origin": "*" },
-          contentType: "application/json",
-          body: JSON.stringify({ message: "Unavailable" }),
-        });
-      return route.fulfill({ contentType: "application/json", body: "[]" });
-    }
-    if (request.method() === "POST") {
-      const body = request.postDataJSON();
-      const answer = (rpc: {
-        id: number;
-        method: string;
-        params?: unknown[];
-      }) => {
-        let result: unknown;
-        try {
-          if (rpc.method === "eth_chainId") result = "0x1";
-          else if (rpc.method === "eth_blockNumber") result = "0x123";
-          else if (rpc.method === "eth_getCode") result = "0x6000";
-          else if (rpc.method === "eth_call")
-            result = call((rpc.params?.[0] as { data: Hex }).data);
-          else
-            return {
-              jsonrpc: "2.0",
-              id: rpc.id,
-              error: { code: -32601, message: "Mock method not supported" },
-            };
-          return { jsonrpc: "2.0", id: rpc.id, result };
-        } catch {
-          return {
-            jsonrpc: "2.0",
-            id: rpc.id,
-            error: { code: -32000, message: "Mock contract read failed" },
-          };
-        }
-      };
-      return route.fulfill({
-        contentType: "application/json",
-        body: JSON.stringify(
-          Array.isArray(body) ? body.map(answer) : answer(body)
-        ),
-      });
-    }
-    return route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: "{}",
-    });
+  test(`${operation} shows a known price while requiring an account`, async ({
+    page,
+  }) => {
+    const chain = await mockChain(page);
+    await page.goto("/");
+    const form = page.locator(section);
+    await form.getByTestId(input).fill("alice");
+    await expect(form.getByTestId("pricing-primary-fee")).toBeVisible();
+    await expect(form.getByTestId("pricing-primary-fee")).not.toHaveText(
+      /^(N\/A|Free)?$/
+    );
+    await expect(form.getByTestId("mint-button")).toHaveText("Connect Wallet");
+    expect(chain.calls).toContain(quoteMethod);
+    expect(chain.calls).toContain("quotePayment");
+    expect(chain.sent).toHaveLength(0);
   });
-  return calls;
+
+  test(`${operation} does not invent a price for an account-dependent policy`, async ({
+    page,
+  }) => {
+    const chain = await mockChain(page, { accountDependent: true });
+    await page.goto("/");
+    const form = page.locator(section);
+    await form.getByTestId(input).fill("alice");
+    await expect(form).toContainText(/connect.*wallet/i);
+    await expect
+      .poll(() => chain.calls.filter(name => name === "featuresOf").length)
+      .toBeGreaterThan(0);
+    await expect(form.getByTestId("pricing-primary-fee")).toHaveText("N/A");
+    await expect(form.getByTestId("mint-button")).toHaveText("Connect Wallet");
+    expect(chain.calls).not.toContain(quoteMethod);
+    expect(chain.calls).not.toContain("quotePayment");
+    expect(chain.sent).toHaveLength(0);
+  });
+
+  test(`${operation} prepares, simulates, sends, and confirms with a mocked wallet`, async ({
+    page,
+  }) => {
+    const chain = await mockChain(page);
+    await page.goto("/");
+    await connectMockWallet(page);
+    const form = page.locator(section);
+    await form.getByTestId(input).fill("alice");
+    await expect(form.getByTestId("mint-button")).toBeEnabled({
+      timeout: 20_000,
+    });
+    await form.getByTestId("mint-button").click();
+    await expect(form.getByTestId(success)).toHaveText("alice.arthy0.eth", {
+      timeout: 20_000,
+    });
+    expect(
+      chain.rpcMethods.filter(method => method === "eth_simulateV1").length
+    ).toBeGreaterThan(1);
+    expect(chain.rpcMethods).toContain("eth_getTransactionReceipt");
+    expect(
+      chain.calls.filter(name => name === quoteMethod).length
+    ).toBeGreaterThan(1);
+    expect(chain.sent).toHaveLength(1);
+    const transaction = decodeFunctionData({ abi, data: chain.sent[0].data });
+    expect(transaction.functionName).toBe(contractMethod);
+    expect(transaction.args?.[0]).toMatchObject({
+      parentLabel: "arthy0",
+      label: "alice",
+    });
+    expect(transaction.args?.[1]).toBe(zeroAddress);
+    expect(BigInt(chain.sent[0].value!)).toBe(1_020_000n);
+    if (transaction.functionName === "register")
+      expect(transaction.args[0].owner.toLowerCase()).toBe(owner);
+  });
+  test(`${operation} refreshes the quote before submission and rejects a price increase`, async ({
+    page,
+  }) => {
+    const state = { priceUsdRaw: 1_000_000_000_000n };
+    const chain = await mockChain(page, state);
+    await page.goto("/");
+    await connectMockWallet(page);
+    const form = page.locator(section);
+    await form.getByTestId(input).fill("alice");
+    await expect(form.getByTestId("mint-button")).toBeEnabled({
+      timeout: 20_000,
+    });
+    state.priceUsdRaw = 2_000_000_000_000n;
+    await form.getByTestId("mint-button").click();
+    await expect(form.getByTestId("form-error")).toContainText(
+      "The price increased."
+    );
+    expect(chain.sent).toHaveLength(0);
+    await expect(form.getByTestId(success)).toHaveCount(0);
+  });
 }
 
-test("the mint form gets availability and prices through the SDK", async ({
+test("registration approves ERC20 before sending the registration", async ({
   page,
 }) => {
-  const calls = await mockChain(page);
+  const chain = await mockChain(page);
   await page.goto("/");
+  await connectMockWallet(page);
   const form = page.locator("#subname-mint");
   await form.getByTestId("subname-input").fill("alice");
-  await expect(form.locator(".ns-name-status")).toContainText(
-    "alice.arthy0.eth is available"
+  await form.getByTestId("token-select").click();
+  await form.getByTestId("token-option-USDC").click();
+  await expect(form.getByTestId("mint-button")).toBeEnabled({
+    timeout: 20_000,
+  });
+  await form.getByTestId("mint-button").click();
+  await expect(form.getByTestId("mint-success-name")).toHaveText(
+    "alice.arthy0.eth",
+    { timeout: 20_000 }
   );
-  await expect(form.getByTestId("pricing-primary-fee")).not.toHaveText(
-    /^(N\/A)?$/
+  const transactions = chain.sent.map(tx =>
+    decodeFunctionData({ abi, data: tx.data })
   );
-  expect(calls).toContain("featuresOf");
-  expect(calls).toContain("quoteMint");
-  expect(calls).toContain("quotePayment");
+  expect(transactions.map(tx => tx.functionName)).toEqual([
+    "approve",
+    "register",
+  ]);
+  expect(transactions[0].args?.[1]).toBe(1_020_000n);
+  expect(chain.sent.every(tx => BigInt(tx.value ?? "0x0") === 0n)).toBe(true);
 });
 
-test("a proof outage is shown as a service error, with retry", async ({
+test("a proof outage remains a service error and can be retried", async ({
   page,
 }) => {
   const state = { reservation: true };
@@ -231,29 +154,62 @@ test("a proof outage is shown as a service error, with retry", async ({
   );
   state.reservation = false;
   await form.getByRole("button", { name: "Try again" }).click();
-  await expect(form.locator(".ns-name-status")).toContainText("is available");
+  await expect(form.locator(".ns-name-status")).toContainText(
+    "Connect a wallet to check eligibility"
+  );
   await expect(form.getByTestId("form-error")).toHaveCount(0);
 });
 
-test("the mint form shows a paused activation reason", async ({ page }) => {
-  await mockChain(page, { active: false });
-  await page.goto("/");
-  const form = page.locator("#subname-mint");
-  await form.getByTestId("subname-input").fill("alice");
-  await expect(form).toContainText(
-    "Subname issuance and renewal are paused for this parent."
-  );
-});
-
-test("the renewal form rejects permanent names through the SDK", async ({
-  page,
-}) => {
-  await mockChain(page, { permanent: true });
-  await page.goto("/");
-  const form = page.locator("#subname-renewal");
-  await form.getByTestId("renew-name-input").fill("alice");
-  await expect(form).toContainText("permanent");
-});
+for (const blocked of [
+  {
+    name: "paused parent",
+    state: { active: false },
+    section: "#subname-mint",
+    input: "subname-input",
+    message: "Subname registration and renewal are paused for this parent.",
+  },
+  {
+    name: "taken registration",
+    state: { status: 2 },
+    section: "#subname-mint",
+    input: "subname-input",
+    message: /already registered|not available|unavailable/i,
+  },
+  {
+    name: "issuer permission",
+    state: { authorized: false },
+    section: "#subname-mint",
+    input: "subname-input",
+    message: "grant the issuer permission",
+  },
+  {
+    name: "permanent renewal",
+    state: { permanent: true },
+    section: "#subname-renewal",
+    input: "renew-name-input",
+    message: "permanent",
+  },
+  {
+    name: "missing renewal",
+    state: { ownerMissing: true },
+    section: "#subname-renewal",
+    input: "renew-name-input",
+    message: "isn't registered or has expired",
+  },
+]) {
+  test(`blocks ${blocked.name} without preparing transactions`, async ({
+    page,
+  }) => {
+    const chain = await mockChain(page, blocked.state);
+    await page.goto("/");
+    await connectMockWallet(page);
+    const form = page.locator(blocked.section);
+    await form.getByTestId(blocked.input).fill("alice");
+    await expect(form).toContainText(blocked.message);
+    await expect(form.getByTestId("mint-button")).toBeDisabled();
+    expect(chain.sent).toHaveLength(0);
+  });
+}
 
 test("payment RPC failures remain visible instead of hiding token prices", async ({
   page,
@@ -269,4 +225,63 @@ test("payment RPC failures remain visible instead of hiding token prices", async
   await expect(form.locator(".ns-name-status")).toContainText(
     "Couldn't check availability"
   );
+});
+
+test("a failed simulation disables registration before any wallet submission", async ({
+  page,
+}) => {
+  const chain = await mockChain(page, { simulationFailed: true });
+  await page.goto("/");
+  await connectMockWallet(page);
+  const form = page.locator("#subname-mint");
+  await form.getByTestId("subname-input").fill("alice");
+  await expect(form).toContainText("A prepared transaction would fail.", {
+    timeout: 20_000,
+  });
+  await expect(form.getByTestId("mint-button")).toBeDisabled();
+  expect(chain.sent).toHaveLength(0);
+});
+
+for (const failure of ["rejectTransaction", "transactionReverted"] as const) {
+  test(`${failure} does not show registration success`, async ({ page }) => {
+    const chain = await mockChain(page, { [failure]: true });
+    await page.goto("/");
+    await connectMockWallet(page);
+    const form = page.locator("#subname-mint");
+    await form.getByTestId("subname-input").fill("alice");
+    await expect(form.getByTestId("mint-button")).toBeEnabled({
+      timeout: 20_000,
+    });
+    await form.getByTestId("mint-button").click();
+    await expect(form.getByTestId("form-error")).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(form.getByTestId("mint-success-name")).toHaveCount(0);
+    expect(chain.sent).toHaveLength(failure === "rejectTransaction" ? 0 : 1);
+  });
+}
+
+test("a token conversion increase after approval requires a refreshed quote", async ({
+  page,
+}) => {
+  const chain = await mockChain(page, { paymentIncreaseAfterApproval: true });
+  await page.goto("/");
+  await connectMockWallet(page);
+  const form = page.locator("#subname-mint");
+  await form.getByTestId("subname-input").fill("alice");
+  await form.getByTestId("token-select").click();
+  await form.getByTestId("token-option-USDC").click();
+  await expect(form.getByTestId("mint-button")).toBeEnabled({
+    timeout: 20_000,
+  });
+  await form.getByTestId("mint-button").click();
+  await expect(form.getByTestId("form-error")).toContainText(
+    /price|payment|refresh/i
+  );
+  expect(
+    chain.sent.map(
+      tx => decodeFunctionData({ abi, data: tx.data }).functionName
+    )
+  ).toEqual(["approve"]);
+  await expect(form.getByTestId("mint-success-name")).toHaveCount(0);
 });

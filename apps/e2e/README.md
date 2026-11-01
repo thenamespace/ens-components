@@ -21,6 +21,18 @@ pnpm e2e               # from the repo root; starts the landing page itself
 ```
 
 The wallet needs Sepolia ETH and Sepolia USDC. A run registers 2 ENSv2 names
-and mints 2 subnames per parent in `E2E_MINT_PARENTS`. On failure, each test's folder in
+and registers 4 subnames per parent in `E2E_MINT_PARENTS`. On failure, each test's folder in
 `test-results/` holds a trace, a video and `wallet-requests.json`: every request the app
 made to the wallet and what it got back.
+
+## Onchain Subnames SDK checks
+
+`pnpm e2e:onchain` runs deterministic Chromium checks with mocked RPC responses
+and a mock wallet. Build the local SDK and components first. These tests cover
+registration and renewal submission, payment approvals, quote states, retries,
+and failure messages without credentials or chain transactions.
+
+To run only the live subname registration and renewal suite, use
+`pnpm --filter e2e test subnames.spec.ts`. It uses the configured Sepolia wallet,
+tests ETH/USDC payments with sequential and atomic submission, and independently
+checks ownership, records, and renewal expiry onchain.

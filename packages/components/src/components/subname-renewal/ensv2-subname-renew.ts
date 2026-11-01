@@ -1,43 +1,30 @@
-import { type Address, type PublicClient } from "viem";
-import type { RenewalQuote } from "@thenamespace/onchain";
+import { type Address, type PublicClient, zeroAddress } from "viem";
 import {
-  getOnchainClient,
-  type EnsV2Deployment,
-  type EnsV2PaymentToken,
-} from "../subname-mint-form/v2/ensv2-mint";
+  createOnchainClient,
+  type OnchainDeployment,
+  type RenewalQuote,
+} from "@thenamespace/onchain-subnames";
 
 export type EnsV2RenewalQuote = RenewalQuote;
 
+/** Retains the existing helper inputs; results use the Onchain Subnames SDK quote model. */
 export const quoteEnsV2Renewal = (
-  client: PublicClient,
-  deployment: EnsV2Deployment,
+  publicClient: PublicClient,
+  deployment: OnchainDeployment,
   params: {
     parentName: string;
     label: string;
     renewer: Address;
     duration: bigint;
   }
-) => getOnchainClient(client, deployment).quoteRenewal(params);
-
-export const prepareEnsV2RenewCalls = async (
-  client: PublicClient,
-  deployment: EnsV2Deployment,
-  params: {
-    parentName: string;
-    label: string;
-    payer: Address;
-    duration: bigint;
-    token: EnsV2PaymentToken;
-    maxPriceUsdRaw: bigint;
-  }
-) => {
-  const prepared = await getOnchainClient(client, deployment).prepareRenewal({
+) =>
+  createOnchainClient({
+    publicClient,
+    chainId: deployment.chainId,
+    managerApiUrl: deployment.managerApiUrl,
+  }).getRenewalQuote({
     parentName: params.parentName,
     label: params.label,
-    renewer: params.payer,
-    duration: params.duration,
-    paymentToken: params.token.address,
-    maxPriceUsdRaw: params.maxPriceUsdRaw,
+    account: params.renewer === zeroAddress ? undefined : params.renewer,
+    durationSeconds: params.duration,
   });
-  return prepared.calls;
-};

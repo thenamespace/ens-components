@@ -1,4 +1,13 @@
-import { OnchainError, toOnchainError } from "@thenamespace/onchain";
+import {
+  createOnchainClient,
+  getOnchainDeployment,
+  toOnchainError,
+  type OnchainDeployment,
+  type RenewalQuote,
+  type TransactionCostEstimate,
+} from "@thenamespace/onchain-subnames";
+import { submitOnchainOperation } from "@/utils/submit-onchain-operation";
+import { getPaymentAmounts } from "@/utils/onchain-payment-quotes";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { type Hash, type PublicClient, zeroAddress } from "viem";
 import { normalize } from "viem/ens";
@@ -11,22 +20,10 @@ import {
 import { Text } from "@/components/atoms";
 import { Alert, PricingDisplay, TokenSelect } from "@/components/molecules";
 import { useEthDollarValue } from "@/hooks";
-import {
-  formatTokenAmount,
-  paidFees,
-  sendCallsWithFallback,
-  usdFromRaw,
-} from "@/utils";
+import { formatTokenAmount, paidFees, usdFromRaw } from "@/utils";
 import { MIN_REGISTRATION_SECONDS, secondsFromYears } from "@/utils/date";
 import { MintFormActions } from "../subname-mint-form/MintFormActions";
 import { TransactionPendingScreen } from "../ens-name-registration/registration/TransactionPendingScreen";
-import {
-  type EnsV2Deployment,
-  type EnsV2MintFees,
-  estimateEnsV2MintFees,
-  getEnsV2Deployment,
-  quoteEnsV2Payment,
-} from "../subname-mint-form/v2/ensv2-mint";
 import {
   ExpiryRows,
   formatExpiry,
@@ -36,11 +33,6 @@ import {
   type RenewalSuccessData,
   RenewSuccess,
 } from "../ens-name-renewal/RenewShared";
-import {
-  type EnsV2RenewalQuote,
-  prepareEnsV2RenewCalls,
-  quoteEnsV2Renewal,
-} from "./ensv2-subname-renew";
 
 export interface SubnameRenewFormProps {
   /** Activated parent, e.g. "alice.eth". */
@@ -63,7 +55,7 @@ const shortAddress = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
 
 export const SubnameRenewForm = (props: SubnameRenewFormProps) => {
   const deployment = useMemo(
-    () => getEnsV2Deployment(Boolean(props.isTestnet)),
+    () => getOnchainDeployment(props.isTestnet ? 11155111 : 1),
     [props.isTestnet]
   );
   return (
@@ -86,12 +78,17 @@ const SubnameRenewFormContent = ({
   onRenewalSuccess,
   onRenewParent,
   deployment,
-}: SubnameRenewFormProps & { deployment: EnsV2Deployment }) => {
+}: SubnameRenewFormProps & { deployment: OnchainDeployment }) => {
   const { chainId } = deployment;
   const { address, chain } = useAccount();
   const { switchChain, isPending: isSwitchingChain } = useSwitchChain();
   const publicClient = usePublicClient({ chainId }) as PublicClient | undefined;
   const { data: walletClient } = useWalletClient({ chainId });
+  const onchainClient = useMemo(
+    () =>
+      publicClient ? createOnchainClient({ publicClient, chainId }) : null,
+    [publicClient, chainId]
+  );
   const { ethUsdRate } = useEthDollarValue();
 
   const [label, setLabel] = useState(initialLabel ?? "");
@@ -107,13 +104,13 @@ const SubnameRenewFormContent = ({
 
   const [quote, setQuote] = useState<{
     isChecking: boolean;
-    data: EnsV2RenewalQuote | null;
+    data: RenewalQuote | null;
     error: string | null;
   }>({ isChecking: false, data: null, error: null });
   const [payments, setPayments] = useState<Record<string, bigint>>({});
   const [fees, setFees] = useState<{
     isChecking: boolean;
-    data: EnsV2MintFees | null;
+    data: TransactionCostEstimate | null;
     error: string | null;
   }>({
     isChecking: false,
@@ -139,12 +136,15 @@ const SubnameRenewFormContent = ({
   const fullName = `${label}.${parentName}`;
   const duration = BigInt(durationSeconds);
   const data = quote.data;
-  const renewable = Boolean(data?.renewable) && !quote.isChecking;
-  const isFree = renewable && data?.priceUsdRaw === 0n;
+  const renewable =
+    data?.status === "ready" &&
+    data.account.toLowerCase() === address?.toLowerCase() &&
+    !quote.isChecking;
+  const isFree = data?.price?.amount === 0n;
   const amount = isFree ? 0n : payments[token.symbol];
 
   useEffect(() => {
-    if (!publicClient || label.length === 0) {
+    if (!onchainClient || label.length === 0) {
       setQuote({ isChecking: false, data: null, error: null });
       return;
     }
@@ -152,47 +152,24 @@ const SubnameRenewFormContent = ({
     setQuote(prev => ({ ...prev, isChecking: true, error: null }));
     const timer = setTimeout(async () => {
       try {
-        const next = await quoteEnsV2Renewal(publicClient, deployment, {
+        const next = await onchainClient.getRenewalQuote({
           parentName,
           label,
-          renewer: address ?? zeroAddress,
-          duration,
+          account: address,
+          durationSeconds: duration,
         });
-        const amounts = await Promise.all(
-          deployment.paymentTokens.map(t =>
-            quoteEnsV2Payment(
-              publicClient,
-              deployment,
-              next.priceUsdRaw,
-              t
-            ).catch(cause => {
-              const error = toOnchainError(cause);
-              if (
-                error.code === "UNSUPPORTED_TOKEN" ||
-                error.details.contractError === "UnsupportedPaymentToken"
-              )
-                return null;
-              throw error;
-            })
-          )
-        );
+        const amounts = await getPaymentAmounts(onchainClient, next.price);
         if (cancelled) return;
-        setPayments(
-          Object.fromEntries(
-            deployment.paymentTokens
-              .map((t, i) => [t.symbol, amounts[i]] as const)
-              .filter(([, value]) => value !== null)
-          ) as Record<string, bigint>
-        );
+        setPayments(amounts);
         setQuote({ isChecking: false, data: next, error: null });
         if (
-          next.renewable &&
-          next.expiry !== null &&
+          next.status !== "blocked" &&
+          next.expiresAtSeconds !== null &&
           durationLabel.current !== label
         ) {
           durationLabel.current = label;
           setDurationSeconds(
-            secondsFromYears(new Date(Number(next.expiry) * 1000), 1)
+            secondsFromYears(new Date(Number(next.expiresAtSeconds) * 1000), 1)
           );
         }
       } catch (e: any) {
@@ -208,14 +185,15 @@ const SubnameRenewFormContent = ({
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [publicClient, deployment, parentName, label, address, durationSeconds]);
+  }, [onchainClient, parentName, label, address, durationSeconds]);
 
   useEffect(() => {
     if (
       !publicClient ||
       !address ||
       !renewable ||
-      !data ||
+      data?.status !== "ready" ||
+      !onchainClient ||
       amount === undefined
     ) {
       setFees({ isChecking: false, data: null, error: null });
@@ -223,17 +201,16 @@ const SubnameRenewFormContent = ({
     }
     let cancelled = false;
     setFees(prev => ({ ...prev, isChecking: true, error: null }));
-    prepareEnsV2RenewCalls(publicClient, deployment, {
-      parentName,
-      label,
-      payer: address,
-      duration,
-      token,
-      maxPriceUsdRaw: data.priceUsdRaw,
-    })
-      .then(calls =>
-        estimateEnsV2MintFees(publicClient, address, calls, { token, amount })
-      )
+    onchainClient
+      .prepareRenewal({
+        parentName,
+        label,
+        account: address,
+        durationSeconds: duration,
+        paymentToken: token.address,
+        maxPriceUsd: data.price,
+      })
+      .then(operation => onchainClient.estimateTransactionCost(operation))
       .then(
         next =>
           !cancelled && setFees({ isChecking: false, data: next, error: null })
@@ -250,7 +227,18 @@ const SubnameRenewFormContent = ({
     return () => {
       cancelled = true;
     };
-  }, [publicClient, address, renewable, data, amount, tokenSymbol]);
+  }, [
+    onchainClient,
+    publicClient,
+    address,
+    renewable,
+    data,
+    amount,
+    tokenSymbol,
+    parentName,
+    label,
+    duration,
+  ]);
 
   const handleLabelChange = (value: string) => {
     const next = value.toLowerCase().trim();
@@ -265,7 +253,14 @@ const SubnameRenewFormContent = ({
   };
 
   const handleRenew = async () => {
-    if (!publicClient || !walletClient || !address || !data || !renewable)
+    if (
+      !onchainClient ||
+      !publicClient ||
+      !walletClient ||
+      !address ||
+      data?.status !== "ready" ||
+      !renewable
+    )
       return;
     setError(null);
     setSending({
@@ -275,58 +270,44 @@ const SubnameRenewFormContent = ({
       completed: false,
     });
     try {
-      const fresh = await quoteEnsV2Renewal(publicClient, deployment, {
-        parentName,
-        label,
-        renewer: address,
-        duration,
-      });
-      if (!fresh.renewable)
-        throw new OnchainError(
-          "RENEWAL_BLOCKED",
-          fresh.reason?.message ?? "This subname can't be renewed.",
-          { details: { reason: fresh.reason } }
-        );
-      const freshAmount = await quoteEnsV2Payment(
+      const { operation, hashes } = await submitOnchainOperation({
+        client: onchainClient,
         publicClient,
-        deployment,
-        fresh.priceUsdRaw,
-        token
-      );
-      const calls = await prepareEnsV2RenewCalls(publicClient, deployment, {
-        parentName,
-        label,
-        payer: address,
-        duration,
-        token,
-        maxPriceUsdRaw: data.priceUsdRaw,
-      });
-      const hashes = await sendCallsWithFallback(
         walletClient,
-        publicClient,
-        calls,
-        chainId,
-        ({ hash, call }) =>
+        prepare: () =>
+          onchainClient.prepareRenewal({
+            parentName,
+            label,
+            account: address,
+            durationSeconds: duration,
+            paymentToken: token.address,
+            maxPriceUsd: data.price,
+          }),
+        onProgress: ({ hash, call }) =>
           setSending({
             isWaitingWallet: false,
             pending: true,
             title: call?.title,
             txHash: hash,
             completed: false,
-          })
-      );
+          }),
+      });
       const txHash = hashes[hashes.length - 1];
       const transactionFees = await paidFees(publicClient, hashes);
       const result: RenewalSuccessData = {
         fullName,
         txHash,
         price:
-          freshAmount === 0n
+          operation.payment.amount === 0n
             ? "0"
-            : formatTokenAmount(freshAmount, token.decimals, token.symbol),
+            : formatTokenAmount(
+                operation.payment.amount,
+                token.decimals,
+                token.symbol
+              ),
         priceCurrency: token.symbol,
         transactionFees,
-        newExpiry: formatExpiry((fresh.expiry ?? 0n) + duration),
+        newExpiry: formatExpiry(operation.quote.newExpiresAtSeconds!),
       };
       setSending({
         isWaitingWallet: false,
@@ -397,44 +378,50 @@ const SubnameRenewFormContent = ({
     if (label.length === 0)
       return { tone: "idle" as const, message: "Enter the subname to renew" };
     if (!data) return { tone: "idle" as const, message: "" };
-    if (!data.renewable)
+    if (data.status === "blocked")
       return { tone: "bad" as const, message: data.reason?.message ?? "" };
     const owner =
-      data.owner.toLowerCase() !== address?.toLowerCase()
+      data.owner && data.owner.toLowerCase() !== address?.toLowerCase()
         ? `, owned by ${shortAddress(data.owner)}`
         : "";
     return {
-      tone: "ok" as const,
-      message: `${fullName} expires on ${formatExpiry(data.expiry!)}${owner}`,
+      tone:
+        data.status === "account_required"
+          ? ("idle" as const)
+          : ("ok" as const),
+      message: `${fullName} expires on ${formatExpiry(data.expiresAtSeconds!)}${owner}${data.status === "account_required" ? ". Connect a wallet to check renewal eligibility." : ""}`,
     };
   })();
 
-  const newExpiry = data?.expiry != null ? data.expiry + duration : null;
+  const newExpiry = data?.newExpiresAtSeconds ?? null;
   const outlivesParent =
-    renewable &&
+    data?.status !== "blocked" &&
     newExpiry !== null &&
     data !== null &&
-    newExpiry > data.parentExpiry;
+    data.parentExpiresAtSeconds !== null &&
+    newExpiry > data.parentExpiresAtSeconds;
   const priceDisplay = isFree
     ? "Free"
     : amount === undefined
       ? "N/A"
       : formatTokenAmount(amount, token.decimals, token.symbol);
-  const feeUnknown = Boolean(fees.error) || fees.data?.feeWei === null;
+  const feeUnknown = Boolean(fees.error) || fees.data?.networkFeeWei == null;
   const feesDisplay = feeUnknown
     ? "N/A"
-    : formatTokenAmount(fees.data?.feeWei ?? 0n, 18, "ETH");
+    : formatTokenAmount(fees.data?.networkFeeWei ?? 0n, 18, "ETH");
   const payingEth = token.address === zeroAddress || isFree;
   const totalDisplay = (() => {
-    if (!payingEth || feeUnknown) return priceDisplay;
+    if (!payingEth) return priceDisplay;
+    if (feeUnknown) return "N/A";
     const sum =
       (isFree || amount === undefined ? 0n : amount) +
-      (fees.data?.feeWei ?? 0n);
+      (fees.data?.networkFeeWei ?? 0n);
     return sum === 0n ? "Free" : formatTokenAmount(sum, 18, "ETH");
   })();
   const insufficient = Boolean(
     fees.data &&
-    (fees.data.shortfallEthWei > 0n || fees.data.shortfallToken > 0n)
+    (fees.data.nativeBalanceShortfallWei > 0n ||
+      fees.data.tokenBalanceShortfall > 0n)
   );
 
   return (
@@ -464,61 +451,66 @@ const SubnameRenewFormContent = ({
         />
       </div>
 
-      {renewable && data && newExpiry !== null && (
-        <>
-          <PricingDisplay
-            currency={isFree ? undefined : token.symbol}
-            paymentTokenPicker={
-              isFree ? undefined : (
-                <TokenSelect
-                  inline
-                  value={token.symbol}
-                  onChange={setTokenSymbol}
-                  options={deployment.paymentTokens
-                    .filter(t => payments[t.symbol] !== undefined)
-                    .map(t => ({
-                      symbol: t.symbol,
-                      amount: formatTokenAmount(
-                        payments[t.symbol],
-                        t.decimals,
-                        t.symbol
-                      ),
-                    }))}
-                />
-              )
-            }
-            primaryFee={{
-              label: "Renewal fee",
-              amount: priceDisplay,
-              isChecking: quote.isChecking,
-            }}
-            networkFees={{ amount: feesDisplay, isChecking: fees.isChecking }}
-            total={{
-              amount: totalDisplay,
-              isChecking: quote.isChecking || (payingEth && fees.isChecking),
-            }}
-            ethUsdRate={ethUsdRate}
-            totalUsd={
-              !isFree && !payingEth ? usdFromRaw(data.priceUsdRaw) : undefined
-            }
-            expiryPicker={{
-              durationSeconds,
-              onDurationChange: setDurationSeconds,
-              minSeconds: MIN_REGISTRATION_SECONDS,
-              startSeconds: Number(data.expiry),
-            }}
-          />
-          <ExpiryRows current={data.expiry!} next={newExpiry} />
-        </>
-      )}
+      {data &&
+        data.status !== "blocked" &&
+        !quote.isChecking &&
+        newExpiry !== null && (
+          <>
+            <PricingDisplay
+              currency={isFree ? undefined : token.symbol}
+              paymentTokenPicker={
+                isFree ? undefined : (
+                  <TokenSelect
+                    inline
+                    value={token.symbol}
+                    onChange={setTokenSymbol}
+                    options={deployment.paymentTokens
+                      .filter(t => payments[t.symbol] !== undefined)
+                      .map(t => ({
+                        symbol: t.symbol,
+                        amount: formatTokenAmount(
+                          payments[t.symbol],
+                          t.decimals,
+                          t.symbol
+                        ),
+                      }))}
+                  />
+                )
+              }
+              primaryFee={{
+                label: "Renewal fee",
+                amount: priceDisplay,
+                isChecking: quote.isChecking,
+              }}
+              networkFees={{ amount: feesDisplay, isChecking: fees.isChecking }}
+              total={{
+                amount: totalDisplay,
+                isChecking: quote.isChecking || (payingEth && fees.isChecking),
+              }}
+              ethUsdRate={ethUsdRate}
+              totalUsd={
+                !isFree && !payingEth && data.price
+                  ? usdFromRaw(data.price.amount)
+                  : undefined
+              }
+              expiryPicker={{
+                durationSeconds,
+                onDurationChange: setDurationSeconds,
+                minSeconds: MIN_REGISTRATION_SECONDS,
+                startSeconds: Number(data.expiresAtSeconds),
+              }}
+            />
+            <ExpiryRows current={data.expiresAtSeconds!} next={newExpiry} />
+          </>
+        )}
 
       {outlivesParent && data && (
         <div className="mt-2">
           <Alert variant="warning" position="vertical">
             <Text size="sm">
-              {parentName} expires on {formatExpiry(data.parentExpiry)}.{" "}
-              {fullName} stops resolving then unless {parentName} is renewed
-              too.
+              {parentName} expires on{" "}
+              {formatExpiry(data.parentExpiresAtSeconds!)}. {fullName} stops
+              resolving then unless {parentName} is renewed too.
             </Text>
             {onRenewParent && (
               <Text size="sm" className="mt-1">

@@ -127,13 +127,14 @@ playground deployments. Report vulnerabilities through the private route in
 
 ### Local onchain SDK integration
 
-The ENSv2 mint and renewal forms consume `@thenamespace/onchain`. While its first
-release is unpublished, the workspace override links to
-`../../Devrel/namespacesdk/packages/onchain`. Build that package before installing
-or building this workspace:
+The ENSv2 registration and renewal forms use `@thenamespace/onchain-subnames`.
+While its first release is unpublished, the workspace override links to
+`../../Devrel/namespacesdk/packages/onchain-subnames`. Build the addresses
+dependency and SDK before installing or building this workspace:
 
 ```sh
-npm --prefix ../../Devrel/namespacesdk run build --workspace @thenamespace/onchain
+npm --prefix ../../Devrel/namespacesdk run build --workspace @thenamespace/addresses
+npm --prefix ../../Devrel/namespacesdk run build --workspace @thenamespace/onchain-subnames
 pnpm install
 pnpm build:components
 ```

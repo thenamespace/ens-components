@@ -77,7 +77,11 @@ export const sendCallsWithFallback = async (
   publicClient: PublicClient,
   calls: WalletCall[],
   chainId: number,
-  onProgress: (progress: SendProgress) => void
+  onProgress: (progress: SendProgress) => void,
+  beforeSequentialCall?: (
+    call: WalletCall,
+    index: number
+  ) => Promise<WalletCall>
 ): Promise<Hash[]> => {
   const atomic =
     calls.length > 1 && (await supportsAtomicBatch(walletClient, chainId));
@@ -103,7 +107,10 @@ export const sendCallsWithFallback = async (
   }
 
   const hashes: Hash[] = [];
-  for (const call of calls) {
+  for (const [index, initialCall] of calls.entries()) {
+    const call = beforeSequentialCall
+      ? await beforeSequentialCall(initialCall, index)
+      : initialCall;
     const hash = await walletClient.sendTransaction({
       to: call.to,
       data: call.data,

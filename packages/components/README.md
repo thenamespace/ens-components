@@ -160,10 +160,23 @@ Also accepts `resolverChainId`, `txConfirmations`, `onGreat`, `noBorder`, and `c
 
 ---
 
-ENSv2 subname minting and renewal use `@thenamespace/onchain` for contract reads,
-proofs, quotes, approvals, and fee simulation. Existing component props are unchanged.
+ENSv2 subname registration and renewal use `@thenamespace/onchain-subnames` for
+contract reads, proofs, quotes, approvals, and fee simulation. Existing component
+props are unchanged.
 Proof-service failures are shown separately from eligibility refusals, and a price
 increase requires a refreshed quote before submission.
+Disconnected quotes can require an account and can have unknown pricing; the forms
+show a connection prompt and `N/A` rather than treating an unknown price as free.
+Each submission is prepared and simulated again. Sequential ERC20 approval is
+followed by another preparation and simulation before registration or renewal.
+
+The exported `quoteEnsV2Mint` and `quoteEnsV2Renewal` helpers retain their input
+arguments, but their result types now follow the Onchain Subnames SDK. Replace
+`canMint`/`renewable` checks with `status === "ready"`; handle `"blocked"` and
+`"account_required"` separately. `priceUsdRaw` becomes nullable `price.amount`
+with `price.decimals`; `expiry` becomes nullable `expiresAtSeconds`. Contract
+claims and activation objects are no longer part of quote results. For new
+headless integrations, use `@thenamespace/onchain-subnames` directly.
 
 ### `SubnameMintForm`
 
