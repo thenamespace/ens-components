@@ -1,3 +1,7 @@
 packages:
   - "packages/*"
   - "apps/*"
+
+# Local integration until @thenamespace/onchain-subnames is published.
+overrides:
+  "@thenamespace/onchain-subnames": "link:../../Devrel/namespacesdk/packages/onchain-subnames"

@@ -6,7 +6,8 @@
   "scripts": {
     "test": "playwright test",
     "test:headed": "playwright test --headed",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:onchain": "playwright test --config playwright.onchain.config.ts"
   },
   "devDependencies": {
     "@ensdomains/content-hash": "3.1.0-rc.1",

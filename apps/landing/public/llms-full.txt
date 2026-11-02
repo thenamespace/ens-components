@@ -684,6 +684,13 @@ useAvatarClient(options: { isTestnet?: boolean; domain?: string })
 useRegisterENS(options: { isTestnet?: boolean })
 ```
 
+Onchain registration and renewal use `@thenamespace/onchain-subnames`.
+The `quoteEnsV2Mint` and `quoteEnsV2Renewal` helper results now use the SDK's
+`ready`, `blocked`, and `account_required` statuses. Pricing is nullable
+`price` with `amount` and `decimals`; renewal expiry is `expiresAtSeconds`.
+Encoded claims and activation objects are internal to the SDK. Component props
+and callbacks are unchanged.
+
 Also exported for custom ENSv2 flows: `getEnsV2Deployment`, `getEnsV2RegistrationDeployment`,
 `getEnsV2RenewalDeployment`, `isEnsV2NameAvailable`, `quoteEnsV2Mint`, `quoteEnsV2Payment`,
 `quoteEnsV2Renewal`, `getEnsV2RenewPrice`, `getEnsV2RenewalTarget`, `detectResolverStyle`,
